@@ -1,0 +1,632 @@
+
+#include <stdlib.h>
+#include <GL/glut.h>
+#include <GLICT/globals.h>
+#include <GLICT/fonts.h>
+#include <math.h>
+#include "texmgmt.h"
+#include "glutwin.h"
+#include "gm_mainmenu.h"
+#include "defines.h"
+#include "simple_effects.h"
+#include "protocol.h"
+#include "database.h"
+GM_MainMenu::GM_MainMenu() {
+
+    glutSwapBuffers();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glutSwapBuffers();
+
+    city = new Obj3ds("outcastcity.3ds");
+    if (!flythrough.load("outcastcity.fly")) printf("Failed to load flythrough file!\n");
+
+
+
+
+	glictGlobals.clippingMode = GLICT_SCISSORTEST;
+
+
+	desktop.AddObject(&mainmenu);
+	mainmenu.SetWidth(200);
+	mainmenu.SetHeight(232);
+
+	mainmenu.AddObject(&btnLogIn);
+	//mainmenu.AddObject(&btnTutorial);
+	mainmenu.AddObject(&btnOptions);
+	//mainmenu.AddObject(&btnToS);
+	mainmenu.AddObject(&btnAbout);
+	mainmenu.AddObject(&btnExit);
+	mainmenu.SetCaption("Main Menu");
+
+
+	btnLogIn.SetBGColor(.6,.6,.6,1.);
+	btnLogIn.SetWidth(120);
+	btnLogIn.SetCaption("Log In");
+	btnLogIn.SetOnClick(GM_MainMenu_LogIn);
+	btnLogIn.SetPos(200/2 - 120/2,  32*1 );
+
+	btnTutorial.SetBGColor(.6,.6,.6,1.);
+	btnTutorial.SetWidth(120);
+	btnTutorial.SetCaption("Tutorial");
+	//btnTutorial.SetOnClick(GM_MainMenu_Tutorial);
+	btnTutorial.SetPos(200/2 - 120/2,  32*2 );
+
+	btnOptions.SetBGColor(.6,.6,.6,1.);
+	btnOptions.SetWidth(120);
+	btnOptions.SetCaption("Options");
+	//btnOptions.SetOnClick(GM_MainMenu_Options);
+	btnOptions.SetPos(200/2 - 120/2,  32*3 );
+
+	btnToS.SetBGColor(.6, .6, .6, 1.);
+	btnToS.SetWidth(120);
+	btnToS.SetCaption("Terms of Service");
+	btnToS.SetOnClick(GM_MainMenu_ToS);
+	btnToS.SetPos(200/2 - 120/2, 232 - 32*3);
+
+	btnAbout.SetBGColor(.6, .6, .6, 1.);
+	btnAbout.SetWidth(120);
+	btnAbout.SetCaption("About");
+	btnAbout.SetOnClick(GM_MainMenu_About);
+	btnAbout.SetPos(200/2 - 120/2, 232 - 32*2);
+
+	btnExit.SetBGColor(.6,.6,.6,1.);
+	btnExit.SetWidth(120);
+	btnExit.SetCaption("Exit");
+	btnExit.SetOnClick(GM_MainMenu_Exit);
+	btnExit.SetPos(200/2 - 120/2, 232 - 32);
+
+
+	desktop.AddObject(&login);
+	login.SetWidth(300);
+	login.SetHeight(180);
+	login.SetCaption("Log in");
+	login.AddObject(&pnlLogin);
+	pnlLogin.SetCaption("Please enter the username, password and \n"
+	                    "server address of the server to connect to.\n"
+	                    "\n"
+	                    "We advise you not to connect to CipSoft's\n"
+	                    "servers using this client, as this is a \n"
+	                    "breach of Tibia Rules.");
+	pnlLogin.SetWidth(300);
+	pnlLogin.SetPos(0,0);
+	pnlLogin.SetHeight(92);
+
+    char tmp[256];
+
+	login.AddObject(&pnlLoginProtocol);
+	pnlLoginProtocol.SetCaption("Protocol:");
+	pnlLoginProtocol.SetPos(0, 5*15);
+	pnlLoginProtocol.SetHeight(14);
+	pnlLoginProtocol.SetWidth(70);
+	login.AddObject(&txtLoginProtocol);
+	txtLoginProtocol.SetPos(100, 5*15);
+	txtLoginProtocol.SetHeight(14);
+	txtLoginProtocol.SetWidth(150);
+	dbLoadSetting("protocol", tmp, 256, "770");
+    txtLoginProtocol.SetCaption(tmp);
+
+	login.AddObject(&pnlLoginServer);
+	pnlLoginServer.SetCaption("Server:");
+	pnlLoginServer.SetPos(0, 6*15);
+	pnlLoginServer.SetHeight(14);
+	pnlLoginServer.SetWidth(70);
+	login.AddObject(&txtLoginServer);
+	txtLoginServer.SetPos(100, 6*15);
+	txtLoginServer.SetHeight(14);
+	txtLoginServer.SetWidth(150);
+    dbLoadSetting("server", tmp, 256, "localhost");
+    txtLoginServer.SetCaption( tmp );
+
+	login.AddObject(&pnlLoginUsername);
+	pnlLoginUsername.SetCaption("Username:");
+	pnlLoginUsername.SetPos(0, 7*15);
+	pnlLoginUsername.SetHeight(14);
+	pnlLoginUsername.SetWidth(70);
+	login.AddObject(&txtLoginUsername);
+	txtLoginUsername.SetPos(100, 7*15);
+	txtLoginUsername.SetHeight(14);
+	txtLoginUsername.SetWidth(150);
+	dbLoadSetting("username", tmp, 256, "111111");
+	txtLoginUsername.SetCaption(tmp);
+
+	login.AddObject(&pnlLoginPassword);
+	pnlLoginPassword.SetCaption("Password:");
+	pnlLoginPassword.SetPos(0, 8*15);
+	pnlLoginPassword.SetHeight(14);
+	pnlLoginPassword.SetWidth(70);
+	login.AddObject(&txtLoginPassword);
+	txtLoginPassword.SetPos(100, 8*15);
+	txtLoginPassword.SetHeight(14);
+	txtLoginPassword.SetWidth(150);
+	txtLoginPassword.SetPassProtectCharacter('*');
+	dbLoadSetting("password", tmp, 256, "tibia");
+	txtLoginPassword.SetCaption(tmp);
+
+	login.AddObject(&btnLoginLogin);
+	btnLoginLogin.SetPos(170, 14 + 9*15);
+	btnLoginLogin.SetWidth(130);
+	btnLoginLogin.SetCaption("Log in");
+	btnLoginLogin.SetBGColor(.6,.6,.6,1.);
+	btnLoginLogin.SetOnClick(&GM_MainMenu_LoginLogin);
+	login.AddObject(&btnLoginCancel);
+	btnLoginCancel.SetPos(0, 14 + 9*15);
+	btnLoginCancel.SetWidth(130);
+	btnLoginCancel.SetCaption("Cancel");
+	btnLoginCancel.SetBGColor(.6,.6,.6,1.);
+	btnLoginCancel.SetOnClick(&GM_MainMenu_LoginCancel);
+
+	login.SetVisible(false);
+
+
+	charlist.SetCaption("Logging in...");
+	charlist.SetHeight(28);
+	charlist.SetWidth(400);
+	charlist.SetBGColor(.3,.3,.3,1.);
+	charlist.SetVisible(false);
+
+    desktop.AddObject(&characterlist);
+    characterlist.SetCaption("Choose a character");
+    characterlist.SetVisible(false);
+
+	about.SetCaption("About");
+	//about.SetBGColor(.5,.5,.5,1.);
+	about.SetOnDismiss(&GM_MainMenu_AboutOnDismiss);
+	char abouttext[8192];
+	char extensions[7000];
+	strcpy(extensions, (char*)glGetString(GL_EXTENSIONS));
+	int lenext = strlen(extensions);
+	int linelen = 0;
+	char outext[7000];
+	strcpy(outext,"");
+	char outextension[7000];
+	for (int i = 0 ; i < lenext ; ) {
+		char extension[100];
+
+		int j;
+		for (j = i; j < lenext && extensions[j]!=' ' ; ++j);
+
+		extensions[j] = 0;
+		strcpy(extension, extensions+i);
+
+		linelen += (int)glictFontSize(extension, "system") + (int)glictFontSize(", ", "system");
+		if (linelen < 500) {
+			if (i==0) {
+				sprintf(outextension, "%s", extension);
+			} else {
+				sprintf(outextension, "%s, %s", outext, extension);
+//				linelen += glictFontSize(",  ", "system");
+			}
+		}
+		else {
+			sprintf(outextension, "%s\n%s", outext, extension);
+			linelen = (int)glictFontSize(extension, "system");
+		}
+		strcpy(outext, outextension);
+
+		i = j+1;
+	}
+	sprintf(abouttext, "%s\n\nCopyright (c) 2006 OBJECT Networks.\nAll rights reserved.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
+	about.SetMessage(abouttext);
+//    about.SetMessage("oi");
+	about.SetHeight(390);
+	about.SetWidth(500);
+
+	tos.SetCaption("Terms of Service");
+	//about.SetBGColor(.5,.5,.5,1.);
+	tos.SetOnDismiss(&GM_MainMenu_ToSOnDismiss);
+	char tostext[] = "Terms of usage of the client software is stated in the License Agreement. On \nthe other hand, rights of use of the service are stated here, and by using\nthe service, you also agree to these Terms of Service (\"ToS\" and \"Terms\").\n\nThese Terms are stated here:\n\n"
+		"1. OBJECT Networks (\"we\") reserve the right to change this ToS at any time.\n"
+		"We shall notify you of each ToS appropriately, upon next login since the\n"
+		"change of the ToS.";
+	tos.SetMessage(tostext);
+	tos.SetHeight(390);
+	tos.SetWidth(500);
+
+
+
+	logo = new Texture("logo.bmp");
+	bg = new Texture("bg.bmp");
+
+	sine_flag_angle = 0.;
+	bg_move_angle = 0.;
+	fadein = 1.;
+	fadeout = 0.;
+
+	aboutIsOpen = false;
+	tosIsOpen = false;
+
+
+	glDisable(GL_DEPTH_TEST);
+}
+
+GM_MainMenu::~GM_MainMenu() {
+	delete logo;
+	delete bg;
+	delete city;
+}
+
+void GM_MainMenu::Render() {
+	//glClear(GL_STENCIL_BUFFER_BIT); <-- already done in glict
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+//system("pause");
+    if (false) {
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluOrtho2D(0.,640.,0.,480.);
+        glRotatef(180.0, 1.0, 0.0, 0.0);
+        glTranslatef(0,-480.,0.0);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        glEnable(GL_TEXTURE_2D);
+        bg->Bind();
+        glPushMatrix();
+        glTranslatef( sin( bg_move_angle * PI / 180. )*5., 0, 0);
+        StillEffect(-20, 0, 660., 480., 10, 10);
+        glPopMatrix();
+
+
+        logo->Bind();
+        StillEffect(200, 0, 425, 100, 40, 10);
+
+    } else {
+//system("pause");
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_NORMALIZE);
+        GLfloat lightpos[] = { 1., 1., 1., 0. }; // 0 = directional light, 1 = positional light
+
+        if (!flythrough.loaded) {
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(0.,640.,0.,480.,-400.,400.);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+
+            glTranslatef(300., 200., 0.);
+            glRotatef(90., -1., 0., 0.);
+            glScalef(5.,5.,5.);
+
+        } else {
+
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+        }
+
+
+//system("pause");
+
+        glEnable(GL_DEPTH_TEST);
+
+        if (!flythrough.loaded) {
+            glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+            city->Render();
+
+        } else {
+
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+
+            glPushMatrix();
+            flythrough.set_cam_pos(fps);
+            glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+            city->Render();
+            glPopMatrix();
+
+        }
+
+
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_LIGHTING);
+
+
+
+    }
+
+    glEnable(GL_TEXTURE_2D);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0.,640.,0.,480.);
+    glRotatef(180.0, 1.0, 0.0, 0.0);
+    glTranslatef(0,-480.,0.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    logo->Bind();
+    StillEffect(200, 0, 425, 100, 40, 10);
+
+
+
+	glDisable(GL_TEXTURE_2D);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0,winw,0,winh);
+	glRotatef(180.0, 1.0, 0.0, 0.0);
+	glTranslatef(0,-winh,0.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glPushMatrix();
+	glEnable(GL_SCISSOR_TEST);
+	//glTranslatef(winw/2, winh/2,0);
+	//glRotatef( sin( bg_move_angle * PI / 180. )*2., 0., 0, 1);
+	//glTranslatef(-winw/2, -winh/2,0);
+	//desktop.RememberTransformations();
+	desktop.Paint();
+	glDisable(GL_SCISSOR_TEST);
+	glPopMatrix();
+
+
+	RenderMouseCursor();
+
+	if (fadein || fadeout) {
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_BLEND);
+		glBegin(GL_QUADS);
+		if (fadein)
+			glColor4f(0,0,0, fadein);
+		else
+			glColor4f(0,0,0,1. - fadeout);
+		glVertex2f(0, 0);
+		glVertex2f(0, winh);
+		glVertex2f(winw, winh);
+		glVertex2f(winw, 0);
+		glColor4f(1.,1.,1.,1.);
+		glEnd();
+		glDisable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+	}
+
+
+
+	if (fps && mayanimate) sine_flag_angle += 180. / fps;
+	if (sine_flag_angle > 360.) sine_flag_angle -= 360.;
+
+	if (fps && mayanimate) bg_move_angle += 45. / fps;
+	if (bg_move_angle > 360.) bg_move_angle -= 360.;
+
+	if (fps && mayanimate && fadein > 0.) fadein -= 2. / fps;//.5 / fps;
+	if (fadein < 0) fadein = 0.;
+
+	if (fps && mayanimate && fadeout > 0.) fadeout -= 2. / fps;//.5 / fps;
+	if (fadeout < 0) {
+
+	    fadeout = 0.;
+//	    GameModeEnter(GM_LOADING);
+        OnFadeout();
+	}
+
+}
+
+void GM_MainMenu::ResizeWindow() {
+	desktop.SetHeight(winh);
+	desktop.SetWidth(winw);
+
+	glictSize s;
+
+	mainmenu.SetPos(winw / 2 - 200 / 2, winh / 2 - 200 / 2);
+	about.SetPos(winw / 2 - 500 / 2, winh / 2 - 350 / 2);
+
+
+	login.GetSize(&s);
+	login.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
+
+	charlist.GetSize(&s);
+	charlist.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
+
+	characterlist.GetSize(&s);
+	characterlist.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
+
+	tos.GetSize(&s);
+	tos.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
+
+	glutPostRedisplay();
+}
+
+void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
+	glictPos pos;
+	pos.x = mousex;
+	pos.y = mousey;
+	desktop.TransformScreenCoords(&pos);
+	if (shift==GLUT_DOWN) desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
+	if (shift==GLUT_UP) desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
+}
+
+void GM_MainMenu::KeyPress (unsigned char key, int x, int y) {
+	desktop.CastEvent(GLICT_KEYPRESS, &key, 0);
+	glutPostRedisplay();
+}
+
+void GM_MainMenu::MsgBox (const char* mbox, const char* title) {
+	glictSize s;
+	glictMessageBox *mb;
+	desktop.AddObject(mb = new glictMessageBox);
+
+	mb->GetSize(&s);
+
+	mb->SetCaption(title);
+	mb->SetMessage(mbox);
+
+	mb->SetPos(winw / 2 - s.w / 2, winh / 2 - s.h / 2);
+
+	mb->SetOnDismiss(GM_MainMenu_MBOnDismiss);
+
+}
+
+void GM_MainMenu::CreateCharlist() {
+    characterlist.SetHeight(18 * (protocol->charlistcount+1) + 6 + 2);
+    characterlist.SetWidth(300);
+    characterlist.SetBGColor(.85,.85,.85,1.);
+    for (int i = 0 ; i < protocol->charlistcount  ; i++) {
+        characterlist.AddObject(protocol->charlist[i].button = new glictButton);
+        char tmp[256];
+        sprintf(tmp, "%s (%s)", protocol->charlist[i].charactername, protocol->charlist[i].worldname);
+        protocol->charlist[i].button->SetCaption(tmp);
+        protocol->charlist[i].button->SetWidth(296);
+        protocol->charlist[i].button->SetHeight(16);
+        protocol->charlist[i].button->SetBGColor(.6,.6,.6,1.);
+        protocol->charlist[i].button->SetPos(2, i*18 + 2);
+        protocol->charlist[i].button->SetOnClick(GM_MainMenu_CharList_Character);
+    }
+    characterlist.AddObject(&btnCharlistCancel);
+    btnCharlistCancel.SetPos(1, protocol->charlistcount * 18 + 6);
+    btnCharlistCancel.SetWidth(298);
+    btnCharlistCancel.SetHeight(16);
+    btnCharlistCancel.SetBGColor(.8,.6,.6,1.);
+    btnCharlistCancel.SetCaption("Cancel");
+    btnCharlistCancel.SetOnClick(GM_MainMenu_CharList_Cancel);
+
+    characterlist.SetVisible(true);
+    characterlist.Focus(NULL);
+
+    glictSize s;
+	characterlist.GetSize(&s);
+	characterlist.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
+}
+void GM_MainMenu::DestroyCharlist() {
+    for (int i = 0 ; i < protocol->charlistcount  ; i++) {
+        characterlist.RemoveObject(protocol->charlist[i].button);
+        delete protocol->charlist[i].button;
+    }
+    characterlist.RemoveObject(&btnCharlistCancel);
+
+}
+
+void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller) {
+
+	// when we want to do fadeout:
+	//((GM_MainMenu*)game)->fadeout = 1.;
+	//((GM_MainMenu*)game)->mainmenu.SetEnabled(0);
+
+	((GM_MainMenu*)game)->login.SetVisible(true);
+	((GM_MainMenu*)game)->login.Focus(NULL);
+
+}
+
+void GM_MainMenu_ToS(glictPos* pos, glictContainer* caller) {
+	if (!((GM_MainMenu*)game)->tosIsOpen) {
+		((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->tos);
+		((GM_MainMenu*)game)->tosIsOpen = true;
+	}
+}
+
+void GM_MainMenu_About(glictPos* pos, glictContainer* caller) {
+	if (!((GM_MainMenu*)game)->aboutIsOpen) {
+		((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->about);
+		((GM_MainMenu*)game)->aboutIsOpen = true;
+
+	}
+}
+
+void GM_MainMenu_Exit(glictPos* pos, glictContainer* caller) {
+	((GM_MainMenu*)game)->OnFadeout = GM_MainMenu_ExitDo;
+	((GM_MainMenu*)game)->fadeout = 1.;
+}
+void GM_MainMenu_ExitDo() {
+	exit(0);
+}
+
+void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
+	//((GM_MainMenu*)game)->MsgBox("Logging in soon!", "So long, sire");
+
+	if (((GM_MainMenu*)game)->txtLoginProtocol.GetCaption()=="" ||  ((GM_MainMenu*)game)->txtLoginServer.GetCaption()=="" || ((GM_MainMenu*)game)->txtLoginPassword.GetCaption()=="" || ((GM_MainMenu*)game)->txtLoginUsername.GetCaption()=="") {
+		((GM_MainMenu*)game)->MsgBox("Please fill out all the fields.\n\nOr press Cancel if you don't want\nto log in.", "No more secrets");
+		return;
+	}
+
+    if (!ProtocolSetVersion(atoi(((GM_MainMenu*)game)->txtLoginProtocol.GetCaption().c_str()))) {
+        ((GM_MainMenu*)game)->MsgBox("This protocol version is not supported.", "Sorry");
+        return;
+    }
+
+    ((GM_MainMenu*)game)->ResizeWindow();
+	((GM_MainMenu*)game)->login.SetVisible(false);
+	((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->charlist);
+	((GM_MainMenu*)game)->charlist.SetEnabled(false);
+	((GM_MainMenu*)game)->charlist.SetVisible(true);
+	((GM_MainMenu*)game)->charlist.Focus(NULL);
+	((GM_MainMenu*)game)->mainmenu.SetEnabled(false);
+
+    ((GM_MainMenu*)game)->charlist.SetCaption("Please wait...");
+	((GM_MainMenu*)game)->charlist.SetMessage("Initializing...");
+	((GM_MainMenu*)game)->thrCharList = ONNewThread(Thread_CharList, game); //CreateThread(NULL, 0, Thread_CharList, ((GM_MainMenu*)game), 0, &((GM_MainMenu*)game)->thrCharListId);
+	//((GM_MainMenu*)game)->MsgBox("Loading","oi");
+
+}
+
+void GM_MainMenu_LoginCancel(glictPos* pos, glictContainer* caller) {
+	((GM_MainMenu*)game)->login.SetVisible(false);
+	((GM_MainMenu*)game)->mainmenu.Focus(NULL);
+}
+
+void GM_MainMenu_CharList_LogonOK(glictPos* pos, glictContainer* caller) {
+    ((GM_MainMenu*)game)->CreateCharlist();
+
+    ((GM_MainMenu*)game)->login.SetEnabled(true);
+    ((GM_MainMenu*)game)->login.SetVisible(false);
+    ((GM_MainMenu*)game)->charlist.SetHeight(28);
+    ((GM_MainMenu*)game)->charlist.SetVisible(false);
+}
+
+void GM_MainMenu_CharList_LogonError(glictPos* pos, glictContainer* caller) {
+    ((GM_MainMenu*)game)->login.SetEnabled(true);
+    ((GM_MainMenu*)game)->login.SetVisible(false);
+    ((GM_MainMenu*)game)->charlist.SetHeight(28);
+    ((GM_MainMenu*)game)->charlist.SetVisible(false);
+
+    ((GM_MainMenu*)game)->mainmenu.SetEnabled(true);
+}
+
+void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller) {
+    for (int i = 0 ; i < protocol->charlistcount ; i++) {
+        if (caller == protocol->charlist[i].button) {
+            //((GM_MainMenu*)game)->MsgBox(protocol->charlist[i].charactername, protocol->charlist[i].worldname);
+            char tmp [1024];
+            sprintf(tmp, "%s:\n%d.%d.%d.%d\n%d\n\nNothing else is done, move along now... :)", protocol->charlist[i].worldname,
+                                            ((unsigned char*)&protocol->charlist[i].ipaddress)[0],
+                                            ((unsigned char*)&protocol->charlist[i].ipaddress)[1],
+                                            ((unsigned char*)&protocol->charlist[i].ipaddress)[2],
+                                            ((unsigned char*)&protocol->charlist[i].ipaddress)[3],
+                                            protocol->charlist[i].port);
+            ((GM_MainMenu*)game)->MsgBox(tmp, protocol->charlist[i].charactername);
+        }
+    }
+}
+
+void GM_MainMenu_CharList_Cancel(glictPos* pos, glictContainer* caller) {
+    ((GM_MainMenu*)game)->DestroyCharlist();
+
+    ((GM_MainMenu*)game)->characterlist.SetVisible(false);
+
+    ((GM_MainMenu*)game)->mainmenu.SetEnabled(true);
+}
+
+void GM_MainMenu_AboutOnDismiss(glictPos* pos, glictContainer* caller) {
+	((GM_MainMenu*)game)->aboutIsOpen = false;
+}
+
+void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller) {
+	((GM_MainMenu*)game)->tosIsOpen = false;
+}
+void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller) {
+	((GM_MainMenu*)game)->desktop.RemoveObject(caller);
+	delete caller;
+}
+
