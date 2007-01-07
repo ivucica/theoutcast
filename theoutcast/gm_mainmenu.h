@@ -30,6 +30,8 @@ class GM_MainMenu : public GameMode {
 
         void CreateCharlist();
         void DestroyCharlist();
+
+        void GoToGameworld();
 	private:
 		glictContainer desktop;
 		glictWindow mainmenu;
@@ -54,8 +56,9 @@ class GM_MainMenu : public GameMode {
 		double sine_flag_angle, bg_move_angle, fadein, fadeout;
 		bool aboutIsOpen, tosIsOpen;
 
+
 		// threads
-        ONThreadId thrCharList;
+        ONThreadId thrCharList, thrGWLogon;
 
         // callbacks
         void (*OnFadeout)();
@@ -75,6 +78,8 @@ class GM_MainMenu : public GameMode {
 	friend void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller);
 	friend void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentType menuclass_void);
+	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
+	friend void ItemsLoad();
 };
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_ToS(glictPos* pos, glictContainer* caller);
@@ -92,6 +97,7 @@ void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller);
 
 void GM_MainMenu_ExitDo();
+void GM_MainMenu_GoToGameworldDo();
 
 
 #endif

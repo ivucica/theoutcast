@@ -31,8 +31,9 @@ bool Protocol76::CharlistLogin(const char *username, const char *password) {
 
 
     // account number and password
-    nm.AddU32(atol(username));
-    nm.AddString(password);
+    nm.AddU32(atol((this->username = username).c_str()));
+    nm.AddString(this->password = password);
+
 
     nm.Dump(s);
 

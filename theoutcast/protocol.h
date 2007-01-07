@@ -21,15 +21,17 @@ class Protocol {
         void SetSocket(SOCKET socket);
         std::string GetMotd() {return motd;}
         std::string GetError() {return errormsg;}
-
+        void SetCharacter(int i) {}
 
         bool CipSoft();
 
         virtual bool ParsePacket (NetworkMessage *nm);
         virtual bool ParseCharlist (NetworkMessage *nm, unsigned char packetid);
+        virtual bool ParseGameworld(NetworkMessage *nm, unsigned char packetid);
         virtual bool CharlistLogin(const char *username, const char *password);
+        virtual bool GameworldLogin();
 
-
+        unsigned short GetProtocolVersion () { return protocolversion; }
     protected:
         SOCKET s;
         unsigned short protocolversion;
@@ -37,10 +39,13 @@ class Protocol {
         unsigned long key[4];
         connectiontype_t connectiontype;
         std::string motd, errormsg;
-        unsigned char charlistcount;
+        unsigned char charlistcount, charlistselected;
         character_t *charlist;
         unsigned int premiumdays;
         bool logonsuccessful;
+        std::string username, password;
+
+
 
 
     friend void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller);

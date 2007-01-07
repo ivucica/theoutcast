@@ -8,6 +8,12 @@ Protocol::Protocol() {
     protocolversion = 0;
     connectiontype = NONE;
     motd = "";
+    errormsg = "";
+    username = "";
+    password = "";
+    charlistselected = 0;
+    charlistcount = 0;
+
 }
 Protocol::~Protocol() {
 }
@@ -22,18 +28,28 @@ void Protocol::SetSocket(SOCKET socket) {
 }
 
 bool Protocol::CharlistLogin(const char *username, const char *password) {
+    this->errormsg = "Protocol does not support this functionality.";
 	return false;
+}
+bool Protocol::GameworldLogin() {
+    this->errormsg = "Protocol does not support this functionality.";
+
+    return false;
 }
 
 bool Protocol::ParsePacket(NetworkMessage *nm) {
     unsigned char packetid = nm->GetU8();
+    printf("parsing packet\n");
     printf("Protocol %d: packet %02x\n", protocolversion, packetid);
     switch (connectiontype) {
         case CHARLIST:
             return ParseCharlist(nm, packetid);
-            break;
+        case GAMEWORLD:
+            return ParseGameworld(nm, packetid);
         default:
             printf("Protocol %d: unknown connection type, cannot parse any packets\n", protocolversion);
+            errormsg = "Unknown connection type, cannot parse any packets.\n\nIf this is a fully supported protocol, please report this bug!";
+            logonsuccessful = false;
             return false;
     }
     printf("Protocol %d: %d bytes remaining in message\n", protocolversion, nm->GetSize());
@@ -60,7 +76,7 @@ bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
                                  "this client or its newer version, you will\n"
                                  "need to use Tibia to connect to this server.\n"
                                  "We, however, do not condone this activity!";
-                logonsuccessful = true;
+                logonsuccessful = false;
                 return true;
 
             case 0x64: {
@@ -77,11 +93,25 @@ bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
 
                 return true;
             }
-            default:
-                printf("Protocol %d: unfamiliar packet %02x\n", protocolversion, packetid);
+            default: {
+                char tmp[256];
+                printf("Protocol %d: unfamiliar charlist packet %02x\n", protocolversion, packetid);
+                sprintf(tmp, "Protocol %d: Unfamiliar charlist packet %02x\n\nIf this is a fully supported protocol, please report this bug!", protocolversion, packetid);
+                this->errormsg = tmp;
+
+                logonsuccessful = false;
                 return false;
+            }
         }
 
+}
+
+bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
+    printf("Protocol %d: ParseGameworld() not implemented\n", protocolversion);
+    errormsg = "ParseGameworld() not implemented.\n\nIf this is a fully supported protocol, please report this bug!";
+    logonsuccessful = false;
+
+    return false;
 }
 
 bool Protocol::CipSoft() {

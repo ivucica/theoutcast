@@ -2,6 +2,7 @@
 #include "gamemode.h"
 #include "gm_mainmenu.h"
 #include "gm_logo.h"
+#include "gm_gameworld.h"
 #include "glutwin.h"
 GameMode* game=NULL;
 
@@ -34,8 +35,12 @@ void GameModeEnter(gamemode_t gamemode) {
 		case GM_MAINMENU:
 			game = new GM_MainMenu;
 			break;
+        case GM_GAMEWORLD:
+            game = new GM_Gameworld;
+            break;
         default:
             printf("Invalid gamemode.\n");
+            MessageBox(0, "Invalid gamemode\n", 0, 0);
             exit(1);
 	}
 	game->ResizeWindow();

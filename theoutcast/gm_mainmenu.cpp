@@ -11,6 +11,7 @@
 #include "simple_effects.h"
 #include "protocol.h"
 #include "database.h"
+#include "gwlogon.h"
 GM_MainMenu::GM_MainMenu() {
 
     glutSwapBuffers();
@@ -235,7 +236,6 @@ GM_MainMenu::GM_MainMenu() {
 	aboutIsOpen = false;
 	tosIsOpen = false;
 
-
 	glDisable(GL_DEPTH_TEST);
 }
 
@@ -409,7 +409,7 @@ void GM_MainMenu::Render() {
 	if (fadeout < 0) {
 
 	    fadeout = 0.;
-//	    GameModeEnter(GM_LOADING);
+	    //GameModeEnter(GM_LOADING);
         OnFadeout();
 	}
 
@@ -507,6 +507,17 @@ void GM_MainMenu::DestroyCharlist() {
     }
     characterlist.RemoveObject(&btnCharlistCancel);
 
+
+}
+
+void GM_MainMenu::GoToGameworld() {
+    ((GM_MainMenu*)game)->OnFadeout = GM_MainMenu_GoToGameworldDo;
+    ((GM_MainMenu*)game)->fadeout = 1.;
+
+}
+void GM_MainMenu_GoToGameworldDo() {
+
+	GameModeEnter(GM_GAMEWORLD);
 }
 
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller) {
@@ -542,7 +553,6 @@ void GM_MainMenu_Exit(glictPos* pos, glictContainer* caller) {
 void GM_MainMenu_ExitDo() {
 	exit(0);
 }
-
 void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
 	//((GM_MainMenu*)game)->MsgBox("Logging in soon!", "So long, sire");
 
@@ -598,14 +608,23 @@ void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller) {
     for (int i = 0 ; i < protocol->charlistcount ; i++) {
         if (caller == protocol->charlist[i].button) {
             //((GM_MainMenu*)game)->MsgBox(protocol->charlist[i].charactername, protocol->charlist[i].worldname);
-            char tmp [1024];
+            /*char tmp [1024];
             sprintf(tmp, "%s:\n%d.%d.%d.%d\n%d\n\nNothing else is done, move along now... :)", protocol->charlist[i].worldname,
                                             ((unsigned char*)&protocol->charlist[i].ipaddress)[0],
                                             ((unsigned char*)&protocol->charlist[i].ipaddress)[1],
                                             ((unsigned char*)&protocol->charlist[i].ipaddress)[2],
                                             ((unsigned char*)&protocol->charlist[i].ipaddress)[3],
                                             protocol->charlist[i].port);
-            ((GM_MainMenu*)game)->MsgBox(tmp, protocol->charlist[i].charactername);
+            ((GM_MainMenu*)game)->MsgBox(tmp, protocol->charlist[i].charactername);*/
+            protocol->SetCharacter(i);
+            ((GM_MainMenu*)game)->characterlist.SetVisible(false);
+            ((GM_MainMenu*)game)->charlist.SetVisible(true);
+            ((GM_MainMenu*)game)->charlist.SetCaption("Entering game...");
+            ((GM_MainMenu*)game)->charlist.SetMessage("Initializing...");
+            ((GM_MainMenu*)game)->charlist.SetEnabled(false);
+            ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->charlist);
+            ((GM_MainMenu*)game)->thrGWLogon = ONNewThread(Thread_GWLogon, game);
+            return;
         }
     }
 }
@@ -629,4 +648,3 @@ void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller) {
 	((GM_MainMenu*)game)->desktop.RemoveObject(caller);
 	delete caller;
 }
-

@@ -10,6 +10,8 @@ class Protocol77 : public Protocol {
 
 
         bool CharlistLogin(const char *username, const char *password);
+        bool GameworldLogin();
+        bool ParseGameworld(NetworkMessage *nm, unsigned char packetid);
 
 };
 

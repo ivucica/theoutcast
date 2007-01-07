@@ -4,7 +4,7 @@
 #include <sqlite3.h>
 
 void DBInit();
-bool dbTableExists(const char *tablename);
+bool dbTableExists(sqlite3 *db, const char *tablename);
 int dbExecPrintf(
   sqlite3*,                     /* An open database */
   const char *sql,              /* SQL to be executed */
@@ -15,6 +15,6 @@ int dbExecPrintf(
 #define dbExec sqlite3_exec
 bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const char *defaultval);
 void dbSaveSetting(const char* settingname, const char* value);
-
+const char* dbProcessRC(int rc);
 extern sqlite3 *dbData, *dbUser;
 #endif

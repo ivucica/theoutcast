@@ -18,6 +18,7 @@ class NetworkMessage : public Buffer {
 
 		void Dump(SOCKET s);
 		void AddString(const char* str);
+		void AddString(std::string str);
 		void AddChar(char chr);
 		void AddU8(unsigned char chr);
 		void AddU16(unsigned short num);

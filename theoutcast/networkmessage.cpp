@@ -35,6 +35,9 @@ void NetworkMessage::AddString(const char *str) {
 	this->Add((char*)&len, 2);
 	this->Add(str, len);
 }
+void NetworkMessage::AddString(std::string str) {
+	this->AddString(str.c_str());
+}
 
 void NetworkMessage::AddChar(char u) {
 	this->Add(&u, 1);
@@ -240,6 +243,6 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 
 	size = *((unsigned short*)buffer);
 //	_assert(size < 5000);
-	memcpy(buffer, buffer+2, size);
+	Trim(2);
 #endif
 }
