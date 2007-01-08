@@ -367,12 +367,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 		48
-* Code only lines: 		2461 - 67%
-* Code + comment lines: 	116 - 3%
-* Comment lines:		346 - 9%
-* Empty lines:			757 - 21%
-* Total lines:			3680
+* Number of files: 62
+
+* Code only: 63% 
+* Code + Comment: 10%
+* Comments: 9%
+* Empty: 18%
+
+* Code only: 3377
+* Empty lines: 994
+* Comment lines: 482
+* Code and comments: 538
+* Total: 5391
 
 ---
 
