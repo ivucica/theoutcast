@@ -7,13 +7,14 @@
 #include "defines.h"
 #include "items.h"
 #include "assert.h"
+#include "console.h"
 Protocol77::Protocol77 () {
     protocolversion = 770;
     fingerprints[FINGERPRINT_TIBIADAT] = 0x439D5A33;
     fingerprints[FINGERPRINT_TIBIASPR] = 0x439852BE;
     fingerprints[FINGERPRINT_TIBIAPIC] = 0x4450C8D8;
 
-    maxx = 0; maxy = 0; maxz = 0;
+    maxx = 18; maxy = 14; maxz = 14;
 }
 
 Protocol77::~Protocol77() {
@@ -57,7 +58,7 @@ bool Protocol77::CharlistLogin(const char *username, const char *password) {
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
-    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
     return logonsuccessful;
 }
 
@@ -136,9 +137,74 @@ bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 //logonsuccessful = false;
 
                 //return false;
-                ParseMapDescription(nm, 18, 14, x - 8, y - 6, z);
+                ParseMapDescription(nm, maxx, maxy, x - (maxx-1)/2, y - (maxy-1)/2, z);
                 return true;
             }
+        case 0x78: // Inventory Item
+        case 0x79: // Inventory Empty
+            nm->GetU8(); // item slot
+            if (packetid == 0x78) {
+                ParseObjectDescription(nm, NULL);
+            }
+            return true;
+        case 0x82: // World Light
+            nm->GetU8(); // Light Level
+            nm->GetU8(); // Light Color
+            return true;
+        case 0x83: // Magic Effect
+            nm->GetU16(); // position
+            nm->GetU16();
+            nm->GetU8();
+
+            nm->GetU8(); // mageffect type
+            return true;
+        case 0x8D: // Creature Light
+            nm->GetU32();//creature id
+            nm->GetU8(); //lightradius
+            nm->GetU8(); //lightcolor
+            return true;
+        case 0xA0: // Player Stats
+        // 7.6 version
+        // for more check out old outcast :/
+
+            nm->GetU16(); // hp
+            nm->GetU16(); // max hp
+            nm->GetU16(); // cap
+            nm->GetU32(); // exp
+            nm->GetU16(); // lvl
+            nm->GetU8(); // level percent
+            nm->GetU16(); // mp
+            nm->GetU16(); // mmp
+            nm->GetU8(); // mag lvl
+            nm->GetU8(); // maglvl percent
+            nm->GetU8(); // soul
+
+            break;
+        case 0xA1: // Player Skills
+            // Make a new function "getskill" which will fetch both level and percent
+
+            nm->GetU8(); // Fist Level
+            nm->GetU8(); // Fist Percent
+            nm->GetU8(); // Club Level
+            nm->GetU8(); // Club Percent
+            nm->GetU8(); // Sword Level
+            nm->GetU8(); // Sword Percent
+            nm->GetU8(); // Axe Level
+            nm->GetU8(); // Axe Percent
+            nm->GetU8(); // Distance Level
+            nm->GetU8(); // Distance Percent
+            nm->GetU8(); // Shield Level
+            nm->GetU8(); // Shield Percent
+            nm->GetU8(); // Fish Level
+            nm->GetU8(); // Fish Percent
+
+
+            return true;
+        case 0xB4: // Text Message
+            nm->GetU8(); // msg class
+            console.insert( nm->GetString() ); // message itself
+
+            return true;
         default: {
             char tmp[256];
             printf("Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);

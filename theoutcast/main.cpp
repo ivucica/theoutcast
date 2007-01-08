@@ -1,5 +1,3 @@
-#define DEBUGCONSOLE
-
 #include <windows.h>
 #include <stdlib.h>
 #include <GL/glut.h>

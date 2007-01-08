@@ -2,6 +2,7 @@
 #include <time.h>
 #include "protocol.h"
 #include "items.h"
+#include "debugprint.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -67,7 +68,6 @@ bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
                 this->errormsg = nm->GetString();
                 logonsuccessful = false;
                 return true;
-
             case 0x14:
                 motd = nm->GetString();
                 return true;
@@ -120,42 +120,50 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz) {
     int startz, endz, stepz;
     unsigned int skip=0;
-    if (destz > 7) { // if we're underground
+    ASSERT(destz <= maxz);
+    if (destz > maxz/2) { // if we're underground
         startz = destz - 2; // then we see two floors above
         endz = min (this->maxz, destz + 2); // and two floors below
         stepz = 1; // and we move from top to bottom
-        printf("Underground\n");
+        //printf("Underground (%d)\n", destz);
         //system("pause");
     } else { // if we're on the surface
-        startz = 7; // we see from the surface leve
+        startz = maxz/2; // we see from the surface leve
         endz = 0; // to the top
         stepz = -1;
-        printf("Surface\n");
+        //printf("Surface\n");
         //system("pause");
     }
     skip = 0;
-    for (int z = startz; z != endz; z+=stepz) {
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Receiving map - floors %d to %d (step %d)\n", startz, endz, stepz);
+    for (int z = startz; z != endz + stepz; z+=stepz) {
+        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
         ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
     }
+    //printf("MAP DONE!!!!!!!!!!!!!\n");
 }
 void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip) {
 
     //static unsigned int skip; // statics are kept between function calls ... neato! cooooool! yipiiiyeah! :)
     // however im not sure what happens if they're declaration-time initialized ... are they reinitialized with every function call?
 
-
+for (int x = destx; x < destx + w; x++) {
     for (int y = desty; y < desty + h; y++) {
-        for (int x = destx; x < destx + w; x++) {
+
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
             if (!*skip) {
                 if (nm->PeekU16() >= 0xFF00) {
+                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skip chunk\n");
                     *skip = (nm->GetU16() & 0xFF);
-                    printf("Skipping %d tiles\n", *skip);
+                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
                 } else {
+                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Taking in\n");
                     ParseTileDescription(nm, x, y, destz);
                     *skip = (nm->GetU16() & 0xFF);
-                    printf("Skipping %d tiles\n", *skip);
+                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
                 }
             } else {
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipped (%d remaining)\n", (*skip)-1);
                 (*skip)--;
             }
         }
@@ -165,7 +173,7 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
 void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
-            printf("Reached end of tile\n");
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
             return;
         } else {
             Object *obj;
@@ -180,7 +188,7 @@ void Protocol::ParseObjectDescription(NetworkMessage *nm, Object *obj) {
 
     // temporary vars that will be stored inside object's description once Object class is defined
     int looktype;
-    printf("Object type %d\n", type);
+    //printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: // known creature
@@ -231,14 +239,14 @@ void Protocol::ParseObjectDescription(NetworkMessage *nm, Object *obj) {
         // FIXME perhaps the order is not right ... maybe splash/fluidcontainer color is coming first, not stackable amount!
         //       check with a realworld example
             //ASSERT(type >= 100 && type <= items_n);
-            printf("Item %d\n", type);
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Item %d\n", type);
             if (items[type].stackable) {
-                printf("Count %d\n", nm->GetU8());
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Count %d\n", nm->GetU8());
             }
             if (items[type].splash || items[type].fluidcontainer) {
-                printf("Color %d\n", nm->GetU8());
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Color %d\n", nm->GetU8());
             }
-
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Upcoming: %d\n", nm->PeekU16());
     }
 }
 
@@ -247,7 +255,7 @@ bool Protocol::CipSoft() {
 }
 
 unsigned short Protocol::GetProtocolVersion () {
-    printf("PROTOCOL VERSION : %d\n", protocolversion);
+//    printf("PROTOCOL VERSION : %d\n", protocolversion);
     return protocolversion;
 }
 

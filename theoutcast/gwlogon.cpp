@@ -27,7 +27,7 @@ inline void GWLogon_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonOK);
 }
 
-inline void GWLogon_Status(glictMessageBox* mb, const char* txt) {
+void GWLogon_Status(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 }
 

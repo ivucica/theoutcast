@@ -91,17 +91,17 @@ void NetworkMessage::FillFromSocket (SOCKET s) {
 
 
 	while (recv(s, (char*)&sz, 2, 0) == -1);
-	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
+	//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
         int readthisturn = recv(s, toadd+readsofar, sz-readsofar, 0);
         if (readthisturn > 0) {
             readsofar += readthisturn;
-            printf("Now %d, after %d\n", readsofar, readthisturn);
+            //printf("Now %d, after %d\n", readsofar, readthisturn);
         }
 
 	}
-	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
+	//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
 	this->Add(toadd, sz);
 	free(toadd);
 }

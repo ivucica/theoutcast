@@ -55,14 +55,17 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
         if (!strcmp(azColName[i], "splash")) {
             sscanf(argv[i], "%d", &iTmp);
             if (iTmp) items[itemid].splash = true;
+            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "fluidcontainer")) {
             sscanf(argv[i], "%d", &iTmp);
             if (iTmp) items[itemid].fluidcontainer = true;
+            //if (items[itemid].fluidcontainer) printf("FLUIDCONTAINER ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "stackable")) {
             sscanf(argv[i], "%d", &iTmp);
             if (iTmp) items[itemid].stackable = true;
+            //if (items[itemid].stackable) printf("STACKABLE ITEM %d\n", itemid);
         }
 
 
