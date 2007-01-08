@@ -7,7 +7,7 @@ sqlite3 *dbData, *dbUser;
 
 
 // when running in debug mode with gdb, do:
-// #define free
+#define free
 // to turn off free. it appears to be bugged!
 
 
@@ -57,17 +57,6 @@ void DBInit() {
         exit(1);
     }
 
-    // try to access table
-    if (!dbTableExists(dbData, "items")) {
-        char tmp[256];
-
-        sprintf(tmp,"SQLite could not access table 'settings'. Reason: %s. Reinstallation should help!\n", sqlite3_errmsg(dbUser));
-        printf(tmp);
-        MessageBox(HWND_DESKTOP, tmp, "The Outcast - Fatal Error", MB_ICONSTOP);
-        sqlite3_close(dbData);
-        dbData=NULL;
-        exit(1);
-    }
 
     return;
 }
@@ -131,6 +120,7 @@ int dbExecPrintf(
 
     char *z = sqlite3_vmprintf(sql, vl);
 
+    printf("QUERY: %s\n", z);
     int rc = sqlite3_exec(db, z, cb, arg, errmsg);
     if (rc != SQLITE_OK) printf("SQLite: Error: '%s', RC: %s, query '%s'\n", sqlite3_errmsg(dbUser), dbProcessRC(rc), z);
     sqlite3_free(z);

@@ -21,7 +21,7 @@ class Protocol {
         void SetSocket(SOCKET socket);
         std::string GetMotd() {return motd;}
         std::string GetError() {return errormsg;}
-        void SetCharacter(int i) {}
+        void SetCharacter(int i) {charlistselected = i;}
 
         bool CipSoft();
 
@@ -31,7 +31,12 @@ class Protocol {
         virtual bool CharlistLogin(const char *username, const char *password);
         virtual bool GameworldLogin();
 
-        unsigned short GetProtocolVersion () { return protocolversion; }
+        virtual void ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz);
+        virtual void ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip);
+        virtual void ParseTileDescription(NetworkMessage *nm, int x, int y, int z);
+        virtual void ParseObjectDescription(NetworkMessage *nm, Object *obj);
+
+        unsigned short GetProtocolVersion ();
     protected:
         SOCKET s;
         unsigned short protocolversion;
@@ -44,7 +49,7 @@ class Protocol {
         unsigned int premiumdays;
         bool logonsuccessful;
         std::string username, password;
-
+        int maxx, maxy, maxz;
 
 
 

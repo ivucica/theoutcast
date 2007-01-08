@@ -5,13 +5,15 @@
 #include "networkdirect.h"
 #include "networkmessage.h"
 #include "defines.h"
-
-
+#include "items.h"
+#include "assert.h"
 Protocol77::Protocol77 () {
     protocolversion = 770;
     fingerprints[FINGERPRINT_TIBIADAT] = 0x439D5A33;
     fingerprints[FINGERPRINT_TIBIASPR] = 0x439852BE;
     fingerprints[FINGERPRINT_TIBIAPIC] = 0x4450C8D8;
+
+    maxx = 0; maxy = 0; maxz = 0;
 }
 
 Protocol77::~Protocol77() {
@@ -113,6 +115,10 @@ bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             printf("Own creature ID: %d\n", nm->GetU32());
 
             return true;
+        case 0x14: // Login error message
+            errormsg = nm->GetString();
+            logonsuccessful = false;
+            return false;
         case 0x32: // Something Else, Bug Report
             printf("Unknown value: %d\n", nm->GetU8());
             printf("Can report bugs: %d\n", nm->GetU8());
@@ -130,7 +136,7 @@ bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 //logonsuccessful = false;
 
                 //return false;
-                ParseMapDescription(18, 14, x - 8, y - 6, z);
+                ParseMapDescription(nm, 18, 14, x - 8, y - 6, z);
                 return true;
             }
         default: {
@@ -146,20 +152,5 @@ bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     }
 }
 
-void Protocol77::ParseMapDescription (int w, int h, int destx, int desty, int destz) {
-    int startz, endz, stepz;
-    if (destz > 7) { // if we're underground
-        startz = z - 2; // then we see two floors above
-        endz = min (MAXZ, z + 2) // and two floors below
-        zstep = 1; // and we move from top to bottom
-    } else { // if we're on the surface
-        startz = 7; // we see from the surface leve
-        endz = 0; // to the top
-        zstep = -1;
-    }
-
-    for (int i = startz; z != endz; z+=zstep) {
-    }
-}
 
 #endif

@@ -12,6 +12,7 @@ int frames=0;
 float fps=0;
 bool mayanimate=false;
 float cursoraniangle=0.;
+int glut_WindowHandle;
 void glut_Display() {
 	game->Render();
 

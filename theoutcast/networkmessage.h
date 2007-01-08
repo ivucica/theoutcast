@@ -34,9 +34,14 @@ class NetworkMessage : public Buffer {
 		unsigned char GetU8();
 		unsigned short GetU16 ();
 		unsigned long GetU32 ();
+		unsigned char PeekU8();
+		unsigned short PeekU16 ();
+		unsigned long PeekU32 ();
 		char GetChar ();
 		char* GetString (char* target, unsigned int maxsize);
-		std::string NetworkMessage::GetString ();
+		std::string GetString ();
+
+		void ShowContents();
 
     private:
         unsigned int rsaoffset;

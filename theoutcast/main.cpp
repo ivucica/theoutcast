@@ -12,8 +12,7 @@
 #include "winfont.h"
 #include "defines.h"
 #include "database.h"
-// vars
-int glut_WindowHandle;
+
 
 // function predeclares
 void GameInit();

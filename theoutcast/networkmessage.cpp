@@ -73,13 +73,34 @@ int NetworkMessage::FillFromBuffer (Buffer *buf) {
 	return 0;
 }
 
+// FIXME this function is so utterly wrong written and full of assumptions that
+// connection is still active that i'm disgousted at it, but at the same time
+// unwilling to rewrite it at the moment. proofing the concept at the moment...
 void NetworkMessage::FillFromSocket (SOCKET s) {
+
+
 	unsigned short sz;
 	char *toadd;
-	recv(s, (char*)&sz, 2, 0);
+    int readsofar=0;
+
+	// 0 = blocking, 1 = nonblocking
+	// perhaps move this to initialization of the socket?
+	// would that work? (is the blockability altered by some other winapi?)
+    unsigned long mode = 0;
+	ioctlsocket(s, FIONBIO, &mode);
+
+
+	while (recv(s, (char*)&sz, 2, 0) == -1);
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
 	toadd = (char*)malloc(sz);
-	recv(s, toadd, sz, 0);
+	while (readsofar != sz) {
+        int readthisturn = recv(s, toadd+readsofar, sz-readsofar, 0);
+        if (readthisturn > 0) {
+            readsofar += readthisturn;
+            printf("Now %d, after %d\n", readsofar, readthisturn);
+        }
+
+	}
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
 	this->Add(toadd, sz);
 	free(toadd);
@@ -102,6 +123,25 @@ unsigned long NetworkMessage::GetU32 () {
 	Read ((char*)&ret, 4);
 	return ret;
 }
+
+unsigned char NetworkMessage::PeekU8 () {
+	unsigned char ret;
+	Peek ((char*)&ret, 1);
+	return ret;
+}
+
+unsigned short NetworkMessage::PeekU16 () {
+	unsigned short ret;
+	Peek ((char*)&ret, 2);
+	return ret;
+}
+
+unsigned long NetworkMessage::PeekU32 () {
+	unsigned long ret;
+	Peek ((char*)&ret, 4);
+	return ret;
+}
+
 
 char NetworkMessage::GetChar () {
 	char ret;
@@ -142,7 +182,7 @@ std::string NetworkMessage::GetString () {
     this->Peek(toreturn, usdsize);
     this->Trim(strsize);
     toreturn[usdsize] = 0;
-    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting string: %s\n", toreturn);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting string: %s, size: %d, usdsize: %d\n", toreturn, strsize, usdsize);
     return toreturn;
 }
 
@@ -245,4 +285,13 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 //	_assert(size < 5000);
 	Trim(2);
 #endif
+}
+
+void NetworkMessage::ShowContents() {
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "NetworkMessage::ShowContents() // %d bytes\n", size);
+    for (int i = 0; i < size ; i++) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (unsigned char)buffer[i]);
+    }
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
+    return;
 }

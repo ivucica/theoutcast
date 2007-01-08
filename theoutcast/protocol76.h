@@ -9,6 +9,9 @@ class Protocol76 : public Protocol {
         ~Protocol76();
 
         bool CharlistLogin(const char *username, const char *password);
+        bool GameworldLogin ();
+        bool ParseGameworld(NetworkMessage *nm, unsigned char packetid);
+
 };
 
 #endif

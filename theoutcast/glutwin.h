@@ -12,3 +12,4 @@ void RenderMouseCursor();
 extern int winw, winh;
 extern float fps;
 extern bool mayanimate;
+extern int glut_WindowHandle;

@@ -103,7 +103,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginProtocol.SetPos(100, 5*15);
 	txtLoginProtocol.SetHeight(14);
 	txtLoginProtocol.SetWidth(150);
-	dbLoadSetting("protocol", tmp, 256, "770");
+	dbLoadSetting("protocol", tmp, 256, "760");
     txtLoginProtocol.SetCaption(tmp);
 
 	login.AddObject(&pnlLoginServer);

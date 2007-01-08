@@ -1,6 +1,7 @@
 #include <math.h>
 #include <time.h>
 #include "protocol.h"
+#include "items.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -114,8 +115,140 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     return false;
 }
 
+
+
+void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz) {
+    int startz, endz, stepz;
+    unsigned int skip=0;
+    if (destz > 7) { // if we're underground
+        startz = destz - 2; // then we see two floors above
+        endz = min (this->maxz, destz + 2); // and two floors below
+        stepz = 1; // and we move from top to bottom
+        printf("Underground\n");
+        //system("pause");
+    } else { // if we're on the surface
+        startz = 7; // we see from the surface leve
+        endz = 0; // to the top
+        stepz = -1;
+        printf("Surface\n");
+        //system("pause");
+    }
+    skip = 0;
+    for (int z = startz; z != endz; z+=stepz) {
+        ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
+    }
+}
+void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip) {
+
+    //static unsigned int skip; // statics are kept between function calls ... neato! cooooool! yipiiiyeah! :)
+    // however im not sure what happens if they're declaration-time initialized ... are they reinitialized with every function call?
+
+
+    for (int y = desty; y < desty + h; y++) {
+        for (int x = destx; x < destx + w; x++) {
+            if (!*skip) {
+                if (nm->PeekU16() >= 0xFF00) {
+                    *skip = (nm->GetU16() & 0xFF);
+                    printf("Skipping %d tiles\n", *skip);
+                } else {
+                    ParseTileDescription(nm, x, y, destz);
+                    *skip = (nm->GetU16() & 0xFF);
+                    printf("Skipping %d tiles\n", *skip);
+                }
+            } else {
+                (*skip)--;
+            }
+        }
+    }
+}
+
+void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
+    for (;;) {
+        if (nm->PeekU16() >= 0xFF00) {
+            printf("Reached end of tile\n");
+            return;
+        } else {
+            Object *obj;
+            ParseObjectDescription(nm, obj);
+        }
+    }
+}
+
+void Protocol::ParseObjectDescription(NetworkMessage *nm, Object *obj) {
+    // MUST ACCEPT NULL as second param
+    int type = nm->GetU16();
+
+    // temporary vars that will be stored inside object's description once Object class is defined
+    int looktype;
+    printf("Object type %d\n", type);
+    switch (type) {
+        case 0x0061: // new creature
+        case 0x0062: // known creature
+            if (type == 0x0061) { // new creature
+                nm->GetU32(); // remove creature with this id
+                nm->GetU32(); // new creature's id
+                nm->GetString(); // name string
+            }
+            if (type == 0x0062) {
+                nm->GetU32(); // known creature's id
+            }
+            nm->GetU8(); // health percent
+            nm->GetU8(); // direction
+            if (protocolversion < 770) {
+                looktype = nm->GetU8();
+            } else {
+                looktype = nm->GetU16();
+            }
+
+            if (looktype) { // regular creature look
+                nm->GetU8(); // head
+                nm->GetU8(); // body
+                nm->GetU8(); // legs
+                nm->GetU8(); // feet
+
+                // 7.8+: GetByte(); // addons
+
+            } else { // extended creature look
+                nm->GetU16(); // itemid that this creature looks like
+            }
+
+            nm->GetU8(); // lightlevel
+            nm->GetU8(); // lightcolor
+
+            nm->GetU16(); // speedindex
+
+
+            // only in 7.5 +
+            nm->GetU8(); // skull
+            nm->GetU8(); // shield
+            break;
+        case 0x0063: // creature that has only direction altered
+            nm->GetU32(); // creature id
+            nm->GetU8(); // look direction
+
+            break;
+        default: // regular item
+        // FIXME perhaps the order is not right ... maybe splash/fluidcontainer color is coming first, not stackable amount!
+        //       check with a realworld example
+            //ASSERT(type >= 100 && type <= items_n);
+            printf("Item %d\n", type);
+            if (items[type].stackable) {
+                printf("Count %d\n", nm->GetU8());
+            }
+            if (items[type].splash || items[type].fluidcontainer) {
+                printf("Color %d\n", nm->GetU8());
+            }
+
+    }
+}
+
 bool Protocol::CipSoft() {
     return false;
+}
+
+unsigned short Protocol::GetProtocolVersion () {
+    printf("PROTOCOL VERSION : %d\n", protocolversion);
+    return protocolversion;
 }
 
 bool ProtocolSetVersion (unsigned short protocolversion) {

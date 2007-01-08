@@ -73,9 +73,12 @@ char tableexists(const char *tablename) {
 }
 
 char check_tables() {
-	if (!tableexists("items")) {
-		printf("Creating table 'items'.\n");
-		if (dbexec(fo, "create table items ("
+    char tablename[10];
+    sprintf(tablename, "items%d", datversion);
+	if (!tableexists(tablename)) {
+		printf("Creating table '%s'.\n", tablename);
+		if (dbexecprintf(fo, "create table %s ("
+
 			"itemid integer primary key," /* item id, as the server sends it to us */
 			"graphics varchar[50], " /* 3d graphics file */
 			"ground boolean, " /* is this a ground item */
@@ -98,10 +101,9 @@ char check_tables() {
 			"height double, " /* how much does this item alter the height of items above it */
 			"height2d_x integer, height2d_y integer, " /* how much does this item alter the height of items above it, in x and y*/
 			"minimapcolor integer," /* what is the color of this item on the minimap */
-			"otid integer, " /* under what id does OTserv store this item */
-			"protocolversion integer " /* under what id does OTserv store this item */
-			"); ",NULL, 0, NULL) != SQLITE_OK) {
-				printf("Table 'items' creation failed\n");
+			"otid integer" /* under what id does OTserv store this item */
+			"); ",NULL, 0, NULL, tablename) != SQLITE_OK) {
+				printf("Table '%s' creation failed\n", tablename);
 				return 0;
 		}
 	}
@@ -166,6 +168,7 @@ char dat_readitem(item_t *item) {
     for (option = fgetc(fi); option != 0xFF; option = fgetc(fi)) {
         /*printf("Byte %02x\n", option);*/
         switch (datversion) {
+            case 760:
             case 770:
                 switch (option) {
                     case 0x00: /* ground */
@@ -280,6 +283,7 @@ char dat_readitem(item_t *item) {
     }
 
     switch (datversion) {
+        case 760:
         case 770:
             width = fgetc(fi);
             height = fgetc(fi);
@@ -309,7 +313,7 @@ static int extryexistsfunc(void *returndestvoid, int argc, char **argv, char **a
 char entryexists_itemid(unsigned int itemid) {
     BOOL returner = FALSE;
 
-    if (dbexecprintf(fo, "select * from items where itemid='%d';", &extryexistsfunc, &returner, NULL, itemid) == SQLITE_OK) return returner; else return FALSE;
+    if (dbexecprintf(fo, "select * from items%d where itemid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 
 }
 BOOL gettrue () { return TRUE ; }
@@ -319,7 +323,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
 
     if (!entryexists_itemid(itemid)) {
 
-        if (dbexecprintf(fo, "insert into items ("
+        if (dbexecprintf(fo, "insert into items%d ("
                         "itemid, "
                         "graphics, "
                         "ground, "
@@ -342,10 +346,10 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height, "
                         "height2d_x, height2d_y, "
                         "minimapcolor, "
-                        "otid, "
-                        "protocolversion"
-                        ") values (%d, '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d, %d);", NULL, NULL, NULL,
+                        "otid "
+                        ") values (%d, '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d);", NULL, NULL, NULL,
 
+                        datversion,
                         itemid,
                         i->graphics,
                         i->ground,
@@ -368,11 +372,10 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
-                        i->otid,
-                        datversion
+                        i->otid
                         ) != SQLITE_OK) return FALSE; else return TRUE;
     } else {
-        if (dbexecprintf(fo, "update items set "
+        if (dbexecprintf(fo, "update items%d set "
                         "graphics = '%q', "
                         "ground = '%d', "
                         "speedindex = '%d', "
@@ -394,11 +397,11 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height = '%f', "
                         "height2d_x = '%d', height2d_y = '%d', "
                         "minimapcolor = '%d', "
-                        "otid = '%d', "
-                        "protocolversion = '%d'"
+                        "otid = '%d' "
 
 
-                        " where itemid = '%d' and protocolversion = '%d';", NULL, 0, NULL,
+                        " where itemid = '%d';", NULL, 0, NULL,
+                        datversion,
                         i->graphics,
                         i->ground,
                         i->speedindex,
@@ -421,9 +424,8 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
                         i->otid,
-                        datversion,
 
-                        itemid, datversion) != SQLITE_OK) return FALSE; else return TRUE;
+                        itemid) != SQLITE_OK) return FALSE; else return TRUE;
 
     }
 
@@ -453,7 +455,7 @@ static int patchitemfunc(void *itemvoid, int argc, char **argv, char **azColName
     return 0;
 }
 void patchitem (unsigned int itemid, item_t *item) {
-    dbexecprintf(fo, "select graphics, height from items where itemid = '%d';", patchitemfunc, item, NULL, itemid);
+    dbexecprintf(fo, "select graphics, height from items%d where itemid = '%d';", patchitemfunc, item, NULL, datversion, itemid);
 
 }
 
@@ -469,6 +471,7 @@ int main (int argc, char **argv) {
 		printf("usage: %s tibia.dat outcast.db datversion\n", strrchr(argv[0], '\\'));
 		printf("\n");
 		printf("Non-empty DB will not be purged, except the items table\n");
+		printf("for specified datversion\n");
 		printf("Outcast-specific data are kept (fields: graphics, height)\n");
 		printf("OTID is also not touched\n");
 		printf("\n");
