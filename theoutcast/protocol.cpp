@@ -182,7 +182,7 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
     }
 }
 
-void Protocol::ParseObjectDescription(NetworkMessage *nm, Object *obj) {
+void Protocol::ParseThingDescription(NetworkMessage *nm, Thing *thing) {
     // MUST ACCEPT NULL as second param
     int type = nm->GetU16();
 

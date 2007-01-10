@@ -5,7 +5,8 @@ typedef enum {
     ANI_STAND = 0,
     ANI_WALK
 } animation_e;
-
+// these are derived into obj3ds and similar, rendering objects
+// these are NOT ingame objects
 class Object {
     public:
         Object();
