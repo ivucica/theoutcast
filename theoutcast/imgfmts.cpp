@@ -442,5 +442,3 @@ bool LoadJPEGFromFile2RGBA(FILE* fjl, unsigned int *width, unsigned int *height,
 
 
 
-
-

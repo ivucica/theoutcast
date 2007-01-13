@@ -3,7 +3,9 @@
 #include "items.h"
 #include "console.h"
 GM_Gameworld::GM_Gameworld() {
+
 }
+
 
 GM_Gameworld::~GM_Gameworld() {
 }

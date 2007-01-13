@@ -13,7 +13,7 @@
 #include "gm_mainmenu.h"
 #include "networkmessage.h"
 #include "types.h"
-
+#include "thing.h"
 class Protocol {
     public:
         Protocol();
@@ -34,7 +34,7 @@ class Protocol {
         virtual void ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz);
         virtual void ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip);
         virtual void ParseTileDescription(NetworkMessage *nm, int x, int y, int z);
-        virtual void ParseObjectDescription(NetworkMessage *nm, Object *obj);
+        virtual void ParseThingDescription(NetworkMessage *nm, Thing *obj);
 
         unsigned short GetProtocolVersion ();
     protected:

@@ -3,6 +3,7 @@
 #include "protocol.h"
 #include "items.h"
 #include "debugprint.h"
+#include "thing.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -176,8 +177,8 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
             return;
         } else {
-            Object *obj;
-            ParseObjectDescription(nm, obj);
+            Thing *obj;
+            ParseThingDescription(nm, obj);
         }
     }
 }

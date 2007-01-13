@@ -8,7 +8,20 @@
 #define FALSE 0
 /* structs */
 typedef struct {
+    unsigned char width;
+    unsigned char height;
+    unsigned char blendframes;
+    unsigned char xdiv;
+    unsigned char ydiv;
+    unsigned char animcount;
+    unsigned char unknown;
+    unsigned short numsprites; /* to  remove need to calculate this */
+    unsigned short *spriteids;
+} spritelist_t;
+
+typedef struct {
     char graphics[50];
+    char graphics2d[50];
     BOOL ground;
     unsigned short speedindex;
     unsigned char topindex;
@@ -29,7 +42,10 @@ typedef struct {
     double height;
     unsigned char height2d_x, height2d_y;
     unsigned short minimapcolor;
+    char spritelist[4096];
     unsigned short otid;
+
+    spritelist_t *sl;
 } item_t;
 
 /* files */
@@ -63,7 +79,6 @@ int dbexecprintf(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, c
 	va_end(vl);
 	return rc;
 }
-
 int dbexec(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, char **errmsg) {
     /*printf("QUERY: %s\n", sql);*/
     sqlite3_exec(db, sql, cb, arg, errmsg);
@@ -71,7 +86,6 @@ int dbexec(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, char **
 char tableexists(const char *tablename) {
 	return (dbexecprintf(fo, "select * from %s;", NULL, 0, NULL, tablename) == SQLITE_OK);
 }
-
 char check_tables() {
     char tablename[10];
     sprintf(tablename, "items%d", datversion);
@@ -81,6 +95,7 @@ char check_tables() {
 
 			"itemid integer primary key," /* item id, as the server sends it to us */
 			"graphics varchar[50], " /* 3d graphics file */
+			"graphics2d varchar[50], " /* 3d graphics file */
 			"ground boolean, " /* is this a ground item */
 			"speedindex integer," /* what is the speed index of the item */
 			"topindex integer, " /* what is the topindex of the item */
@@ -101,6 +116,7 @@ char check_tables() {
 			"height double, " /* how much does this item alter the height of items above it */
 			"height2d_x integer, height2d_y integer, " /* how much does this item alter the height of items above it, in x and y*/
 			"minimapcolor integer," /* what is the color of this item on the minimap */
+			"spritelist varchar[4096], " /* spritelist */
 			"otid integer" /* under what id does OTserv store this item */
 			"); ",NULL, 0, NULL, tablename) != SQLITE_OK) {
 				printf("Table '%s' creation failed\n", tablename);
@@ -130,6 +146,7 @@ char dat_load_header() {
 void clear_item(item_t* item) {
 
     item->graphics[0] = 0;
+    item->graphics2d[0] = 0;
     item->ground = FALSE;
     item->speedindex = 0;
     item->topindex = 0;
@@ -150,6 +167,7 @@ void clear_item(item_t* item) {
     item->height = 0.;
     item->height2d_x = 0; item->height2d_y = 0;
     item->minimapcolor = 0;
+    item->spritelist[0] = 0;
     item->otid = 0;
 
 }
@@ -284,21 +302,45 @@ char dat_readitem(item_t *item) {
 
     switch (datversion) {
         case 760:
-        case 770:
-            width = fgetc(fi);
-            height = fgetc(fi);
-            if (width > 1 || height > 1) fgetc(fi);
-            blendframes = fgetc(fi);
-            xdiv = fgetc(fi);
-            ydiv = fgetc(fi);
-            animcount = fgetc(fi);
-            unknown = fgetc(fi); /* this does not exist for versions before 7.55 */
-            numsprites = width * height * blendframes * xdiv * ydiv * animcount * unknown;
-            /*printf("width %d height %d blendframes %d xdiv %d ydiv %d animcount %d unknown %d\n", width, height, blendframes, xdiv, ydiv, animcount, unknown);
-            printf("sprites %d\n", numsprites);*/
-            for(i = 0; i < numsprites; ++i)
-                readu16(); /* sprite id */
+        case 770: {
+            spritelist_t *sl = (spritelist_t*)malloc(sizeof(spritelist_t));
+            if (!sl) {
+                printf("Cannot alloc enough memory for spritelist\n");
+                return 0;
+            }
+            sl->width = fgetc(fi);
+            sl->height = fgetc(fi);
+            if (sl->width > 1 || sl->height > 1) fgetc(fi);
+            sl->blendframes = fgetc(fi);
+            sl->xdiv = fgetc(fi);
+            sl->ydiv = fgetc(fi);
+            sl->animcount = fgetc(fi);
+            sl->unknown = fgetc(fi); /* this does not exist for versions before 7.55 - in such case, it's 1 */
+            sl->numsprites = sl->width * sl->height * sl->blendframes * sl->xdiv * sl->ydiv * sl->animcount * sl->unknown;
+
+/*
+            printf("Spritegrid width: %d\n", sl->width);
+            printf("Spritegrid height: %d\n", sl->height);
+            printf("Spritegrid blendframes: %d\n", sl->blendframes);
+            printf("Spritegrid xdiv: %d\n", sl->xdiv);
+            printf("Spritegrid ydiv: %d\n", sl->ydiv);
+            printf("Spritegrid animcount: %d\n", sl->animcount);
+            printf("Spritegrid unknown: %d\n", sl->unknown);
+            printf("Spritegrid numsprites: %d\n", sl->numsprites);
+*/
+
+            sl->spriteids = (unsigned short*)malloc(sizeof(unsigned short) * sl->numsprites);
+            if (!sl->spriteids) {
+                printf("Cannot alloc enough memory for spritelist\n");
+                return 0;
+            }
+            for(i = 0; i < sl->numsprites; ++i) {
+                sl->spriteids[i] = readu16(); /* sprite id */
+            /*    printf("Sprite id %d: %d\n", (unsigned int)i, (unsigned int)sl->spriteids[i]);*/
+            }
+            item->sl = sl;
             break;
+        }
         default:
             printf("YOU SHOULD NOT REACH THIS POINT.\n");
             return 0;
@@ -316,16 +358,30 @@ char entryexists_itemid(unsigned int itemid) {
     if (dbexecprintf(fo, "select * from items%d where itemid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 
 }
-BOOL gettrue () { return TRUE ; }
+BOOL gettrue () {
+    return TRUE ;
+}
 BOOL insertitem (unsigned short itemid, item_t *i) {
-    char command[20];
-    char where[35]={0};
+
+    char spritelist[4096];
+    char *spritelistptr;
+    unsigned short j;
+    spritelist_t *sl = i->sl;
+
+    spritelistptr = spritelist + sprintf(spritelist, "%d %d %d %d %d %d %d %d ", (unsigned int)sl->width, (unsigned int)sl->height, (unsigned int)sl->blendframes, (unsigned int)sl->xdiv, (unsigned int)sl->ydiv, (unsigned int)sl->animcount, (unsigned int)sl->unknown, (unsigned int)sl->numsprites);
+
+    for (j = 0; j < sl->numsprites; ++j) {
+        spritelistptr += sprintf(spritelistptr, "%d ", (unsigned int)sl->spriteids[j]);
+    }
+    /*printf(spritelist);
+    system("pause");*/
 
     if (!entryexists_itemid(itemid)) {
 
         if (dbexecprintf(fo, "insert into items%d ("
                         "itemid, "
                         "graphics, "
+                        "graphics2d, "
                         "ground, "
                         "speedindex, "
                         "topindex, "
@@ -346,12 +402,16 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height, "
                         "height2d_x, height2d_y, "
                         "minimapcolor, "
+                        "spritelist, "
                         "otid "
-                        ") values (%d, '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d);", NULL, NULL, NULL,
+                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
 
-                        datversion,
+                        datversion, /* part of table name */
+
+
                         itemid,
                         i->graphics,
+                        i->graphics2d,
                         i->ground,
                         i->speedindex,
                         i->topindex,
@@ -372,11 +432,13 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
+                        i->spritelist,
                         i->otid
                         ) != SQLITE_OK) return FALSE; else return TRUE;
     } else {
         if (dbexecprintf(fo, "update items%d set "
                         "graphics = '%q', "
+                        "graphics2d = '%q', "
                         "ground = '%d', "
                         "speedindex = '%d', "
                         "topindex = '%d', "
@@ -397,12 +459,14 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height = '%f', "
                         "height2d_x = '%d', height2d_y = '%d', "
                         "minimapcolor = '%d', "
+                        "spritelist = '%q', "
                         "otid = '%d' "
 
 
                         " where itemid = '%d';", NULL, 0, NULL,
                         datversion,
                         i->graphics,
+                        i->graphics2d,
                         i->ground,
                         i->speedindex,
                         i->topindex,
@@ -423,6 +487,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
+                        i->spritelist,
                         i->otid,
 
                         itemid) != SQLITE_OK) return FALSE; else return TRUE;
@@ -447,6 +512,9 @@ static int patchitemfunc(void *itemvoid, int argc, char **argv, char **azColName
         if (!strcmp(azColName[i], "graphics")) {
             strcpy(item->graphics, argv[i]);
         }
+        if (!strcmp(azColName[i], "graphics2d")) {
+            strcpy(item->graphics, argv[i]);
+        }
         if (!strcmp(azColName[i], "height")) {
             sscanf(argv[i], "%lf", &item->height);
         }
@@ -458,7 +526,6 @@ void patchitem (unsigned int itemid, item_t *item) {
     dbexecprintf(fo, "select graphics, height from items%d where itemid = '%d';", patchitemfunc, item, NULL, datversion, itemid);
 
 }
-
 int main (int argc, char **argv) {
 	int rc;
 	int size;
@@ -472,7 +539,7 @@ int main (int argc, char **argv) {
 		printf("\n");
 		printf("Non-empty DB will not be purged, except the items table\n");
 		printf("for specified datversion\n");
-		printf("Outcast-specific data are kept (fields: graphics, height)\n");
+		printf("Outcast-specific data are kept (fields: graphics, graphics2d, height)\n");
 		printf("OTID is also not touched\n");
 		printf("\n");
 		return 0;
@@ -515,6 +582,9 @@ int main (int argc, char **argv) {
         if (!insertitem(currentid, &item)) {
             printf("Inserting item %d failed.\n", currentid);
             return 6;
+        } else {
+            free(item.sl->spriteids);
+            free(item.sl);
         }
 
         currentid ++;

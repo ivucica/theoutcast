@@ -144,7 +144,7 @@ bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x79: // Inventory Empty
             nm->GetU8(); // item slot
             if (packetid == 0x78) {
-                ParseObjectDescription(nm, NULL);
+                ParseThingDescription(nm, NULL);
             }
             return true;
         case 0x82: // World Light

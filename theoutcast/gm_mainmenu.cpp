@@ -12,6 +12,7 @@
 #include "protocol.h"
 #include "database.h"
 #include "gwlogon.h"
+#include "sprfmts.h"
 GM_MainMenu::GM_MainMenu() {
 
     glutSwapBuffers();
@@ -226,6 +227,9 @@ GM_MainMenu::GM_MainMenu() {
 
 
 	logo = new Texture("logo.bmp");
+	/*SPRLoader("tibia76.spr");
+    logo = new Texture ("tibia76.spr", 1024);*/
+
 	bg = new Texture("bg.bmp");
 
 	sine_flag_angle = 0.;

@@ -163,7 +163,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU16(); // y
             nm->GetU8(); // z
 
-            ParseObjectDescription(nm, NULL);
+            ParseThingDescription(nm, NULL);
             return true;
         case 0x6B: // Replace Item
 
@@ -173,7 +173,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             nm->GetU8(); // stackpos
 
-            ParseObjectDescription(nm, NULL);
+            ParseThingDescription(nm, NULL);
             return true;
         case 0x6C: // Remove Item
             nm->GetU16(); // x
@@ -203,7 +203,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             {
                 int itemcount = nm->GetU8(); // item count
                 for (int i = 0 ; i < itemcount ; i++) {
-                    ParseObjectDescription(nm, NULL);
+                    ParseThingDescription(nm, NULL);
                 }
             }
             return true;
@@ -212,12 +212,12 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x70: // Add Container Item
             nm->GetU8(); // container id
-            ParseObjectDescription(nm, NULL);
+            ParseThingDescription(nm, NULL);
             return true;
         case 0x71: // Replace Container Item
             nm->GetU8(); // container id
             nm->GetU8(); // slot
-            ParseObjectDescription(nm, NULL);
+            ParseThingDescription(nm, NULL);
 
             return true;
         case 0x72: // Remove Container Item
@@ -228,7 +228,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x79: // Inventory Empty
             nm->GetU8(); // item slot
             if (packetid == 0x78) {
-                ParseObjectDescription(nm, NULL);
+                ParseThingDescription(nm, NULL);
             }
             return true;
         case 0x7D: // Trade Request
@@ -237,7 +237,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             {
                 int itemcount = nm->GetU8();
                 for (int i = 0; i < itemcount; i++) {
-                    ParseObjectDescription(nm, NULL);
+                    ParseThingDescription(nm, NULL);
                 }
             }
             return true;
