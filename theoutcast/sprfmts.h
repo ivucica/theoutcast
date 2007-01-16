@@ -6,7 +6,7 @@
 bool SPRLoader(std::string sprfile);
 bool SPRUnloader();
 
-extern unsigned short *SPRPointers;
+extern unsigned long *SPRPointers;
 extern unsigned short SPRCount;
 extern std::string SPRFile;
 

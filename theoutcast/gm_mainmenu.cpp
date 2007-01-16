@@ -13,7 +13,11 @@
 #include "database.h"
 #include "gwlogon.h"
 #include "sprfmts.h"
+int currentspr;
 GM_MainMenu::GM_MainMenu() {
+
+    SPRLoader("tibia76.spr");
+    currentspr = 1;
 
     glutSwapBuffers();
     glClear(GL_COLOR_BUFFER_BIT);
@@ -32,6 +36,7 @@ GM_MainMenu::GM_MainMenu() {
 	mainmenu.SetWidth(200);
 	mainmenu.SetHeight(232);
 
+
 	mainmenu.AddObject(&btnLogIn);
 	//mainmenu.AddObject(&btnTutorial);
 	mainmenu.AddObject(&btnOptions);
@@ -39,6 +44,7 @@ GM_MainMenu::GM_MainMenu() {
 	mainmenu.AddObject(&btnAbout);
 	mainmenu.AddObject(&btnExit);
 	mainmenu.SetCaption("Main Menu");
+
 
 
 	btnLogIn.SetBGColor(.6,.6,.6,1.);
@@ -56,7 +62,8 @@ GM_MainMenu::GM_MainMenu() {
 	btnOptions.SetBGColor(.6,.6,.6,1.);
 	btnOptions.SetWidth(120);
 	btnOptions.SetCaption("Options");
-	//btnOptions.SetOnClick(GM_MainMenu_Options);
+    //btnOptions.SetOnClick(GM_MainMenu_Options);
+    btnOptions.SetOnClick(GM_MainMenu_NextSprite);
 	btnOptions.SetPos(200/2 - 120/2,  32*3 );
 
 	btnToS.SetBGColor(.6, .6, .6, 1.);
@@ -227,8 +234,6 @@ GM_MainMenu::GM_MainMenu() {
 
 
 	logo = new Texture("logo.bmp");
-	/*SPRLoader("tibia76.spr");
-    logo = new Texture ("tibia76.spr", 1024);*/
 
 	bg = new Texture("bg.bmp");
 
@@ -250,6 +255,9 @@ GM_MainMenu::~GM_MainMenu() {
 }
 
 void GM_MainMenu::Render() {
+
+    //GM_MainMenu_NextSprite(NULL, NULL);
+
 	//glClear(GL_STENCIL_BUFFER_BIT); <-- already done in glict
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
@@ -272,9 +280,6 @@ void GM_MainMenu::Render() {
         StillEffect(-20, 0, 660., 480., 10, 10);
         glPopMatrix();
 
-
-        logo->Bind();
-        StillEffect(200, 0, 425, 100, 40, 10);
 
     } else {
 //system("pause");
@@ -353,7 +358,7 @@ void GM_MainMenu::Render() {
     glLoadIdentity();
 
     logo->Bind();
-    StillEffect(200, 0, 425, 100, 40, 10);
+    StillEffect(200, 0, 425, 100, 2, 2); // divisions were 40 10
 
 
 
@@ -651,4 +656,10 @@ void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller) {
 void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller) {
 	((GM_MainMenu*)game)->desktop.RemoveObject(caller);
 	delete caller;
+}
+void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller) {
+
+    delete ((GM_MainMenu*)game)->logo;
+
+    ((GM_MainMenu*)game)->logo = new Texture ("tibia76.spr", currentspr++);
 }

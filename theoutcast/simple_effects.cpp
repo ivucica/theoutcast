@@ -18,6 +18,8 @@ void FlagEffect(float beginx, // 200
 	glPushMatrix();
 	//float beginx = 200., beginy = 0;
 	//float endx = 425., endy = 100.;
+
+
 	float deltax = endx - beginx, deltay = endy - beginy;
 
 	//int divx = 10, divy = 10;
@@ -39,10 +41,13 @@ void FlagEffect(float beginx, // 200
 			angyshift = sin(angy * PI / 180.) * strength;
 			angyshift2 = sin((angy + angincrey) * PI / 180.) * strength;
 			for (float j=0;j<deltay;j+=increasey) {
-				glTexCoord2f(i/deltax,j/deltay); glVertex2f(beginx+i,(beginy-j)+angyshift);
-				glTexCoord2f(i/deltax,(j+increasey)/deltay); glVertex2f(beginx+i,(beginy-j-increasey)+angyshift);
-				glTexCoord2f((i+increasex)/deltax,(j+increasey)/deltay); glVertex2f(beginx+i+increasex,(beginy-j-increasey)+angyshift2);
-				glTexCoord2f((i+increasex)/deltax,j/deltay); glVertex2f(beginx+i+increasex,(beginy-j)+angyshift2);
+				glTexCoord2f((i+increasex)/deltax,(j+increasey)/deltay); glVertex2f(beginx+i+increasex,(beginy-j)+angyshift2);
+				glTexCoord2f((i+increasex)/deltax,j/deltay); glVertex2f(beginx+i+increasex,(beginy-j-increasey)+angyshift2);
+				glTexCoord2f(i/deltax,j/deltay); glVertex2f(beginx+i,(beginy-j-increasey)+angyshift);
+				glTexCoord2f(i/deltax,(j+increasey)/deltay); glVertex2f(beginx+i,(beginy-j)+angyshift);
+
+
+
 			}
 		}
 	glEnd();
@@ -59,7 +64,11 @@ void StillEffect(float beginx, // 200
     glPushMatrix();
 	//float beginx = 200., beginy = 0;
 	//float endx = 425., endy = 100.;
+
+
 	float deltax = endx - beginx, deltay = endy - beginy;
+
+
 
 	//int divx = 10, divy = 10;
 
@@ -74,10 +83,11 @@ void StillEffect(float beginx, // 200
 	glBegin(GL_QUADS);
 		for (float i=0;i<deltax;i+=increasex) {
 			for (float j=0;j<deltay;j+=increasey) {
-				glTexCoord2f(i/deltax,j/deltay); glVertex2f(beginx+i,(beginy-j));
-				glTexCoord2f(i/deltax,(j+increasey)/deltay); glVertex2f(beginx+i,(beginy-j-increasey));
-				glTexCoord2f((i+increasex)/deltax,(j+increasey)/deltay); glVertex2f(beginx+i+increasex,(beginy-j-increasey));
-				glTexCoord2f((i+increasex)/deltax,j/deltay); glVertex2f(beginx+i+increasex,(beginy-j));
+				glTexCoord2f(i/deltax,1.-j/deltay); glVertex2f(beginx+i+increasex,(beginy-j));
+				glTexCoord2f(i/deltax,1.-(j+increasey)/deltay); glVertex2f(beginx+i+increasex,(beginy-j-increasey));
+				glTexCoord2f((i+increasex)/deltax,1.-(j+increasey)/deltay); glVertex2f(beginx+i,(beginy-j-increasey));
+				glTexCoord2f((i+increasex)/deltax,1.-j/deltay); glVertex2f(beginx+i,(beginy-j));
+
 			}
 		}
 	glEnd();

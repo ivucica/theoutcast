@@ -35,7 +35,7 @@ class GM_MainMenu : public GameMode {
 	private:
 		glictContainer desktop;
 		glictWindow mainmenu;
-		glictButton btnLogIn, btnTutorial, btnOptions, btnToS, btnAbout, btnExit;
+		glictButton btnNextSprite, btnLogIn, btnTutorial, btnOptions, btnToS, btnAbout, btnExit;
 
 		glictWindow login;
 		glictPanel pnlLogin;
@@ -77,6 +77,7 @@ class GM_MainMenu : public GameMode {
 	friend void GM_MainMenu_AboutOnDismiss(glictPos* pos, glictContainer* caller);
 	friend void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller);
 	friend void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller);
+    friend void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentType menuclass_void);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 	friend void ItemsLoad();
@@ -95,6 +96,7 @@ void GM_MainMenu_LoginCancel(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_AboutOnDismiss(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller);
+void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller);
 
 void GM_MainMenu_ExitDo();
 void GM_MainMenu_GoToGameworldDo();

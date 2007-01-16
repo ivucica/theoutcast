@@ -69,7 +69,7 @@ int dbexecprintf(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, c
 
 	char *z = sqlite3_vmprintf(sql, vl);
 
-    /*printf("QUERY: %s\n", z);*/
+    /* printf("QUERY: %s\n", z); */
 
 	int rc = sqlite3_exec(db, z, cb, arg, errmsg);
 	if (rc != SQLITE_OK) printf("SQLite: Error: '%s', RC: %d, query '%s'\n", sqlite3_errmsg(fo), rc, z);
@@ -432,7 +432,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
-                        i->spritelist,
+                        spritelist,
                         i->otid
                         ) != SQLITE_OK) return FALSE; else return TRUE;
     } else {
@@ -487,7 +487,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
-                        i->spritelist,
+                        spritelist,
                         i->otid,
 
                         itemid) != SQLITE_OK) return FALSE; else return TRUE;

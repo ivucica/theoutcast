@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "sprfmts.h"
 
-unsigned short *SPRPointers;
+unsigned long *SPRPointers;
 unsigned short SPRCount;
 std::string SPRFile;
 bool SPRLoader(std::string sprfile) { // loads only spr pointers
@@ -22,10 +22,13 @@ bool SPRLoader(std::string sprfile) { // loads only spr pointers
 
     fread(&signature, 4, 1, fp);
     fread(&SPRCount, 2, 1, fp);
-    SPRPointers = (unsigned short*)malloc(sizeof(SPRPointers[0]) * SPRCount);
+    SPRPointers = (unsigned long*)malloc(sizeof(SPRPointers[0]) * SPRCount);
     for (int i = 0 ; i < SPRCount ; i++) {
-        fread(&SPRPointers[i], 2, 1, fp);
+        fread(&SPRPointers[i], 4, 1, fp);
+        printf("%d\n", SPRPointers[i]);
+        //if (i==2) {printf("%d\n", SPRPointers[i]); system("pause"); }
     }
+    //system("pause");
 
     fclose(fp);
     return true;

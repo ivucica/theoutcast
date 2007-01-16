@@ -14,7 +14,7 @@ class Texture {
 
 		RGBA *FetchBMPPixels();
 		RGBA *FetchSPRPixels();
-		void StorePixels(RGBA *pikseli);
+		void StorePixels();
 
 	private:
 		GLuint textureid;
@@ -22,6 +22,7 @@ class Texture {
 		std::string fname;
 		unsigned int imgid; // id inside the picture file itself ; for example, in tibia's spr file format, the id of sprite, or in still unsupported gif format's animated variant, the frame
 		unsigned long w,h;
+		RGBA *pikseli;
 };
 
 #endif

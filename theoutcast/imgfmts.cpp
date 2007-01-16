@@ -110,8 +110,8 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 		unsigned char *ptr = ((unsigned char *)bmpData.bmBits) + y*bmpData.bmWidthBytes;
 		for (int x=0; x<bmpData.bmWidth; ++x) {
 			unsigned int bits = getbitsfrompos(ptr, x, bmpData.bmBitsPixel);	// izvuèe komad bitstringa
-			//RGBA *tmp = &(*data)[(bmpData.bmHeight-y-1)*bmpData.bmWidth+x];	// izokrene
-			RGBA *tmp = &(*data)[(y)*bmpData.bmWidth+x];	// izokrene
+			RGBA *tmp = &(*data)[(bmpData.bmHeight-y-1)*bmpData.bmWidth+x];	// izokrene
+			//RGBA *tmp = &(*data)[(y)*bmpData.bmWidth+x];	// ne izokrene
 
 			// ako je bitmapa bitna manje od 16, boju uzme iz palete
 			if (bmpData.bmBitsPixel < 16) {
