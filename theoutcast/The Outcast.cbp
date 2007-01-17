@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="4" />
+	<Project>
+		<Option title="The Outcast" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="debug">
+				<Option output="The Outcast debug.exe" />
+				<Option object_output=".objsdebug" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option includeInTargetAll="1" />
+				<Compiler>
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option="-DWIN32" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DDEBUGCONSOLE" />
+				</Compiler>
+				<Linker>
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+				</Linker>
+			</Target>
+			<Target title="release">
+				<Option output="The Outcast.exe" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option includeInTargetAll="1" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-g" />
+					<Add option="-fexceptions" />
+					<Add option="-DWIN32" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+				</Compiler>
+				<Linker>
+					<Add option="-fexceptions" />
+				</Linker>
+			</Target>
+		</Build>
+		<Linker>
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add library="glict" />
+			<Add library="glut32" />
+			<Add library="opengl32" />
+			<Add library="glu32" />
+			<Add library="ws2_32" />
+			<Add library="winmm" />
+			<Add library="3ds" />
+			<Add library="gmp" />
+			<Add library="sqlite3" />
+		</Linker>
+		<Unit filename="assert.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="buffer.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="buffer.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="charlist.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="charlist.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="colors.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="colors.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="console.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="console.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="database.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="database.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="debugprint.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="debugprint.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="defines.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="exchndl2.cxx">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="flythrough.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="flythrough.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gamemode.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gamemode.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="glutfont.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="glutfont.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="glutwin.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="glutwin.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gm_gameworld.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gm_gameworld.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gm_logo.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gm_logo.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gm_mainmenu.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gm_mainmenu.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gwlogon.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="gwlogon.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="imgfmts.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="imgfmts.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="items.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="items.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="main.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="networkdirect.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="networkdirect.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="networkmessage.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="networkmessage.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="obj3ds.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="obj3ds.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="object.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="object.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="objspr.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="objspr.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="protocol.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="protocol.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="protocol76.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="protocol76.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="protocol77.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="protocol77.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="readme.txt">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="simple_effects.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="simple_effects.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="socketstrings.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="socketstrings.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="sprfmts.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="sprfmts.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="texmgmt.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="texmgmt.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="thing.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="threads.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="threads.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="tile.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="types.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="winfont.cpp">
+			<Option compilerVar="CPP" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Unit filename="winfont.h">
+			<Option compilerVar="CPP" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
