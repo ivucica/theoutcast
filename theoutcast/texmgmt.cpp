@@ -100,6 +100,7 @@ RGBA *Texture::FetchSPRPixels() {
 
 
     RGBA *rgba = (RGBA*)malloc(32*32*4);
+    memset(rgba, 0, 32*32*4);
     bool transparent = true;
     int destination = 0;
     for (int initialftell = ftell(f); ftell(f) < initialftell + size-1; ) {
