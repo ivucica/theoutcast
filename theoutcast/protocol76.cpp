@@ -92,8 +92,9 @@ bool Protocol76::GameworldLogin () {
 bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     switch (packetid) {
         case 0x0A: // Creature ID
-            printf("Own creature ID: %d\n", nm->GetU32());
 
+            player = new Player(nm->GetU32());
+            printf("Own creature ID: %d\n", player->GetID(););
             return true;
         case 0x0B: // GM Actions
             nm->Trim(32); // unknown
@@ -121,19 +122,18 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             printf("Unknown value: %d\n", nm->GetU8());
             printf("Can report bugs: %d\n", nm->GetU8());
             return true;
-        case 0x64: // Player Location Initialization
+        case 0x64: // Player Location Setup
             {
-                int x, y, z;
-                x = nm->GetU16();
-                y = nm->GetU16();
-                z = nm->GetU8();
+                position_t pos;
+                GetPosition(nm, &pos);
 
-                printf("Player location: %d %d %d\n", x, y, z);
-                ItemsLoad();
-                //errormsg = "Logon was a success.\n\nHowever, we don't support map fetching yet :/";
-                //logonsuccessful = false;
+                printf("Player location: %d %d %d\n", pos.x, pos.y, pos.z);
 
-                //return false;
+                // only if we're in main menu then let's do the item loading
+                if (dynamic_cast<GM_MainMenu*>(game)) ItemsLoad();
+
+
+
                 ParseMapDescription(nm, maxx, maxy, x - (maxx-1)/2, y - (maxy-1)/2, z);
                 return true;
             }
@@ -151,49 +151,43 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;*/
         case 0x69: // Tile Update
         {
-            int x = nm->GetU16(); // x
-            int y = nm->GetU16(); // y
-            int z = nm->GetU8(); // z
-
-            ParseTileDescription(nm, x,y,z);
+            position_t pos;
+            GetPosition(nm, &pos);
+            ParseTileDescription(nm, pos.x,pos.y,pos.z);
             return true;
         }
-        case 0x6A: // Add Item
-            nm->GetU16(); // x
-            nm->GetU16(); // y
-            nm->GetU8(); // z
+        case 0x6A: {// Add Item
+            position_t pos;
+            GetPosition(nm, &pos);
 
             ParseThingDescription(nm, NULL);
             return true;
-        case 0x6B: // Replace Item
+        }
+        case 0x6B: {// Replace Item
+            position_t pos;
+            GetPosition(nm, &pos);
 
-            nm->GetU16(); // x
-            nm->GetU16(); // y
-            nm->GetU8(); // z
-
-            nm->GetU8(); // stackpos
+            GetStackpos(nm);
 
             ParseThingDescription(nm, NULL);
             return true;
-        case 0x6C: // Remove Item
-            nm->GetU16(); // x
-            nm->GetU16(); // y
-            nm->GetU8(); // z
+        }
+        case 0x6C: {// Remove Item
+            position_t pos;
+            GetPosition(nm, &pos);
 
-            nm->GetU8(); // stackpos
+            GetStackpos(nm);
 
             return true;
-        case 0x6D: // Move Item
-            nm->GetU16(); // x
-            nm->GetU16(); // y
-            nm->GetU8(); // z
-
-            nm->GetU8(); // stackpos
-
-            nm->GetU16(); // x
-            nm->GetU16(); // y
-            nm->GetU8(); // z
+        }
+        case 0x6D: {// Move Item
+            position_t src;
+            position_t dst;
+            GetPosition(nm, &src);
+            GetStackpos(nm);
+            GetPosition(nm, &dst);
             return true;
+        }
         case 0x6E: // Container Open
             nm->GetU8(); // container id
             nm->GetU16(); // container icon
@@ -468,3 +462,11 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     }
 }
 
+void Protocol76::GetPosition(NetworkMessage *nm, position_t *pos) {
+    pos->x = nm->GetU16();
+    pos->y = nm->GetU16();
+    pos->z = nm->GetU8();
+}
+char Protocol76::GetStackpos(NetworkMessage *nm) {
+    return nm->GetU8(); // stackpos
+}

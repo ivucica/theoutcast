@@ -10,6 +10,7 @@ GameMode::GameMode() {
 }
 
 GameMode::~GameMode() {
+    printf("Destructing game\n");
 }
 
 void GameMode::Render() {
@@ -27,7 +28,16 @@ void GameMode::KeyPress (unsigned char key, int x, int y) {
 }
 
 void GameModeEnter(gamemode_t gamemode) {
-	if (game) delete game;
+	printf("SWITCHING GAME MODES\n");
+	if (game) {
+	    printf("First deleting old one ...\n");
+	    // FIXME is there a way to "virtualise" destructor? meaning, when deleting ptr to parent class, i want to call child's destructor
+        if (dynamic_cast<GM_Logo*>(game)) delete (GM_Logo*)game; else
+	    if (dynamic_cast<GM_MainMenu*>(game)) delete (GM_MainMenu*)game; else
+	    if (dynamic_cast<GM_Gameworld*>(game)) delete (GM_Gameworld*)game; else
+	    delete game;
+	}
+
 	switch (gamemode) {
         case GM_LOGO:
             game = new GM_Logo;

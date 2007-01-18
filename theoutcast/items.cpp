@@ -33,7 +33,6 @@ void ItemClear(item_t* item) {
     item->minimapcolor = 0;
     item->spritelist[0] = 0;
     item->otid = 0;
-
 }
 
 
@@ -69,7 +68,12 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             //if (items[itemid].stackable) printf("STACKABLE ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "spritelist")) {
+
             strcpy(items[itemid].spritelist, argv[i]);
+            /*if (itemid==101) {
+                printf("%s\n", items[itemid].spritelist);
+                system("pause");
+            }*/
         }
 
 
@@ -83,7 +87,6 @@ static int ItemsLoadNumFunc(void *NotUsed, int argc, char **argv, char **azColNa
     return 0;
 }
 void ItemsLoad() {
-
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Fetching item properties...");
 

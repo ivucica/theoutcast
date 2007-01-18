@@ -6,7 +6,7 @@
 class GM_Logo : public GameMode {
     public:
         GM_Logo();
-        ~GM_Logo() {}
+        ~GM_Logo();
 
         void Render();
         void KeyPress (unsigned char key, int x, int y);

@@ -33,10 +33,6 @@ void GWLogon_Status(glictMessageBox* mb, const char* txt) {
 
 ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void) {
 	GM_MainMenu* menuclass = (GM_MainMenu*)menuclass_void;
-
-
-
-
 	sockaddr_in sin;
 
 	menuclass->charlist.SetCaption("Entering game world");

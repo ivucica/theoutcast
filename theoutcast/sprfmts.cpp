@@ -1,13 +1,17 @@
 #include <stdio.h>
 #include "sprfmts.h"
 
-unsigned long *SPRPointers;
+unsigned long *SPRPointers=NULL;
 unsigned short SPRCount;
 std::string SPRFile;
 bool SPRLoader(std::string sprfile) { // loads only spr pointers
     unsigned long signature;
     FILE *fp;
 
+    if (SPRPointers) {
+        printf("WARNING: Unclean reloading of sprites. Free them regular way!\n");
+        SPRUnloader();
+    }
     SPRPointers = NULL;
     SPRCount = 0;
     SPRFile = "";
@@ -19,13 +23,12 @@ bool SPRLoader(std::string sprfile) { // loads only spr pointers
     }
     SPRFile = sprfile;
 
-
     fread(&signature, 4, 1, fp);
     fread(&SPRCount, 2, 1, fp);
-    SPRPointers = (unsigned long*)malloc(sizeof(SPRPointers[0]) * SPRCount);
-    for (int i = 0 ; i < SPRCount ; i++) {
+    SPRPointers = (unsigned long*)malloc(sizeof(unsigned long) * (SPRCount+1));
+    for (int i = 1 ; i < SPRCount+1 ; i++) {
         fread(&SPRPointers[i], 4, 1, fp);
-        printf("%d\n", SPRPointers[i]);
+        //printf("%d\n", SPRPointers[i]);
         //if (i==2) {printf("%d\n", SPRPointers[i]); system("pause"); }
     }
     //system("pause");
@@ -34,7 +37,9 @@ bool SPRLoader(std::string sprfile) { // loads only spr pointers
     return true;
 }
 bool SPRUnloader() {
-    free(SPRPointers);
+
+    if (SPRPointers) free(SPRPointers);
+    SPRPointers = NULL;
     SPRCount = 0;
 
 }

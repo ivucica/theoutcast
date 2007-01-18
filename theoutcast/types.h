@@ -52,6 +52,10 @@ typedef struct {
     unsigned short *spriteids;
 } spritelist_t;
 
+typedef struct {
+    unsigned short x, y;
+    unsigned char z;
+} position_t;
 // then some enums
 typedef enum {
     NONE = 0,

@@ -252,6 +252,7 @@ GM_MainMenu::~GM_MainMenu() {
 	delete logo;
 	delete bg;
 	delete city;
+	SPRUnloader();
 }
 
 void GM_MainMenu::Render() {
@@ -277,7 +278,7 @@ void GM_MainMenu::Render() {
         bg->Bind();
         glPushMatrix();
         glTranslatef( sin( bg_move_angle * PI / 180. )*5., 0, 0);
-        StillEffect(-20, 0, 660., 480., 10, 10);
+        StillEffect(-20, 0, 660., 480., 10, 10, false, true);
         glPopMatrix();
 
 
@@ -358,7 +359,7 @@ void GM_MainMenu::Render() {
     glLoadIdentity();
 
     logo->Bind();
-    StillEffect(200, 0, 425, 100, 2, 2); // divisions were 40 10
+    StillEffect(200, 0, 425, 100, 2, 2, false, true); // divisions were 40 10
 
 
 

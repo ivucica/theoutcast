@@ -19,6 +19,10 @@ GM_Logo::GM_Logo () {
     flythrough.set_on_finish(GM_Logo_OnFinish, this);
     done = false;
 }
+GM_Logo::~GM_Logo() {
+    printf("Destructing logo\n");
+    delete logo;
+}
 void GM_Logo::Render() {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -39,7 +43,7 @@ void GM_Logo::Render() {
 
 
         glPushMatrix();
-        flythrough.set_cam_pos(mayanimate ? fps : 90000);
+        flythrough.set_cam_pos(mayanimate && fps > 2. ? fps : 90000);
         if (!done) logo->Render();
         glPopMatrix();
 

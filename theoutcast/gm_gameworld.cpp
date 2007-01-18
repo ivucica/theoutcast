@@ -3,12 +3,18 @@
 #include "items.h"
 #include "console.h"
 #include "objspr.h"
+#include "sprfmts.h"
+#include "glutwin.h"
 GM_Gameworld::GM_Gameworld() {
-    g = new ObjSpr(101);
+    SPRLoader("tibia76.spr");
+
+    g = new ObjSpr(1952);
 }
 
 
 GM_Gameworld::~GM_Gameworld() {
+    printf("Destructing gameworld\n");
+    SPRUnloader();
 }
 
 void GM_Gameworld::Render() {
@@ -18,7 +24,11 @@ void GM_Gameworld::Render() {
     glLoadIdentity();
     gluOrtho2D(0, 640, 0, 480);
     console.draw(10);
-//    g.Render();
+    glPushMatrix();
+    //glTranslatef(200, 200, 0);
+    g->Render();
+    glPopMatrix();
+    RenderMouseCursor();
 }
 
 void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
@@ -26,3 +36,4 @@ void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
     printf("Entering mainmenu\n");
     GameModeEnter(GM_MAINMENU);
 }
+

@@ -112,8 +112,8 @@ RGBA *Texture::FetchSPRPixels() {
             return NULL;
 
         }
-        printf("%s pixel chunk size: %d\n", transparent ? "Transparent" :  "Solid", pixelchunksize);
-        printf("At position %d, reading until %d\n", ftell(f), initialftell + size - 1 );
+        //printf("%s pixel chunk size: %d\n", transparent ? "Transparent" :  "Solid", pixelchunksize);
+        //printf("At position %d, reading until %d\n", ftell(f), initialftell + size - 1 );
         if (transparent) {
             for (int i = 0; i < pixelchunksize; ++i) {
                 rgba[i+destination].r = 0;
@@ -125,13 +125,13 @@ RGBA *Texture::FetchSPRPixels() {
             for (int i = 0; i < pixelchunksize; ++i) {
                 ASSERT( i + destination < 32 * 32 )
                 fread(&rgba[i+destination], 3, 1, f);
-                printf("Reading 3 bytes to pixel %d - ftell is %d\n", i+destination, ftell(f));
+//                printf("Reading 3 bytes to pixel %d - ftell is %d\n", i+destination, ftell(f));
                 rgba[i+destination].a = 255;
             }
         }
         destination += pixelchunksize;
         transparent = !transparent;
-        printf("after read At position %d, reading until %d\n", ftell(f), initialftell + size - 1 );
+        //printf("after read At position %d, reading until %d\n", ftell(f), initialftell + size - 1 );
     }
     w=32; h=32;
     fclose(f);

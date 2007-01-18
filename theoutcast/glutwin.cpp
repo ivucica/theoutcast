@@ -94,7 +94,8 @@ void RenderMouseCursor() {
 	glLoadIdentity();
 	glEnable(GL_TEXTURE_2D);
 
-	FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
+	//FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
+	StillEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, false, true	);
 
 	glDisable(GL_TEXTURE_2D);
 	if (fps && mayanimate) cursoraniangle += 180. / fps;
