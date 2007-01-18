@@ -3,7 +3,7 @@
 #include "types.h"
 #include "glutwin.h"
 int items_n;
-item_t *items;
+item_t *items=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
 
@@ -31,6 +31,7 @@ void ItemClear(item_t* item) {
     item->height = 0.;
     item->height2d_x = 0; item->height2d_y = 0;
     item->minimapcolor = 0;
+    item->spritelist[0] = 0;
     item->otid = 0;
 
 }
@@ -66,6 +67,9 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             sscanf(argv[i], "%d", &iTmp);
             if (iTmp) items[itemid].stackable = true;
             //if (items[itemid].stackable) printf("STACKABLE ITEM %d\n", itemid);
+        }
+        if (!strcmp(azColName[i], "spritelist")) {
+            strcpy(items[itemid].spritelist, argv[i]);
         }
 
 

@@ -1,7 +1,7 @@
 #include <windows.h>
 const char* SocketErrorDescription() {
     switch (WSAGetLastError()) {
-        case WSANOTINITIALISED: 
+        case WSANOTINITIALISED:
             return "Successful WSAStartup not yet performed. "; //return("WSANOTINITIALISED");
             break;
         case WSAENETDOWN:

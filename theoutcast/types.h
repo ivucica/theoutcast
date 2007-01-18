@@ -36,8 +36,21 @@ typedef struct {
     double height;
     unsigned char height2d_x, height2d_y;
     unsigned short minimapcolor;
+    char spritelist[4096];
     unsigned short otid;
 } item_t;
+
+typedef struct {
+    unsigned char width;
+    unsigned char height;
+    unsigned char blendframes;
+    unsigned char xdiv;
+    unsigned char ydiv;
+    unsigned char animcount;
+    unsigned char unknown;
+    unsigned short numsprites; /* to  remove need to calculate this */
+    unsigned short *spriteids;
+} spritelist_t;
 
 // then some enums
 typedef enum {

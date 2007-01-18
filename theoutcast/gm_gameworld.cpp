@@ -2,8 +2,9 @@
 #include "gm_gameworld.h"
 #include "items.h"
 #include "console.h"
+#include "objspr.h"
 GM_Gameworld::GM_Gameworld() {
-
+    g = new ObjSpr(101);
 }
 
 
@@ -17,6 +18,7 @@ void GM_Gameworld::Render() {
     glLoadIdentity();
     gluOrtho2D(0, 640, 0, 480);
     console.draw(10);
+//    g.Render();
 }
 
 void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {

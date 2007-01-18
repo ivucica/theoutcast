@@ -16,16 +16,19 @@ class Obj3ds : public Object {
         Obj3ds(const char* filename);
         ~Obj3ds();
 
+        bool Render();
+
+        // obj3ds specifics
         bool LoadFile(const char* filename);
         bool Loaded() {if (!data3ds) return false; else return true;}
 
-        bool Render();
-
     private:
+
+        // obj3ds specifics
         void RenderNode (Lib3dsNode *node);
 
         Lib3dsFile *data3ds;
-        float animation_frame;
+
 
 };
 
