@@ -18,7 +18,7 @@ class GM_Logo : public GameMode {
         bool done;
 
         void OnFinish();
-
+        float fadein, fadeout;
 
     friend void GM_Logo_OnFinish (void *arg);
 

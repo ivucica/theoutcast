@@ -1,4 +1,4 @@
-#if !defined(USEASSERT) && !defined(ASSERT)
+#if defined(USEASSERT) && !defined(ASSERTFRIENDLY)
     #ifdef WIN32
         #include <windows.h>
 

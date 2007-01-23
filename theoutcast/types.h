@@ -38,6 +38,8 @@ typedef struct {
     unsigned short minimapcolor;
     char spritelist[4096];
     unsigned short otid;
+
+    bool loaded;
 } item_t;
 
 typedef struct {

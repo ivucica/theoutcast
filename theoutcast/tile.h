@@ -2,21 +2,34 @@
 #define __TILE_H
 
 #include <vector>
+#include "thing.h"
+#include "types.h"
+#include "threads.h"
 class Tile {
     public:
         Tile();
         ~Tile();
 
-        void insert(Object *obj);
-        void remove(Object *obj);
+        void insert(Thing *obj);
+        void remove(Thing *obj);
         void remove(unsigned char stackpos);
 
-        void replace(Object *original, Object *newobject);
-        void replace(unsigned char stackpos, Object *newobject);
+        void replace(Thing *original, Thing *newobject);
+        void replace(unsigned char stackpos, Thing *newobject);
 
-        Object *getstackpos(unsigned char stackpos);
+        void empty ();
+
+        Thing *getstackpos(unsigned char stackpos);
+        Thing *getground() {return ground;} // TEMPORARY F. that is TO BE REMOVED.
+
+        void setpos(position_t *p); // so tile can know its position
+        void render();
     private:
-        std::vector<Object*> itemlayers[3], creatures;
+        std::vector<Thing*> itemlayers[3], creatures;
+        Thing *ground;
+        position_t pos;
+        ONCriticalSection threadsafe;
+        unsigned int itemcount;
 };
 
 #endif

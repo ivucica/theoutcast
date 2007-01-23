@@ -18,6 +18,7 @@
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
 					<Add option="-DDEBUGCONSOLE" />
+					<Add option="-DUSESOUND" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -35,6 +36,7 @@
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
+					<Add option="-DUSESOUND" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -57,6 +59,7 @@
 			<Add library="3ds" />
 			<Add library="gmp" />
 			<Add library="sqlite3" />
+			<Add library="fmod" />
 		</Linker>
 		<Unit filename="assert.h" />
 		<Unit filename="buffer.cpp" />
@@ -94,6 +97,8 @@
 		<Unit filename="items.cpp" />
 		<Unit filename="items.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="map.cpp" />
+		<Unit filename="map.h" />
 		<Unit filename="networkdirect.cpp" />
 		<Unit filename="networkdirect.h" />
 		<Unit filename="networkmessage.cpp" />
@@ -104,6 +109,8 @@
 		<Unit filename="object.h" />
 		<Unit filename="objspr.cpp" />
 		<Unit filename="objspr.h" />
+		<Unit filename="player.cpp" />
+		<Unit filename="player.h" />
 		<Unit filename="protocol.cpp" />
 		<Unit filename="protocol.h" />
 		<Unit filename="protocol76.cpp" />
@@ -115,14 +122,18 @@
 		<Unit filename="simple_effects.h" />
 		<Unit filename="socketstrings.cpp" />
 		<Unit filename="socketstrings.h" />
+		<Unit filename="sound.cpp" />
+		<Unit filename="sound.h" />
 		<Unit filename="sprfmts.cpp" />
 		<Unit filename="sprfmts.h" />
 		<Unit filename="texmgmt.cpp" />
 		<Unit filename="texmgmt.h" />
+		<Unit filename="thing.cpp" />
 		<Unit filename="thing.h" />
 		<Unit filename="threads.cpp" />
 		<Unit filename="threads.h" />
 		<Unit filename="tile.cpp" />
+		<Unit filename="tile.h" />
 		<Unit filename="types.h" />
 		<Unit filename="winfont.cpp" />
 		<Unit filename="winfont.h" />

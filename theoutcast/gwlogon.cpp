@@ -12,6 +12,7 @@
 #include "protocol.h"
 #include "database.h"
 #include "items.h"
+#include "sound.h"
 inline void GWLogon_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
@@ -35,6 +36,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	GM_MainMenu* menuclass = (GM_MainMenu*)menuclass_void;
 	sockaddr_in sin;
 
+    SoundPlay("sounds/drums.wav");
 	menuclass->charlist.SetCaption("Entering game world");
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -81,7 +83,6 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
         GWLogon_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
 
-    closesocket(s);
 
 	return 0;
 }

@@ -33,6 +33,8 @@ void ItemClear(item_t* item) {
     item->minimapcolor = 0;
     item->spritelist[0] = 0;
     item->otid = 0;
+
+    item->loaded = false;
 }
 
 
@@ -51,7 +53,14 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
 
     ItemClear(items + itemid);
 
+    items[itemid].loaded = true;
+
     for (i = 0; i < argc; ++i) {
+        if (!strcmp(azColName[i], "ground")) {
+            sscanf(argv[i], "%d", &iTmp);
+            if (iTmp) items[itemid].ground = true;
+            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+        }
         if (!strcmp(azColName[i], "splash")) {
             sscanf(argv[i], "%d", &iTmp);
             if (iTmp) items[itemid].splash = true;
@@ -92,7 +101,7 @@ void ItemsLoad() {
 
 
     items_n = 0;
-    dbExecPrintf(dbData, "select max(itemid) from items%d;", ItemsLoadNumFunc, 0, NULL, protocol->GetProtocolVersion());
+    dbExecPrintf(dbData, ItemsLoadNumFunc, 0, NULL, "select max(itemid) from items%d;", protocol->GetProtocolVersion());
     printf("%d items in database for protocol %d\n", items_n, protocol->GetProtocolVersion());
     if (!items_n) {
         glutHideWindow();
@@ -102,7 +111,7 @@ void ItemsLoad() {
     items = (item_t*)malloc(sizeof(item_t)*(items_n+1));
 
     ItemClear(items); // hurz was bugged for a long time and carries item 0 in inventory .. so lets be smarter than tibia client and allow item 0 ... ;)
-    dbExecPrintf(dbData, "select * from items%d;", ItemsLoadFunc, 0, NULL, protocol->GetProtocolVersion());
+    dbExecPrintf(dbData, ItemsLoadFunc, 0, NULL, "select * from items%d;", protocol->GetProtocolVersion());
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
     //system("pause");

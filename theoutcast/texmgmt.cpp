@@ -70,7 +70,7 @@ RGBA *Texture::FetchSPRPixels() {
         printf("Error opening sprite file %s.", fname.c_str());
         return NULL;
     }
-    printf("Seeking to %d (spr count %d, sprites should begin at %d) \n", SPRPointers[imgid], SPRCount, 4 * SPRCount + 6);
+    //printf("Seeking to %d (spr count %d, sprites should begin at %d) \n", SPRPointers[imgid], SPRCount, 4 * SPRCount + 6);
     if (!(SPRPointers[imgid] >= 4 * SPRCount + 6 && SPRPointers[imgid])) {
         fclose(f);
         return NULL;
@@ -204,19 +204,45 @@ Texture::~Texture() {
 }
 
 void Texture::StorePixels() {
+   // glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &textureid);
+    if (!textureid) {
+        //printf("ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
+        //system("pause");
+        return;
+    }
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
     glBindTexture(GL_TEXTURE_2D, textureid);
+
     gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w,
                     h, GL_RGBA, GL_UNSIGNED_BYTE, pikseli /*pImage->data*/);
     bool simpletextures = false; // to fool him until simpletextures is truly implemented
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR);
     free(pikseli);
+    pikseli = NULL;
 }
 
 void Texture::Bind() {
 	//printf("Binding texture %s\n", fname.c_str());
+	if (!textureid) {
+	    if (!pikseli) {
+            //printf("WOAH! Dude, texture %s (%d) not boundable!\n", fname.c_str(), imgid);
+            //system("pause");
+	    } else {
+	        StorePixels();
+	        if (pikseli) {
+	            printf("Serious texturing problem, dude!\n");
+	            system("pause");
+	            free(pikseli);
+	            pikseli = NULL;
+	        }
+	        if (!textureid) {
+	            printf("WTF!! TExture sjhit\n");
+	            system("pause");
+	        }
+	    }
+	}
 	glBindTexture(GL_TEXTURE_2D, textureid);
 }
 

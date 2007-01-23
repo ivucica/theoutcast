@@ -103,12 +103,12 @@ void flythrough_c::set_cam_pos(float fps)
             player_current_kf_time = 0;
         }
         if (player_current_kf_time > kf[kf_i]->length || player_current_kf_time < 0.) {
-            printf("Next keyframe\n");
+            //printf("Next keyframe\n");
             if (kf_i + 1 != kf.size()) set_active_keyframe(kf_i+1); else ++kf_i; // 'else' is here because we want the comparison in kf_i == kf_size() to work properly
             player_current_kf_time = 0.;
         }
         if (kf_i >= kf.size() || kf_i < 0) {
-            printf("Reached end\n");
+            //printf("Reached end\n");
             set_active_keyframe(0);
             player_current_time = 0.;
 

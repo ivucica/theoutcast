@@ -4,6 +4,9 @@
 #include "items.h"
 #include "debugprint.h"
 #include "thing.h"
+#include "tile.h"
+#include "map.h"
+#include "player.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -40,6 +43,18 @@ bool Protocol::GameworldLogin() {
     return false;
 }
 
+bool Protocol::GameworldWork() {
+    NetworkMessage nm;
+    nm.FillFromSocket(s);
+
+    while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
+    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    return true;
+}
+
+void Protocol::Close() {
+    closesocket(s);
+}
 bool Protocol::ParsePacket(NetworkMessage *nm) {
     unsigned char packetid = nm->GetU8();
     printf("parsing packet\n");
@@ -122,6 +137,7 @@ void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx,
     int startz, endz, stepz;
     unsigned int skip=0;
     ASSERT(destz <= maxz);
+
     if (destz > maxz/2) { // if we're underground
         startz = destz - 2; // then we see two floors above
         endz = min (this->maxz, destz + 2); // and two floors below
@@ -142,45 +158,61 @@ void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx,
         ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
     }
     //printf("MAP DONE!!!!!!!!!!!!!\n");
+
 }
 void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip) {
 
     //static unsigned int skip; // statics are kept between function calls ... neato! cooooool! yipiiiyeah! :)
     // however im not sure what happens if they're declaration-time initialized ... are they reinitialized with every function call?
 
-for (int x = destx; x < destx + w; x++) {
-    for (int y = desty; y < desty + h; y++) {
+    for (int x = destx; x < destx + w; x++) {
+        for (int y = desty; y < desty + h; y++) {
 
-            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
-            if (!*skip) {
-                if (nm->PeekU16() >= 0xFF00) {
-                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skip chunk\n");
-                    *skip = (nm->GetU16() & 0xFF);
-                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
+                if (!*skip) {
+                    if (nm->PeekU16() >= 0xFF00) {
+                        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skip chunk\n");
+                        *skip = (nm->GetU16() & 0xFF);
+                        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
+                    } else {
+                        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Taking in\n");
+                        ParseTileDescription(nm, x + player->GetPos()->z - destz, y + player->GetPos()->z - destz, destz);
+                        *skip = (nm->GetU16() & 0xFF);
+                        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
+                    }
                 } else {
-                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Taking in\n");
-                    ParseTileDescription(nm, x, y, destz);
-                    *skip = (nm->GetU16() & 0xFF);
-                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
+                    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipped (%d remaining)\n", (*skip)-1);
+                    (*skip)--;
                 }
-            } else {
-                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipped (%d remaining)\n", (*skip)-1);
-                (*skip)--;
             }
         }
-    }
 }
 
 void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
+
+    printf("Tile %d %d %d\n", x, y, z);
+    position_t p;
+    p.x = x; p.y = y; p.z = z;
+
+    Tile *t = gamemap.GetTile(&p);
+    printf("Got tile\n");
+    t->empty();
+    printf("Emptied tile\n");
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
+            printf("Tile recved\n");
             return;
         } else {
-            Thing *obj;
+
+            Thing *obj = new Thing;
+
+
             ParseThingDescription(nm, obj);
+            t->insert(obj);
         }
     }
+
 }
 
 void Protocol::ParseThingDescription(NetworkMessage *nm, Thing *thing) {
@@ -189,7 +221,8 @@ void Protocol::ParseThingDescription(NetworkMessage *nm, Thing *thing) {
 
     // temporary vars that will be stored inside object's description once Object class is defined
     int looktype;
-    //printf("Object type %d\n", type);
+
+    printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: // known creature
@@ -241,18 +274,46 @@ void Protocol::ParseThingDescription(NetworkMessage *nm, Thing *thing) {
         //       check with a realworld example
             //ASSERT(type >= 100 && type <= items_n);
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Item %d\n", type);
+            if (thing)
+                thing->SetType(type);
             if (items[type].stackable) {
-                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Count %d\n", nm->GetU8());
+                unsigned char x = nm->GetU8();
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Count %d\n", x);
+                if (thing) thing->SetCount(x);
             }
             if (items[type].splash || items[type].fluidcontainer) {
-                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Color %d\n", nm->GetU8());
+                unsigned char x = nm->GetU8();
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Color %d\n", x);
+
             }
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Upcoming: %d\n", nm->PeekU16());
     }
 }
 
+
 bool Protocol::CipSoft() {
     return false;
+}
+
+void Protocol::MoveNorth() {
+    NetworkMessage nm;
+    nm.AddU8(0x65);
+    nm.Dump(s);
+}
+void Protocol::MoveSouth() {
+    NetworkMessage nm;
+    nm.AddU8(0x67);
+    nm.Dump(s);
+}
+void Protocol::MoveWest() {
+    NetworkMessage nm;
+    nm.AddU8(0x68);
+    nm.Dump(s);
+}
+void Protocol::MoveEast() {
+    NetworkMessage nm;
+    nm.AddU8(0x66);
+    nm.Dump(s);
 }
 
 unsigned short Protocol::GetProtocolVersion () {

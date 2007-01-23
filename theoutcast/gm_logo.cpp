@@ -8,6 +8,7 @@
 #include "glutwin.h"
 #include "gm_logo.h"
 #include "flythrough.h"
+#include "sound.h"
 int poiksu=0, poipsilonu=0, pozeu=0;
 
 
@@ -18,10 +19,14 @@ GM_Logo::GM_Logo () {
     if (!flythrough.load("objnet.fly")) printf("Failed to load flythrough file!\n");
     flythrough.set_on_finish(GM_Logo_OnFinish, this);
     done = false;
+    SoundSetMusic("music/logo.mp3");
+    fadein = 0;
+    fadeout = 0;
 }
 GM_Logo::~GM_Logo() {
     printf("Destructing logo\n");
     delete logo;
+    SoundSetMusic(NULL);
 }
 void GM_Logo::Render() {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -51,6 +56,47 @@ void GM_Logo::Render() {
     }
 
 
+    if (fadein || fadeout) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.,640.,0.,480.,-400.,400.);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_BLEND);
+		glBegin(GL_QUADS);
+		if (fadein) {
+		    SoundSetMusicVolume((1.-fadein) * 128);
+			glColor4f(0,0,0, fadein);
+		}
+		else {
+		    SoundSetMusicVolume((fadeout) * 128);
+			glColor4f(0,0,0,1. - fadeout);
+		}
+		glVertex2f(0, 0);
+		glVertex2f(0, winh);
+		glVertex2f(winw, winh);
+		glVertex2f(winw, 0);
+		glColor4f(1.,1.,1.,1.);
+		glEnd();
+		glDisable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+	}
+
+	if (fps && mayanimate && fadein > 0.) fadein -= 2. / fps;//.5 / fps;
+	if (fadein < 0) fadein = 0.;
+
+	if (fps && mayanimate && fadeout > 0.) fadeout -= 2. / fps;//.5 / fps;
+	if (fadeout < 0) {
+
+	    fadeout = 0.;
+	    OnFinish();
+
+	}
+
+
 }
 
 void GM_Logo::KeyPress (unsigned char key, int x, int y) {
@@ -67,8 +113,9 @@ void GM_Logo::KeyPress (unsigned char key, int x, int y) {
     if (tolower(key) == 'f')
         pozeu--;//=1;
 
+    fadeout = 1.;
 
-    this->OnFinish();
+//    this->OnFinish();
 
 }
 void GM_Logo::ResizeWindow (int w, int h) {
@@ -99,6 +146,7 @@ void GM_Logo::ResizeWindow (int w, int h) {
 
 void GM_Logo::OnFinish() {
     done = true;
+//    fadeout = 1.;
 }
 
 

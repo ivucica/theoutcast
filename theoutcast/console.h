@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "colors.h"
+#include "threads.h"
 typedef struct {
     char* text;
     consolecolors color;
@@ -15,13 +16,10 @@ typedef std::vector <consoleentry*> consolecontainer;
 class Console {
     private:
         consolecontainer con;
-
+        ONCriticalSection threadsafe;
     public:
-        Console() {
-        }
-        ~Console() {
-
-        }
+        Console();
+        ~Console();
 
         const std::string operator [](int id);
         void insert(std::string txt); // inserts default yellow text

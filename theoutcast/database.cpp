@@ -1,3 +1,26 @@
+// FIXME crash report #1
+/*Error occured on Thursday, January 18, 2007 at 22:16:56.
+
+C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe caused an Access Violation at location 77c4610f in module C:\WINDOWS\system32\msvcrt.dll Writing to location 0be12000.
+
+Registers:
+eax=810100f8 ebx=00000001 ecx=0971ebe4 edx=00000074 esi=0bdecb38 edi=0be12000
+eip=77c4610f esp=00238020 ebp=00238040 iopl=0         nv up ei pl zr na po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246
+
+Call stack:
+77C4610F  C:\WINDOWS\system32\msvcrt.dll:77C4610F  strcat
+00458F85  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00458F85
+00402C58  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00402C58  dbExecPrintf(sqlite3*, char const*, int (*)(void*, int, char**, char**), void*, char**, ...)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/database.cpp:125
+00402A0E  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00402A0E  dbLoadSetting(char const*, char*, int, char const*)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/database.cpp:76
+0040A162  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:0040A162  GM_MainMenu::GM_MainMenu()  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gm_mainmenu.cpp:127
+00403A71  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00403A71  GameModeEnter(gamemode_t)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gamemode.cpp:46
+00404AF0  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00404AF0  GM_Gameworld::KeyPress(unsigned char, int, int)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gm_gameworld.cpp:37
+0040425A  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:0040425A  glut_Key(unsigned char, int, int)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/glutwin.cpp:82
+00426ACA  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00426ACA  glictPanel::Paint()  C:/Documents and Settings/ivucica/My Documents/Development/[CPP] GLICT/GLICT/panel.cpp:66
+*/
+
+
 #include <windows.h>
 #include <stdio.h>
 #include <sqlite3.h>
@@ -63,17 +86,17 @@ void DBInit() {
 }
 
 bool dbTableExists(sqlite3 *db, const char *tablename) {
-    return (dbExecPrintf(db, "select * from %s;", NULL, 0, NULL, tablename) == SQLITE_OK);
+    return (dbExecPrintf(db, NULL, 0, NULL, "select * from %s;", tablename) == SQLITE_OK);
 }
 
 void dbSaveSetting(const char* settingname, const char* value) {
-    dbExecPrintf(dbUser, "delete from settings where `field`='%s';", NULL, 0, NULL, settingname);
-    dbExecPrintf(dbUser, "insert into settings (`field`, `value`) values ('%q', '%q');", NULL, 0, NULL, settingname, value);
+    dbExecPrintf(dbUser, NULL, 0, NULL, "delete from settings where `field`='%s';", settingname);
+    dbExecPrintf(dbUser, NULL, 0, NULL, "insert into settings (`field`, `value`) values ('%q', '%q');", settingname, value);
 }
 
 bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const char *defaultval) {
     dbLoadSettingReturnValue = NULL;
-    if (dbExecPrintf(dbUser, "select `value` from settings where `field` = '%q';", dbLoadSettingFunc, 0, NULL, settingname) == SQLITE_OK) {
+    if (dbExecPrintf(dbUser, dbLoadSettingFunc, 0, NULL, "select `value` from settings where `field` = '%q';", settingname) == SQLITE_OK) { // Crash report #1
         if (dbLoadSettingReturnValue) {
             printf("Returned value %s\n", dbLoadSettingReturnValue);
             memcpy(valuetarget, dbLoadSettingReturnValue, min(maxlen, strlen(dbLoadSettingReturnValue)));
@@ -110,10 +133,10 @@ static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColN
 }
 int dbExecPrintf(
   sqlite3* db,                     /* An open database */
-  const char *sql,                 /* SQL to be executed */
   sqlite3_callback cb,             /* Callback function */
   void *arg,                       /* 1st argument to callback function */
   char **errmsg,                   /* Error msg written here */
+  const char *sql,                 /* SQL to be executed */
   ...) {
 
 	va_list vl;
@@ -122,7 +145,8 @@ int dbExecPrintf(
     char *z = sqlite3_vmprintf(sql, vl);
 
     printf("QUERY: %s\n", z);
-    int rc = sqlite3_exec(db, z, cb, arg, errmsg);
+
+    int rc = sqlite3_exec(db, z, cb, arg, errmsg); // Crash report #1
     if (rc != SQLITE_OK) printf("SQLite: Error: '%s', RC: %s, query '%s'\n", sqlite3_errmsg(dbUser), dbProcessRC(rc), z);
     sqlite3_free(z);
 

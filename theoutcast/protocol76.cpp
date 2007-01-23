@@ -5,6 +5,9 @@
 #include "networkmessage.h"
 #include "defines.h"
 #include "console.h"
+#include "player.h"
+#include "map.h"
+#include "tile.h"
 Protocol76::Protocol76 () {
     protocolversion = 760;
     // FIXME Put CORRECT fingerprints
@@ -94,7 +97,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x0A: // Creature ID
 
             player = new Player(nm->GetU32());
-            printf("Own creature ID: %d\n", player->GetID(););
+            printf("Own creature ID: %d\n", player->GetCreatureID());
             return true;
         case 0x0B: // GM Actions
             nm->Trim(32); // unknown
@@ -126,29 +129,47 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             {
                 position_t pos;
                 GetPosition(nm, &pos);
-
+                player->SetPos(&pos);
                 printf("Player location: %d %d %d\n", pos.x, pos.y, pos.z);
 
                 // only if we're in main menu then let's do the item loading
                 if (dynamic_cast<GM_MainMenu*>(game)) ItemsLoad();
 
-
-
-                ParseMapDescription(nm, maxx, maxy, x - (maxx-1)/2, y - (maxy-1)/2, z);
+                ParseMapDescription(nm, maxx, maxy, pos.x - (maxx-1)/2, pos.y - (maxy-1)/2, pos.z);
                 return true;
             }
-        /*case 0x65: // Move Player North
-            ParseMapDescription(nm, maxx, 1, x - (maxx-1)/2, y - (maxy - 1)/2, z);
+        case 0x65: // Move Player North
+            gamemap.Lock();
+            printf("Move north\n");
+            player->SetPos(player->GetPosX(), player->GetPosY()-1, player->GetPosZ());
+            ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            printf("End move north\n");
+            gamemap.Unlock();
             return true;
         case 0x66: // Move Player East
-            ParseMapDescription(nm, 1, maxy, x - (maxx-1)/2, y + (maxy - 1)/2, z);
+            gamemap.Lock();
+            printf("Move east\n");
+            player->SetPos(player->GetPosX()+1, player->GetPosY(), player->GetPosZ());
+            ParseMapDescription(nm, 1, maxy, player->GetPos()->x + (maxx+1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            printf("End move east\n");
+            gamemap.Unlock();
             return true;
         case 0x67: // Move Player South
-            ParseMapDescription(nm, maxx, 1, x - (maxx-1)/2, y + (maxy - 1)/2, z);
+            gamemap.Lock();
+            printf("Move south\n");
+            player->SetPos(player->GetPosX(), player->GetPosY()+1, player->GetPosZ());
+            ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y + (maxy+1 )/2, player->GetPos()->z);
+            printf("End move south\n");
+            gamemap.Unlock();
             return true;
         case 0x68: // Move Player West
-            ParseMapDescription(nm, maxx, 1, x + (maxx-1)/2, y - (maxy - 1)/2, z);
-            return true;*/
+            gamemap.Lock();
+            printf("Move west\n");
+            player->SetPos(player->GetPosX()-1, player->GetPosY(), player->GetPosZ());
+            ParseMapDescription(nm, 1, maxy, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            printf("End move west\n");
+            gamemap.Unlock();
+            return true;
         case 0x69: // Tile Update
         {
             position_t pos;
@@ -159,8 +180,10 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x6A: {// Add Item
             position_t pos;
             GetPosition(nm, &pos);
-
-            ParseThingDescription(nm, NULL);
+            Tile *tile = gamemap.GetTile(&pos);
+            Thing *t = new Thing;
+            ParseThingDescription(nm, t);
+            tile->insert(t);
             return true;
         }
         case 0x6B: {// Replace Item
@@ -357,41 +380,47 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0xA3: // Cancel Attack
             return true;
-        case 0xAA: // Creature Speak
-            nm->GetU32(); // OT says always 0, perhaps it is NOT!
-            nm->GetString(); // creature name
+        case 0xAA: {// Creature Speak
+            if (protocolversion > 760) {// i presume?
+                nm->GetU32(); // OT says always 0, perhaps it is NOT!
+            }
+            std::string creaturename = nm->GetString(); // creature name
+            unsigned short creaturelevel=0;
             if (protocolversion >= 780) {
-                nm->GetU16(); // player level
+                creaturelevel = nm->GetU16(); // player level
             }
-            {
-                unsigned char msgtype = nm->GetU8();
-                switch (msgtype) {
-                    case 0x01: // say
-                    case 0x02: // whisper
-                    case 0x03: // yell
 
-                    case 0x10: // monster 1
-                    case 0x11: // monster 2
-                        nm->GetU16(); // position
-                        nm->GetU16();
-                        nm->GetChar();
-                        break;
-                    case 0x05: // yellow
-                    case 0x0A: // red -- r1 #c gamemaster command
-                    case 0x0E: // red -- r2 #d counsellor command ??
+            unsigned char msgtype = nm->GetU8();
+            switch (msgtype) {
+                case 0x01: // say
+                case 0x02: // whisper
+                case 0x03: // yell
 
-                        nm->GetU16(); // channel id
-                        break;
-                    case 0x09: // broadcast
-                    case 0x04: // private
-                    case 0x0B: // private red     @name@text
-                    case 0x0C: // orange
-                        break;
+                case 0x10: // monster 1
+                case 0x11: // monster 2
+                    nm->GetU16(); // position
+                    nm->GetU16();
+                    nm->GetChar();
+                    //this->GetPosition(nm, pos); FIXME should be like this
+                    break;
+                case 0x05: // yellow
+                case 0x0A: // red -- r1 #c gamemaster command
+                case 0x0E: // red -- r2 #d counsellor command ??
 
-                }
+                    nm->GetU16(); // channel id
+                    break;
+                case 0x09: // broadcast
+                case 0x04: // private
+                case 0x0B: // private red     @name@text
+                case 0x0C: // orange
+                    break;
+
             }
-            nm->GetString(); // message
 
+            std::string message = nm->GetString(); // message
+
+            console.insert(creaturename + ": " + message, CONYELLOW);
+            }
             return true;
         case 0xAB: // Channels Dialog
             {

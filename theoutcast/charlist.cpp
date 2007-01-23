@@ -11,12 +11,14 @@
 #include "debugprint.h"
 #include "protocol.h"
 #include "database.h"
+#include "sound.h"
 inline void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Error accessing account");
 	mb->SetHeight(64);
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
+	SoundPlay("sounds/error.wav");
 }
 inline void CharList_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
@@ -24,6 +26,7 @@ inline void CharList_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetCaption("Message of the Day");
 	mb->SetHeight(64);
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonOK);
+	SoundPlay("sounds/bell.wav");
 }
 
 inline void CharList_Status(glictMessageBox* mb, const char* txt) {
@@ -84,8 +87,10 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
     protocol->SetSocket(s);
     if (protocol->CharlistLogin(menuclass->txtLoginUsername.GetCaption().c_str(), menuclass->txtLoginPassword.GetCaption().c_str()) ) {
+        printf("Success!\n");
         CharList_ReportSuccess(&menuclass->charlist, protocol->GetMotd().c_str() );
     } else {
+        printf("Error!\n");
         CharList_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
 

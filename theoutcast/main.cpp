@@ -10,7 +10,11 @@
 #include "winfont.h"
 #include "defines.h"
 #include "database.h"
+#include "sound.h"
 
+//remove me:
+#include "map.h"
+#include "types.h"
 
 // function predeclares
 void GameInit();
@@ -118,10 +122,14 @@ if(AllocConsole())
 	GLInit();
 	printf("Setting up net\n");
 	NetInit();
-	printf("Setting up game\n");
-	GameInit();
 	printf("Setting up database\n");
 	DBInit();
+	printf("Setting up sound system\n");
+	SoundInit(NULL);
+
+	// game must be inited LAST.
+	printf("Setting up game\n");
+	GameInit();
 
 	glutDisplayFunc(glut_Display);
 	glutReshapeFunc(glut_Reshape);

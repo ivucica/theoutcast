@@ -13,8 +13,12 @@
 #include "database.h"
 #include "gwlogon.h"
 #include "sprfmts.h"
+#include "sound.h"
 int currentspr;
+
 GM_MainMenu::GM_MainMenu() {
+
+    SoundSetMusic("music/logon.mp3");
 
     SPRLoader("tibia76.spr");
     currentspr = 1;
@@ -214,7 +218,7 @@ GM_MainMenu::GM_MainMenu() {
 
 		i = j+1;
 	}
-	sprintf(abouttext, "%s 0.3.1\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
+	sprintf(abouttext, "%s 0.3.2\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
 	about.SetMessage(abouttext);
 //    about.SetMessage("oi");
 	about.SetHeight(390);
@@ -253,6 +257,7 @@ GM_MainMenu::~GM_MainMenu() {
 	delete bg;
 	delete city;
 	SPRUnloader();
+	SoundSetMusic(NULL);
 }
 
 void GM_MainMenu::Render() {
@@ -358,6 +363,7 @@ void GM_MainMenu::Render() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    glAlphaFunc(GL_GEQUAL, 0.99);
     logo->Bind();
     StillEffect(200, 0, 425, 100, 2, 2, false, true); // divisions were 40 10
 
@@ -390,10 +396,14 @@ void GM_MainMenu::Render() {
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);
 		glBegin(GL_QUADS);
-		if (fadein)
+		if (fadein) {
+		    SoundSetMusicVolume((1.-fadein) * 128);
 			glColor4f(0,0,0, fadein);
-		else
+		}
+		else {
+		    SoundSetMusicVolume((fadeout) * 128);
 			glColor4f(0,0,0,1. - fadeout);
+		}
 		glVertex2f(0, 0);
 		glVertex2f(0, winh);
 		glVertex2f(winw, winh);
@@ -451,15 +461,19 @@ void GM_MainMenu::ResizeWindow() {
 }
 
 void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
+	if (shift == GLUT_UP) SoundPlay("sounds/mouse.wav");
+
 	glictPos pos;
 	pos.x = mousex;
 	pos.y = mousey;
 	desktop.TransformScreenCoords(&pos);
 	if (shift==GLUT_DOWN) desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
 	if (shift==GLUT_UP) desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
+
 }
 
 void GM_MainMenu::KeyPress (unsigned char key, int x, int y) {
+    SoundPlay("sounds/key.wav");
 	desktop.CastEvent(GLICT_KEYPRESS, &key, 0);
 	glutPostRedisplay();
 }

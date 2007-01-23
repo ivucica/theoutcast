@@ -90,7 +90,10 @@ void NetworkMessage::FillFromSocket (SOCKET s) {
 	ioctlsocket(s, FIONBIO, &mode);
 
 
-	while (recv(s, (char*)&sz, 2, 0) == -1);
+	//while (
+        recv(s, (char*)&sz, 2, 0) == -1
+    //)
+    ;
 	//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
