@@ -13,4 +13,5 @@
 
 #else
     #define ASSERT(x)
+    #define ASSERTFRIENDLY(x, y)
 #endif
