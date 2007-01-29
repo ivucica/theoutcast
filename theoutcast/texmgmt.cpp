@@ -1,6 +1,7 @@
 #include <vector>
 #include <stdio.h>
 #include <windows.h>
+#include <io.h> // filelength
 #include "texmgmt.h"
 #include "imgfmts.h"
 #include "assert.h"
@@ -70,17 +71,30 @@ RGBA *Texture::FetchSPRPixels() {
         printf("Error opening sprite file %s.", fname.c_str());
         return NULL;
     }
+
+    if (imgid == 0) {
+        RGBA *rgba = (RGBA*)malloc(32*32*4);
+        memset(rgba, 0, 32*32*4);
+        w=32; h=32;
+        return rgba;
+
+    }
+    ASSERT(imgid)
+
     //printf("Seeking to %d (spr count %d, sprites should begin at %d) \n", SPRPointers[imgid], SPRCount, 4 * SPRCount + 6);
     if (!(SPRPointers[imgid] >= 4 * SPRCount + 6 && SPRPointers[imgid])) {
+        fclose(f);
+        return NULL;
+    }
+    if (SPRPointers[imgid]>filelength(fileno(f))) {
+            printf("SIZE DOUBLEPLUSUNGOOD\n");
+            //system("pause");
         fclose(f);
         return NULL;
     }
 
 
     fseek(f, SPRPointers[imgid], SEEK_SET);
-
-
-    // FIXME study the following code and rewrite it // this has been copypasted :/ // it also crashes!
 
 
     fgetc(f);fgetc(f);fgetc(f); // what do these do?
@@ -103,10 +117,21 @@ RGBA *Texture::FetchSPRPixels() {
     memset(rgba, 0, 32*32*4);
     bool transparent = true;
     int destination = 0;
+/*
+    unsigned char dontbeginwithtransparence = fgetc(f);
+    if (dontbeginwithtransparence == 0xFF) {
+        transparent = false;
+    } else {
+        fseek(f, -1, SEEK_CUR);
+    }
+*/
     for (int initialftell = ftell(f); ftell(f) < initialftell + size-1; ) {
         unsigned short pixelchunksize;
         fread(&pixelchunksize, 2, 1, f);
-        if (pixelchunksize>1024) {
+        if ( pixelchunksize>1024) {
+            printf("PIXELCHUNKSIZE invalid for sprite beginning at %d, imgid %d\n", initialftell, imgid);
+            //system("pause");
+
             fclose(f);
             free(rgba);
             return NULL;
@@ -135,66 +160,6 @@ RGBA *Texture::FetchSPRPixels() {
     }
     w=32; h=32;
     fclose(f);
-    /*
-
-    unsigned char *dump = (unsigned char*)malloc(size);
-    fread(dump, size, 1, f);
-
-
-    unsigned long i, state, pos;
-	unsigned short npix;
-
-	unsigned char *rgb = (unsigned char*)malloc(32*32*3);
-	memset(rgb,0x11,32*32*3);
-
-
-
-	state=0;
-	pos=0;
-	for(i=0; i < size;)
-	{
-		memcpy(&npix, dump+i, 2); // number of pixels (transparent or defined)
-		printf("%d %s pixels\n", npix, state ? "transparent" : "solid");
-		//system("pause");
-		i += 2;
-
-		switch(state)
-		{
-		default: // state 0, drawing transparent pixels
-			state=1;
-			break;
-		case 1: // state 1, drawing defined pixels
-			//ASSERT(pos*3 < 32*32*3);
-			memcpy(rgb+(pos*3), dump+i, npix*3);
-			i += npix*3;
-			state=0;
-			break;
-		}
-		pos += npix;
-	}
-
-
-    unsigned char* rgba = (unsigned char*)malloc(32*32*4);
-
-
-    for(int i=0; i<32;i++) {
-        for(int j=0; j < 32;j++) {
-            rgba[i*32*4+j*4] = rgb[(32-i-1)*32*3+j*3];//red
-            rgba[i*32*4+j*4+1] = rgb[(32-i-1)*32*3+j*3+1];//green
-            rgba[i*32*4+j*4+2] = rgb[(32-i-1)*32*3+j*3+2]; //blue
-            rgba[i*32*4+j*4+3] = (rgba[i*32*4+j*4]==0x11 && rgba[i*32*4+j*4+1]==0x11 && rgba[i*32*4+j*4+2]==0x11) ? 0 : 255;
-        }
-    }
-
-
-    w = 32; h = 32;
-
-    fclose(f);
-
-    free(dump);
-    free(rgb);
-
-    */
 
     return (RGBA*)rgba;
 
@@ -225,6 +190,7 @@ void Texture::StorePixels() {
 
 void Texture::Bind() {
 	//printf("Binding texture %s\n", fname.c_str());
+
 	if (!textureid) {
 	    if (!pikseli) {
             //printf("WOAH! Dude, texture %s (%d) not boundable!\n", fname.c_str(), imgid);

@@ -6,11 +6,10 @@ int items_n;
 item_t *items=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
-
-
 void ItemClear(item_t* item) {
 
     item->graphics[0] = 0;
+    item->graphics2d[0] = 0;
     item->ground = false;
     item->speedindex = 0;
     item->topindex = 0;
@@ -84,7 +83,6 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
                 system("pause");
             }*/
         }
-
 
     }
     return 0;

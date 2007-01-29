@@ -5,8 +5,9 @@
 	#include <windows.h>
 #endif
 #include <GL/gl.h>
+#include <math.h>
 #include "flythrough.h"
-#include "math.h"
+
 /** @brief (one liner)
   *
   * (documentation goes here)

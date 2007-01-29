@@ -75,6 +75,7 @@ void glut_FPS (int param) {
 
 void glut_MayAnimateToTrue (int param) {
 	mayanimate = true;
+
 }
 
 void glut_Key(unsigned char key, int x, int y) {

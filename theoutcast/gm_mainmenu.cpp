@@ -127,8 +127,8 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginServer.SetPos(100, 6*15);
 	txtLoginServer.SetHeight(14);
 	txtLoginServer.SetWidth(150);
-    dbLoadSetting("server", tmp, 256, "localhost");
-    txtLoginServer.SetCaption( tmp );
+	dbLoadSetting("server", tmp, 256, "localhost");
+	txtLoginServer.SetCaption( tmp );
 
 	login.AddObject(&pnlLoginUsername);
 	pnlLoginUsername.SetCaption("Username:");
@@ -177,9 +177,9 @@ GM_MainMenu::GM_MainMenu() {
 	charlist.SetBGColor(.3,.3,.3,1.);
 	charlist.SetVisible(false);
 
-    desktop.AddObject(&characterlist);
-    characterlist.SetCaption("Choose a character");
-    characterlist.SetVisible(false);
+	desktop.AddObject(&characterlist);
+	characterlist.SetCaption("Choose a character");
+	characterlist.SetVisible(false);
 
 	about.SetCaption("About");
 	//about.SetBGColor(.5,.5,.5,1.);
@@ -675,6 +675,54 @@ void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller) {
 void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller) {
 
     delete ((GM_MainMenu*)game)->logo;
+    currentspr ++;
+    int w = currentspr;
+    switch (currentspr) {
+        case 0:
+            w = 514;
+            break;
+        case 1:
+            w = 320;
+            break;
+        case 2:
+            w = 260;
+            break;
+        case 3:
+            w = 769;
+            break;
+        case 4:
+            w = 5470;
+            break;
+        case 5:
+            w = 0;
+            break;
+        case 6:
+            w = 5469;
+            break;
+        case 7:
+            w = 0;
+            break;
+        case 8:
+            w = 5452;
+            break;
+        case 9:
+            w = 5451;
+            break;
+        case 10:
+            w = 0;
+            break;
+        case 11:
+            w = 0;
+            break;
+        case 12:
+            w = 5464;
+            break;
+        case 13:
+            w = 0;
 
-    ((GM_MainMenu*)game)->logo = new Texture ("tibia76.spr", currentspr++);
+        default:
+        break;
+    }
+    ((GM_MainMenu*)game)->logo = new Texture ("tibia76.spr", w);
+    //((GM_MainMenu*)game)->logo = new Texture ("tibia76.spr", currentspr++);
 }

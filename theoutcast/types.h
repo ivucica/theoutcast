@@ -16,6 +16,7 @@ typedef struct {
 } character_t; // character list element
 typedef struct {
     char graphics[50];
+    char graphics2d[50];
     bool ground;
     unsigned short speedindex;
     unsigned char topindex;
@@ -41,6 +42,13 @@ typedef struct {
 
     bool loaded;
 } item_t;
+typedef struct {
+    char graphics[50];
+    char graphics2d[50];
+    char spritelist[4096];
+
+    bool loaded;
+} creature_t;
 
 typedef struct {
     unsigned char width;

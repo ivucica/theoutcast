@@ -1,5 +1,8 @@
 #include "thing.h"
 #include "items.h"
+
+#include "creature.h"
+#include "item.h"
 Thing::Thing() {
     sprgfx = NULL;
     type = 0;
@@ -28,7 +31,7 @@ void Thing::SetCount(unsigned char count) {
 void Thing::SetType(unsigned short type) {
     this->type = type;
     //printf("NEW ITEM OF TYPE %d\n", type);
-    sprgfx = new ObjSpr(type);
+    sprgfx = new ObjSpr(type, 0);
 }
 void Thing::Render() {
     //printf("Wendewing\n");
@@ -41,5 +44,19 @@ void Thing::Render(position_t *pos) {
             sprgfx->Render(count);
         else
             sprgfx->Render(pos);
+    }
+}
+void Thing::AnimationAdvance(float advance) {
+    if (sprgfx) sprgfx->AnimationAdvance(advance);
+}
+
+Thing *ThingCreate(unsigned int type) {
+    switch (type) {
+        case 0x61:
+        case 0x62:
+        case 0x63:
+            return new Creature;
+        default:
+            return new Item;
     }
 }

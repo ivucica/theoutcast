@@ -7,7 +7,7 @@
 class ObjSpr : public Object {
     public:
         ObjSpr();
-        ObjSpr(unsigned int itemid);
+        ObjSpr(unsigned int itemid, unsigned char type);
         ~ObjSpr();
 
         bool Render();
@@ -15,6 +15,7 @@ class ObjSpr : public Object {
         bool Render(unsigned char stackcount);
 
         void LoadItem(unsigned int itemid);
+        void LoadCreature(unsigned int creaturetype);
     private:
         spritelist_t sli; // spritelist
         Texture **t; // sprite textures list

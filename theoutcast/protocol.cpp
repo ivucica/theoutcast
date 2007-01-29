@@ -190,39 +190,36 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
 
 void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
 
-    printf("Tile %d %d %d\n", x, y, z);
+//    printf("Tile %d %d %d\n", x, y, z);
     position_t p;
     p.x = x; p.y = y; p.z = z;
 
     Tile *t = gamemap.GetTile(&p);
-    printf("Got tile\n");
+//    printf("Got tile\n");
     t->empty();
-    printf("Emptied tile\n");
+//    printf("Emptied tile\n");
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
-            printf("Tile recved\n");
+//            printf("Tile recved\n");
             return;
         } else {
-
-            Thing *obj = new Thing;
-
-
-            ParseThingDescription(nm, obj);
+            Thing *obj = ParseThingDescription(nm);
             t->insert(obj);
         }
     }
 
 }
 
-void Protocol::ParseThingDescription(NetworkMessage *nm, Thing *thing) {
+Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     // MUST ACCEPT NULL as second param
     int type = nm->GetU16();
 
+    Thing *thing = ThingCreate(type);
     // temporary vars that will be stored inside object's description once Object class is defined
     int looktype;
 
-    printf("Object type %d\n", type);
+    //printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: // known creature
@@ -270,24 +267,19 @@ void Protocol::ParseThingDescription(NetworkMessage *nm, Thing *thing) {
 
             break;
         default: // regular item
-        // FIXME perhaps the order is not right ... maybe splash/fluidcontainer color is coming first, not stackable amount!
-        //       check with a realworld example
-            //ASSERT(type >= 100 && type <= items_n);
-            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Item %d\n", type);
+            ASSERT(type >= 100 && type <= items_n);
             if (thing)
                 thing->SetType(type);
+
             if (items[type].stackable) {
                 unsigned char x = nm->GetU8();
-                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Count %d\n", x);
                 if (thing) thing->SetCount(x);
             }
             if (items[type].splash || items[type].fluidcontainer) {
                 unsigned char x = nm->GetU8();
-                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Color %d\n", x);
-
             }
-            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Upcoming: %d\n", nm->PeekU16());
     }
+    return thing;
 }
 
 

@@ -5,13 +5,15 @@
 #include "thing.h"
 #include "types.h"
 #include "threads.h"
+#include "creature.h"
+#include "item.h"
 class Tile {
     public:
         Tile();
         ~Tile();
 
         void insert(Thing *obj);
-        void remove(Thing *obj);
+        //void remove(Thing *obj);
         void remove(unsigned char stackpos);
 
         void replace(Thing *original, Thing *newobject);
@@ -25,7 +27,8 @@ class Tile {
         void setpos(position_t *p); // so tile can know its position
         void render();
     private:
-        std::vector<Thing*> itemlayers[3], creatures;
+        std::vector<Item*> itemlayers[3];
+        std::vector<Creature*> creatures;
         Thing *ground;
         position_t pos;
         ONCriticalSection threadsafe;

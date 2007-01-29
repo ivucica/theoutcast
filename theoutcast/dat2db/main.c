@@ -59,7 +59,7 @@ char lastpercentage;
 int datversion;
 
 /* header data */
-unsigned short dat_items, dat_monsters, dat_effects, dat_distance;
+unsigned short dat_items, dat_creatures, dat_effects, dat_distance;
 
 
 
@@ -123,6 +123,21 @@ char check_tables() {
 				return 0;
 		}
 	}
+    sprintf(tablename, "creatures%d", datversion);
+	if (!tableexists(tablename)) {
+		printf("Creating table '%s'.\n", tablename);
+		if (dbexecprintf(fo, "create table %s ("
+            "creatureid integer primary key," /* creature id, as the server sends it to us */
+            "graphics varchar[50], " /* 3d graphics file */
+			"graphics2d varchar[50], " /* 3d graphics file */
+            "spritelist varchar[4096] " /* spritelist */
+            "); ", NULL, 0, NULL, tablename) != SQLITE_OK) {
+                printf("Table '%s' creation failed\n", tablename);
+				return 0;
+            }
+	}
+
+    return 1;
 }
 unsigned short readu16() {
     unsigned short tmp;
@@ -135,8 +150,8 @@ char dat_load_header() {
     printf("DAT signature: 0x%08x\n", signature);
     fread(&dat_items, 2, 1, fi);
     printf("Items: %d\n", dat_items);
-    fread(&dat_monsters, 2, 1, fi);
-    printf("Monsters: %d\n", dat_monsters);
+    fread(&dat_creatures, 2, 1, fi);
+    printf("Creatures: %d\n", dat_creatures);
     fread(&dat_effects, 2, 1, fi);
     printf("Effects: %d\n", dat_effects);
     fread(&dat_distance, 2, 1, fi);
@@ -356,7 +371,11 @@ char entryexists_itemid(unsigned int itemid) {
     BOOL returner = FALSE;
 
     if (dbexecprintf(fo, "select * from items%d where itemid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
+}
+char entryexists_creatureid(unsigned int itemid) {
+    BOOL returner = FALSE;
 
+    if (dbexecprintf(fo, "select * from creatures%d where creatureid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 }
 BOOL gettrue () {
     return TRUE ;
@@ -373,8 +392,6 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
     for (j = 0; j < sl->numsprites; ++j) {
         spritelistptr += sprintf(spritelistptr, "%d ", (unsigned int)sl->spriteids[j]);
     }
-    /*printf(spritelist);
-    system("pause");*/
 
     if (!entryexists_itemid(itemid)) {
 
@@ -495,6 +512,59 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
     }
 
 }
+
+
+
+
+BOOL insertcreature (unsigned short itemid, item_t *i) {
+
+    char spritelist[4096];
+    char *spritelistptr;
+    unsigned short j;
+    spritelist_t *sl = i->sl;
+
+    spritelistptr = spritelist + sprintf(spritelist, "%d %d %d %d %d %d %d %d ", (unsigned int)sl->width, (unsigned int)sl->height, (unsigned int)sl->blendframes, (unsigned int)sl->xdiv, (unsigned int)sl->ydiv, (unsigned int)sl->animcount, (unsigned int)sl->unknown, (unsigned int)sl->numsprites);
+
+    for (j = 0; j < sl->numsprites; ++j) {
+        spritelistptr += sprintf(spritelistptr, "%d ", (unsigned int)sl->spriteids[j]);
+    }
+
+    if (!entryexists_creatureid(itemid)) {
+
+        if (dbexecprintf(fo, "insert into creatures%d ("
+                        "creatureid, "
+                        "graphics, "
+                        "graphics2d, "
+                        "spritelist"
+                        ") values (%d, '%q', '%q', '%q');", NULL, NULL, NULL,
+
+                        datversion, /* part of table name */
+
+
+                        itemid,
+                        i->graphics,
+                        i->graphics2d,
+                        spritelist
+                        ) != SQLITE_OK) return FALSE; else return TRUE;
+    } else {
+        if (dbexecprintf(fo, "update creatures%d set "
+                        "graphics = '%q', "
+                        "graphics2d = '%q', "
+                        "spritelist = '%q'"
+
+                        " where creatureid = '%d';", NULL, 0, NULL,
+                        datversion,
+                        i->graphics,
+                        i->graphics2d,
+                        spritelist,
+
+                        itemid) != SQLITE_OK) return FALSE; else return TRUE;
+
+    }
+
+}
+
+
 void show_progress(int currentid, int dat_items) {
 
     if ((currentid * 10) / dat_items > lastpercentage/10) {
@@ -586,11 +656,34 @@ int main (int argc, char **argv) {
             free(item.sl->spriteids);
             free(item.sl);
         }
-
         currentid ++;
-
 	}
+	printf("End reading items at %d\n", ftell(fi));
+
+    printf("READING MONSTERS...\n");
+	currentid = 1;
+	lastpercentage = -100;
+	dbexec(fo, "begin transaction;", NULL, NULL, NULL);
+	while (ftell(fi) < size && currentid <= dat_creatures) {
+	    /*printf("Item %d\n", currentid);*/
+        show_progress(currentid, dat_creatures);
+        if (!dat_readitem(&item)) {
+            printf("Reading creature %d failed.\n", currentid);
+            return 5;
+        }
+        patchitem (currentid, &item);
+        if (!insertcreature(currentid, &item)) {
+            printf("Inserting creature %d failed.\n", currentid);
+            return 6;
+        } else {
+            free(item.sl->spriteids);
+            free(item.sl);
+        }
+        currentid ++;
+	}
+	printf("End reading creatures at %d\n", ftell(fi));
 	dbexec(fo, "end transaction;", NULL, NULL, NULL);
+    fclose(fi);
     printf("DONE\n");
 	return 0;
 }

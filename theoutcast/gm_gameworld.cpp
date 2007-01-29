@@ -9,6 +9,9 @@
 #include "map.h"
 #include "threads.h"
 #include "protocol.h"
+#include "sound.h"
+
+extern float ItemAnimationPhase;
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
     while (dynamic_cast<GM_Gameworld*>(game)) { // while we're in gameworld game mode
         protocol->GameworldWork();
@@ -20,8 +23,11 @@ GM_Gameworld::GM_Gameworld() {
     printf("Constructing gameworld\n");
     SPRLoader("tibia76.spr");
 
-    //g = new ObjSpr(1952);
+    SoundSetMusic("music/game.mp3");
+    printf("Ahoy1\n");
+    g = new ObjSpr(5022, 0);
     //g = new ObjSpr(4597);
+    printf("Ahoy\n");
 
     ONNewThread(GM_Gameworld_Thread, NULL);
 }
@@ -38,17 +44,17 @@ void GM_Gameworld::Render() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, 640, 0, 480);
+
+
     gamemap.Lock();
-
-
+    ItemAnimationPhase+=100. / fps;
+    printf("animation phase %g\n", ItemAnimationPhase);
     glPushMatrix();
     glTranslatef(100, 100, 0);
     glScalef(0.5, 0.5, 0.5);
     for (int z = 14; z >= (player->GetPosZ()>7 ? player->GetPosZ() : 0) ; z--)
-
         for (int x = -16; x <= +16; x++) {
             for (int y = -12; y <= +12; y++) {
-
                 position_t p;
                 p.x = player->GetPos()->x + x; p.y = player->GetPos()->y + y; p.z = z;//player->GetPos()->z;
                 glPushMatrix();
@@ -67,17 +73,17 @@ void GM_Gameworld::Render() {
 
     glPopMatrix();
 
-
     glColor4f(1., 1., 1., 1.);
     gamemap.Unlock();
     console.draw(10);
 
+    glPushMatrix();
 
-    //glPushMatrix();
-
-    //glTranslatef(200, 200, 0);
-    //g->Render();
-    //glPopMatrix();
+    glTranslatef(216, 216, 0);
+    position_t p = {0,0,0};
+    g->Render(&p);
+    g->AnimationSetValue(ItemAnimationPhase);
+    glPopMatrix();
 
 
     RenderMouseCursor();

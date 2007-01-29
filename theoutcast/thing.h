@@ -19,12 +19,15 @@ class Thing {
 
         virtual void Render();
         virtual void Render(position_t *pos);
+        virtual void AnimationAdvance(float percent);
+
         void SetCount(unsigned char count);
 
     private:
         unsigned short type;
         unsigned char count;
+    protected:
         ObjSpr *sprgfx;
 };
-
+Thing *ThingCreate(unsigned int type);
 #endif

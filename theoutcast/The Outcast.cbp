@@ -42,6 +42,25 @@
 					<Add option="-fexceptions" />
 				</Linker>
 			</Target>
+			<Target title="release_lite">
+				<Option output="The Outcast lite.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objslite" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=athlon-4" />
+					<Add option="-Os" />
+					<Add option="-fexceptions" />
+					<Add option="-DWIN32" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DUSESOUND" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-fexceptions" />
+				</Linker>
+			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="All" targets="debug;release;" />
@@ -70,6 +89,8 @@
 		<Unit filename="colors.h" />
 		<Unit filename="console.cpp" />
 		<Unit filename="console.h" />
+		<Unit filename="creature.cpp" />
+		<Unit filename="creature.h" />
 		<Unit filename="database.cpp" />
 		<Unit filename="database.h" />
 		<Unit filename="debugprint.cpp" />
@@ -94,6 +115,8 @@
 		<Unit filename="gwlogon.h" />
 		<Unit filename="imgfmts.cpp" />
 		<Unit filename="imgfmts.h" />
+		<Unit filename="item.cpp" />
+		<Unit filename="item.h" />
 		<Unit filename="items.cpp" />
 		<Unit filename="items.h" />
 		<Unit filename="main.cpp" />

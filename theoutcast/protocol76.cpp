@@ -8,6 +8,7 @@
 #include "player.h"
 #include "map.h"
 #include "tile.h"
+#include "sound.h"
 Protocol76::Protocol76 () {
     protocolversion = 760;
     // FIXME Put CORRECT fingerprints
@@ -133,7 +134,10 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 printf("Player location: %d %d %d\n", pos.x, pos.y, pos.z);
 
                 // only if we're in main menu then let's do the item loading
-                if (dynamic_cast<GM_MainMenu*>(game)) ItemsLoad();
+                if (dynamic_cast<GM_MainMenu*>(game)) {
+                    ItemsLoad();
+                    CreaturesLoad();
+                }
 
                 ParseMapDescription(nm, maxx, maxy, pos.x - (maxx-1)/2, pos.y - (maxy-1)/2, pos.z);
                 return true;
@@ -181,8 +185,8 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             position_t pos;
             GetPosition(nm, &pos);
             Tile *tile = gamemap.GetTile(&pos);
-            Thing *t = new Thing;
-            ParseThingDescription(nm, t);
+            Thing *t;
+            t = ParseThingDescription(nm);
             tile->insert(t);
             return true;
         }
@@ -192,7 +196,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             GetStackpos(nm);
 
-            ParseThingDescription(nm, NULL);
+            delete ParseThingDescription(nm);
             return true;
         }
         case 0x6C: {// Remove Item
@@ -220,7 +224,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             {
                 int itemcount = nm->GetU8(); // item count
                 for (int i = 0 ; i < itemcount ; i++) {
-                    ParseThingDescription(nm, NULL);
+                    delete ParseThingDescription(nm);
                 }
             }
             return true;
@@ -229,12 +233,12 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x70: // Add Container Item
             nm->GetU8(); // container id
-            ParseThingDescription(nm, NULL);
+            ParseThingDescription(nm);
             return true;
         case 0x71: // Replace Container Item
             nm->GetU8(); // container id
             nm->GetU8(); // slot
-            ParseThingDescription(nm, NULL);
+            delete ParseThingDescription(nm);
 
             return true;
         case 0x72: // Remove Container Item
@@ -245,7 +249,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x79: // Inventory Empty
             nm->GetU8(); // item slot
             if (packetid == 0x78) {
-                ParseThingDescription(nm, NULL);
+                delete ParseThingDescription(nm);
             }
             return true;
         case 0x7D: // Trade Request
@@ -254,7 +258,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             {
                 int itemcount = nm->GetU8();
                 for (int i = 0; i < itemcount; i++) {
-                    ParseThingDescription(nm, NULL);
+                    delete ParseThingDescription(nm);
                 }
             }
             return true;
@@ -442,11 +446,14 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU16(); // channel id
             nm->GetString(); // channel name
             return true;
-        case 0xB4: // Text Message
+        case 0xB4: {// Text Message
+            std::string y;
             nm->GetU8(); // msg class
-            console.insert( nm->GetString() ); // message itself
-
+            console.insert( y = nm->GetString() ); // message itself
+            if (y == "Sorry, not possible.") SoundPlay("sounds/bleep.wav");
+            if (y == "You are not invited.") SoundPlay("sounds/bleep2.wav");
             return true;
+        }
         case 0xB5: // Cancel Walk
             nm->GetU8(); // direction
             return true;

@@ -25,23 +25,23 @@ class Protocol {
 
         bool CipSoft();
 
-        virtual bool ParsePacket (NetworkMessage *nm);
-        virtual bool ParseCharlist (NetworkMessage *nm, unsigned char packetid);
-        virtual bool ParseGameworld(NetworkMessage *nm, unsigned char packetid);
-        virtual bool CharlistLogin(const char *username, const char *password);
-        virtual bool GameworldLogin();
-        virtual bool GameworldWork();
-        virtual void Close();
+        virtual bool    ParsePacket (NetworkMessage *nm);
+        virtual bool    ParseCharlist (NetworkMessage *nm, unsigned char packetid);
+        virtual bool    ParseGameworld(NetworkMessage *nm, unsigned char packetid);
+        virtual bool    CharlistLogin(const char *username, const char *password);
+        virtual bool    GameworldLogin();
+        virtual bool    GameworldWork();
+        virtual void    Close();
 
-        virtual void ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz);
-        virtual void ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip);
-        virtual void ParseTileDescription(NetworkMessage *nm, int x, int y, int z);
-        virtual void ParseThingDescription(NetworkMessage *nm, Thing *obj);
+        virtual void    ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz);
+        virtual void    ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip);
+        virtual void    ParseTileDescription(NetworkMessage *nm, int x, int y, int z);
+        virtual Thing*  ParseThingDescription(NetworkMessage *nm);
 
-        virtual void MoveNorth();
-        virtual void MoveSouth();
-        virtual void MoveWest();
-        virtual void MoveEast();
+        virtual void    MoveNorth();
+        virtual void    MoveSouth();
+        virtual void    MoveWest();
+        virtual void    MoveEast();
 
         unsigned short GetProtocolVersion ();
     protected:

@@ -81,6 +81,7 @@ class GM_MainMenu : public GameMode {
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentType menuclass_void);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 	friend void ItemsLoad();
+	friend void CreaturesLoad();
 };
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_ToS(glictPos* pos, glictContainer* caller);
