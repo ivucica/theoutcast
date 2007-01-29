@@ -143,36 +143,39 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 return true;
             }
         case 0x65: // Move Player North
-            gamemap.Lock();
             printf("Move north\n");
+            gamemap.Lock();
             player->SetPos(player->GetPosX(), player->GetPosY()-1, player->GetPosZ());
+            gamemap.Unlock();
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
             printf("End move north\n");
-            gamemap.Unlock();
+
             return true;
         case 0x66: // Move Player East
-            gamemap.Lock();
             printf("Move east\n");
+            gamemap.Lock();
             player->SetPos(player->GetPosX()+1, player->GetPosY(), player->GetPosZ());
+            gamemap.Unlock();
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x + (maxx+1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
             printf("End move east\n");
-            gamemap.Unlock();
+
             return true;
         case 0x67: // Move Player South
-            gamemap.Lock();
             printf("Move south\n");
+            gamemap.Lock();
             player->SetPos(player->GetPosX(), player->GetPosY()+1, player->GetPosZ());
+            gamemap.Unlock();
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y + (maxy+1 )/2, player->GetPos()->z);
             printf("End move south\n");
-            gamemap.Unlock();
+
             return true;
         case 0x68: // Move Player West
-            gamemap.Lock();
             printf("Move west\n");
+            gamemap.Lock();
             player->SetPos(player->GetPosX()-1, player->GetPosY(), player->GetPosZ());
+            gamemap.Unlock();
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
             printf("End move west\n");
-            gamemap.Unlock();
             return true;
         case 0x69: // Tile Update
         {
@@ -192,27 +195,48 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         }
         case 0x6B: {// Replace Item
             position_t pos;
+
+            Tile *t;
+            unsigned char stackpos;
+
             GetPosition(nm, &pos);
 
-            GetStackpos(nm);
+            t = gamemap.GetTile(&pos);
 
-            delete ParseThingDescription(nm);
+            stackpos = GetStackpos(nm);
+
+            t->remove(stackpos);
+            t->insert(ParseThingDescription(nm));
             return true;
         }
         case 0x6C: {// Remove Item
             position_t pos;
             GetPosition(nm, &pos);
 
-            GetStackpos(nm);
+            unsigned char stackpos = GetStackpos(nm);
+            Tile *tile = gamemap.GetTile(&pos);
+            tile->remove(stackpos);
 
             return true;
         }
         case 0x6D: {// Move Item
+            unsigned char stackpos;
+            Tile *tile;
+            Thing *thing;
             position_t src;
             position_t dst;
+
             GetPosition(nm, &src);
-            GetStackpos(nm);
+            stackpos = GetStackpos(nm);
+
+            tile = gamemap.GetTile(&src);
+            thing = tile->getstackpos(stackpos);
+            tile->remove(stackpos);
+
             GetPosition(nm, &dst);
+
+            tile = gamemap.GetTile(&dst);
+            tile->insert(thing);
             return true;
         }
         case 0x6E: // Container Open

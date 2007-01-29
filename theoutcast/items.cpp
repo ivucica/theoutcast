@@ -2,6 +2,7 @@
 #include "protocol.h"
 #include "types.h"
 #include "glutwin.h"
+#include "debugprint.h"
 int items_n;
 item_t *items=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
@@ -60,6 +61,12 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             if (iTmp) items[itemid].ground = true;
             //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
         }
+        if (!strcmp(azColName[i], "topindex")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid].topindex = iTmp;
+            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+        }
+
         if (!strcmp(azColName[i], "splash")) {
             sscanf(argv[i], "%d", &iTmp);
             if (iTmp) items[itemid].splash = true;
@@ -78,10 +85,6 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
         if (!strcmp(azColName[i], "spritelist")) {
 
             strcpy(items[itemid].spritelist, argv[i]);
-            /*if (itemid==101) {
-                printf("%s\n", items[itemid].spritelist);
-                system("pause");
-            }*/
         }
 
     }
@@ -100,7 +103,7 @@ void ItemsLoad() {
 
     items_n = 0;
     dbExecPrintf(dbData, ItemsLoadNumFunc, 0, NULL, "select max(itemid) from items%d;", protocol->GetProtocolVersion());
-    printf("%d items in database for protocol %d\n", items_n, protocol->GetProtocolVersion());
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d items in database for protocol %d\n", items_n, protocol->GetProtocolVersion());
     if (!items_n) {
         glutHideWindow();
         MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);

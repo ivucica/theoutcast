@@ -63,7 +63,7 @@ bool ObjSpr::Render(unsigned char stackcount) {
     return true;
 }
 void ObjSpr::LoadCreature(unsigned int creatureid) {
-    ASSERTFRIENDLY(creatureid >= 100 && creatureid <= creatures_n, "invalid creatureid in ObjSpr::LoadCreature");
+    ASSERTFRIENDLY(creatureid <= creatures_n-1, "invalid creatureid in ObjSpr::LoadCreature");
     ASSERTFRIENDLY(creatures[creatureid].loaded, "creature not loaded");
 
     if (!strlen(creatures[creatureid].spritelist)) return;

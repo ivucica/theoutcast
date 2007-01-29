@@ -18,15 +18,20 @@ Call stack:
 00404AF0  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00404AF0  GM_Gameworld::KeyPress(unsigned char, int, int)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gm_gameworld.cpp:37
 0040425A  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:0040425A  glut_Key(unsigned char, int, int)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/glutwin.cpp:82
 00426ACA  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00426ACA  glictPanel::Paint()  C:/Documents and Settings/ivucica/My Documents/Development/[CPP] GLICT/GLICT/panel.cpp:66
+
+APPEARS TO BE RESOLVED?!?!?!?!
+
 */
 
 
 #include <windows.h>
 #include <stdio.h>
 #include <sqlite3.h>
+#include "debugprint.h"
 #include "assert.h"
 #include "database.h"
 #include "defines.h"
+
 sqlite3 *dbData, *dbUser;
 
 
@@ -48,7 +53,7 @@ void DBInit() {
     }
     rc = sqlite3_open("user.db", &dbUser);
     if( rc != SQLITE_OK ){
-        printf("SQLite cannot open user database.\nVerify directory access rights!\n\nError: %s\n", sqlite3_errmsg(dbUser));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open user database.\nVerify directory access rights!\n\nError: %s\n", sqlite3_errmsg(dbUser));
         //sqlite3_free((char*)freeme);
         sqlite3_close(dbUser);
         dbUser=NULL;
@@ -56,10 +61,10 @@ void DBInit() {
     }
     // try to access table
     if (!dbTableExists(dbUser, "settings")) {
-        printf("SQLite could not access table 'settings'. Reason: %s. Trying to create...\n", sqlite3_errmsg(dbUser));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "SQLite could not access table 'settings'. Reason: %s. Trying to create...\n", sqlite3_errmsg(dbUser));
         //sqlite3_free((char*)freeme);
         if (dbExec(dbUser, "create table settings (`field` text, `value` text);", NULL, 0, NULL) != SQLITE_OK) {
-            printf("SQLite cannot initialize settings table in user database.\nVerify access rights on user.db!\n\nError: %s\n", sqlite3_errmsg(dbUser));
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot initialize settings table in user database.\nVerify access rights on user.db!\n\nError: %s\n", sqlite3_errmsg(dbUser));
             //sqlite3_free((char*)freeme);
             sqlite3_close(dbUser);
             goto datadb;
@@ -74,7 +79,7 @@ void DBInit() {
     rc = sqlite3_open("data.db", &dbData);
     if (rc!=SQLITE_OK) {
 
-        printf("SQLite cannot open data database.\nVerify directory access rights!\n\nError: %d\n", sqlite3_errmsg(dbData));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open data database.\nVerify directory access rights!\n\nError: %d\n", sqlite3_errmsg(dbData));
         MessageBox(HWND_DESKTOP, "SQLite cannot open data database.\nVerify directory access rights!", "The Outcast - Fatal Error", MB_ICONSTOP);
         sqlite3_close(dbData);
         dbData=NULL;
@@ -98,17 +103,18 @@ bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const
     dbLoadSettingReturnValue = NULL;
     if (dbExecPrintf(dbUser, dbLoadSettingFunc, 0, NULL, "select `value` from settings where `field` = '%q';", settingname) == SQLITE_OK) { // Crash report #1
         if (dbLoadSettingReturnValue) {
-            printf("Returned value %s\n", dbLoadSettingReturnValue);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Returned value %s\n", dbLoadSettingReturnValue);
             memcpy(valuetarget, dbLoadSettingReturnValue, min(maxlen, strlen(dbLoadSettingReturnValue)));
             valuetarget[min(maxlen, strlen(dbLoadSettingReturnValue))] = 0;
 
             free(dbLoadSettingReturnValue);
+            dbLoadSettingReturnValue = NULL;
             return true;
         } else {
             if (defaultval) {
                 memcpy(valuetarget, defaultval, min(maxlen, strlen(defaultval)));
                 valuetarget[min(maxlen, strlen(defaultval))] = 0;
-                printf("Returned default value %s\n", defaultval);
+                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Returned default value %s\n", defaultval);
 
                 return true;
             }
@@ -119,15 +125,21 @@ bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const
         }
     } else {
 
-        printf("SQLite cannot load a setting!\n\nError: %s\n", sqlite3_errmsg(dbUser));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_ERROR, "SQLite cannot load a setting!\n\nError: %s\n", sqlite3_errmsg(dbUser));
         valuetarget[0] = 0;
         return false;
     }
 }
 static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColName) {
-    dbLoadSettingReturnValue = (char*)malloc(strlen(argv[0]+2));
-    strcpy(dbLoadSettingReturnValue, argv[0]);
-    printf("%s %s\n", argv[0], dbLoadSettingReturnValue);
+    dbLoadSettingReturnValue = (char*)malloc(strlen(argv[0])+2);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%s\n", argv[0]);
+    if (!dbLoadSettingReturnValue) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Could not alloc %d bytes\n", strlen(argv[0]+2));
+        return 0;
+    }
+    memcpy(dbLoadSettingReturnValue, argv[0], strlen(argv[0])+1);
+    //strcpy(dbLoadSettingReturnValue, argv[0]);
+
     //system("pause");
     return 0;
 }
@@ -144,13 +156,18 @@ int dbExecPrintf(
 
     char *z = sqlite3_vmprintf(sql, vl);
 
-    printf("QUERY: %s\n", z);
+	va_end(vl);
+
+    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "QUERY: %s\n", z);
 
     int rc = sqlite3_exec(db, z, cb, arg, errmsg); // Crash report #1
-    if (rc != SQLITE_OK) printf("SQLite: Error: '%s', RC: %s, query '%s'\n", sqlite3_errmsg(dbUser), dbProcessRC(rc), z);
+    if (rc != SQLITE_OK) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite: Error: '%s', RC: %s, query '%s'\n", sqlite3_errmsg(dbUser), dbProcessRC(rc), z);
+    } else {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "SQLite query success\n");
+    }
     sqlite3_free(z);
 
-	va_end(vl);
 
 	return rc;
 }

@@ -12,6 +12,9 @@ Thing::Thing() {
 Thing::~Thing() {
     delete sprgfx;
 }
+unsigned short Thing::GetType() {
+    return type;
+}
 bool Thing::IsGround() {
     //printf("Is ground %d: %s\n", type, items[type].ground ? "yes" : "no");
     return items[type].ground;

@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "debugprint.h"
-char debuglevel=3;
+
+char debuglevel=0;//DEBUGLEVEL_BUILDTIME;
+
 std::string DEBUG_FILE; int DEBUG_LINE;
 void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
     va_list vl;

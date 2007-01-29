@@ -32,7 +32,6 @@ void glutxStrokeString(const char* txt, const void* font, float x, float y) {
         glPopMatrix();
         y -= 1;
     } while (*fromwhere);
-    //printf("Rendered %s\n", txt);
 }
 
 void glutxBitmapString(char* txt, const void* font,int x,int y) {
@@ -59,7 +58,6 @@ float glutxBitmapSize(char* txt, const void* font) {
 float glutxStrokeSize(const char* txt, const void* font) {
 
 
-    //printf(" SIZE OF %s\n", txt);
 
     int size=0, len=strlen(txt);
     int maxsize=0;

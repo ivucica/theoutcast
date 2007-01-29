@@ -8,11 +8,11 @@
 #include "networkmessage.h"
 #include "networkdirect.h"
 #include "threads.h"
-#include "debugprint.h"
 #include "protocol.h"
 #include "database.h"
 #include "sound.h"
-inline void CharList_ReportError(glictMessageBox* mb, const char* txt) {
+
+void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Error accessing account");
@@ -20,7 +20,7 @@ inline void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
 	SoundPlay("sounds/error.wav");
 }
-inline void CharList_ReportSuccess(glictMessageBox* mb, const char* txt) {
+void CharList_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Message of the Day");
@@ -29,7 +29,7 @@ inline void CharList_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	SoundPlay("sounds/bell.wav");
 }
 
-inline void CharList_Status(glictMessageBox* mb, const char* txt) {
+void CharList_Status(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 }
 
@@ -87,10 +87,8 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
     protocol->SetSocket(s);
     if (protocol->CharlistLogin(menuclass->txtLoginUsername.GetCaption().c_str(), menuclass->txtLoginPassword.GetCaption().c_str()) ) {
-        printf("Success!\n");
         CharList_ReportSuccess(&menuclass->charlist, protocol->GetMotd().c_str() );
     } else {
-        printf("Error!\n");
         CharList_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
 

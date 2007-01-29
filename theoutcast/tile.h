@@ -27,7 +27,7 @@ class Tile {
         void setpos(position_t *p); // so tile can know its position
         void render();
     private:
-        std::vector<Item*> itemlayers[3];
+        std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;
         Thing *ground;
         position_t pos;

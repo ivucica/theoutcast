@@ -13,9 +13,11 @@ class Thing {
         virtual bool IsStackable();
         unsigned char GetTopIndex();
 
-        // this item info retrieval
-        void SetType(unsigned short type); // Move me to ITEM.H!
+        // this item's info retrieval
+        unsigned short GetType();
         unsigned char GetCount();
+
+        virtual void SetType(unsigned short type);
 
         virtual void Render();
         virtual void Render(position_t *pos);
@@ -24,10 +26,11 @@ class Thing {
         void SetCount(unsigned char count);
 
     private:
-        unsigned short type;
         unsigned char count;
+
     protected:
         ObjSpr *sprgfx;
+        unsigned short type;
 };
 Thing *ThingCreate(unsigned int type);
 #endif

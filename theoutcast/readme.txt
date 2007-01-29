@@ -1,10 +1,9 @@
-THE OUTCAST v0.3.1
+THE OUTCAST v0.3.2
 Readme
-8.1.2007
+29.1.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
-Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed, except for file "DzPD.exe".
-Certain models are property of their respective authors.
+Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
 ---
 
 CONTENTS
@@ -24,13 +23,15 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3 alpha (total rewrite). Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.2 alpha (total rewrite). Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
 I'd like to point out that new The Outcast will support multiple protocols in the same executable! This means, when you enter your username and password, you also pick the protocol! There's no more trouble with the Launcher (which, I am sure, has confused a lot of you).
 
 Currently, you must enter the 3 digit code of the protocol. Only 2 protocols are supported, 760 and 770 -- more upcoming (I think I'll add 790 too).
+
+IN THIS RELEASE 7.7 SUPPORT IS NOT ACTIVE. Do not use 7.7 protocol as it was not updated since last release.
 
 -------------------------------------------------------+
 Currently you can ONLY LOG ON, SEE CHARLIST AND LOG ON |
@@ -54,7 +55,13 @@ In no way it is a complete working product. There are bugs, and we are in no way
 
 This is a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
 
-Currently it can log on and display character list, then fetch the map from server and parse most gameworld packets in a stub manner. Only the first message from server is parsed, however, so after you log on the client won't receive any additional data from the server (yet).
+Currently it can log on, display character list, fetch the map from server, parse most gameworld packets in a stub manner. 
+
+However, you can walk around, it will show text other people say.
+
+Sprite animations work for the most part, creatures are also (properly?) loaded and displayed.
+
+NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
 1.b) Rant about the future
 
@@ -103,13 +110,19 @@ I guess I can recommend my system configuration!
 After every crash, "The Outcast" (using EXCHNLD.DLL) automatically generates an error report. The file ends in .RPT, and start of the file name depends on the executable you have started.
 To help improving stability of "The Outcast" we would like you to send these reports. They are plain text files you can open using notepad containing a lot of non-sense information. As you don't have the source code you have no ways of understanding what that stuff means, but as we have the sources it might help us find out where "The Outcast" has crashed and eventually fix the bug.
 
+Please, before reporting a crash, check out the "KNOWN BUGS AND PROBLEMS" section of this document.
+
 Visit www.otfans.net - The Outcast's forum - for more information.
 
 ---
 
 5. INSTRUCTIONS
 
-On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760 or 770. Click OK. Choose one character. Press any key to return to main menu.
+Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr"
+
+On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760 or 770 (note: 770 is not operational in this release). Click OK. Choose one character. 
+
+When the map loads, you can walk around with WSAD. Press ESC to leave the game.
 
 ---
 
@@ -117,7 +130,8 @@ On the main menu click on Login. Enter the server you want to connect to, the ac
 
 The client given out for free by CIPSoft contains simply too much graphics, and it is too much to expect that one student would ever be able to achieve full compatibility with their software. However, as much compatibility as possible will be attempted, and as much graphics as possible recreated.
 
-Protocols 7.6 and 7.7, post-gameworld stub packet support. Only first message is being read for now. We plan to add as much protocols as possible.
+Protocols 7.6 and 7.7, post-gameworld stub packet support and moving around. We plan to add as much protocols as possible.
+
 
 ---
 
@@ -133,7 +147,7 @@ This version is a total rewrite, meaning that nothing from the old version is in
 
 c) It's slowing down strangely sometimes, and lagging!
 It's recommended that you close all applications before running The Outcast (or any game, in general). We have noticed that Mozilla Firefox occasionally runs at over 60% CPU usage for a couple of moments, then for a few seconds no longer uses the processor.
-Thus, before evaluating The Outcast, please close all applications, ESPECIALLY MOZILLA FIREFOX.
+Thus, before trying The Outcast, please close all applications, ESPECIALLY MOZILLA FIREFOX.
 
 ---
 
@@ -142,6 +156,8 @@ Thus, before evaluating The Outcast, please close all applications, ESPECIALLY M
 * You can enter letters under the account number.
 * Textures not supported yet for 3DS loading.
 * You will have less than 3 FPS on Windows without your video card drivers. And no, you can't play Quake III either with high FPS if you don't have OpenGL drivers; id software likes OpenGL, too! Microsoft's GDI implementation, the one you have by default, is slow, don't use it! And Windows use it in case you don't have OpenGL drivers installed! (Hint: OpenGL drivers are included with your graphics card drivers.)
+* Sprite animations are not in sync
+* Logging out of the game and then attempting to log in fails
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -180,6 +196,14 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 ---
 
 10. CHANGE HISTORY
+
+Changes since 0.3.1
+* Fixed some crashes
+* Gameworld connection is now maintained
+* Sprite loading done
+* You can see sprites and their animations (the sprite rendering engine is not perfect yet, however)
+* You can walk around
+* You will see items that move around
 
 Changes since 0.3
 * Some crashes fixed
@@ -367,18 +391,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 62
+* Number of files: 82
 
-* Code only: 63% 
-* Code + Comment: 10%
-* Comments: 9%
+* Code only: 67% 
+* Code + Comment: 7%
+* Comments: 8%
 * Empty: 18%
 
-* Code only: 3377
-* Empty lines: 994
-* Comment lines: 482
-* Code and comments: 538
-* Total: 5391
+* Code only: 4685
+* Empty lines: 1243
+* Comment lines: 545
+* Code and comments: 511
+* Total: 6984
 
 ---
 

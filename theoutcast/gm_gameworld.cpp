@@ -10,31 +10,31 @@
 #include "threads.h"
 #include "protocol.h"
 #include "sound.h"
-
+#include "debugprint.h"
 extern float ItemAnimationPhase;
+extern unsigned int ItemSPRAnimationFrame;
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
-    while (dynamic_cast<GM_Gameworld*>(game)) { // while we're in gameworld game mode
+    while (gamemode == GM_GAMEWORLD) { // while we're in gameworld game mode
         protocol->GameworldWork();
     }
     protocol->Close();
     delete protocol;
 }
 GM_Gameworld::GM_Gameworld() {
-    printf("Constructing gameworld\n");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
     SPRLoader("tibia76.spr");
 
     SoundSetMusic("music/game.mp3");
-    printf("Ahoy1\n");
+
     g = new ObjSpr(5022, 0);
     //g = new ObjSpr(4597);
-    printf("Ahoy\n");
 
     ONNewThread(GM_Gameworld_Thread, NULL);
 }
 
 
 GM_Gameworld::~GM_Gameworld() {
-    printf("Destructing gameworld\n");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing gameworld\n");
     SPRUnloader();
 }
 
@@ -47,8 +47,6 @@ void GM_Gameworld::Render() {
 
 
     gamemap.Lock();
-    ItemAnimationPhase+=100. / fps;
-    printf("animation phase %g\n", ItemAnimationPhase);
     glPushMatrix();
     glTranslatef(100, 100, 0);
     glScalef(0.5, 0.5, 0.5);
@@ -77,21 +75,18 @@ void GM_Gameworld::Render() {
     gamemap.Unlock();
     console.draw(10);
 
-    glPushMatrix();
-
+    /*glPushMatrix();
     glTranslatef(216, 216, 0);
     position_t p = {0,0,0};
     g->Render(&p);
-    g->AnimationSetValue(ItemAnimationPhase);
+    g->AnimationAdvance(25./fps);
     glPopMatrix();
-
+*/
 
     RenderMouseCursor();
 }
 
 void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
-    //console.insert("Entering mainmenu\n");
-    //printf("Entering mainmenu\n");
 
     switch (key) {
         case 'w':

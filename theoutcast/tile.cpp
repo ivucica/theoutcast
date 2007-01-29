@@ -1,7 +1,7 @@
 #include "assert.h"
 #include "tile.h"
 #include "thing.h"
-
+#include "player.h"
 extern float fps;
 Tile::Tile() {
     //printf("Forging a tile\n");
@@ -10,28 +10,129 @@ Tile::Tile() {
     ONInitThreadSafe(threadsafe);
 }
 Tile::~Tile() {
-
     ONDeinitThreadSafe(threadsafe);
 }
 void Tile::insert(Thing *thing) {
     ONThreadSafe(threadsafe);
     ASSERT(thing)
     if (thing->IsGround()) {
+        printf("Inserting ground\n");
         if (!ground) this->itemcount ++;
         ground = thing;
     } else if (dynamic_cast<Creature*>(thing)) {
+        printf("Inserting a creature.\n");
         creatures.insert(creatures.begin(), (Creature*)thing);
+        this->itemcount ++;
     } else {
+        printf("Inserting an item to layer %d.\n", thing->GetTopIndex());
         itemlayers[thing->GetTopIndex()].insert(itemlayers[thing->GetTopIndex()].begin(), (Item*)thing);
         this->itemcount ++;
     }
 
     ONThreadUnsafe(threadsafe);
 }
-void Tile::remove(unsigned char stackpos) {
+void Tile::remove(unsigned char pos) {
     ONThreadSafe(threadsafe);
 
+    printf("REMOVING %d\n", (int)pos);
+    printf("Removing from tile %d %d %d\n", this->pos.x, this->pos.y, this->pos.z);
+    ASSERT(pos < itemcount)
+
+    itemcount --;
+    if (ground) {
+        printf("Ground exists; are we desiring it?\n");
+        if (pos==0) {
+            ground=NULL;
+
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+        pos--;
+    }
+    printf("passed ground; position is %d\n", pos);
+
+    for (int i = 3; i >=1 ; i-- ) {
+        printf("now in layer %d with %d items\n", i, itemlayers[i].size());
+
+        printf("position %d\n", pos);
+
+        if (pos < itemlayers[i].size()) {
+            printf("Positive!\n");
+            std::vector<Item*>::iterator it=itemlayers[i].begin();
+            it += pos;
+            itemlayers[i].erase(it);
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+        pos -= itemlayers[i].size();
+        printf("passed layer %d; position is %d\n", i, pos);
+    }
+    printf("now creatures!!! - size %d\n", creatures.size());
+    if (pos < creatures.size()) {
+        printf("Its a creature!!\n");
+        std::vector<Creature*>::iterator it=creatures.begin();
+        it += pos;
+        creatures.erase(it);
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
+    pos -= creatures.size();
+
+    printf("checking bottom items - size %d\n", itemlayers[0].size());
+    if (pos < itemlayers[0].size()) {
+        std::vector<Item*>::iterator it=itemlayers[0].begin();
+        it += pos;
+        itemlayers[0].erase(it);
+
     ONThreadUnsafe(threadsafe);
+        return;
+    }
+    pos -= itemlayers[0].size();
+    printf("FAILED\n");
+
+
+    itemcount ++;
+    ONThreadUnsafe(threadsafe);
+}
+Thing *Tile::getstackpos(unsigned char pos) {
+    printf("GETTING STACKPOS %d\n", pos);
+
+    if (ground) {
+        printf("Ground exists; are we desiring it?\n");
+        if (pos==0)
+            return ground;
+        pos--;
+    }
+    printf("passed ground; position is %d\n", pos);
+
+    for (int i = 3; i >=1 ; i-- ) {
+        printf("now in layer %d with %d items\n", i, itemlayers[i].size());
+
+        printf("position %d\n", pos);
+
+        if (pos < itemlayers[i].size()) {
+            printf("Positive!\n");
+            return itemlayers[i][pos];
+        }
+        pos -= itemlayers[i].size();
+        printf("passed layer %d; position is %d\n", i, pos);
+    }
+    printf("now creatures!!!\n");
+    if (pos < creatures.size()) {
+        printf("Its a creature!!\n");
+        return creatures[pos];
+    }
+    pos -= creatures.size();
+
+    printf("checking bottom items\n");
+    if (pos < itemlayers[0].size()) {
+        printf("it's a bottom item!\n");
+        return itemlayers[0][pos];
+    }
+    pos -= itemlayers[0].size();
+    printf("FAILED\n");
+
+    return NULL;
 }
 void Tile::setpos(position_t *p) {
     ONThreadSafe(threadsafe);
@@ -49,21 +150,25 @@ void Tile::render() {
     ONThreadSafe(threadsafe);
 
     if (ground) {
-        //ground->AnimationAdvance(100. / fps);
+        ground->AnimationAdvance(25./fps);
         ground->Render(&pos);
     }
-    for (int i = 2; i >= 0; i--) {
+    for (int i = 3; i >= 0; i--) {
         for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
             (*it)->Render(&pos);
-            //(*it)->AnimationAdvance(100. / fps);
+            (*it)->AnimationAdvance(25./fps);
         }
     }
 
 
-    for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
-        (*it)->Render(&pos);
-        //(*it)->AnimationAdvance(100. / fps);
-    }
+    if (pos.x < player->GetPosX() + 8
+     && pos.x > player->GetPosX() - 8
+     && pos.y < player->GetPosY() + 6
+     && pos.y > player->GetPosY() - 6)
+        for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
+            (*it)->Render(&pos);
+            (*it)->AnimationAdvance(25./fps);
+        }
 
     ONThreadUnsafe(threadsafe);
 
@@ -86,6 +191,7 @@ void Tile::empty () {
             itemlayers[i].erase(it);
         }
     }
+
     for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ) {
         if (*it)
             delete (*it);

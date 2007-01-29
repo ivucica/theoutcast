@@ -14,6 +14,7 @@
 #include "gwlogon.h"
 #include "sprfmts.h"
 #include "sound.h"
+#include "debugprint.h"
 int currentspr;
 
 GM_MainMenu::GM_MainMenu() {
@@ -28,7 +29,9 @@ GM_MainMenu::GM_MainMenu() {
     glutSwapBuffers();
 
     city = new Obj3ds("outcastcity.3ds");
-    if (!flythrough.load("outcastcity.fly")) printf("Failed to load flythrough file!\n");
+    if (!flythrough.load("outcastcity.fly")) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Failed to load flythrough file!\n");
+    }
 
 
 

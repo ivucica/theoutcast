@@ -142,22 +142,19 @@ void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx,
         startz = destz - 2; // then we see two floors above
         endz = min (this->maxz, destz + 2); // and two floors below
         stepz = 1; // and we move from top to bottom
-        //printf("Underground (%d)\n", destz);
-        //system("pause");
+
     } else { // if we're on the surface
-        startz = maxz/2; // we see from the surface leve
+        startz = maxz/2; // we see from the surface level
         endz = 0; // to the top
         stepz = -1;
-        //printf("Surface\n");
-        //system("pause");
+
     }
     skip = 0;
-    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Receiving map - floors %d to %d (step %d)\n", startz, endz, stepz);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Receiving map - floors %d to %d (step %d)\n", startz, endz, stepz);
     for (int z = startz; z != endz + stepz; z+=stepz) {
-        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
         ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
     }
-    //printf("MAP DONE!!!!!!!!!!!!!\n");
 
 }
 void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip) {
@@ -168,7 +165,7 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
     for (int x = destx; x < destx + w; x++) {
         for (int y = desty; y < desty + h; y++) {
 
-                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
+                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
                 if (!*skip) {
                     if (nm->PeekU16() >= 0xFF00) {
                         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skip chunk\n");
@@ -195,13 +192,10 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
     p.x = x; p.y = y; p.z = z;
 
     Tile *t = gamemap.GetTile(&p);
-//    printf("Got tile\n");
     t->empty();
-//    printf("Emptied tile\n");
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
-            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
-//            printf("Tile recved\n");
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
             return;
         } else {
             Thing *obj = ParseThingDescription(nm);
@@ -219,17 +213,21 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     // temporary vars that will be stored inside object's description once Object class is defined
     int looktype;
 
+
+    unsigned long creatureid;
     //printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: // known creature
             if (type == 0x0061) { // new creature
                 nm->GetU32(); // remove creature with this id
-                nm->GetU32(); // new creature's id
+                creatureid = nm->GetU32(); // new creature's id
+                thing = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
                 nm->GetString(); // name string
             }
             if (type == 0x0062) {
-                nm->GetU32(); // known creature's id
+                creatureid = nm->GetU32(); // known creature's id
+                thing = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
             }
             nm->GetU8(); // health percent
             nm->GetU8(); // direction
@@ -260,9 +258,12 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             // only in 7.5 +
             nm->GetU8(); // skull
             nm->GetU8(); // shield
+
+            thing->SetType(looktype);
             break;
         case 0x0063: // creature that has only direction altered
-            nm->GetU32(); // creature id
+            creatureid = nm->GetU32(); // creature id
+            thing = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
             nm->GetU8(); // look direction
 
             break;
@@ -309,7 +310,6 @@ void Protocol::MoveEast() {
 }
 
 unsigned short Protocol::GetProtocolVersion () {
-//    printf("PROTOCOL VERSION : %d\n", protocolversion);
     return protocolversion;
 }
 

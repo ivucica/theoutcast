@@ -9,6 +9,7 @@
 #include "gm_logo.h"
 #include "flythrough.h"
 #include "sound.h"
+#include "debugprint.h"
 int poiksu=0, poipsilonu=0, pozeu=0;
 
 
@@ -16,7 +17,9 @@ int poiksu=0, poipsilonu=0, pozeu=0;
 
 GM_Logo::GM_Logo () {
     logo = new Obj3ds("objnet.3ds");
-    if (!flythrough.load("objnet.fly")) printf("Failed to load flythrough file!\n");
+    if (!flythrough.load("objnet.fly")) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Failed to load flythrough file!\n");
+    }
     flythrough.set_on_finish(GM_Logo_OnFinish, this);
     done = false;
     SoundSetMusic("music/logo.mp3");
@@ -24,7 +27,7 @@ GM_Logo::GM_Logo () {
     fadeout = 0;
 }
 GM_Logo::~GM_Logo() {
-    printf("Destructing logo\n");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing logo\n");
     delete logo;
     SoundSetMusic(NULL);
 }

@@ -11,10 +11,8 @@
 #include "defines.h"
 #include "database.h"
 #include "sound.h"
+#include "debugprint.h"
 
-//remove me:
-#include "map.h"
-#include "types.h"
 
 // function predeclares
 void GameInit();
@@ -108,27 +106,27 @@ if(AllocConsole())
 	glut_WindowHandle = glutEnterGameMode();
 	printf("Done\n");*/
 
-	printf("Creating window\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Creating window\n");
 	glut_WindowHandle = glutCreateWindow (APPTITLE);
 	glutSetWindow(glut_WindowHandle);
 	glutShowWindow();
-	printf("Done\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
 
 
-	printf("Loading mousepointer\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
 	glut_SetMousePointer("mousepointer.bmp");
 
-	printf("Setting up GL\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up GL\n");
 	GLInit();
-	printf("Setting up net\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up net\n");
 	NetInit();
-	printf("Setting up database\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up database\n");
 	DBInit();
-	printf("Setting up sound system\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up sound system\n");
 	SoundInit(NULL);
 
 	// game must be inited LAST.
-	printf("Setting up game\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");
 	GameInit();
 
 	glutDisplayFunc(glut_Display);
@@ -142,7 +140,7 @@ if(AllocConsole())
 	glutKeyboardFunc(glut_Key);
 
 
-	printf("Entering mainloop\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
 	glutMainLoop();
 
 	return 0;

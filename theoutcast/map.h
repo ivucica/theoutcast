@@ -9,17 +9,21 @@
 
 #include "tile.h"
 #include "types.h"
+#include "creature.h"
 typedef std::map<unsigned long long, Tile*> maptype_t;
+typedef std::map<unsigned long, Creature*> creaturelist_t;
 class Map {
     public:
         Map();
         ~Map();
 
         Tile* GetTile(position_t *pos);
+        Creature* GetCreature(unsigned int creatureid, Creature *cr);
         void Lock();
         void Unlock();
     private:
         maptype_t m;
+        creaturelist_t c;
         ONCriticalSection threadsafe;
 };
 
