@@ -47,7 +47,7 @@ bool Obj3ds::Render() {
 }
 
 
-// private functions
+// this routine is based on Lib3ds's player.c sample
 void Obj3ds::RenderNode(Lib3dsNode *node) {
 
   {
