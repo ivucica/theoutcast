@@ -31,7 +31,7 @@ I'd like to point out that new The Outcast will support multiple protocols in th
 
 Currently, you must enter the 3 digit code of the protocol. Only 2 protocols are supported, 760 and 770 -- more upcoming (I think I'll add 790 too).
 
-IN THIS RELEASE 7.7 SUPPORT IS NOT ACTIVE. Do not use 7.7 protocol as it was not updated since last release.
+IN THIS RELEASE, 7.7 SUPPORT IS NOT ACTIVE. Do not use 7.7 protocol as it was not updated since last release.
 
 -------------------------------------------------------+
 Currently you can ONLY LOG ON, SEE CHARLIST AND LOG ON |

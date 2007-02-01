@@ -66,19 +66,22 @@ RGBA *Texture::FetchSPRPixels() {
     ASSERT(this->imgid < SPRCount);
     ASSERT(SPRPointers);
 
+
+    if (imgid == 0) {
+        RGBA *rgba = (RGBA*)malloc(32*32*4);
+        memset(rgba, 0, 32*32*4);
+        w=32; h=32;
+
+        return rgba;
+
+    }
+
     FILE *f = fopen(fname.c_str(), "rb");
     if (!f) {
         printf("Error opening sprite file %s.", fname.c_str());
         return NULL;
     }
 
-    if (imgid == 0) {
-        RGBA *rgba = (RGBA*)malloc(32*32*4);
-        memset(rgba, 0, 32*32*4);
-        w=32; h=32;
-        return rgba;
-
-    }
     ASSERT(imgid)
 
     //printf("Seeking to %d (spr count %d, sprites should begin at %d) \n", SPRPointers[imgid], SPRCount, 4 * SPRCount + 6);

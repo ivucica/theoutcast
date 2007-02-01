@@ -18,7 +18,7 @@
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
 					<Add option="-DDEBUGCONSOLE" />
-					<Add option="-DUSESOUND" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -37,6 +37,7 @@
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
 					<Add option="-DUSESOUND" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -48,13 +49,13 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=athlon-4" />
 					<Add option="-Os" />
 					<Add option="-fexceptions" />
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
 					<Add option="-DUSESOUND" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -91,6 +92,8 @@
 		<Unit filename="console.h" />
 		<Unit filename="creature.cpp" />
 		<Unit filename="creature.h" />
+		<Unit filename="creatures.cpp" />
+		<Unit filename="creatures.h" />
 		<Unit filename="database.cpp" />
 		<Unit filename="database.h" />
 		<Unit filename="debugprint.cpp" />
