@@ -59,6 +59,9 @@ bool Protocol77::CharlistLogin(const char *username, const char *password) {
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
     if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+
+    if (logonsuccessful) active = true;
+
     return logonsuccessful;
 }
 
@@ -108,6 +111,9 @@ bool Protocol77::GameworldLogin () {
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
     if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+
+    if (logonsuccessful) active = true;
+
     return logonsuccessful;
 }
 bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
@@ -118,6 +124,7 @@ bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is temporarily unsupported while\n7.6 is in development.", protocolversion, packetid);
             this->errormsg = tmp;
 
+            this->Close();
             logonsuccessful = false;
             return false;
         }

@@ -45,6 +45,18 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 		return 1;
 	}
 
+
+    if (!strcmp(menuclass->txtLoginServer.GetCaption().c_str(), "server.tibia.com")) {
+        protocol->CipSoft(true);
+    } else {
+        protocol->CipSoft(false);
+    }
+
+    // 0 = blocking, 1 = nonblocking
+	unsigned long mode = 0;
+	ioctlsocket(s, FIONBIO, &mode);
+
+
 	GWLogon_Status(&menuclass->charlist, "Resolving service...");
 	hostent *he = gethostbyname(menuclass->txtLoginServer.GetCaption().c_str() );
 	char convertedaddr[256];
@@ -70,6 +82,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 
 		return 3;
 	}
+
 
 
 	GWLogon_Status(&menuclass->charlist, "Entering game...");

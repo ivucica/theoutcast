@@ -1,17 +1,18 @@
+#ifdef USEENCRYPTION
 
 #include "protocol.h"
-#include "protocol77.h"
+#include "protocol79.h"
 #include "networkdirect.h"
 #include "networkmessage.h"
 #include "defines.h"
+#include "items.h"
+#include "assert.h"
 #include "console.h"
 #include "player.h"
 #include "map.h"
-#include "tile.h"
 #include "sound.h"
-Protocol76::Protocol76 () {
-    protocolversion = 760;
-    // FIXME Put CORRECT fingerprints
+Protocol79::Protocol79 () {
+    protocolversion = 790;
     fingerprints[FINGERPRINT_TIBIADAT] = 0x439D5A33;
     fingerprints[FINGERPRINT_TIBIASPR] = 0x439852BE;
     fingerprints[FINGERPRINT_TIBIAPIC] = 0x4450C8D8;
@@ -19,10 +20,10 @@ Protocol76::Protocol76 () {
     maxx = 18; maxy = 14; maxz = 14;
 }
 
-Protocol76::~Protocol76() {
+Protocol79::~Protocol79() {
 }
 
-bool Protocol76::CharlistLogin(const char *username, const char *password) {
+bool Protocol79::CharlistLogin(const char *username, const char *password) {
 
     NetworkMessage nm;
 
@@ -36,37 +37,59 @@ bool Protocol76::CharlistLogin(const char *username, const char *password) {
     nm.AddU32(fingerprints[FINGERPRINT_TIBIASPR]); // tibia.spr
     nm.AddU32(fingerprints[FINGERPRINT_TIBIAPIC]); // tibia.pic
 
+    nm.RSABegin();
+
+    // encryption keys
+    for (int i = 0 ; i < 4 ; i++) {
+        nm.AddU32(key[i]);
+    }
 
     // account number and password
     nm.AddU32(atol((this->username = username).c_str()));
     nm.AddString(this->password = password);
 
+    nm.RSAEncrypt();
 
-    nm.Dump(s);
+    if (!nm.Dump(s)) {
+        this->errormsg = "Could not write to socket.\nPossibly premature disconnect.";
+        return false;
+    }
 
     nm.Clean();
-    nm.FillFromSocket(s);
-    //nm.ShowContents();
+    if (!nm.FillFromSocket(s)) {
+        this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
+        return false;
+    }
+
+    nm.XTEADecrypt(key);
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
-    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
 
     if (logonsuccessful) active = true;
     return logonsuccessful;
 }
 
-bool Protocol76::GameworldLogin () {
+bool Protocol79::GameworldLogin () {
+    // this is valid for 7.7!
+    // 7.72 has a bit different order of stuff! check out old outcast's sources
     NetworkMessage nm;
-
-    console.clear();
 
     connectiontype = GAMEWORLD;
 
     nm.AddU8(0x0A); // protocol id
 
+    // in 7.72 onwards move this BEFORE the keys and BEFORE the encryption
     nm.AddU16(0x02); // client OS
     nm.AddU16(protocolversion);
+
+    nm.RSABegin();
+
+    // encryption keys
+    for (int i = 0 ; i < 4 ; i++) {
+        nm.AddU32(key[i]);
+    }
 
 
     // are we a gamemaster
@@ -77,16 +100,20 @@ bool Protocol76::GameworldLogin () {
     nm.AddString(this->charlist[this->charlistselected].charactername);
     nm.AddString(this->password);
 
+    nm.RSAEncrypt();
 
-
-    // FIXME inside dump, we should check whether or not socket is still open
-    // or after dump, at least
-    nm.Dump(s);
+    if (!nm.Dump(s)) {
+        this->errormsg = "Could not write to socket.\nPossibly premature disconnect.";
+        return false;
+    }
 
     nm.Clean();
-    nm.FillFromSocket(s );
+    if (!nm.FillFromSocket(s )) {
+        this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
+        return false;
+    }
 
-    //nm.ShowContents();
+    nm.XTEADecrypt(key);
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
@@ -96,8 +123,8 @@ bool Protocol76::GameworldLogin () {
 
     return logonsuccessful;
 }
-// FIXME abstract the position retrieval
-bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
+bool Protocol79::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
+    printf("PACKET %d\n", packetid);
     switch (packetid) {
         case 0x0A: // Creature ID
 
@@ -191,6 +218,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x6A: {// Add Item
             position_t pos;
             GetPosition(nm, &pos);
+            printf("%d %d %d\n", pos.x, pos.y, pos.z);
             Tile *tile = gamemap.GetTile(&pos);
             Thing *t;
             t = ParseThingDescription(nm);
@@ -216,8 +244,9 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x6C: {// Remove Item
             position_t pos;
             GetPosition(nm, &pos);
-
+            printf("Removing from %d %d %d\n", pos.x, pos.y, pos.z);
             unsigned char stackpos = GetStackpos(nm);
+            printf("Stackpos %d\n", stackpos);
             Tile *tile = gamemap.GetTile(&pos);
             tile->remove(stackpos);
 
@@ -326,10 +355,14 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU32(); // around which creature
             nm->GetU8(); // square color
             return true;
-        case 0x8C: // Creature HP
-            nm->GetU32(); // creature
+        case 0x8C: {// Creature HP
+            unsigned long creatureid = nm->GetU32(); // creature
             nm->GetU8(); // health percent
+            Creature *c = gamemap.GetCreature(creatureid, NULL);
+            if (c) printf("Creature %s health adjustment\n", c->GetName().c_str());
+
             return true;
+        }
         case 0x8D: // Creature Light
             nm->GetU32();//creature id
             nm->GetU8(); //lightradius
@@ -515,11 +548,13 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xD4: // VIP Logout
             nm->GetU32(); // GUID
             return true;
+
         default: {
             char tmp[256];
             printf("Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
-            sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\n\nIf this is a fully supported protocol, please report this bug!", protocolversion, packetid);
+            sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is in testing. Report bugs!", protocolversion, packetid);
             this->errormsg = tmp;
+            console.insert(tmp, CONRED);
 
             this->Close();
             logonsuccessful = false;
@@ -529,11 +564,13 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     }
 }
 
-void Protocol76::GetPosition(NetworkMessage *nm, position_t *pos) {
+void Protocol79::GetPosition(NetworkMessage *nm, position_t *pos) {
     pos->x = nm->GetU16();
     pos->y = nm->GetU16();
     pos->z = nm->GetU8();
 }
-char Protocol76::GetStackpos(NetworkMessage *nm) {
+char Protocol79::GetStackpos(NetworkMessage *nm) {
     return nm->GetU8(); // stackpos
 }
+
+#endif

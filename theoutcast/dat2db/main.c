@@ -223,7 +223,7 @@ char dat_readitem(item_t *item) {
                     case 0x05: /* stackable */
                         item->stackable = TRUE;
                         break;
-                    case 0x06: /* ladder */
+                    case 0x06: /* ladder OR CORPSE?!?!?! */
                         break;
                     case 0x07: /* usable? */
                         item->usable = TRUE;
@@ -309,6 +309,123 @@ char dat_readitem(item_t *item) {
                 break;
 
 
+
+
+
+
+            case 792:
+                switch (option) {
+                    case 0x00: /* ground */
+                        item->ground = TRUE;
+                        item->speedindex = readu16(); /* speed index */
+                        break;
+                    case 0x01: /* alwaysontop 1 */
+                        item->topindex = 1;
+                        break;
+                    case 0x02: /* alwaysontop 2 */
+                        item->topindex = 2;
+                        break;
+                    case 0x03: /* alwaysontop 3 */
+                        item->topindex = 3;
+                        break;
+                    case 0x04: /* container */
+                        item->container = TRUE;
+                        break;
+                    case 0x05: /* stackable */
+                        item->stackable = TRUE;
+                        break;
+                    case 0x06: /* ladder OR CORPSE?!?!*/
+                        break;
+                    case 0x07: /* usable? */
+                        item->usable = TRUE;
+                        break;
+                    case 0x08: /* runes */
+                        break;
+                    case 0x09: /* writable */
+                        item->writable = TRUE;
+                        item->readability_len = readu16(); /* max writable text size? maybe...! */
+                        break;
+                    case 0x0A: /* readable */
+                        item->readable = TRUE;
+                        item->readability_len = readu16(); /* max readable text size? maybe...! */
+                        break;
+                    case 0x0B: /* fluid container */
+                        item->fluidcontainer = TRUE;
+                        break;
+                    case 0x0C: /* 'splash' */
+                        item->splash = TRUE;
+                        break;
+                    case 0x0D: /* is blocking */
+                        item->blocking = TRUE;
+                        break;
+                    case 0x0E: /* is not movable */
+                        item->movable = FALSE;
+                        break;
+                    case 0x0F: /* blocks missiles */
+                        break;
+                    case 0x10: /* block monster movement */
+                        break;
+                    case 0x11: /* pickupable */
+                        item->pickupable = TRUE;
+                        break;
+                    case 0x12: /* hangable */
+                        break;
+                    case 0x13: /* horizontal ?? */
+                        break;
+                    case 0x14: /* vertical ?? */
+                        break;
+                    case 0x15: /* rotateable */
+                        break;
+                    case 0x16: /* light emitter */
+                        item->lightradius = readu16(); /* radius */
+                        item->lightcolor = readu16(); /* color */
+                        break;
+                    case 0x17: /* floor change */
+                        item->floorchange = TRUE;
+                        break;
+                    case 0x18: /* nothing?! */
+                        break;
+                    case 0x19: /* unknown, 4 bytes argument */
+                        readu16();
+                        readu16();
+                        break;
+                    case 0x1A: /* height offset */
+                        /* byte1 = x, byte2 = y? perhaps! they're always 8! */
+                        item->height2d_x = fgetc(fi);
+                        item->height2d_y = fgetc(fi);
+                        break;
+                    case 0x1B: /* "draw with height offset for all parts (2x2) of the sprite" ?! */
+                        break;
+                    case 0x1C: /* some monsters */
+                        break;
+                    case 0x1D: /* minimap color */
+                        item->minimapcolor = readu16();
+                        break;
+                    case 0x1E:/* line spot ?!? */
+
+                        tmpchar = fgetc(fi); /* 86 -> openable holes, 77-> can be used to go down, 76 can be used to go up, 82 -> stairs up, 79 switch, */
+
+                        if(tmpchar == 0x58)
+                            item->readable = TRUE;
+                        fgetc(fi); /* always 4 */
+                        break;
+                    case 0x1F: /* ground items */
+                        break;
+                    case 0xFF: /* end of section */
+                        printf("Kraj!\n");
+                        break;
+                    default:
+                        printf("unknown byte: %d\n", (unsigned short)option);
+                        return 0;
+                        break;
+
+                }
+
+                break;
+
+
+
+
             default:
                 printf("UNKNOWN DAT VERSION! Can't read any chunks.\n");
                 return 0;
@@ -317,7 +434,8 @@ char dat_readitem(item_t *item) {
 
     switch (datversion) {
         case 760:
-        case 770: {
+        case 770:
+        case 792: {
             spritelist_t *sl = (spritelist_t*)malloc(sizeof(spritelist_t));
             if (!sl) {
                 printf("Cannot alloc enough memory for spritelist\n");
@@ -356,6 +474,7 @@ char dat_readitem(item_t *item) {
             item->sl = sl;
             break;
         }
+
         default:
             printf("YOU SHOULD NOT REACH THIS POINT.\n");
             return 0;

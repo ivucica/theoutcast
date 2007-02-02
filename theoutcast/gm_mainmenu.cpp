@@ -21,7 +21,7 @@ GM_MainMenu::GM_MainMenu() {
 
     SoundSetMusic("music/logon.mp3");
 
-    SPRLoader("tibia76.spr");
+//    SPRLoader("tibia76.spr");
     currentspr = 1;
 
     glutSwapBuffers();
@@ -70,7 +70,7 @@ GM_MainMenu::GM_MainMenu() {
 	btnOptions.SetWidth(120);
 	btnOptions.SetCaption("Options");
     //btnOptions.SetOnClick(GM_MainMenu_Options);
-    btnOptions.SetOnClick(GM_MainMenu_NextSprite);
+  //  btnOptions.SetOnClick(GM_MainMenu_NextSprite);
 	btnOptions.SetPos(200/2 - 120/2,  32*3 );
 
 	btnToS.SetBGColor(.6, .6, .6, 1.);
@@ -259,7 +259,7 @@ GM_MainMenu::~GM_MainMenu() {
 	delete logo;
 	delete bg;
 	delete city;
-	SPRUnloader();
+
 	SoundSetMusic(NULL);
 }
 

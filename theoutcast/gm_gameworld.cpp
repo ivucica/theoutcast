@@ -15,14 +15,13 @@ extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
     while (gamemode == GM_GAMEWORLD) { // while we're in gameworld game mode
-        protocol->GameworldWork();
+        if (!protocol->GameworldWork()) break;
     }
     protocol->Close();
     delete protocol;
 }
 GM_Gameworld::GM_Gameworld() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
-    SPRLoader("tibia76.spr");
 
     SoundSetMusic("music/game.mp3");
 
@@ -87,7 +86,13 @@ void GM_Gameworld::Render() {
 }
 
 void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
+    key = tolower(key);
+    if (!protocol) {
+        printf("No protocol!");
 
+        GameModeEnter(GM_MAINMENU);
+        return;
+    }
     switch (key) {
         case 'w':
             protocol->MoveNorth();

@@ -17,7 +17,7 @@ class Thing {
         unsigned short GetType();
         unsigned char GetCount();
 
-        virtual void SetType(unsigned short type);
+        virtual void SetType(unsigned short type, unsigned short extendedtype);
 
         virtual void Render();
         virtual void Render(position_t *pos);

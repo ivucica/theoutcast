@@ -16,7 +16,7 @@ class NetworkMessage : public Buffer {
 		NetworkMessage();
 		~NetworkMessage();
 
-		void Dump(SOCKET s);
+		bool Dump(SOCKET s);
 		void AddString(const char* str);
 		void AddString(std::string str);
 		void AddChar(char chr);
@@ -25,7 +25,7 @@ class NetworkMessage : public Buffer {
 		void AddU32(unsigned long num);
 		void AddItemID(itemid_t id);
 		int  FillFromBuffer (Buffer *buf);
-		void FillFromSocket (SOCKET s);
+		bool FillFromSocket (SOCKET s);
 
         void RSABegin();
 		void RSAEncrypt();

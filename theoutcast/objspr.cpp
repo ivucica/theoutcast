@@ -5,6 +5,7 @@
 #include "types.h"
 #include "simple_effects.h"
 #include "defines.h"
+#include "protocol.h"//remove me and replace the switch(protocol->GetPRotcoolVersion) with something that'll return the spr filename
 ObjSpr::ObjSpr() {
     memset(&sli, 0, sizeof(sli));
 }
@@ -63,7 +64,10 @@ bool ObjSpr::Render(unsigned char stackcount) {
     return true;
 }
 void ObjSpr::LoadCreature(unsigned int creatureid) {
-    ASSERTFRIENDLY(creatureid <= creatures_n-1, "invalid creatureid in ObjSpr::LoadCreature");
+    char temp[256];
+    sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n-1);
+
+    ASSERTFRIENDLY(creatureid <= creatures_n-1, temp);
     ASSERTFRIENDLY(creatures[creatureid].loaded, "creature not loaded");
 
     if (!strlen(creatures[creatureid].spritelist)) return;
@@ -87,14 +91,37 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
 
-        t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+        switch (protocol->GetProtocolVersion()) {
+            case 760:
+            case 770:
+                t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                break;
+            case 790:
+            case 792:
+                t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                break;
+        }
+
+
     }
     animation_framecount[0] = 1; //stand
     animation_framecount[1] = sli.animcount; //walk
 
 }
 void ObjSpr::LoadItem(unsigned int itemid) {
-    ASSERTFRIENDLY(itemid >= 100 && itemid <= items_n, "invalid itemid in ObjSpr::LoadItem");
+    char temp[256];
+    sprintf(temp, "invalid itemid %d out of %d in ObjSpr::LoadItem", itemid, items_n);
+    ASSERTFRIENDLY(!itemid || itemid >= 100 && itemid <= items_n, temp);
+
+    if (!itemid) {
+        sli.width = 1; sli.height = 1; sli.blendframes = 1; sli.xdiv = 1; sli.ydiv = 1; sli.unknown = 1; sli.animcount = 1;
+        sli.numsprites = 1;
+        sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
+        sli.spriteids[0]=0;
+        t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+        t[0] = new Texture("tibia76.spr", 0);
+        return;
+    }
     ASSERTFRIENDLY(items[itemid].loaded, "itemid not loaded");
 
     if (!strlen(items[itemid].spritelist)) return;
@@ -118,7 +145,17 @@ void ObjSpr::LoadItem(unsigned int itemid) {
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
 
-        t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+        switch (protocol->GetProtocolVersion()) {
+            case 760:
+            case 770:
+                t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                break;
+            case 790:
+            case 792:
+                t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                break;
+        }
+
     }
     animation_framecount[0] = sli.animcount;// stand
     animation_framecount[1] = sli.animcount;// walk

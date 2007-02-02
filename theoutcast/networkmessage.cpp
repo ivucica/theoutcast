@@ -10,6 +10,7 @@
 #include "networkmessage.h"
 #include "debugprint.h"
 #include "types.h"
+#include "socketstrings.h"
 #ifndef MAX
 	#define MAX(a,b) (a > b ? a : b)
 #endif
@@ -23,11 +24,18 @@ NetworkMessage::NetworkMessage() {
 NetworkMessage::~NetworkMessage() {
 }
 
-void NetworkMessage::Dump(SOCKET s) {
-	send(s, (char*)&size, 2, 0);
+bool NetworkMessage::Dump(SOCKET s) {
+	if (send(s, (char*)&size, 2, 0) != 2) {
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (1) -- %s\n", SocketErrorDescription());
+	    return false;
+	}
 
-	send(s, buffer, size, 0);
+	if (send(s, buffer, size, 0) != size) {
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (2) -- %s\n", SocketErrorDescription());
+	    return false;
+	}
 	DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", size, size);
+	return true;
 }
 
 void NetworkMessage::AddString(const char *str) {
@@ -76,7 +84,7 @@ int NetworkMessage::FillFromBuffer (Buffer *buf) {
 // FIXME this function is so utterly wrong written and full of assumptions that
 // connection is still active that i'm disgousted at it, but at the same time
 // unwilling to rewrite it at the moment. proofing the concept at the moment...
-void NetworkMessage::FillFromSocket (SOCKET s) {
+bool NetworkMessage::FillFromSocket (SOCKET s) {
 
 
 	unsigned short sz;
@@ -89,24 +97,34 @@ void NetworkMessage::FillFromSocket (SOCKET s) {
     unsigned long mode = 0;
 	ioctlsocket(s, FIONBIO, &mode);
 
-
-	//while (
-        recv(s, (char*)&sz, 2, 0) == -1
-    //)
-    ;
-	//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
+    unsigned int sizereadresult = 0;
+	sizereadresult = recv(s, (char*)&sz, 2, 0);
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
+	if (sizereadresult != 2) {
+	    //printf("I have read %d bytes for size (should be 2)\n", sizereadresult);
+	    //printf("%s\n", SocketErrorDescription());
+	    return false;
+	}
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
-        int readthisturn = recv(s, toadd+readsofar, sz-readsofar, 0);
-        if (readthisturn > 0) {
+        printf("Trying to read %d\n", MIN(sz-readsofar, 100));
+        int readthisturn = recv(s, toadd+readsofar, MIN(sz-readsofar, 100), 0);
+        if (readthisturn != SOCKET_ERROR) {
             readsofar += readthisturn;
-            //printf("Now %d, after %d\n", readsofar, readthisturn);
+            printf("Now %d, after having read %d\n", readsofar, readthisturn);
+            //if (readthisturn) system("pause");
+        } else {
+            printf("Error reading!! Readthisturn contains %d\n", readthisturn);
+            printf("%s\n", SocketErrorDescription());
+            free(toadd);
+            return false;
         }
 
 	}
-	//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
 	this->Add(toadd, sz);
 	free(toadd);
+	return true;
 }
 
 unsigned char NetworkMessage::GetU8 () {
@@ -182,10 +200,13 @@ std::string NetworkMessage::GetString () {
     usdsize = MIN(strsize, this->GetSize());
     toreturn = (char*)malloc(usdsize+1);
 
+
+
     this->Peek(toreturn, usdsize);
     this->Trim(strsize);
     toreturn[usdsize] = 0;
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting string: %s, size: %d, usdsize: %d\n", toreturn, strsize, usdsize);
+
     return toreturn;
 }
 
@@ -284,9 +305,11 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 
 	}
 
-	size = *((unsigned short*)buffer);
+	size = *((unsigned short*)buffer)+2;
+
 //	_assert(size < 5000);
 	Trim(2);
+    printf("now a total of %d bytes\n", size);
 #endif
 }
 

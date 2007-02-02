@@ -28,6 +28,7 @@ Tile* Map::GetTile(position_t *pos) {
 Creature* Map::GetCreature(unsigned int creatureid, Creature *cr) {
     creaturelist_t::iterator it = c.find( creatureid );
     if (it==c.end()) {
+        if (!cr) return NULL;
         c[creatureid] = cr;
         (cr)->SetCreatureID(creatureid);
         return cr;

@@ -45,32 +45,38 @@ bool Protocol::GameworldLogin() {
 
 bool Protocol::GameworldWork() {
     NetworkMessage nm;
+
+    if (!active) return false;
     nm.FillFromSocket(s);
 
+    nm.ShowContents();
+    if (protocolversion >= 770) nm.XTEADecrypt(key);
+    nm.ShowContents();
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
-    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    if ((signed int)(nm.GetSize())!=0) DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
     return true;
 }
 
 void Protocol::Close() {
     closesocket(s);
+    active = false;
 }
 bool Protocol::ParsePacket(NetworkMessage *nm) {
     unsigned char packetid = nm->GetU8();
-    printf("parsing packet\n");
-    printf("Protocol %d: packet %02x\n", protocolversion, packetid);
+
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Protocol %d: packet %02x\n", protocolversion, packetid);
     switch (connectiontype) {
         case CHARLIST:
             return ParseCharlist(nm, packetid);
         case GAMEWORLD:
             return ParseGameworld(nm, packetid);
         default:
-            printf("Protocol %d: unknown connection type, cannot parse any packets\n", protocolversion);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Protocol %d: unknown connection type, cannot parse any packets\n", protocolversion);
             errormsg = "Unknown connection type, cannot parse any packets.\n\nIf this is a fully supported protocol, please report this bug!";
             logonsuccessful = false;
             return false;
     }
-    printf("Protocol %d: %d bytes remaining in message\n", protocolversion, nm->GetSize());
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Protocol %d: %d bytes remaining in message\n", protocolversion, nm->GetSize());
 }
 
 
@@ -210,24 +216,27 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     int type = nm->GetU16();
 
     Thing *thing = ThingCreate(type);
+    Creature* creature = dynamic_cast<Creature*>(thing);
+    Item *item = dynamic_cast<Item*>(thing);;
     // temporary vars that will be stored inside object's description once Object class is defined
     int looktype;
-
-
     unsigned long creatureid;
-    //printf("Object type %d\n", type);
+    unsigned short extendedlook=0;
+    printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: // known creature
             if (type == 0x0061) { // new creature
                 nm->GetU32(); // remove creature with this id
                 creatureid = nm->GetU32(); // new creature's id
-                thing = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
-                nm->GetString(); // name string
+                creature = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
+                thing = creature;
+                creature->SetName(nm->GetString()); // name string
             }
             if (type == 0x0062) {
                 creatureid = nm->GetU32(); // known creature's id
-                thing = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
+                creature = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
+                thing = creature;
             }
             nm->GetU8(); // health percent
             nm->GetU8(); // direction
@@ -242,24 +251,25 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 nm->GetU8(); // body
                 nm->GetU8(); // legs
                 nm->GetU8(); // feet
-
-                // 7.8+: GetByte(); // addons
+                if (protocolversion >= 780)
+                    nm->GetU8(); // addons
 
             } else { // extended creature look
-                nm->GetU16(); // itemid that this creature looks like
+                extendedlook = nm->GetU16(); // itemid that this creature looks like
             }
-
+            printf("Creature look: %d\n", looktype);
             nm->GetU8(); // lightlevel
             nm->GetU8(); // lightcolor
 
             nm->GetU16(); // speedindex
 
 
-            // only in 7.5 +
-            nm->GetU8(); // skull
-            nm->GetU8(); // shield
+            if (protocolversion >= 750) {
+                nm->GetU8(); // skull
+                nm->GetU8(); // shield
+            }
 
-            thing->SetType(looktype);
+            thing->SetType(looktype, extendedlook);
             break;
         case 0x0063: // creature that has only direction altered
             creatureid = nm->GetU32(); // creature id
@@ -270,7 +280,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
         default: // regular item
             ASSERT(type >= 100 && type <= items_n);
             if (thing)
-                thing->SetType(type);
+                thing->SetType(type, 0);
 
             if (items[type].stackable) {
                 unsigned char x = nm->GetU8();
@@ -285,7 +295,12 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
 
 
 bool Protocol::CipSoft() {
-    return false;
+
+    return cipsoft;
+}
+bool Protocol::CipSoft(bool cipsoft) {
+    this->cipsoft = cipsoft;
+    return cipsoft;
 }
 
 void Protocol::MoveNorth() {
@@ -323,6 +338,12 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
 #ifdef USEENCRYPTION
         case 770:
             protocol = new Protocol77;
+            return true;
+        case 790:
+            protocol = new Protocol79;
+            return true;
+        case 792:
+            protocol = new Protocol792;
             return true;
 #endif
         default:

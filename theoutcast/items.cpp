@@ -3,6 +3,7 @@
 #include "types.h"
 #include "glutwin.h"
 #include "debugprint.h"
+#include "sprfmts.h"
 int items_n;
 item_t *items=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
@@ -97,6 +98,21 @@ static int ItemsLoadNumFunc(void *NotUsed, int argc, char **argv, char **azColNa
     return 0;
 }
 void ItemsLoad() {
+
+
+    switch (protocol->GetProtocolVersion()) {
+        case 760:
+        case 770:
+            SPRLoader("tibia76.spr");
+            break;
+        case 790:
+        case 792:
+            SPRLoader("tibia79.spr");
+            break;
+        default:
+            printf("!(Y$*#)QY$()!$(!&#)($\n");
+            system("pause");
+    }
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Fetching item properties...");
 

@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include "debugprint.h"
 
-char debuglevel=0;//DEBUGLEVEL_BUILDTIME;
+char debuglevel=DEBUGLEVEL_BUILDTIME;
 
 std::string DEBUG_FILE; int DEBUG_LINE;
 void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {

@@ -49,6 +49,12 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
 	sockaddr_in sin;
 
+    if (!strcmp(menuclass->txtLoginServer.GetCaption().c_str(), "server.tibia.com")) {
+        protocol->CipSoft(true);
+    } else {
+        protocol->CipSoft(false);
+    }
+
 	menuclass->charlist.SetCaption("Logging in...");
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -56,6 +62,10 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 		CharList_ReportError(&menuclass->charlist, "Failed to create socket. (1)");
 		return 1;
 	}
+
+    // 0 = blocking, 1 = nonblocking
+	unsigned long mode = 0;
+	ioctlsocket(s, FIONBIO, &mode);
 
 	CharList_Status(&menuclass->charlist, "Resolving service...");
 	hostent *he = gethostbyname(menuclass->txtLoginServer.GetCaption().c_str() );

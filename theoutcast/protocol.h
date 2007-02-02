@@ -24,6 +24,7 @@ class Protocol {
         void SetCharacter(int i) {charlistselected = i;}
 
         bool CipSoft();
+        bool CipSoft(bool cipsoft);
 
         virtual bool    ParsePacket (NetworkMessage *nm);
         virtual bool    ParseCharlist (NetworkMessage *nm, unsigned char packetid);
@@ -57,7 +58,8 @@ class Protocol {
         bool logonsuccessful;
         std::string username, password;
         int maxx, maxy, maxz;
-
+        bool active;
+        bool cipsoft;
 
 
     friend void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller);
@@ -66,9 +68,12 @@ class Protocol {
 };
 
 // now include all protocols
+// subvariants should be "tabbed"
 #include "protocol76.h"
 #ifdef USEENCRYPTION
 #include "protocol77.h"
+#include "protocol79.h"
+  #include "protocol792.h"
 #endif
 
 extern Protocol* protocol;

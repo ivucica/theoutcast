@@ -21,6 +21,8 @@ bool SPRLoader(std::string sprfile) { // loads only spr pointers
         printf("Error opening sprite file\n", sprfile.c_str());
         return false;
     }
+    printf("OPENING SPRITE FILE %s\n", sprfile.c_str());
+    system("pause");
     SPRFile = sprfile;
 
     fread(&signature, 4, 1, fp);

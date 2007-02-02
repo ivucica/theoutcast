@@ -31,7 +31,7 @@ unsigned char Thing::GetCount() {
 void Thing::SetCount(unsigned char count) {
     this->count = count;
 }
-void Thing::SetType(unsigned short type) {
+void Thing::SetType(unsigned short type, unsigned short extendedtype) {
     this->type = type;
     //printf("NEW ITEM OF TYPE %d\n", type);
     sprgfx = new ObjSpr(type, 0);

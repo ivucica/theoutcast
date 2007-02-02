@@ -48,9 +48,7 @@ static int CreaturesLoadNumFunc(void *NotUsed, int argc, char **argv, char **azC
     return 0;
 }
 void CreaturesLoad() {
-
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Fetching creature properties...");
-
 
     creatures_n = 0;
     dbExecPrintf(dbData, CreaturesLoadNumFunc, 0, NULL, "select max(creatureid) from creatures%d;", protocol->GetProtocolVersion());
@@ -67,5 +65,4 @@ void CreaturesLoad() {
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
     //system("pause");
-
 }

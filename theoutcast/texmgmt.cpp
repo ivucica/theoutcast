@@ -63,6 +63,7 @@ RGBA *Texture::FetchBMPPixels() {
 RGBA *Texture::FetchSPRPixels() {
 
     //ASSERT(this->imgid != 0);
+    printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
     ASSERT(this->imgid < SPRCount);
     ASSERT(SPRPointers);
 
