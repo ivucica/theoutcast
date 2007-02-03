@@ -50,7 +50,7 @@ bool Protocol76::CharlistLogin(const char *username, const char *password) {
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
-    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++ %d remain\n", nm.GetSize());
 
     if (logonsuccessful) active = true;
     return logonsuccessful;
@@ -97,6 +97,7 @@ bool Protocol76::GameworldLogin () {
     return logonsuccessful;
 }
 // FIXME abstract the position retrieval
+/*
 bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     switch (packetid) {
         case 0x0A: // Creature ID
@@ -386,7 +387,7 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU8(); // soul
 
             /* dunno where this was added but it is there in 792 */
-            nm->GetU16(); // stamina (minutes)
+/*            nm->GetU16(); // stamina (minutes)
             break;
         case 0xA1: // Player Skills
             // FIXME Make a new function "getskill" which will fetch both level and percent of one particular skill
@@ -527,13 +528,13 @@ bool Protocol76::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         }
 
     }
-}
+}*/
 
-void Protocol76::GetPosition(NetworkMessage *nm, position_t *pos) {
+/*void Protocol76::GetPosition(NetworkMessage *nm, position_t *pos) {
     pos->x = nm->GetU16();
     pos->y = nm->GetU16();
     pos->z = nm->GetU8();
 }
 char Protocol76::GetStackpos(NetworkMessage *nm) {
     return nm->GetU8(); // stackpos
-}
+}*/

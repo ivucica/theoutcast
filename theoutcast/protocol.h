@@ -14,6 +14,7 @@
 #include "networkmessage.h"
 #include "types.h"
 #include "thing.h"
+#include "creature.h"
 class Protocol {
     public:
         Protocol();
@@ -34,16 +35,36 @@ class Protocol {
         virtual bool    GameworldWork();
         virtual void    Close();
 
-        virtual void    ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz);
-        virtual void    ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip);
-        virtual void    ParseTileDescription(NetworkMessage *nm, int x, int y, int z);
-        virtual Thing*  ParseThingDescription(NetworkMessage *nm);
-
+        // transmissives
         virtual void    MoveNorth();
         virtual void    MoveSouth();
         virtual void    MoveWest();
         virtual void    MoveEast();
 
+        virtual void    SetStance(stanceaggression_t aggression, stancechase_t chase);
+
+        // *parse* are "smarter" abstractions
+        // *get* are those that only fetch and return
+
+        // abstractions that return directly
+        virtual Creature*       GetCreatureByID(NetworkMessage *nm);
+        virtual char            GetStackpos(NetworkMessage *nm);
+        virtual Thing*          ParseThingDescription(NetworkMessage *nm);
+
+        // abstractions that manipulate directly
+        virtual void            GetPlayerStats(NetworkMessage *nm);
+        virtual void            GetPlayerSkill(NetworkMessage *nm, skill_t skillid);
+        virtual void            GetPlayerSkills(NetworkMessage *nm);
+        virtual void            ParseMapDescription (NetworkMessage *nm, int w, int h, int destx, int desty, int destz);
+        virtual void            ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx, int desty, int destz, unsigned int *skip);
+        virtual void            ParseTileDescription(NetworkMessage *nm, int x, int y, int z);
+
+
+        // abstractions that store in a struct
+        virtual void            GetPosition(NetworkMessage *nm, position_t *pos);
+        virtual void            ParseCreatureLook(NetworkMessage *nm, creaturelook_t *crl);
+
+        // internal stuff
         unsigned short GetProtocolVersion ();
     protected:
         SOCKET s;

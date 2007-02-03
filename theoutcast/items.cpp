@@ -84,8 +84,15 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             //if (items[itemid].stackable) printf("STACKABLE ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "spritelist")) {
-
             strcpy(items[itemid].spritelist, argv[i]);
+        }
+        if (!strcmp(azColName[i], "height2d_x")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid].height2d_x = iTmp;
+        }
+        if (!strcmp(azColName[i], "height2d_y")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid].height2d_y = iTmp;
         }
 
     }

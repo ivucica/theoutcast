@@ -11,6 +11,8 @@ ObjSpr::ObjSpr() {
 }
 ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     memset(&sli, 0, sizeof(sli));
+    offsetx = 0;
+    offsety = 0;
     if (type == 0)
         LoadItem(itemid);
     else if (type == 1)
@@ -18,6 +20,7 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     else
         exit(1);
     this->itemid = itemid;
+
 }
 ObjSpr::~ObjSpr() {
     if (sli.spriteids)  {
@@ -41,18 +44,18 @@ bool ObjSpr::Render(position_t *pos) {
     for (int i = 0; i < sli.height; i++)
         for (int j = 0; j < sli.width; j++) {
             int activeframe;
-            if (sli.xdiv>1 && sli.ydiv>1)
-                activeframe = currentframe *  sli.width * sli.height * sli.xdiv * sli.ydiv * sli.blendframes + ((i*sli.width + j) * sli.ydiv + pos->y % sli.ydiv) * sli.xdiv + pos->x % sli.xdiv;
-            else
+            //if (sli.xdiv>1 && sli.ydiv>1)
+            //    activeframe = currentframe *  sli.width * sli.height * sli.xdiv * sli.ydiv * sli.blendframes + ((i*sli.width + j) * sli.ydiv + pos->y % sli.ydiv) * sli.xdiv + pos->x % sli.xdiv;
+            //else
                 activeframe = currentframe *  sli.width * sli.height * sli.xdiv * sli.ydiv * sli.blendframes + i*sli.width + j;
             ASSERT(activeframe < sli.numsprites )
-            t[activeframe]->Bind();
+            if (activeframe < sli.numsprites) t[activeframe]->Bind();
 
             StillEffect(-32*j, 32*i, 32 - 32*j, 32 + 32*i, 2, 2); // divisions were 40 10
 
         }
     //printf("\n");
-
+    glTranslatef(offsetx, offsety, 0);
     glDisable(GL_TEXTURE_2D);
     return true;
 }
@@ -60,6 +63,7 @@ bool ObjSpr::Render(unsigned char stackcount) {
     glEnable(GL_TEXTURE_2D);
     t[min(stackcount,sli.numsprites-1)]->Bind();
     StillEffect(0, 0, 32, 32, 2, 2); // divisions were 40 10
+    glTranslatef(offsetx, offsety, 0);
     glDisable(GL_TEXTURE_2D);
     return true;
 }
@@ -104,6 +108,10 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
 
 
     }
+
+    offsetx = 0;
+    offsety = 0;
+
     animation_framecount[0] = 1; //stand
     animation_framecount[1] = sli.animcount; //walk
 
@@ -157,6 +165,11 @@ void ObjSpr::LoadItem(unsigned int itemid) {
         }
 
     }
+
+
+    offsetx = items[itemid].height2d_x * 4;
+    offsety = items[itemid].height2d_y * 4;
+
     animation_framecount[0] = sli.animcount;// stand
     animation_framecount[1] = sli.animcount;// walk
 }

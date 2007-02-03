@@ -593,6 +593,29 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
         return;
     }
 
+    FILE *f=NULL;
+    char sprfilename[256] = {0};
+    char protocolstr[10] = {0};
+    switch (protocol->GetProtocolVersion()) {
+        case 760:
+        case 770:
+            strcpy(sprfilename, "tibia76.spr");
+            strcpy(protocolstr, "7.6, 7.7, 7.72 or 7.81's");
+            break;
+        case 790:
+        case 792:
+            strcpy(sprfilename, "tibia79.spr");
+            strcpy(protocolstr, "7.9 or 7.92");
+            break;
+    }
+    if (strlen(sprfilename)) f = fopen(sprfilename, "rb");
+    if (!f ) {
+        char sprerr[256];
+        sprintf(sprerr, "For this protocol,\nyou must copy Tibia.spr from Tibia\n%s client's folder to The\nOutcast's folder and rename it into \n%s.", protocolstr, sprfilename);
+        ((GM_MainMenu*)game)->MsgBox(sprerr, "Sorry");
+        return;
+    } else fclose(f);
+
     ((GM_MainMenu*)game)->ResizeWindow();
 	((GM_MainMenu*)game)->login.SetVisible(false);
 	((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->charlist);

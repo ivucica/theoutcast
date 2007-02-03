@@ -66,14 +66,42 @@ typedef struct {
     unsigned short x, y;
     unsigned char z;
 } position_t;
+
+typedef struct {
+    unsigned short type;
+    unsigned short head;
+    unsigned short body;
+    unsigned short legs;
+    unsigned short feet;
+    unsigned short addons;
+
+    unsigned short extendedlook;
+} creaturelook_t;
 // then some enums
 typedef enum {
     NONE = 0,
     CHARLIST = 1,
     GAMEWORLD = 2
 } connectiontype_t;
+typedef enum {
+    FIST = 0,
+    CLUB,
+    SWORD,
+    AXE,
+    DISTANCE,
+    SHIELDING,
+    FISHING
+} skill_t;
 
-
+typedef enum {
+    OFFENSIVE=1,
+    BALANCED=2,
+    DEFENSIVE=3
+} stanceaggression_t;
+typedef enum {
+    STAND=0,
+    CHASE=1
+} stancechase_t;
 
 
 #endif

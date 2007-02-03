@@ -22,7 +22,7 @@ bool SPRLoader(std::string sprfile) { // loads only spr pointers
         return false;
     }
     printf("OPENING SPRITE FILE %s\n", sprfile.c_str());
-    system("pause");
+    //system("pause");
     SPRFile = sprfile;
 
     fread(&signature, 4, 1, fp);

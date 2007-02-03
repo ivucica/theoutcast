@@ -20,6 +20,7 @@ class ObjSpr : public Object {
         spritelist_t sli; // spritelist
         Texture **t; // sprite textures list
         unsigned int itemid;
+        unsigned char offsetx, offsety;
 };
 
 #endif

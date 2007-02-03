@@ -99,12 +99,13 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 
     unsigned int sizereadresult = 0;
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
-	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
 	if (sizereadresult != 2) {
 	    //printf("I have read %d bytes for size (should be 2)\n", sizereadresult);
 	    //printf("%s\n", SocketErrorDescription());
 	    return false;
 	}
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
+
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
         printf("Trying to read %d\n", MIN(sz-readsofar, 100));
@@ -236,7 +237,8 @@ void NetworkMessage::RSAEncrypt() {
     char modulus[310];
     if (protocol->CipSoft()) { // if were logging into one of cip's servers
         //strcpy(modulus, "142996239624163995200701773828988955507954033454661532174705160829347375827760388829672133862046006741453928458538592179906264509724520840657286865659265687630979195970404721891201847792002125535401292779123937207447574596692788513647179235335529307251350570728407373705564708871762033017096809910315212883967"); // 7.7
-        strcpy(modulus, "124710459426827943004376449897985582167801707960697037164044904862948569380850421396904597686953877022394604239428185498284169068581802277612081027966724336319448537811441719076484340922854929273517308661370727105382899118999403808045846444647284499123164879035103627004668521005328367415259939915284902061793"); // 7.72, 7.81
+        strcpy(modulus, "124710459426827943004376449897985582167801707960697037164044904862948569380850421396904597686953877022394604239428185498284169068581802277612081027966724336319448537811441719076484340922854929273517308661370727105382899118999403808045846444647284499123164879035103627004668521005328367415259939915284902061793"); // 7.72, 7.81, 7.9*
+        printf("ENCODING WITH CIPSOFT\n");
     } else { // it's an ot
         strcpy(modulus, "109120132967399429278860960508995541528237502902798129123468757937266291492576446330739696001110603907230888610072655818825358503429057592827629436413108566029093628212635953836686562675849720620786279431090218017681061521755056710823876476444260558147179707119674283982419152118103759076030616683978566631413");
     }
@@ -312,7 +314,38 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
     printf("now a total of %d bytes\n", size);
 #endif
 }
+void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
+#ifdef USEENCRYPTION
+	unsigned long k[4];
+	k[0] = m_key[0]; k[1] = m_key[1]; k[2] = m_key[2]; k[3] = m_key[3];
 
+	int m_ReadPos = 0;
+
+    buffer = (char*)realloc(buffer, size+2 + (8 - ((size+2) % 8)));
+    memcpy(buffer+2,buffer,size);
+    buffer[0] = (unsigned char)(size);
+	buffer[1] = (unsigned char)(size >> 8);
+	size+=2 + (8 - ((size+2) % 8));
+
+	unsigned long read_pos = 0;
+	unsigned long* buffer2 = (unsigned long*)buffer;
+	while(read_pos < size/4){
+		unsigned long v0 = buffer2[read_pos], v1 = buffer2[read_pos + 1];
+		unsigned long delta = 0x61C88647;
+		unsigned long sum = 0;
+
+		for(unsigned long i = 0; i<32; i++) {
+			v0 += ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + k[sum & 3]);
+			sum -= delta;
+			v1 += ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + k[sum>>11 & 3]);
+		}
+		buffer2[read_pos] = v0; buffer2[read_pos + 1] = v1;
+		read_pos = read_pos + 2;
+	}
+
+
+#endif
+}
 void NetworkMessage::ShowContents() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "NetworkMessage::ShowContents() // %d bytes\n", size);
     for (int i = 0; i < size ; i++) {

@@ -13,6 +13,7 @@
 #include "sound.h"
 #include "debugprint.h"
 
+bool fullscreen = false;
 
 // function predeclares
 void GameInit();
@@ -101,17 +102,18 @@ if(AllocConsole())
 	glutInitWindowSize (640, 480);
 	//glutInitWindowPosition (0, 0);
 
-	/*glutGameModeString("640x480:32");
-	printf("Entering fullscreen\n");
-	glut_WindowHandle = glutEnterGameMode();
-	printf("Done\n");*/
-
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Creating window\n");
-	glut_WindowHandle = glutCreateWindow (APPTITLE);
-	glutSetWindow(glut_WindowHandle);
-	glutShowWindow();
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
-
+    if (fullscreen) {
+        glutGameModeString("640x480:32");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering fullscreen\n");
+        glut_WindowHandle = glutEnterGameMode();
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
+    } else {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Creating window\n");
+        glut_WindowHandle = glutCreateWindow (APPTITLE);
+        glutSetWindow(glut_WindowHandle);
+        glutShowWindow();
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
+    }
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
 	glut_SetMousePointer("mousepointer.bmp");

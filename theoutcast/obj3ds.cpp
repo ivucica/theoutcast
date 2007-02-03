@@ -4,7 +4,9 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include "obj3ds.h"
+#include "texmgmt.h"
 extern float fps;
+bool uselists = true;
 /* public functions */
 
 
@@ -26,7 +28,13 @@ bool Obj3ds::LoadFile(const char* filename) {
         return false;
     }
     else {
-        // TODO texture loading here
+        for (Lib3dsMaterial *mat = data3ds->materials; mat; mat = mat->next) {
+            if (mat)
+                if (strlen(mat->texture1_map.name)) {
+                    printf("Loading texture %s\n", mat->texture1_map.name);
+                    mat->user.p = (void*)(new Texture(mat->texture1_map.name));
+                }
+        }
         lib3ds_file_eval(data3ds,0);
         return true;
     }
@@ -68,8 +76,22 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
         return;
       }
 
+    if (uselists) {
       node->user.d=glGenLists(1);
       glNewList(node->user.d, GL_COMPILE);
+
+
+    } else {
+      Lib3dsObjectData *d;
+
+      glPushMatrix();
+
+      d=&node->data.object;
+
+      glMultMatrixf(&node->matrix[0][0]);
+      glTranslatef(-d->pivot[0], -d->pivot[1], -d->pivot[2]);
+
+    }
 
       {
         unsigned p;
@@ -93,11 +115,29 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
           if (mat) {
             static GLfloat a[4]={0,0,0,1};
             float s;
-            //printf("Material application %s\n", f->material);
-            glMaterialfv(GL_FRONT, GL_AMBIENT, a);
-            glMaterialfv(GL_FRONT, GL_DIFFUSE, mat->diffuse);
-            //glMaterialfv(GL_FRONT, GL_SPECULAR, mat->specular);
-            //glColor4fv(mat->diffuse);
+            Texture *t = (Texture*)mat->user.p;
+            if (t) {
+                glEnable(GL_TEXTURE_2D);
+                t->Bind();
+                //printf("Applying texture\n");
+
+                Lib3dsRgba a={0.2, 0.2, 0.2, 1.0};
+                Lib3dsRgba d={0.8, 0.8, 0.8, 1.0};
+                Lib3dsRgba s={0.0, 0.0, 0.0, 1.0};
+                glMaterialfv(GL_FRONT, GL_AMBIENT, a);
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, d);
+                //glMaterialfv(GL_FRONT, GL_SPECULAR, s);
+
+            } else {
+                glDisable(GL_TEXTURE_2D);
+
+                //printf("Material application %s\n", f->material);
+                glMaterialfv(GL_FRONT, GL_AMBIENT, a);
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, mat->diffuse);
+                //glMaterialfv(GL_FRONT, GL_SPECULAR, mat->specular);
+                //glColor4fv(mat->diffuse);
+
+            }
             s = pow(2, 10.0*mat->shininess);
             if (s>128.0) {
               s=128.0;
@@ -106,6 +146,7 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
           }
           else {
             //printf("Default material application\n");
+            glDisable(GL_TEXTURE_2D);
             Lib3dsRgba a={0.2, 0.2, 0.2, 1.0};
             Lib3dsRgba d={0.8, 0.8, 0.8, 1.0};
             Lib3dsRgba s={0.0, 0.0, 0.0, 1.0};
@@ -119,7 +160,12 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
               glNormal3fv(f->normal);
               for (i=0; i<3; ++i) {
                 glNormal3fv(normalL[3*p+i]);
+                if (mesh->texelL) {
+                    glTexCoord2f(mesh->texelL[f->points[i]][0], 1.-mesh->texelL[f->points[i]][1]);
+
+                }
                 glVertex3fv(mesh->pointL[f->points[i]].pos);
+
               }
             glEnd();
           }
@@ -128,7 +174,10 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
         free(normalL);
       }
 
-      glEndList();
+      if (uselists)
+        glEndList();
+      else
+        glPopMatrix();
     }
 
     if (node->user.d) {

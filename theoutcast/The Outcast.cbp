@@ -143,6 +143,9 @@
 		<Unit filename="protocol76.h" />
 		<Unit filename="protocol77.cpp" />
 		<Unit filename="protocol77.h" />
+		<Unit filename="protocol79.cpp" />
+		<Unit filename="protocol79.h" />
+		<Unit filename="protocol792.h" />
 		<Unit filename="readme.txt" />
 		<Unit filename="simple_effects.cpp" />
 		<Unit filename="simple_effects.h" />

@@ -2,6 +2,7 @@
 #include "tile.h"
 #include "thing.h"
 #include "player.h"
+#include "debugprint.h"
 extern float fps;
 Tile::Tile() {
     //printf("Forging a tile\n");
@@ -15,16 +16,23 @@ Tile::~Tile() {
 void Tile::insert(Thing *thing) {
     ONThreadSafe(threadsafe);
     ASSERT(thing)
+    if (!thing) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Tile::insert - thing provided is NULL!!!!");
+        system("pause");
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
+
     if (thing->IsGround()) {
-        printf("Inserting ground\n");
+        printf("Inserting ground to %d %d %d\n", pos.x, pos.y, pos.z );
         if (!ground) this->itemcount ++;
         ground = thing;
     } else if (dynamic_cast<Creature*>(thing)) {
-        printf("Inserting a creature.\n");
+        printf("Inserting a creature to %d %d %d.\n", pos.x, pos.y, pos.z);
         creatures.insert(creatures.begin(), (Creature*)thing);
         this->itemcount ++;
     } else {
-        printf("Inserting an item to layer %d.\n", thing->GetTopIndex());
+        printf("Inserting item %d to %d %d %d to layer %d.\n", thing->GetType(), pos.x, pos.y, pos.z, thing->GetTopIndex());
         itemlayers[thing->GetTopIndex()].insert(itemlayers[thing->GetTopIndex()].begin(), (Item*)thing);
         this->itemcount ++;
     }
@@ -37,6 +45,14 @@ void Tile::remove(unsigned char pos) {
     printf("REMOVING %d\n", (int)pos);
     printf("Removing from tile %d %d %d\n", this->pos.x, this->pos.y, this->pos.z);
     ASSERT(pos < itemcount)
+
+    // try to recover
+    if (pos >= itemcount) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Tile::remove pos - thing provided doesnt exist - removing %d, got %d!!!!", pos, itemcount);
+        //system("pause");
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
 
     itemcount --;
     if (ground) {
@@ -149,12 +165,13 @@ void Tile::render() {
 
     ONThreadSafe(threadsafe);
 
+
     if (ground) {
         ground->AnimationAdvance(25./fps);
         ground->Render(&pos);
     }
-    for (int i = 3; i >= 0; i--) {
-        for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
+    for (int i = 0; i <= 3; i++) {
+        for (std::vector<Item*>::reverse_iterator it = itemlayers[i].rbegin(); it != itemlayers[i].rend(); it++) {
             (*it)->Render(&pos);
             (*it)->AnimationAdvance(25./fps);
         }
@@ -170,6 +187,7 @@ void Tile::render() {
             (*it)->AnimationAdvance(25./fps);
         }
 
+
     ONThreadUnsafe(threadsafe);
 
 
@@ -182,7 +200,7 @@ void Tile::empty () {
         ground = NULL;
     }
     //printf("Tile::empty - ground deleted\n");
-    for (int i = 0; i < 3; i++) {
+    for (int i = 3; i >= 0; i--) {
         for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); ) {
             if (*it)
                 delete (*it);

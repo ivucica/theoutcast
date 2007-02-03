@@ -25,6 +25,13 @@ Protocol79::~Protocol79() {
 
 bool Protocol79::CharlistLogin(const char *username, const char *password) {
 
+    srand(time(NULL));
+    key[0] = rand();
+    key[1] = rand();
+    key[2] = rand();
+    key[3] = rand();
+
+
     NetworkMessage nm;
 
     connectiontype = CHARLIST;
@@ -107,7 +114,12 @@ bool Protocol79::GameworldLogin () {
         return false;
     }
 
+
+    SetStance(DEFENSIVE, STAND);
+
+
     nm.Clean();
+    //nm.FillFromSocket(s);
     if (!nm.FillFromSocket(s )) {
         this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
         return false;
@@ -123,6 +135,7 @@ bool Protocol79::GameworldLogin () {
 
     return logonsuccessful;
 }
+/*
 bool Protocol79::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     printf("PACKET %d\n", packetid);
     switch (packetid) {
@@ -419,7 +432,7 @@ bool Protocol79::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU8(); // soul
 
             /* dunno where this was added but it is there in 792 */
-            nm->GetU16(); // stamina (minutes)
+/*            nm->GetU16(); // stamina (minutes)
             break;
         case 0xA1: // Player Skills
             // FIXME Make a new function "getskill" which will fetch both level and percent of one particular skill
@@ -563,14 +576,6 @@ bool Protocol79::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
     }
 }
-
-void Protocol79::GetPosition(NetworkMessage *nm, position_t *pos) {
-    pos->x = nm->GetU16();
-    pos->y = nm->GetU16();
-    pos->z = nm->GetU8();
-}
-char Protocol79::GetStackpos(NetworkMessage *nm) {
-    return nm->GetU8(); // stackpos
-}
+*/
 
 #endif

@@ -10,14 +10,15 @@ Texture::Texture(std::string fname) {
 	this->fname = fname;
 	this->imgid = 0;
 	std::string extension = fname.substr(fname.length() - 3, 3);
+
     pikseli = NULL;
 
 	textureid = 0;
 
-	if (extension=="bmp") {
+	if (extension=="bmp" || extension=="BMP") {
         pikseli = this->FetchBMPPixels();
 	}
-	if (extension=="spr") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
+	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
         pikseli = this->FetchSPRPixels();
 	}
 	if (pikseli) {
@@ -33,10 +34,10 @@ Texture::Texture(std::string fname, unsigned short id) {
 
 	textureid = 0;
 
-	if (extension=="bmp") {
+	if (extension=="bmp" || extension=="BMP") {
         pikseli = this->FetchBMPPixels();
 	}
-	if (extension=="spr") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
+	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
         pikseli = this->FetchSPRPixels();
 	}
 	if (pikseli) {
@@ -63,7 +64,7 @@ RGBA *Texture::FetchBMPPixels() {
 RGBA *Texture::FetchSPRPixels() {
 
     //ASSERT(this->imgid != 0);
-    printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
+    //printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
     ASSERT(this->imgid < SPRCount);
     ASSERT(SPRPointers);
 

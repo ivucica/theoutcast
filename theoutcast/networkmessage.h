@@ -30,6 +30,7 @@ class NetworkMessage : public Buffer {
         void RSABegin();
 		void RSAEncrypt();
 		void XTEADecrypt(unsigned long* k);
+        void XTEAEncrypt(unsigned long* k);
 
 		unsigned char GetU8();
 		unsigned short GetU16 ();

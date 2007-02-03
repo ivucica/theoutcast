@@ -9,7 +9,7 @@ void Creature::SetType(unsigned short outfit, unsigned short extendedtype) {
     printf("Creature::SetType to %d %d\n", outfit, extendedtype);
     this->type = outfit;
     if (outfit != 0)
-        sprgfx = new ObjSpr(outfit-1, 1);
+        sprgfx = new ObjSpr(outfit, 1);
     else
         sprgfx = new ObjSpr(extendedtype, 0);
 }
