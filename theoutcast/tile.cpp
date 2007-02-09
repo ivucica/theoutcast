@@ -24,15 +24,15 @@ void Tile::insert(Thing *thing) {
     }
 
     if (thing->IsGround()) {
-        printf("Inserting ground to %d %d %d\n", pos.x, pos.y, pos.z );
+        //printf("Inserting ground to %d %d %d\n", pos.x, pos.y, pos.z );
         if (!ground) this->itemcount ++;
         ground = thing;
     } else if (dynamic_cast<Creature*>(thing)) {
-        printf("Inserting a creature to %d %d %d.\n", pos.x, pos.y, pos.z);
+        //printf("Inserting a creature to %d %d %d.\n", pos.x, pos.y, pos.z);
         creatures.insert(creatures.begin(), (Creature*)thing);
         this->itemcount ++;
     } else {
-        printf("Inserting item %d to %d %d %d to layer %d.\n", thing->GetType(), pos.x, pos.y, pos.z, thing->GetTopIndex());
+        //printf("Inserting item %d to %d %d %d to layer %d.\n", thing->GetType(), pos.x, pos.y, pos.z, thing->GetTopIndex());
         itemlayers[thing->GetTopIndex()].insert(itemlayers[thing->GetTopIndex()].begin(), (Item*)thing);
         this->itemcount ++;
     }
@@ -42,8 +42,8 @@ void Tile::insert(Thing *thing) {
 void Tile::remove(unsigned char pos) {
     ONThreadSafe(threadsafe);
 
-    printf("REMOVING %d\n", (int)pos);
-    printf("Removing from tile %d %d %d\n", this->pos.x, this->pos.y, this->pos.z);
+    //printf("REMOVING %d\n", (int)pos);
+    //printf("Removing from tile %d %d %d\n", this->pos.x, this->pos.y, this->pos.z);
     ASSERT(pos < itemcount)
 
     // try to recover
@@ -56,7 +56,7 @@ void Tile::remove(unsigned char pos) {
 
     itemcount --;
     if (ground) {
-        printf("Ground exists; are we desiring it?\n");
+        //printf("Ground exists; are we desiring it?\n");
         if (pos==0) {
             ground=NULL;
 
@@ -65,15 +65,15 @@ void Tile::remove(unsigned char pos) {
         }
         pos--;
     }
-    printf("passed ground; position is %d\n", pos);
+    //printf("passed ground; position is %d\n", pos);
 
     for (int i = 3; i >=1 ; i-- ) {
-        printf("now in layer %d with %d items\n", i, itemlayers[i].size());
+        //printf("now in layer %d with %d items\n", i, itemlayers[i].size());
 
-        printf("position %d\n", pos);
+        //printf("position %d\n", pos);
 
         if (pos < itemlayers[i].size()) {
-            printf("Positive!\n");
+            //printf("Positive!\n");
             std::vector<Item*>::iterator it=itemlayers[i].begin();
             it += pos;
             itemlayers[i].erase(it);
@@ -81,11 +81,11 @@ void Tile::remove(unsigned char pos) {
             return;
         }
         pos -= itemlayers[i].size();
-        printf("passed layer %d; position is %d\n", i, pos);
+        //printf("passed layer %d; position is %d\n", i, pos);
     }
-    printf("now creatures!!! - size %d\n", creatures.size());
+    //printf("now creatures!!! - size %d\n", creatures.size());
     if (pos < creatures.size()) {
-        printf("Its a creature!!\n");
+        //printf("Its a creature!!\n");
         std::vector<Creature*>::iterator it=creatures.begin();
         it += pos;
         creatures.erase(it);
@@ -94,7 +94,7 @@ void Tile::remove(unsigned char pos) {
     }
     pos -= creatures.size();
 
-    printf("checking bottom items - size %d\n", itemlayers[0].size());
+    //printf("checking bottom items - size %d\n", itemlayers[0].size());
     if (pos < itemlayers[0].size()) {
         std::vector<Item*>::iterator it=itemlayers[0].begin();
         it += pos;

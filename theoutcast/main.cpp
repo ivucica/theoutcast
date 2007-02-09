@@ -12,7 +12,7 @@
 #include "database.h"
 #include "sound.h"
 #include "debugprint.h"
-
+#include "networkmessage.h" // FIXME remove me
 bool fullscreen = false;
 
 // function predeclares
@@ -37,10 +37,13 @@ void GameInit() {
 }
 
 void GLInit() {
+
+    // FIXME gotta fix
+
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GEQUAL, .5);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    //glEnable(GL_CULL_FACE);
 	glictGlobals.clippingMode = GLICT_SCISSORTEST;
 
 }
@@ -89,8 +92,16 @@ if(AllocConsole())
 
 }
 #endif
-
-
+/*
+    NetworkMessage nm;
+    std::string s;
+    unsigned long key[] = {0,1,8,2};
+    nm.AddString("Hello world\n");
+    nm.XTEAEncrypt(key);
+    nm.XTEADecrypt(key);
+    printf("%s\n", nm.GetString().c_str());
+    system("pause");
+    exit(0);*/
 
 
 

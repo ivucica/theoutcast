@@ -35,6 +35,12 @@ void ItemClear(item_t* item) {
     item->spritelist[0] = 0;
     item->otid = 0;
 
+    for (int i=0;i<item->sli.numsprites;i++)
+        delete ((Texture**)item->textures)[i];
+    free(item->textures);
+    // sli does not really need to be cleared ... it will be rebuilt each time
+    // same for animcount
+
     item->loaded = false;
 }
 
@@ -140,4 +146,11 @@ void ItemsLoad() {
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
     //system("pause");
 
+}
+
+void ItemsUnload() {
+    for (int i=0;i<items_n;i++) {
+        ItemClear(items + i);
+    }
+    free(items);
 }

@@ -66,3 +66,11 @@ void CreaturesLoad() {
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
     //system("pause");
 }
+
+
+void CreaturesUnload() {
+    for (int i=0;i<creatures_n;i++) {
+        CreatureClear(creatures + i);
+    }
+    free(creatures);
+}

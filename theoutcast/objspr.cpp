@@ -23,13 +23,13 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
 
 }
 ObjSpr::~ObjSpr() {
-    if (sli.spriteids)  {
+    /*if (sli.spriteids)  {
         free(sli.spriteids);
         for (int i = 0 ; i < sli.numsprites; i++) {
             delete(t[i]);
         }
         free(t);
-    }
+    }*/
 }
 bool ObjSpr::Render() {
     position_t p;
@@ -72,6 +72,19 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
     sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n-1);
 
     ASSERTFRIENDLY(creatureid <= creatures_n-1, temp);
+
+    if (creatures[creatureid].textures) {
+        t = (Texture**)creatures[creatureid].textures;
+        sli = creatures[creatureid].sli;
+
+        offsetx = 0;
+        offsety = 0;
+
+        animation_framecount[0] = creatures[creatureid].animation_framecount[0]; //stand
+        animation_framecount[1] = creatures[creatureid].animation_framecount[0];// walk
+        return;
+    }
+
     ASSERTFRIENDLY(creatures[creatureid].loaded, "creature not loaded");
 
     if (!strlen(creatures[creatureid].spritelist)) return;
@@ -109,11 +122,13 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
 
     }
 
+    creatures[creatureid].textures = t;
+    creatures[creatureid].sli = sli;
     offsetx = 0;
     offsety = 0;
 
-    animation_framecount[0] = 1; //stand
-    animation_framecount[1] = sli.animcount; //walk
+    animation_framecount[0] = creatures[creatureid].animation_framecount[0] = 1; //stand
+    animation_framecount[1] = creatures[creatureid].animation_framecount[1] = sli.animcount; //walk
 
 }
 void ObjSpr::LoadItem(unsigned int itemid) {
@@ -121,12 +136,26 @@ void ObjSpr::LoadItem(unsigned int itemid) {
     sprintf(temp, "invalid itemid %d out of %d in ObjSpr::LoadItem", itemid, items_n);
     ASSERTFRIENDLY(!itemid || itemid >= 100 && itemid <= items_n, temp);
 
+
+    if (items[itemid].textures) {
+        t = (Texture**)items[itemid].textures;
+        sli = items[itemid].sli;
+
+        offsetx = items[itemid].height2d_x * 4;
+        offsety = items[itemid].height2d_y * 4;
+
+        animation_framecount[0] = items[itemid].animation_framecount[0]; //stand
+        animation_framecount[1] = items[itemid].animation_framecount[1];// walk
+        return;
+    }
+
     if (!itemid) {
         sli.width = 1; sli.height = 1; sli.blendframes = 1; sli.xdiv = 1; sli.ydiv = 1; sli.unknown = 1; sli.animcount = 1;
         sli.numsprites = 1;
         sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
         sli.spriteids[0]=0;
         t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+        items[itemid].textures = t;
         t[0] = new Texture("tibia76.spr", 0);
         return;
     }
@@ -165,11 +194,10 @@ void ObjSpr::LoadItem(unsigned int itemid) {
         }
 
     }
+    items[itemid].textures = t;
+    items[itemid].sli = sli;
 
+    animation_framecount[0] = items[itemid].animation_framecount[0] = sli.animcount; //stand
+    animation_framecount[1] = items[itemid].animation_framecount[1] = sli.animcount; //walk
 
-    offsetx = items[itemid].height2d_x * 4;
-    offsety = items[itemid].height2d_y * 4;
-
-    animation_framecount[0] = sli.animcount;// stand
-    animation_framecount[1] = sli.animcount;// walk
 }

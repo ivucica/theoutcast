@@ -86,6 +86,7 @@ class Protocol {
     friend void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller);
     friend void GM_MainMenu::CreateCharlist();
     friend void GM_MainMenu::DestroyCharlist();
+    friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 };
 
 // now include all protocols

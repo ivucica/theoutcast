@@ -3,7 +3,9 @@
 
 #include "types.h"
 void CreaturesLoad();
+void CreaturesUnload();
 extern creature_t *creatures;
 extern int creatures_n;
+
 
 #endif

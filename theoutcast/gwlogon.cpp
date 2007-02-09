@@ -57,8 +57,8 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	ioctlsocket(s, FIONBIO, &mode);
 
 
-	GWLogon_Status(&menuclass->charlist, "Resolving service...");
-	hostent *he = gethostbyname(menuclass->txtLoginServer.GetCaption().c_str() );
+	/*GWLogon_Status(&menuclass->charlist, "Resolving service...");
+	hostent *he = gethostbyname( protocol->charlist[protocol->charlistselected].ipaddress   );
 	char convertedaddr[256];
 	ULONG addr;
 	char** addrs;
@@ -67,13 +67,24 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	} else {
 		GWLogon_ReportError(&menuclass->charlist, "Cannot resolve server name. (2)");
 		return 2;
-	}
+	}*/
 
 	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = *(ULONG*)(addrs[0]);
-	sin.sin_port = htons(LOGINPORT);
+	sin.sin_addr.s_addr = protocol->charlist[protocol->charlistselected].ipaddress; //*(ULONG*)(addrs[0]);
+	sin.sin_port = htons(protocol->charlist[protocol->charlistselected].port );
 
-	GWLogon_Status(&menuclass->charlist, "Connecting...");
+	{
+	    char tmp[256];
+	    sprintf(tmp, "Connecting to %d.%d.%d.%d...", ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[0],
+	    ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[1],
+	    ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[2],
+	    ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[3]);
+
+	    GWLogon_Status(&menuclass->charlist, tmp);
+	    printf("%s\n", tmp);
+	}
+
+	//GWLogon_Status(&menuclass->charlist, "Connecting...");
 
 	if (connect(s, (SOCKADDR*)&sin, sizeof(sin))) {
 		char tmp[256];

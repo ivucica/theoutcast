@@ -29,6 +29,18 @@ Protocol::~Protocol() {
 
 void Protocol::SetSocket(SOCKET socket) {
     s = socket;
+    srand(time(NULL));
+    key[0] = rand();
+    key[1] = rand();
+    key[2] = rand();
+    key[3] = rand();
+
+    key[0] = 0;
+    key[1] = 1;
+    key[2] = 8;
+    key[3] = 2;
+
+    printf("ACTIVATED KEYS %ud %ud %ud %ud\n", key[0], key[1], key[2], key[3]);
 }
 
 bool Protocol::CharlistLogin(const char *username, const char *password) {
@@ -45,6 +57,10 @@ bool Protocol::GameworldWork() {
     NetworkMessage nm;
 
     if (!active) return false;
+
+    nm.Clean();
+    nm.Flush();
+
     nm.FillFromSocket(s);
 
     nm.ShowContents();
@@ -112,7 +128,7 @@ bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
                     nm->GetString(charlist[i].worldname, 128);
                     charlist[i].ipaddress = nm->GetU32();
                     charlist[i].port = nm->GetU16();
-                    //printf("Protocol %d: %s %s %d.%d.%d.%d port %d\n", protocolversion, charlist[i].charactername, charlist[i].worldname, ((unsigned char*)&charlist[i].ipaddress)[0], ((unsigned char*)&charlist[i].ipaddress)[1], ((unsigned char*)&charlist[i].ipaddress)[2], ((unsigned char*)&charlist[i].ipaddress)[3], charlist[i].port);
+                    printf("Protocol %d: %s %s %d.%d.%d.%d port %d\n", protocolversion, charlist[i].charactername, charlist[i].worldname, ((unsigned char*)&charlist[i].ipaddress)[0], ((unsigned char*)&charlist[i].ipaddress)[1], ((unsigned char*)&charlist[i].ipaddress)[2], ((unsigned char*)&charlist[i].ipaddress)[3], charlist[i].port);
                 }
                 premiumdays = nm->GetU16();
 
@@ -611,6 +627,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             this->errormsg = tmp;
             console.insert(tmp, CONRED);
 
+            nm->ShowContents();
             this->Close();
             logonsuccessful = false;
             return false;
@@ -638,7 +655,7 @@ void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx,
     skip = 0;
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Receiving map - floors %d to %d (step %d)\n", startz, endz, stepz);
     for (int z = startz; z != endz + stepz; z+=stepz) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
+        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
         ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
     }
 
@@ -651,7 +668,7 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
     for (int x = destx; x < destx + w; x++) {
         for (int y = desty; y < desty + h; y++) {
 
-                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
+                //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Working on tile %d %d %d\n", x, y, destz);
                 if (!*skip) {
                     if (nm->PeekU16() >= 0xFF00) {
                         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skip chunk\n");
@@ -681,7 +698,7 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
     t->empty();
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
-            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
             return;
         } else {
             Thing *obj = ParseThingDescription(nm);
@@ -703,7 +720,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     int looktype;
     unsigned long creatureid;
     unsigned short extendedlook=0;
-    printf("Object type %d\n", type);
+    //printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: // known creature
@@ -735,7 +752,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 nm->GetU8(); // skull
                 nm->GetU8(); // shield
             }
-
+            ASSERT(thing)
             thing->SetType(creaturelook.type, creaturelook.extendedlook);
             break;
         case 0x0063: // creature that has only direction altered

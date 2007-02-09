@@ -63,7 +63,6 @@ void NetworkMessage::AddU32(unsigned long u) {
 	this->Add((char*)&u, 4);
 }
 
-
 void NetworkMessage::AddItemID(itemid_t id) {
 	this->AddU16(id);
 }
@@ -100,19 +99,23 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
     unsigned int sizereadresult = 0;
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
 	if (sizereadresult != 2) {
-	    //printf("I have read %d bytes for size (should be 2)\n", sizereadresult);
-	    //printf("%s\n", SocketErrorDescription());
+	    printf("I have read %d bytes for size (should be 2)\n", sizereadresult);
+	    printf("%s\n", SocketErrorDescription());
 	    return false;
 	}
+
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
 
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
         printf("Trying to read %d\n", MIN(sz-readsofar, 100));
         int readthisturn = recv(s, toadd+readsofar, MIN(sz-readsofar, 100), 0);
+        for (int i=0;i<readthisturn;i++)
+            printf("%02x ", *(toadd+readsofar+i));
+        printf("%02x\n");
         if (readthisturn != SOCKET_ERROR) {
             readsofar += readthisturn;
-            printf("Now %d, after having read %d\n", readsofar, readthisturn);
+            //printf("Now %d, after having read %d\n", readsofar, readthisturn);
             //if (readthisturn) system("pause");
         } else {
             printf("Error reading!! Readthisturn contains %d\n", readthisturn);
@@ -123,6 +126,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 
 	}
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
+
 	this->Add(toadd, sz);
 	free(toadd);
 	return true;
@@ -224,6 +228,12 @@ void NetworkMessage::RSAEncrypt() {
     //memcpy(msg+1, &rsablocksize, 2); // rsa blocks are NOT prepended with the real size of the message
     memcpy(msg+1, buffer+rsaoffset, rsablocksize); // then we copy our data into the rsa block's data area
 
+    for (int i = 0; i < 128; i++)
+        printf("%02x ", (char)msg[i]);
+    printf("\n");
+    //system("pause");
+
+
     // after that, run the rsa encoding algorythm over both size and data area of rsa block
    	mpz_t m_p, m_q, m_u, m_d, m_dp, m_dq;
    	mpz_t m_mod, m_e;
@@ -283,31 +293,101 @@ void NetworkMessage::RSAEncrypt() {
 
 void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 #ifdef USEENCRYPTION
+
+  unsigned char *key = (unsigned char*)m_key;
+  unsigned long length = size;
+  unsigned long delta = 0x9e3779b9;                   /* a key schedule constant */
+  unsigned long sum;
+
+  printf("%d %d %d %d\n", m_key[0], m_key[1], m_key[2], m_key[3]);
+
+  int n = 0;
+
+  printf("WILL DECRYPT THIS STUFF: \n");
+  for (int i=0; i < length; i++)
+    printf("%02x ", (unsigned char)(buffer[i]));
+  printf("\n");
+  system("pause");
+
+  while (n < length)
+  {
+    sum = 0xC6EF3720;
+    unsigned long v0 = *((unsigned long*)(buffer+n));
+    unsigned long v1 = *((unsigned long*)(buffer+n+4));
+
+    for(int i=0; i<32; i++)
+    {
+        v1 -= ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + ((unsigned long*)key)[sum>>11 & 3]);
+        sum -= delta;
+        v0 -= ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + ((unsigned long*)key)[sum & 3]);
+    }
+
+    *((unsigned long*)(buffer+n))   = v0;
+    *((unsigned long*)(buffer+n+4)) = v1;
+
+    n += 8;
+  }
+
+
+
+    ASSERT((*((unsigned short*)buffer)+2 <= size))
+	if (*((unsigned short*)buffer)+2 <= size)
+        size = *((unsigned short*)buffer)+2;
+    else
+        printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)buffer)+2);
+
+//	_assert(size < 5000);
+	Trim(2);
+    printf("now a total of %d bytes\n", size);
+
+#endif
+
+
+
+
+#if 0
 	unsigned long k[4];
 	k[0] = m_key[0]; k[1] = m_key[1]; k[2] = m_key[2]; k[3] = m_key[3];
 
+    printf("%u %u %u %u\n", k[0], k[1], k[2], k[3]);
     unsigned long* buffer_l = (unsigned long*)(buffer);
 	unsigned long readposition = 0;
 	while(readposition < size/4){
 
 		unsigned long v0 = buffer_l[readposition], v1 = buffer_l[readposition + 1];
-		unsigned long delta = 0x61C88647;
+		/*unsigned long delta = 0x61C88647;//0x9e3779b9;
 		unsigned long sum = 0xC6EF3720;
+
 
 		for(unsigned long i = 0; i<32; i++) {
 			v1 -= ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + k[sum>>11 & 3]);
 			sum += delta;
 			v0 -= ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + k[sum & 3]);
 		}
+		*/
 
 
-		buffer_l[readposition] = v0;buffer_l[readposition + 1] = v1;
+
+		// http://en.wikipedia.org/wiki/XTEA
+		unsigned char num_rounds = 32;
+		unsigned long delta = 0x9e3779b9;
+        unsigned long sum = delta * num_rounds;
+        for(int i=0; i<num_rounds; i++) {
+            v1 -= ((v0 << 4 ^ v0 >> 5) + v0) ^ (sum + k[sum>>11 & 3]);
+            sum -= delta;
+            v0 -= ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + k[sum & 3]);
+        }
+
+		buffer_l[readposition] = v0; buffer_l[readposition + 1] = v1;
 
 		readposition += 2;
 
 	}
-
-	size = *((unsigned short*)buffer)+2;
+    ASSERT((*((unsigned short*)buffer)+2 <= size))
+	if (*((unsigned short*)buffer)+2 <= size)
+        size = *((unsigned short*)buffer)+2;
+    else
+        printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)buffer)+2);
 
 //	_assert(size < 5000);
 	Trim(2);

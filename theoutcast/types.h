@@ -4,6 +4,7 @@
 #include <GLICT/button.h>
 #include <string>
 
+
 // first simple type renames
 typedef		unsigned short int					itemid_t;
 // then some structs
@@ -14,6 +15,21 @@ typedef struct {
     unsigned short port;
     glictButton* button;
 } character_t; // character list element
+
+
+typedef struct {
+    unsigned char width;
+    unsigned char height;
+    unsigned char blendframes;
+    unsigned char xdiv;
+    unsigned char ydiv;
+    unsigned char animcount;
+    unsigned char unknown;
+    unsigned short numsprites; /* to  remove need to calculate this */
+    unsigned short *spriteids;
+} spritelist_t;
+
+
 typedef struct {
     char graphics[50];
     char graphics2d[50];
@@ -40,6 +56,9 @@ typedef struct {
     char spritelist[4096];
     unsigned short otid;
 
+    void *textures;
+    unsigned char animation_framecount[2];
+    spritelist_t sli;
     bool loaded;
 } item_t;
 typedef struct {
@@ -47,20 +66,11 @@ typedef struct {
     char graphics2d[50];
     char spritelist[4096];
 
+    void *textures;
+    unsigned char animation_framecount[2];
+    spritelist_t sli;
     bool loaded;
 } creature_t;
-
-typedef struct {
-    unsigned char width;
-    unsigned char height;
-    unsigned char blendframes;
-    unsigned char xdiv;
-    unsigned char ydiv;
-    unsigned char animcount;
-    unsigned char unknown;
-    unsigned short numsprites; /* to  remove need to calculate this */
-    unsigned short *spriteids;
-} spritelist_t;
 
 typedef struct {
     unsigned short x, y;

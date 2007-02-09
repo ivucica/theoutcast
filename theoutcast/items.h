@@ -3,6 +3,7 @@
 
 #include "types.h"
 void ItemsLoad();
+void ItemsUnload();
 extern item_t *items;
 extern int items_n;
 
