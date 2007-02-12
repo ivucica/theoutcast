@@ -63,13 +63,15 @@ bool Protocol79::CharlistLogin(const char *username, const char *password) {
         return false;
     }
 
+    Close();
+
     nm.XTEADecrypt(key);
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
     if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
 
-    if (logonsuccessful) active = true;
+
     return logonsuccessful;
 }
 
@@ -105,12 +107,7 @@ bool Protocol79::GameworldLogin () {
     nm.AddString(this->password);
 
 
-    printf("PREENCRYPT CONTENTS\n");
-    nm.ShowContents();
-
     nm.RSAEncrypt();
-
-    nm.ShowContents();
 
 
     if (!nm.Dump(s)) {
@@ -121,25 +118,24 @@ bool Protocol79::GameworldLogin () {
 
 //    SetStance(DEFENSIVE, STAND);
 
-
-    nm.Clean();
-
+    //nm.Clean();
+    NetworkMessage nm2;
     //nm.FillFromSocket(s);
-    if (!nm.FillFromSocket(s )) {
+    if (!nm2.FillFromSocket(s )) {
         this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
         return false;
     }
     printf("-------------------\n");
     printf("NOT DECRYPTED:\n");
     printf("-------------------\n");
-    nm.ShowContents();
+    nm2.ShowContents();
     printf("-------------------\n");
 
-    nm.XTEADecrypt(key);
+    nm2.XTEADecrypt(key);
     printf("Decrypted with keys %d %d %d %d\n", key[0], key[1], key[2], key[3]);
     logonsuccessful = true;
-    while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
-    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    while ((signed int)(nm2.GetSize())>0 && ParsePacket(&nm2));
+    if ((signed int)(nm2.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
 
     if (logonsuccessful) active = true;
 

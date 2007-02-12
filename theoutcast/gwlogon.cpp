@@ -75,13 +75,13 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 
 	{
 	    char tmp[256];
-	    sprintf(tmp, "Connecting to %d.%d.%d.%d...", ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[0],
-	    ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[1],
-	    ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[2],
-	    ((char*)&protocol->charlist[protocol->charlistselected].ipaddress)[3]);
+	    sprintf(tmp, "Connecting to %d.%d.%d.%d...", (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[0],
+	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[1],
+	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[2],
+	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[3]);
 
 	    GWLogon_Status(&menuclass->charlist, tmp);
-	    printf("%s\n", tmp);
+	    printf("ESTABLISHING GAMEWORLD CONNECTION TO %s\n", tmp);
 	}
 
 	//GWLogon_Status(&menuclass->charlist, "Connecting...");

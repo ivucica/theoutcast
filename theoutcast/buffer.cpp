@@ -36,9 +36,12 @@ unsigned int Buffer::_Peek(char* dest, unsigned int buflen) {
     if (dest) memcpy(dest, currentposition, buflen);
     return buflen;
 }
+#include <stdio.h>
 void Buffer::Trim(unsigned int buflen) {
     ONThreadSafe(cs);
+    printf("Before: %02x\n", *currentposition);
     currentposition += buflen;
+    printf("After: %02x\n", *currentposition);
     ONThreadUnsafe(cs);
 }
 void Buffer::Flush() {

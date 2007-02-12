@@ -1,15 +1,17 @@
-#ifdef USEENCRYPTION
 
 #include "protocol.h"
-#include "protocol77.h"
+#include "protocol75.h"
 #include "networkdirect.h"
 #include "networkmessage.h"
 #include "defines.h"
-#include "items.h"
-#include "assert.h"
 #include "console.h"
-Protocol77::Protocol77 () {
-    protocolversion = 770;
+#include "player.h"
+#include "map.h"
+#include "tile.h"
+#include "sound.h"
+Protocol75::Protocol75 () {
+    protocolversion = 750;
+    // FIXME Put CORRECT fingerprints
     fingerprints[FINGERPRINT_TIBIADAT] = 0x439D5A33;
     fingerprints[FINGERPRINT_TIBIASPR] = 0x439852BE;
     fingerprints[FINGERPRINT_TIBIAPIC] = 0x4450C8D8;
@@ -17,10 +19,10 @@ Protocol77::Protocol77 () {
     maxx = 18; maxy = 14; maxz = 14;
 }
 
-Protocol77::~Protocol77() {
+Protocol75::~Protocol75() {
 }
 
-bool Protocol77::CharlistLogin(const char *username, const char *password) {
+bool Protocol75::CharlistLogin(const char *username, const char *password) {
 
     NetworkMessage nm;
 
@@ -34,57 +36,35 @@ bool Protocol77::CharlistLogin(const char *username, const char *password) {
     nm.AddU32(fingerprints[FINGERPRINT_TIBIASPR]); // tibia.spr
     nm.AddU32(fingerprints[FINGERPRINT_TIBIAPIC]); // tibia.pic
 
-    nm.RSABegin();
-
-    // encryption keys
-    for (int i = 0 ; i < 4 ; i++) {
-        nm.AddU32(key[i]);
-    }
 
     // account number and password
     nm.AddU32(atol((this->username = username).c_str()));
     nm.AddString(this->password = password);
 
-    nm.RSAEncrypt();
 
-    // FIXME inside dump, we should check whether or not socket is still open
-    // or after dump, at least
     nm.Dump(s);
 
     nm.Clean();
     nm.FillFromSocket(s);
-
-    nm.XTEADecrypt(key);
+    //nm.ShowContents();
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
-    if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
+    if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++ %d remain\n", nm.GetSize());
 
-    Close();
-
-
+    if (logonsuccessful) active = true;
     return logonsuccessful;
 }
 
-bool Protocol77::GameworldLogin () {
-    // this is valid for 7.7!
-    // 7.72 has a bit different order of stuff! check out old outcast's sources
+bool Protocol75::GameworldLogin () {
     NetworkMessage nm;
+
+    console.clear();
 
     connectiontype = GAMEWORLD;
 
     nm.AddU8(0x0A); // protocol id
 
-
-    nm.RSABegin();
-
-    // encryption keys
-    for (int i = 0 ; i < 4 ; i++) {
-        nm.AddU32(key[i]);
-    }
-
-
-    // in 7.72 onwards move this BEFORE the keys and BEFORE the encryption
     nm.AddU16(0x02); // client OS
     nm.AddU16(protocolversion);
 
@@ -98,7 +78,6 @@ bool Protocol77::GameworldLogin () {
     nm.AddString(this->password);
 
 
-    nm.RSAEncrypt();
 
     // FIXME inside dump, we should check whether or not socket is still open
     // or after dump, at least
@@ -107,7 +86,7 @@ bool Protocol77::GameworldLogin () {
     nm.Clean();
     nm.FillFromSocket(s );
 
-    nm.XTEADecrypt(key);
+    //nm.ShowContents();
 
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
@@ -117,21 +96,4 @@ bool Protocol77::GameworldLogin () {
 
     return logonsuccessful;
 }
-bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
-    switch (packetid) {
-        default: {
-            char tmp[256];
-            printf("Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
-            sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is temporarily unsupported while\n7.6 is in development.", protocolversion, packetid);
-            this->errormsg = tmp;
 
-            this->Close();
-            logonsuccessful = false;
-            return false;
-        }
-
-    }
-}
-
-
-#endif

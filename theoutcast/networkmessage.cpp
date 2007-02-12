@@ -198,11 +198,15 @@ char* NetworkMessage::GetString (char* target, unsigned int maxsize) {
 	return NULL;
 }
 std::string NetworkMessage::GetString () {
-    unsigned int strsize = GetU16();
-	unsigned int usdsize;
+    unsigned short strsize;
+	unsigned short usdsize;
+
+    strsize = GetU16();
+    printf("STR SIZE %hd\n", strsize);
 
     char *toreturn;
     usdsize = MIN(strsize, this->GetSize());
+    printf("USD SIZE %d\n", usdsize);
     toreturn = (char*)malloc(usdsize+1);
 
 
@@ -295,7 +299,7 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 #ifdef USEENCRYPTION
 
   unsigned char *key = (unsigned char*)m_key;
-  unsigned long length = size;
+  unsigned long length = GetSize();
   unsigned long delta = 0x9e3779b9;                   /* a key schedule constant */
   unsigned long sum;
 
@@ -305,15 +309,15 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 
   printf("WILL DECRYPT THIS STUFF: \n");
   for (int i=0; i < length; i++)
-    printf("%02x ", (unsigned char)(buffer[i]));
+    printf("%02x ", (unsigned char)(currentposition[i]));
   printf("\n");
-  system("pause");
+//  system("pause");
 
   while (n < length)
   {
     sum = 0xC6EF3720;
-    unsigned long v0 = *((unsigned long*)(buffer+n));
-    unsigned long v1 = *((unsigned long*)(buffer+n+4));
+    unsigned long v0 = *((unsigned long*)(currentposition+n));
+    unsigned long v1 = *((unsigned long*)(currentposition+n+4));
 
     for(int i=0; i<32; i++)
     {
@@ -322,20 +326,26 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
         v0 -= ((v1 << 4 ^ v1 >> 5) + v1) ^ (sum + ((unsigned long*)key)[sum & 3]);
     }
 
-    *((unsigned long*)(buffer+n))   = v0;
-    *((unsigned long*)(buffer+n+4)) = v1;
+    *((unsigned long*)(currentposition+n))   = v0;
+    *((unsigned long*)(currentposition+n+4)) = v1;
 
     n += 8;
   }
 
 
 
-    ASSERT((*((unsigned short*)buffer)+2 <= size))
-	if (*((unsigned short*)buffer)+2 <= size)
-        size = *((unsigned short*)buffer)+2;
-    else
-        printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)buffer)+2);
-
+    ASSERT((*((unsigned short*)currentposition)+2 <= GetSize()))
+	if (*((unsigned short*)currentposition)+2 <= GetSize()) {
+	    printf("Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
+        size = size - GetSize() + *((unsigned short*)currentposition)+2;
+        printf("New size: %d\n", GetSize());
+        ShowContents();
+        //system("pause");
+	}
+    else {
+        printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)currentposition)+2);
+        ShowContents();
+    }
 //	_assert(size < 5000);
 	Trim(2);
     printf("now a total of %d bytes\n", size);
@@ -428,8 +438,8 @@ void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
 }
 void NetworkMessage::ShowContents() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "NetworkMessage::ShowContents() // %d bytes\n", size);
-    for (int i = 0; i < size ; i++) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (unsigned char)buffer[i]);
+    for (int i = 0; i < GetSize() ; i++) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (unsigned char)currentposition[i]);
     }
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
     return;

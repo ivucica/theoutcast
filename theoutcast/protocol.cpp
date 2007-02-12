@@ -34,12 +34,12 @@ void Protocol::SetSocket(SOCKET socket) {
     key[1] = rand();
     key[2] = rand();
     key[3] = rand();
-
+/*
     key[0] = 0;
     key[1] = 1;
     key[2] = 8;
     key[3] = 2;
-
+*/
     printf("ACTIVATED KEYS %ud %ud %ud %ud\n", key[0], key[1], key[2], key[3]);
 }
 
@@ -76,7 +76,10 @@ bool Protocol::GameworldWork() {
 }
 
 void Protocol::Close() {
+    shutdown(s, SD_BOTH);
     closesocket(s);
+    printf("CLOSED SOCKET!!!\n");
+    system("pause");
     active = false;
 }
 bool Protocol::ParsePacket(NetworkMessage *nm) {

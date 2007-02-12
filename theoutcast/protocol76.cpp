@@ -1,6 +1,6 @@
 
 #include "protocol.h"
-#include "protocol77.h"
+#include "protocol76.h"
 #include "networkdirect.h"
 #include "networkmessage.h"
 #include "defines.h"
@@ -52,7 +52,8 @@ bool Protocol76::CharlistLogin(const char *username, const char *password) {
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
     if ((signed int)(nm.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++ %d remain\n", nm.GetSize());
 
-    if (logonsuccessful) active = true;
+
+    Close();
     return logonsuccessful;
 }
 
