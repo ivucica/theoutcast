@@ -51,7 +51,7 @@ bool ObjSpr::Render(position_t *pos) {
             ASSERT(activeframe < sli.numsprites )
             if (activeframe < sli.numsprites) t[activeframe]->Bind();
 
-            StillEffect(-32*j, 32*i, 32 - 32*j, 32 + 32*i, 2, 2); // divisions were 40 10
+            StillEffect(-32*j, 32*i, 32 - 32*j, 32 + 32*i, 2, 2, false, false, true); // divisions were 40 10
 
         }
     //printf("\n");

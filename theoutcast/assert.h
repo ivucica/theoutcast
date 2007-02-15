@@ -1,3 +1,7 @@
+#ifndef __ASSERT_H
+#define __ASSERT_H
+
+
 #if defined(USEASSERT) && !defined(ASSERTFRIENDLY)
     #ifdef WIN32
         #include <windows.h>
@@ -12,4 +16,7 @@
 #else
     #define ASSERT(x)
     #define ASSERTFRIENDLY(x, y)
+#endif
+
+
 #endif

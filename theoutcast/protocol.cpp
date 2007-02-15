@@ -22,25 +22,28 @@ Protocol::Protocol() {
     password = "";
     charlistselected = 0;
     charlistcount = 0;
+    ONInitThreadSafe(threadsafe);
 
 }
 Protocol::~Protocol() {
+    ONDeinitThreadSafe(threadsafe);
 }
 
 void Protocol::SetSocket(SOCKET socket) {
+    ONThreadSafe(threadsafe);
     s = socket;
     srand(time(NULL));
-    key[0] = rand();
+    /*key[0] = rand();
     key[1] = rand();
     key[2] = rand();
-    key[3] = rand();
-/*
+    key[3] = rand();*/
     key[0] = 0;
     key[1] = 1;
     key[2] = 8;
     key[3] = 2;
-*/
+
     printf("ACTIVATED KEYS %ud %ud %ud %ud\n", key[0], key[1], key[2], key[3]);
+    ONThreadUnsafe(threadsafe);
 }
 
 bool Protocol::CharlistLogin(const char *username, const char *password) {
@@ -55,6 +58,7 @@ bool Protocol::GameworldLogin() {
 
 bool Protocol::GameworldWork() {
     NetworkMessage nm;
+    ONThreadSafe(threadsafe);
 
     if (!active) return false;
 
@@ -72,15 +76,19 @@ bool Protocol::GameworldWork() {
         DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++ %d remain\n", nm.GetSize());
         nm.ShowContents();
     }
+    ONThreadUnsafe(threadsafe);
     return true;
 }
 
 void Protocol::Close() {
+    ONThreadSafe(threadsafe);
     shutdown(s, SD_BOTH);
     closesocket(s);
     printf("CLOSED SOCKET!!!\n");
-    system("pause");
+//    system("pause");
     active = false;
+    s = 0;
+    ONThreadUnsafe(threadsafe);
 }
 bool Protocol::ParsePacket(NetworkMessage *nm) {
     unsigned char packetid = nm->GetU8();
@@ -184,6 +192,9 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
 
 Creature *Protocol::GetCreatureByID(NetworkMessage *nm) {
     return gamemap.GetCreature(nm->GetU32(), NULL);
+}
+unsigned short Protocol::GetItemTypeID(NetworkMessage *nm) {
+    return nm->GetU16();
 }
 
 void Protocol::GetPosition(NetworkMessage *nm, position_t *pos) {
@@ -713,7 +724,7 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
 
 Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     // MUST ACCEPT NULL as second param
-    int type = nm->GetU16();
+    unsigned int type = GetItemTypeID(nm);
 
     Thing *thing = ThingCreate(type);
     ASSERTFRIENDLY(thing, "Unknown 'type'. Cant create thing");
@@ -781,6 +792,12 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
 }
 
 
+void Protocol::SetProtocolStatus(const char *protostat) {
+    if (gamemode == GM_MAINMENU)
+        ((GM_MainMenu*)game)->SetLoginStatus(protostat);
+
+}
+
 bool Protocol::CipSoft() {
     printf("==========> CONNECTING to CIPSOFT? %s\n", cipsoft ? "YES" : "NO");
     return cipsoft;
@@ -835,7 +852,10 @@ unsigned short Protocol::GetProtocolVersion () {
 
 
 bool ProtocolSetVersion (unsigned short protocolversion) {
-    if (protocol) delete protocol;
+    if (protocol) {
+        delete protocol;
+        protocol = NULL;
+    }
 
     switch (protocolversion) {
         case 760:

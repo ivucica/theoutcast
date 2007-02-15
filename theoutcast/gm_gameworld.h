@@ -10,7 +10,7 @@ class GM_Gameworld : public GameMode {
         ~GM_Gameworld();
 
         void Render();
-        void GM_Gameworld::KeyPress (unsigned char key, int x, int y) ;
+        void KeyPress (unsigned char key, int x, int y) ;
     private:
         ObjSpr *g;
 

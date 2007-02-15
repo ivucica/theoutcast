@@ -22,9 +22,9 @@ GM_Logo::GM_Logo () {
     }
     flythrough.set_on_finish(GM_Logo_OnFinish, this);
     done = false;
-    SoundSetMusic("music/logo.mp3");
     fadein = 0;
     fadeout = 0;
+    oldmayanimate = false;
 }
 GM_Logo::~GM_Logo() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing logo\n");
@@ -35,7 +35,11 @@ void GM_Logo::Render() {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    if (!oldmayanimate && mayanimate) {
+        oldmayanimate = true;
+        SoundSetMusic("music/logo.mp3");
 
+    }
     if (!flythrough.loaded) {
 
         logo->Render();

@@ -7,4 +7,6 @@ void StillEffect(float beginx, float beginy, float endx, float endy, int divx, i
 
 void FlagEffect(float beginx, float beginy, float endx, float endy, int divx, int divy, float anglebegin, float anglediff, float strength, bool flipx, bool flipy );
 void StillEffect(float beginx, float beginy, float endx, float endy, int divx, int divy, bool flipx, bool flipy);
+
+void StillEffect(float beginx, float beginy, float endx, float endy, int divx, int divy, bool flipx, bool flipy, bool culltype);
 #endif

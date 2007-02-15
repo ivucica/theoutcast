@@ -1,4 +1,5 @@
 #include <GL/glut.h>
+#include <GLICT/fonts.h>
 #include "gm_gameworld.h"
 #include "items.h"
 #include "creatures.h"
@@ -19,7 +20,10 @@ ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgume
         if (!protocol->GameworldWork()) break;
     }
     protocol->Close();
+    if (gamemode == GM_GAMEWORLD)
+        console.insert("Connection interrupted.");
     delete protocol;
+    protocol = NULL;
 }
 GM_Gameworld::GM_Gameworld() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
@@ -29,6 +33,7 @@ GM_Gameworld::GM_Gameworld() {
     g = new ObjSpr(5022, 0);
     //g = new ObjSpr(4597);
 
+    //glDisable(GL_CULL_FACE);
     ONNewThread(GM_Gameworld_Thread, NULL);
 }
 
@@ -47,8 +52,17 @@ void GM_Gameworld::Render() {
     glLoadIdentity();
     gluOrtho2D(0, 640, 0, 480);
 
-
     gamemap.Lock();
+    {
+        char tmp[256];
+        sprintf(tmp, "%d %d %d", player->GetPosX(), player->GetPosY(), player->GetPosZ());
+
+        glPushMatrix();
+        glictFontRender(tmp, "system", 0, 600 );
+        glPopMatrix();
+
+    }
+
     glPushMatrix();
     glTranslatef(100, 100, 0);
     glScalef(0.5, 0.5, 0.5);
@@ -110,6 +124,7 @@ void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
             protocol->MoveEast();
             break;
         default:
+            protocol->Close();
             GameModeEnter(GM_MAINMENU);
     }
 }

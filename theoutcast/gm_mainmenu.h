@@ -17,6 +17,7 @@
 
 #include "obj3ds.h"
 #include "flythrough.h"
+
 class GM_MainMenu : public GameMode {
 	public:
 		GM_MainMenu();
@@ -32,6 +33,8 @@ class GM_MainMenu : public GameMode {
         void DestroyCharlist();
 
         void GoToGameworld();
+
+        void SetLoginStatus(const char *loginstatus);
 	private:
 		glictContainer desktop;
 		glictWindow mainmenu;
@@ -82,6 +85,7 @@ class GM_MainMenu : public GameMode {
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 	friend void ItemsLoad();
 	friend void CreaturesLoad();
+
 };
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_ToS(glictPos* pos, glictContainer* caller);

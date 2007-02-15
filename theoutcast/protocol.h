@@ -15,6 +15,7 @@
 #include "types.h"
 #include "thing.h"
 #include "creature.h"
+#include "threads.h"
 class Protocol {
     public:
         Protocol();
@@ -23,6 +24,8 @@ class Protocol {
         std::string GetMotd() {return motd;}
         std::string GetError() {return errormsg;}
         void SetCharacter(int i) {charlistselected = i;}
+        void SetProtocolStatus(const char *protostat);
+
 
         bool CipSoft();
         bool CipSoft(bool cipsoft);
@@ -49,7 +52,9 @@ class Protocol {
         // abstractions that return directly
         virtual Creature*       GetCreatureByID(NetworkMessage *nm);
         virtual char            GetStackpos(NetworkMessage *nm);
+        virtual unsigned short  GetItemTypeID(NetworkMessage *nm);
         virtual Thing*          ParseThingDescription(NetworkMessage *nm);
+
 
         // abstractions that manipulate directly
         virtual void            GetPlayerStats(NetworkMessage *nm);
@@ -81,6 +86,7 @@ class Protocol {
         int maxx, maxy, maxz;
         bool active;
         bool cipsoft;
+        ONCriticalSection threadsafe;
 
 
     friend void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller);

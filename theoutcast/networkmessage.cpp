@@ -221,8 +221,8 @@ std::string NetworkMessage::GetString () {
 
 void NetworkMessage::RSABegin() {
     rsaoffset = size;
-
 }
+
 void NetworkMessage::RSAEncrypt() {
 #ifdef USEENCRYPTION
 
@@ -333,14 +333,13 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
   }
 
 
-
     ASSERT((*((unsigned short*)currentposition)+2 <= GetSize()))
+    ASSERT(currentposition)
 	if (*((unsigned short*)currentposition)+2 <= GetSize()) {
 	    printf("Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
         size = size - GetSize() + *((unsigned short*)currentposition)+2;
         printf("New size: %d\n", GetSize());
         ShowContents();
-        //system("pause");
 	}
     else {
         printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)currentposition)+2);

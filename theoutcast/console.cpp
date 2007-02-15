@@ -91,7 +91,6 @@ void Console::draw(char count) {
             glPushMatrix();
             glictFontRender((*it)->text, "system", 0, p*12 );
             glPopMatrix();
-
         }
     }
     glColor4fv(oldcolor);
