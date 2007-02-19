@@ -40,6 +40,7 @@ bool Protocol79::CharlistLogin(const char *username, const char *password) {
 
     nm.RSABegin();
 
+
     // encryption keys
     for (int i = 0 ; i < 4 ; i++) {
         nm.AddU32(key[i]);
@@ -94,10 +95,11 @@ bool Protocol79::GameworldLogin () {
     SetProtocolStatus("RSA encryption...");
     nm.RSABegin();
 
+    //key[3] = 92;
     // encryption keys
     for (int i = 0 ; i < 4 ; i++) {
         nm.AddU32(key[i]);
-        printf("KEY %d - %d\n", i, key[i]);
+        //printf("KEY %d - %d\n", i, key[i]);
     }
 
 
@@ -107,12 +109,13 @@ bool Protocol79::GameworldLogin () {
     // account number and password
     nm.AddU32(atol(this->username.c_str())); // this does NOT exist before 7.4
     nm.AddString(this->charlist[this->charlistselected].charactername);
-    printf("Connectin to %s\n", this->charlist[this->charlistselected].charactername);
     nm.AddString(this->password);
+
 
 
     nm.RSAEncrypt();
 
+    SetProtocolStatus("Transmitting logon data...");
 
     if (!nm.Dump(s)) {
         this->errormsg = "Could not write to socket.\nPossibly premature disconnect.";
@@ -122,6 +125,7 @@ bool Protocol79::GameworldLogin () {
 
 //    SetStance(DEFENSIVE, STAND);
 
+    SetProtocolStatus("Waiting for response...");
     //nm.Clean();
     NetworkMessage nm2;
     //nm.FillFromSocket(s);
@@ -129,14 +133,7 @@ bool Protocol79::GameworldLogin () {
         this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
         return false;
     }
-    printf("-------------------\n");
-    printf("NOT DECRYPTED:\n");
-    printf("-------------------\n");
-    nm2.ShowContents();
-    printf("-------------------\n");
-
     nm2.XTEADecrypt(key);
-    printf("Decrypted with keys %d %d %d %d\n", key[0], key[1], key[2], key[3]);
     logonsuccessful = true;
     while ((signed int)(nm2.GetSize())>0 && ParsePacket(&nm2));
     if ((signed int)(nm2.GetSize())!=0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");

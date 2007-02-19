@@ -33,16 +33,17 @@ void Protocol::SetSocket(SOCKET socket) {
     ONThreadSafe(threadsafe);
     s = socket;
     srand(time(NULL));
-    /*key[0] = rand();
-    key[1] = rand();
-    key[2] = rand();
-    key[3] = rand();*/
-    key[0] = 0;
-    key[1] = 1;
-    key[2] = 8;
-    key[3] = 2;
+    key[0] = rand() % 0xFFFFFFFF;
+    key[1] = rand() % 0xFFFFFFFF;
+    key[2] = rand() % 0xFFFFFFFF;
+    key[3] = rand() % 0xFFFFFFFF;
 
-    printf("ACTIVATED KEYS %ud %ud %ud %ud\n", key[0], key[1], key[2], key[3]);
+    key[0] = 2;
+    key[1] = 3;
+    key[2] = 76;
+    key[3] = 15;
+
+    printf("ACTIVATED KEYS %u %u %u %u\n", key[0], key[1], key[2], key[3]);
     ONThreadUnsafe(threadsafe);
 }
 

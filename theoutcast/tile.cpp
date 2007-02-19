@@ -183,6 +183,7 @@ void Tile::render() {
      && pos.y < player->GetPosY() + 6
      && pos.y > player->GetPosY() - 6)
         for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
+            ASSERTFRIENDLY((*it), "Creature is nonexistant, yet it's here?")
             (*it)->Render(&pos);
             (*it)->AnimationAdvance(25./fps);
         }

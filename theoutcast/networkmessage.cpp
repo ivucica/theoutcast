@@ -25,12 +25,34 @@ NetworkMessage::~NetworkMessage() {
 }
 
 bool NetworkMessage::Dump(SOCKET s) {
-	if (send(s, (char*)&size, 2, 0) != 2) {
+    unsigned int sizetosend = GetSize();
+    char *tmp = NULL;
+    tmp = (char*)malloc(sizetosend+2);
+
+
+    if (!tmp) return false;
+    DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", sizetosend, sizetosend);
+
+    memcpy(tmp, &sizetosend, 2);
+    memcpy(tmp+2, currentposition, sizetosend);
+
+    if (send(s, tmp, sizetosend+2, 0) != sizetosend+2) {
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket -- %s\n", SocketErrorDescription());
+	    return false;
+	}
+
+    free(tmp);
+
+    return true;
+
+//////////////////////////////
+
+	if (send(s, (char*)&sizetosend, 2, 0) != 2) {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (1) -- %s\n", SocketErrorDescription());
 	    return false;
 	}
 
-	if (send(s, buffer, size, 0) != size) {
+	if (send(s, currentposition, sizetosend, 0) != 0) {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (2) -- %s\n", SocketErrorDescription());
 	    return false;
 	}
@@ -111,8 +133,8 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
         printf("Trying to read %d\n", MIN(sz-readsofar, 100));
         int readthisturn = recv(s, toadd+readsofar, MIN(sz-readsofar, 100), 0);
         for (int i=0;i<readthisturn;i++)
-            printf("%02x ", *(toadd+readsofar+i));
-        printf("%02x\n");
+            printf("%02x ", (char)(*(toadd+readsofar+i)));
+        printf("\n");
         if (readthisturn != SOCKET_ERROR) {
             readsofar += readthisturn;
             //printf("Now %d, after having read %d\n", readsofar, readthisturn);
@@ -292,6 +314,7 @@ void NetworkMessage::RSAEncrypt() {
     // finally, updated size of the buffer is always 128, plus the unencoded
     // data from the beginning of the buffer
     size = rsaoffset + 128;
+    currentposition = buffer;
 #endif
 }
 
@@ -339,7 +362,7 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 	    printf("Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
         size = size - GetSize() + *((unsigned short*)currentposition)+2;
         printf("New size: %d\n", GetSize());
-        ShowContents();
+        //ShowContents();
 	}
     else {
         printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)currentposition)+2);
