@@ -1,6 +1,8 @@
 
 #define LOGINPORT 7171
-#include <windows.h>
+#ifdef WIN32
+	#include <windows.h>
+#endif
 
 #include <GLICT/messagebox.h>
 #include "gm_mainmenu.h"
@@ -13,6 +15,7 @@
 #include "database.h"
 #include "items.h"
 #include "sound.h"
+#include "bsdsockets.h"
 inline void GWLogon_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
@@ -42,7 +45,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s==INVALID_SOCKET) {
 		GWLogon_ReportError(&menuclass->charlist, "Failed to create socket. (1)");
-		return 1;
+		return (ONThreadFuncReturnType)1;
 	}
 
 
@@ -52,10 +55,11 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
         protocol->CipSoft(false);
     }
 
+	#ifdef WIN32
     // 0 = blocking, 1 = nonblocking
 	unsigned long mode = 0;
 	ioctlsocket(s, FIONBIO, &mode);
-
+	#endif
 
 	/*GWLogon_Status(&menuclass->charlist, "Resolving service...");
 	hostent *he = gethostbyname( protocol->charlist[protocol->charlistselected].ipaddress   );
@@ -93,7 +97,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 		sprintf(tmp, "Socket error:\n%s (3)", SocketErrorDescription());
 		GWLogon_ReportError(&menuclass->charlist, tmp);
 
-		return 3;
+		return (ONThreadFuncReturnType)3;
 	}
 
 

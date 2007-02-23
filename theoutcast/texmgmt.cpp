@@ -1,11 +1,30 @@
+#ifdef WIN32
+	#include <windows.h>
+	#include <io.h> // filelength
+#endif
 #include <vector>
 #include <stdio.h>
-#include <windows.h>
-#include <io.h> // filelength
+
 #include "texmgmt.h"
 #include "imgfmts.h"
 #include "assert.h"
 #include "sprfmts.h"
+
+#ifndef WIN32
+int filesize (FILE* f) {
+	int loc = ftell(f);
+	int size = 0;
+
+	fseek(f, SEEK_END, 0);
+	size = ftell(f);
+	fseek(f, SEEK_SET, loc);
+	return size;
+}
+#else
+int filesize (FILE* f) {
+	return filelength(fileno(f)) ;
+}
+#endif
 Texture::Texture(std::string fname) {
 	this->fname = fname;
 	this->imgid = 0;
@@ -91,7 +110,7 @@ RGBA *Texture::FetchSPRPixels() {
         fclose(f);
         return NULL;
     }
-    if (SPRPointers[imgid]>filelength(fileno(f))) {
+    if (SPRPointers[imgid]>filesize(f)) {
             printf("SIZE DOUBLEPLUSUNGOOD\n");
             //system("pause");
         fclose(f);

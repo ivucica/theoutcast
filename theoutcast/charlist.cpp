@@ -1,6 +1,9 @@
 
 #define LOGINPORT 7171
-#include <windows.h>
+
+#ifdef WIN32
+    #include <windows.h>
+#endif
 
 #include <GLICT/messagebox.h>
 #include "gm_mainmenu.h"
@@ -11,6 +14,7 @@
 #include "protocol.h"
 #include "database.h"
 #include "sound.h"
+#include "bsdsockets.h"
 
 void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
@@ -60,27 +64,29 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s==INVALID_SOCKET) {
 		CharList_ReportError(&menuclass->charlist, "Failed to create socket. (1)");
-		return 1;
+		return (ONThreadFuncReturnType)1;
 	}
 
-    // 0 = blocking, 1 = nonblocking
+	// 0 = blocking, 1 = nonblocking
+	#ifdef WIN32
 	unsigned long mode = 0;
 	ioctlsocket(s, FIONBIO, &mode);
+	#endif
 
 	CharList_Status(&menuclass->charlist, "Resolving service...");
 	hostent *he = gethostbyname(menuclass->txtLoginServer.GetCaption().c_str() );
 	char convertedaddr[256];
-	ULONG addr;
+	unsigned long addr;
 	char** addrs;
 	if (he) {
 		addrs = (char**)he->h_addr_list;
 	} else {
 		CharList_ReportError(&menuclass->charlist, "Cannot resolve server name. (2)");
-		return 2;
+		return (ONThreadFuncReturnType)2;
 	}
 
 	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = *(ULONG*)(addrs[0]);
+	sin.sin_addr.s_addr = *(unsigned long*)(addrs[0]);
 	sin.sin_port = htons(LOGINPORT);
 
 	CharList_Status(&menuclass->charlist, "Connecting...");
@@ -90,7 +96,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 		sprintf(tmp, "Socket error:\n%s (3)", SocketErrorDescription());
 		CharList_ReportError(&menuclass->charlist, tmp);
 
-		return 3;
+		return (ONThreadFuncReturnType)3;
 	}
 
 	CharList_Status(&menuclass->charlist, "Retrieving character list...");

@@ -97,6 +97,7 @@ class Protocol {
 
 // now include all protocols
 // subvariants should be "tabbed"
+#include "protocol75.h"
 #include "protocol76.h"
 #ifdef USEENCRYPTION
 #include "protocol77.h"

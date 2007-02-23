@@ -11,6 +11,7 @@
 #include "debugprint.h"
 #include "types.h"
 #include "socketstrings.h"
+#include "bsdsockets.h"
 #ifndef MAX
 	#define MAX(a,b) (a > b ? a : b)
 #endif
@@ -112,11 +113,13 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 	char *toadd;
     int readsofar=0;
 
+	#ifdef WIN32
 	// 0 = blocking, 1 = nonblocking
 	// perhaps move this to initialization of the socket?
 	// would that work? (is the blockability altered by some other winapi?)
     unsigned long mode = 0;
 	ioctlsocket(s, FIONBIO, &mode);
+	#endif
 
     unsigned int sizereadresult = 0;
 	sizereadresult = recv(s, (char*)&sz, 2, 0);

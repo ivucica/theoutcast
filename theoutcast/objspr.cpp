@@ -109,6 +109,9 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
 
         switch (protocol->GetProtocolVersion()) {
+            case 750:
+                t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                break;
             case 760:
             case 770:
                 t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
@@ -183,6 +186,9 @@ void ObjSpr::LoadItem(unsigned int itemid) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
 
         switch (protocol->GetProtocolVersion()) {
+            case 750:
+                t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                break;
             case 760:
             case 770:
                 t[i] = new Texture("tibia76.spr", sli.spriteids[i]);

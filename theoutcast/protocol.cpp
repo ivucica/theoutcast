@@ -10,6 +10,7 @@
 #include "console.h"
 #include "sound.h"
 #include "assert.h"
+#include "bsdsockets.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -83,7 +84,9 @@ bool Protocol::GameworldWork() {
 
 void Protocol::Close() {
     ONThreadSafe(threadsafe);
-    shutdown(s, SD_BOTH);
+    #ifdef WIN32
+	shutdown(s, SD_BOTH);
+	#endif
     closesocket(s);
     printf("CLOSED SOCKET!!!\n");
 //    system("pause");
@@ -859,6 +862,9 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
     }
 
     switch (protocolversion) {
+        case 750:
+            protocol = new Protocol75;
+            return true;
         case 760:
             protocol = new Protocol76;
             return true;

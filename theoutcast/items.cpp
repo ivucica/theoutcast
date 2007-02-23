@@ -54,7 +54,7 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
     sscanf(argv[i], "%d", &itemid);
     if (!itemid || itemid > items_n) {
         glutHideWindow();
-        MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nItem ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nItem ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
 
@@ -114,6 +114,10 @@ void ItemsLoad() {
 
 
     switch (protocol->GetProtocolVersion()) {
+        case 750:
+            SPRLoader("tibia75.spr");
+            break;
+
         case 760:
         case 770:
             SPRLoader("tibia76.spr");
@@ -135,7 +139,7 @@ void ItemsLoad() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d items in database for protocol %d\n", items_n, protocol->GetProtocolVersion());
     if (!items_n) {
         glutHideWindow();
-        MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
     items = (item_t*)malloc(sizeof(item_t)*(items_n+1));

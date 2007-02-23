@@ -1,5 +1,14 @@
+
 #include <malloc.h>
 #include <stdio.h>
+#ifndef WIN32
+
+const char* SocketErrorDescription() {
+	return "Can't identify errors under BSD sockets.";
+}
+
+#else
+
 #include <windows.h>
 const char* SocketErrorDescription() {
     int wsalasterr;
@@ -165,3 +174,5 @@ const char* SocketErrorDescription() {
         }
     }
 }
+
+#endif

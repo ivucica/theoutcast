@@ -19,6 +19,7 @@
 					<Add option="-DUSEASSERT" />
 					<Add option="-DDEBUGCONSOLE" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
+					<Add option="-DUSESOUNDS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -143,6 +144,8 @@
 		<Unit filename="player.h" />
 		<Unit filename="protocol.cpp" />
 		<Unit filename="protocol.h" />
+		<Unit filename="protocol75.cpp" />
+		<Unit filename="protocol75.h" />
 		<Unit filename="protocol76.cpp" />
 		<Unit filename="protocol76.h" />
 		<Unit filename="protocol77.cpp" />

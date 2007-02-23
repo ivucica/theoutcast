@@ -1,3 +1,4 @@
+
 #include <windows.h>
 #include <GL/gl.h>
 #include <stdio.h>
@@ -165,8 +166,13 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 				sizesofar += (font->gmf[*t].gmfCellIncX * (1 << 16));
 				break;
 			case '\n':
+			case '\r':
 				glTranslatef(-(sizesofar / (float)(1 << 16)), -(float)(font->gmf['a'].gmfBlackBoxY) * 1.6 ,0);
 				sizesofar = 0;
+				if (*t == '\n' && *(t+1)=='\r' || *t == '\r' && *(t+1)=='\n' ) t++;
+                break;
+
+
 		}
 	}
 	glPopMatrix();

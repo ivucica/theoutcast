@@ -16,16 +16,20 @@
  */
 
 
-#include <windows.h>
+#ifdef WIN32
+	#include <windows.h>
+#endif
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <GLICT/fonts.h>
 #include <GLICT/globals.h>
-#include "glutfont.h"
 #include "gamemode.h"
 #include "gm_mainmenu.h"
 #include "glutwin.h"
-#include "winfont.h"
+#include "glutfont.h"
+#ifdef WIN32
+	#include "winfont.h"
+#endif
 #include "defines.h"
 #include "database.h"
 #include "sound.h"
@@ -41,15 +45,16 @@ int main(int argc, char** argv);
 void GameInit() {
 
 	glictFont* sysfont = glictCreateFont("system");
-	/*
-	sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
-	sysfont->SetRenderFunc(glutxStrokeString);
-	sysfont->SetSizeFunc(glutxStrokeSize);
-	*/
-	sysfont->SetFontParam(WinFontCreate("Arial", WINFONT_BOLD, 7));
-	sysfont->SetRenderFunc(WinFontDraw);
-	sysfont->SetSizeFunc(WinFontSize);
-
+	#ifndef WIN32
+		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
+		sysfont->SetRenderFunc(glutxStrokeString);
+		sysfont->SetSizeFunc(glutxStrokeSize);
+	#else
+		sysfont->SetFontParam(WinFontCreate("Arial", WINFONT_BOLD, 7));
+		sysfont->SetRenderFunc(WinFontDraw);
+		sysfont->SetSizeFunc(WinFontSize);
+	#endif
+	
 	GameModeEnter(GM_LOGO);
 
 }
@@ -67,6 +72,7 @@ void GLInit() {
 }
 
 void NetInit() {
+#ifdef WIN32
 	WORD wVersionRequested;
 	WSADATA wsaData;
 	int err;
@@ -94,6 +100,7 @@ void NetInit() {
 	}
 
 	/* The WinSock DLL is acceptable. Proceed. */
+#endif
 }
 
 int main(int argc, char** argv) {

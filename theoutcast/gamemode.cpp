@@ -51,7 +51,7 @@ void GameModeEnter(gamemode_t gm) {
 			break;
 		default:
 			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Invalid gamemode %d.\n", gamemode);
-			MessageBox(0, "Invalid gamemode\n", 0, 0);
+			//MessageBox(0, "Invalid gamemode\n", 0, 0);
 			exit(1);
 	}
 	game->ResizeWindow();

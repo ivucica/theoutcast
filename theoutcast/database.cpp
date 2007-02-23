@@ -24,15 +24,18 @@ APPEARS TO BE RESOLVED?!?!?!?!
 */
 
 
-#include <windows.h>
+#ifdef WIN32
+	#include <windows.h>
+#endif
 #include <stdio.h>
-#include <sqlite3.h>
+//#include <sqlite3.h>
 #include "debugprint.h"
 #include "assert.h"
 #include "database.h"
 #include "defines.h"
 
 sqlite3 *dbData, *dbUser;
+
 
 
 // when running in debug mode with gdb, do:
@@ -51,11 +54,16 @@ void DBInit() {
         sqlite3_close(dbUser);
         dbUser=NULL;
     }
+    #ifndef SQLITE_OLD
     rc = sqlite3_open("user.db", &dbUser);
+    #else
+    dbUser = sqlite_open("user.db", 0, NULL);
+	if (dbUser) rc = SQLITE_OK; else rc = SQLITE_OK + 1;
+    #endif
     if( rc != SQLITE_OK ){
-        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open user database.\nVerify directory access rights!\n\nError: %s\n", sqlite3_errmsg(dbUser));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open user database. Verify directory access rights!\nError: %s", sqlite3_errmsg(dbUser));
         //sqlite3_free((char*)freeme);
-        sqlite3_close(dbUser);
+        //sqlite3_close(dbUser);
         dbUser=NULL;
         goto datadb;
     }
@@ -64,7 +72,7 @@ void DBInit() {
         DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "SQLite could not access table 'settings'. Reason: %s. Trying to create...\n", sqlite3_errmsg(dbUser));
         //sqlite3_free((char*)freeme);
         if (dbExec(dbUser, "create table settings (`field` text, `value` text);", NULL, 0, NULL) != SQLITE_OK) {
-            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot initialize settings table in user database.\nVerify access rights on user.db!\n\nError: %s\n", sqlite3_errmsg(dbUser));
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot initialize settings table in user database. Verify access rights on user.db!\nError: %s", sqlite3_errmsg(dbUser));
             //sqlite3_free((char*)freeme);
             sqlite3_close(dbUser);
             goto datadb;
@@ -76,13 +84,26 @@ void DBInit() {
         sqlite3_close(dbData);
         dbUser=NULL;
     }
+    #ifndef SQLITE_OLD
     rc = sqlite3_open("data.db", &dbData);
+    #else
+	{
+		char **tmp;
+		dbData = sqlite_open("data.db", 0, tmp);
+		if (dbData) 
+			rc = SQLITE_OK; 
+		else {
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open data database. Verify directory access rights!\nError: %s", *tmp);
+			rc = SQLITE_OK + 1;
+		}
+	}
+    #endif
     if (rc!=SQLITE_OK) {
 
-        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open data database.\nVerify directory access rights!\n\nError: %d\n", sqlite3_errmsg(dbData));
-        MessageBox(HWND_DESKTOP, "SQLite cannot open data database.\nVerify directory access rights!", "The Outcast - Fatal Error", MB_ICONSTOP);
-        sqlite3_close(dbData);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open data database. Verify directory access rights!\nError: %s", sqlite3_errmsg(dbData));
+        //MessageBox(HWND_DESKTOP, "SQLite cannot open data database.\nVerify directory access rights!", "The Outcast - Fatal Error", MB_ICONSTOP);
         dbData=NULL;
+		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "This was a fatal error. Quitting.");
         exit(1);
     }
 

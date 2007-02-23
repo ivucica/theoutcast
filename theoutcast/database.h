@@ -1,7 +1,21 @@
 #ifndef __DATABASE_H
 #define __DATABASE_H
 
-#include <sqlite3.h>
+#ifndef SQLITE_OLD
+  #include <sqlite3.h>
+#else
+  #include <sqlite.h>
+  
+  #define sqlite3 sqlite
+  #define sqlite3_callback sqlite_callback
+  #define sqlite3_exec sqlite_exec
+  #define sqlite3_close sqlite_close
+  //#define sqlite3_open(x,y) sqlite_open(x,y,NULL)
+  #define sqlite3_errmsg(x) "(old sqlite, error unknown)"
+  //sqlite_errmsg(x,NULL)
+  #define sqlite3_vmprintf sqlite_vmprintf
+  #define sqlite3_free free
+#endif
 
 void DBInit();
 bool dbTableExists(sqlite3 *db, const char *tablename);

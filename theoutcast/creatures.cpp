@@ -26,7 +26,7 @@ static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColN
     sscanf(argv[i], "%d", &creatureid);
     if (!creatureid > creatures_n) {
         glutHideWindow();
-        MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nCreature ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nCreature ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
 
@@ -55,7 +55,7 @@ void CreaturesLoad() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d creatures in database for protocol %d\n", creatures_n, protocol->GetProtocolVersion());
     if (!creatures_n) {
         glutHideWindow();
-        MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
     creatures = (creature_t*)malloc(sizeof(creature_t)*(creatures_n+1));

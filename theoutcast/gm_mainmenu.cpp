@@ -597,6 +597,11 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
     char sprfilename[256] = {0};
     char protocolstr[10] = {0};
     switch (protocol->GetProtocolVersion()) {
+        case 750:
+            strcpy(sprfilename, "tibia75.spr");
+            strcpy(protocolstr, "7.5's");
+
+            break;
         case 760:
         case 770:
             strcpy(sprfilename, "tibia76.spr");

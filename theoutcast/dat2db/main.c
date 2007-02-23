@@ -201,6 +201,119 @@ char dat_readitem(item_t *item) {
     for (option = fgetc(fi); option != 0xFF; option = fgetc(fi)) {
         /*printf("Byte %02x\n", option);*/
         switch (datversion) {
+            case 750:
+
+                switch (option) {
+
+                    case 0x00: /* ground */
+                        item->ground = TRUE;
+                        item->speedindex = readu16(); /* speed index */
+                        break;
+                    case 0x01: /* alwaysontop 1 */
+                        item->topindex = 1;
+                        break;
+                    case 0x02: /* alwaysontop 2 */
+                        item->topindex = 2;
+                        break;
+                    case 0x03: /* container */
+                        item->container = TRUE;
+                        break;
+                    case 0x04: /* stackable */
+                        item->stackable = TRUE;
+                        break;
+                    case 0x05: /* usable? */
+                        item->usable = TRUE;
+                        break;
+                    case 0x06: /* ladder */
+                        break;
+                    case 0x07: /* writable */
+                        item->writable = TRUE;
+                        item->readability_len = readu16(); /* max writable text size? maybe...! */
+                        break;
+                    case 0x08: /* readable */
+                        item->readable = TRUE;
+                        item->readability_len = readu16(); /* max readable text size? maybe...! */
+                        break;
+                    case 0x09: /* fluid container */
+                        item->fluidcontainer = TRUE;
+                        break;
+                    case 0x0A: /* 'splash' */
+                        item->splash = TRUE;
+                        break;
+                    case 0x0B: /* is blocking */
+                        item->blocking = TRUE;
+                        break;
+                    case 0x0C: /* is not movable */
+                        item->movable = FALSE;
+                        break;
+                    case 0x0D: /* blocks missiles */
+                        break;
+                    case 0x0E: /* block monster movement */
+                        break;
+                    case 0x0F: /* pickupable */
+                        item->pickupable = TRUE;
+                        break;
+                    case 0x10: /* light emitter */
+                        item->lightradius = readu16(); /* radius */
+                        item->lightcolor = readu16(); /* color */
+                        break;
+                    case 0x11: /* floor change? or can see what's through? (ladder holes, stair holes, etc) */
+                        item->floorchange = TRUE;
+                        break;
+                    case 0x12: /* no floor change */
+                        /*item->floorchange = FALSE;*/
+                        break;
+                    case 0x13: /* items that have height */
+                        item->height2d_x = fgetc(fi);
+                        item->height2d_y = fgetc(fi);
+                        break;
+                    case 0x14: /* "sprite drawing related" ?! */
+                        break;
+                    case 0x16: /* minimap color */
+                        item->minimapcolor = readu16();
+                        break;
+                    case 0x17:  /* seems like decorables with 4 states of turning (exception first 4 are unique statues) */
+                        break;
+
+                    case 0x18: /* "draw with height offset for all parts (2x2) of the sprite" ?! */
+                        break;
+                    case 0x19:  /* wall items -- hangable? */
+                        break;
+                    case 0x1A: /* unknown */
+                        break;
+                    case 0x1B:  /* walls 2 types of them same material (total 4 pairs) */
+
+                        break;
+
+                    case 0x1C: /* monsters that are animated even when idle */
+                        break;
+                    case 0x1D:/* line spot ?!? */
+
+                        tmpchar = fgetc(fi); /* 86 -> openable holes, 77-> can be used to go down, 76 can be used to go up, 82 -> stairs up, 79 switch, */
+
+                        if(tmpchar == 0x58)
+                            item->readable = TRUE;
+                        fgetc(fi); /* always 4 */
+                        break;
+                    case 0x1E: /* ground items */
+                        break;
+                    case 0xFF: /* end of section */
+                        printf("Kraj!\n");
+                        break;
+                    default:
+                        printf("unknown byte: %d\n", (unsigned short)option);
+                        return 0;
+                        break;
+
+                }
+
+                break;
+
+
+
+
+
+
             case 760:
             case 770:
                 switch (option) {
@@ -281,7 +394,7 @@ char dat_readitem(item_t *item) {
                         break;
                     case 0x1A: /* "draw with height offset for all parts (2x2) of the sprite" ?! */
                         break;
-                    case 0x1B: /* some monsters */
+                    case 0x1B: /* monsters that are animated even when idle */
                         break;
                     case 0x1C: /* minimap color */
                         item->minimapcolor = readu16();
@@ -312,7 +425,7 @@ char dat_readitem(item_t *item) {
 
 
 
-
+            case 790:
             case 792:
                 switch (option) {
                     case 0x00: /* ground */
@@ -396,7 +509,7 @@ char dat_readitem(item_t *item) {
                         break;
                     case 0x1B: /* "draw with height offset for all parts (2x2) of the sprite" ?! */
                         break;
-                    case 0x1C: /* some monsters */
+                    case 0x1C: /* monsters that are animated even when idle */
                         break;
                     case 0x1D: /* minimap color */
                         item->minimapcolor = readu16();
@@ -433,8 +546,10 @@ char dat_readitem(item_t *item) {
     }
 
     switch (datversion) {
+        case 750:
         case 760:
         case 770:
+        case 790:
         case 792: {
             spritelist_t *sl = (spritelist_t*)malloc(sizeof(spritelist_t));
             if (!sl) {
@@ -448,7 +563,10 @@ char dat_readitem(item_t *item) {
             sl->xdiv = fgetc(fi);
             sl->ydiv = fgetc(fi);
             sl->animcount = fgetc(fi);
-            sl->unknown = fgetc(fi); /* this does not exist for versions before 7.55 - in such case, it's 1 */
+            if (datversion<=750)
+                sl->unknown = 1;
+            else
+                sl->unknown = fgetc(fi); /* this does not exist for versions before 7.55 - in such case, it's 1 */
             sl->numsprites = sl->width * sl->height * sl->blendframes * sl->xdiv * sl->ydiv * sl->animcount * sl->unknown;
 
 /*
@@ -469,7 +587,7 @@ char dat_readitem(item_t *item) {
             }
             for(i = 0; i < sl->numsprites; ++i) {
                 sl->spriteids[i] = readu16(); /* sprite id */
-            /*    printf("Sprite id %d: %d\n", (unsigned int)i, (unsigned int)sl->spriteids[i]);*/
+                /*printf("Sprite id %d: %d\n", (unsigned int)i, (unsigned int)sl->spriteids[i]);*/
             }
             item->sl = sl;
             break;
@@ -479,6 +597,7 @@ char dat_readitem(item_t *item) {
             printf("YOU SHOULD NOT REACH THIS POINT.\n");
             return 0;
     }
+
     return 1;
 }
 static int extryexistsfunc(void *returndestvoid, int argc, char **argv, char **azColName) {
