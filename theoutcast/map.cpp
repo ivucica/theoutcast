@@ -12,9 +12,11 @@ Map::~Map() {
 Tile* Map::GetTile(position_t *pos) {
     // check if this is well generated with, idk, %08x ? :D
 
-    unsigned long long tileid = (unsigned long long )pos->z << 32 | (unsigned long long)pos->x << 16 | (unsigned long long )pos->y;
+    unsigned long long tileid;
+    maptype_t::iterator it;
 
-    maptype_t::iterator it = m.find( tileid );
+    tileid = (unsigned long long )pos->z << 32 | (unsigned long long)pos->x << 16 | (unsigned long long )pos->y;
+    it = m.find( tileid );
     if (it==m.end()) {
         Tile* t = new Tile;
         m[tileid] = t;

@@ -56,6 +56,8 @@ void GameModeEnter(gamemode_t gm) {
 	}
 	game->ResizeWindow();
 	gamemode = gm;
+	mayanimate = false;
+	glutTimerFunc(500, glut_MayAnimateToTrue, 0);
 
 }
 

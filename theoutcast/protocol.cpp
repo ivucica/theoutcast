@@ -60,7 +60,7 @@ bool Protocol::GameworldLogin() {
 
 bool Protocol::GameworldWork() {
     NetworkMessage nm;
-    ONThreadSafe(threadsafe);
+
 
     if (!active) return false;
 
@@ -69,9 +69,10 @@ bool Protocol::GameworldWork() {
 
     nm.FillFromSocket(s);
 
-    nm.ShowContents();
+    ONThreadSafe(threadsafe);
     if (protocolversion >= 770) nm.XTEADecrypt(key);
-    nm.ShowContents();
+
+
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
 
     if ((signed int)(nm.GetSize())!=0) {
@@ -812,42 +813,57 @@ bool Protocol::CipSoft(bool cipsoft) {
 }
 
 void Protocol::MoveNorth() {
+
     NetworkMessage nm;
+    ONThreadSafe(threadsafe);
     nm.AddU8(0x65);
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
     nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
 }
 void Protocol::MoveSouth() {
+
     NetworkMessage nm;
+    ONThreadSafe(threadsafe);
     nm.AddU8(0x67);
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
     nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
 }
 void Protocol::MoveWest() {
+
     NetworkMessage nm;
+    ONThreadSafe(threadsafe);
     nm.AddU8(0x68);
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
     nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
 }
 void Protocol::MoveEast() {
+
     NetworkMessage nm;
+    ONThreadSafe(threadsafe);
     nm.AddU8(0x66);
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
     nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
 }
 
 void Protocol::SetStance(stanceaggression_t aggression, stancechase_t chase) {
+
     NetworkMessage nm;
+    ONThreadSafe(threadsafe);
     nm.AddU8(0xA0);
     nm.AddU8(aggression);
     nm.AddU8(chase);
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
     nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
 }
 
 unsigned short Protocol::GetProtocolVersion () {

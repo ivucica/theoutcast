@@ -56,9 +56,16 @@ void Console::draw(char count) {
     glColor3f(1.0f,1.0f,1.0f);
     //DEBUGPRINT("Beginning console render...\n");
     ONThreadSafe(threadsafe);
+
+
+        {
+        int er;
+        if ((er = glGetError()) != GL_NO_ERROR) {printf("CONfirst %s\n",  gluErrorString(er));system("pause");}
+        }
+
     for (it=con.begin(); it!=con.end() && p<count; it++) {
         //p++;
-        //DEBUGPRINT("Line %d / %d\n", p, count);
+        //printf("Line %d / %d\n", p, count);
         //DEBUGPRINT("%s\n", (*it)->text);
         switch ((*it) ->color) {
             /* TODO (Khaos#3#): These colors should perhaps use colors.h? Not sure
@@ -88,9 +95,14 @@ void Console::draw(char count) {
         }
         if ((*it)->text) {
             p += glutxNumberOfLines((*it)->text);
-            glPushMatrix();
+            //glPushMatrix();
             glictFontRender((*it)->text, "system", 0, p*12 );
-            glPopMatrix();
+            glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
+            //glPopMatrix();
+        }
+        {
+        int er;
+        if ((er = glGetError()) != GL_NO_ERROR) {printf("CON %s\n",  gluErrorString(er));system("pause");}
         }
     }
     glColor4fv(oldcolor);

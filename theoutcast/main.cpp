@@ -35,6 +35,9 @@
 #include "sound.h"
 #include "debugprint.h"
 #include "networkmessage.h" // FIXME remove me
+
+
+#define WINFONT
 bool fullscreen = false;
 
 // function predeclares
@@ -45,7 +48,7 @@ int main(int argc, char** argv);
 void GameInit() {
 
 	glictFont* sysfont = glictCreateFont("system");
-	#ifndef WIN32
+	#if !defined(WIN32) || !defined(WINFONT)
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);
@@ -54,8 +57,9 @@ void GameInit() {
 		sysfont->SetRenderFunc(WinFontDraw);
 		sysfont->SetSizeFunc(WinFontSize);
 	#endif
-	
-	GameModeEnter(GM_LOGO);
+
+	//GameModeEnter(GM_LOGO);
+	GameModeEnter(GM_MAINMENU);
 
 }
 

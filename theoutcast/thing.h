@@ -3,6 +3,7 @@
 
 #include "objspr.h"
 #include "types.h"
+#include "threads.h"
 class Thing {
     public:
         Thing();
@@ -31,6 +32,7 @@ class Thing {
     protected:
         ObjSpr *sprgfx;
         unsigned short type;
+        ONCriticalSection threadsafe;
 };
 Thing *ThingCreate(unsigned int type);
 #endif

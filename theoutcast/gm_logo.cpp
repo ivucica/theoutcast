@@ -38,7 +38,6 @@ void GM_Logo::Render() {
     if (!oldmayanimate && mayanimate) {
         oldmayanimate = true;
         SoundSetMusic("music/logo.mp3");
-
     }
     if (!flythrough.loaded) {
 

@@ -19,6 +19,7 @@
 	#define MIN(a,b) (a < b ? a : b)
 #endif
 
+
 NetworkMessage::NetworkMessage() {
 }
 

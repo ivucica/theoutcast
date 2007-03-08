@@ -6,12 +6,20 @@
 //           -- J. U. U. Lucas ;)
 
 #include <map> // stl map is not Map. map != Map :D
+//#include <ext/hash_map> // ok, maybe hashmap is smarter?
 
 #include "tile.h"
 #include "types.h"
 #include "creature.h"
+
+
 typedef std::map<unsigned long long, Tile*> maptype_t;
 typedef std::map<unsigned long, Creature*> creaturelist_t;
+
+/*
+typedef __gnu_cxx::hash_map<unsigned long long, Tile*> maptype_t;
+typedef __gnu_cxx::hash_map<unsigned long, Creature*> creaturelist_t;
+*/
 class Map {
     public:
         Map();

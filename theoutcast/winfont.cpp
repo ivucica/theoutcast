@@ -1,6 +1,7 @@
 
 #include <windows.h>
 #include <GL/gl.h>
+#include <GL/glu.h> // FIXME remove me! only for gluGetError()
 #include <stdio.h>
 #include "winfont.h"
 WinFontStruct *WinFontCreate(char* fontname, char style, char size) {
@@ -145,15 +146,18 @@ void WinFontDelete(void* fontvoid) {
 }
 
 void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
+
 	WinFontStruct *font = ((WinFontStruct*)fontvoid);
 
-	glPushAttrib(GL_LIST_BIT|GL_POLYGON_BIT);				// Pushes The Display List Bits
+
+//	glPushAttrib(GL_LIST_BIT|GL_POLYGON_BIT);				// Pushes The Display List Bits
 	glListBase(font->base);					// Sets The Base Character to 0
 
-	glCullFace(GL_BACK);
-	glEnable (GL_CULL_FACE);
 
-	glPushMatrix();
+//	glCullFace(GL_BACK);
+	glEnable (GL_CULL_FACE);
+    glMatrixMode(GL_MODELVIEW);
+//	glPushMatrix();
 
 	glTranslatef(x,y,0);
 	glScalef(1.5,1.5,1.);
@@ -172,12 +176,19 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 				if (*t == '\n' && *(t+1)=='\r' || *t == '\r' && *(t+1)=='\n' ) t++;
                 break;
 
-
 		}
 	}
-	glPopMatrix();
+	glScalef(1./1.5,1./1.5,1.);
+	glTranslatef(-x,-y,0);
 
-	glPopAttrib();
+
+	//glPopMatrix();
+
+	//glPopAttrib();
+            {
+            int er;
+            if ((er = glGetError()) != GL_NO_ERROR) {printf("font %s\n", gluErrorString(er));system("pause");}
+            }
 }
 
 // possibly it might be a good idea to rewrite this?

@@ -1,6 +1,8 @@
+#include <time.h>
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <GLICT/globals.h>
+
 #include "gamemode.h"
 #include "texmgmt.h"
 #include "defines.h"
@@ -9,15 +11,23 @@ int winw=0, winh=0;
 int ptrx=0, ptry=0;
 Texture* mousepointer=NULL;
 int frames=0;
+clock_t lasttime;
 float fps=0;
 bool mayanimate=false;
 float cursoraniangle=0.;
 int glut_WindowHandle;
+void glut_FPS(int param);
 void glut_Display() {
 	game->Render();
 
 	frames++;
+	glut_FPS(0);
 	glutSwapBuffers();
+	{
+	int er;
+	if ((er = glGetError()) != GL_NO_ERROR) printf("%s\n", gluErrorString(glGetError()));
+	}
+
 }
 
 void glut_Reshape (int w, int h) {
@@ -59,13 +69,41 @@ void glut_SetMousePointer(std::string texturefile) {
 	mousepointer = new Texture(texturefile);
 }
 void glut_FPS (int param) {
-	//fps = 1000./(float)param * frames;
+
+    /*
+    // Method 1
+    // Every frame, calculate FPS
+    */
+
+    #define FRAMECONST 14
+    //printf("clock ticks: %d, frames: %d\n", clock(), frames);
+    if (frames == FRAMECONST) {
+        fps = (float)FRAMECONST / ((clock() - lasttime)/1000.);
+        lasttime = clock();
+        frames = 0;
+    }
+
+
+	/*
+	// Method 2
+	// Every 1 second, calculate FPS
+	glutTimerFunc(1000, glut_FPS, 1000);
+	fps = 1000./(float)param * frames;
+	frames = 0;
+    */
+
+    /*
+    // Method 3
+    // Every arbitrary num of seconds, calculate FPS
+    glutTimerFunc(100, glut_FPS, 100);
 	if (fps > 5.)
 		fps = fps * ((1000./(float)param - 5)/(1000./(float)param)) + frames*5;
 	else
 		fps = fps * ((1000./(float)param - 1)/(1000./(float)param)) + frames;
-	frames = 0;
-	glutTimerFunc(100, glut_FPS, 100);
+    frames = 0;
+    */
+
+
 
 	char tmp[256];
 	sprintf(tmp, "%s / FPS: %c%c%.02f", APPTITLE, fps <= 10.009 ? '<' : ' ', fps <= 10.009 ? '=' : ' ', fps);
@@ -75,7 +113,6 @@ void glut_FPS (int param) {
 
 void glut_MayAnimateToTrue (int param) {
 	mayanimate = true;
-
 }
 
 void glut_Key(unsigned char key, int x, int y) {

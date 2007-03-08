@@ -3,14 +3,19 @@
 
 #include "creature.h"
 #include "item.h"
+
+
+// FIXME add thread locking in thing and in creature's
 Thing::Thing() {
     sprgfx = NULL;
     type = 0;
     //printf("Forged a new item >D\n");
     this->count = 1;
+    ONInitThreadSafe(threadsafe);
 }
 Thing::~Thing() {
     delete sprgfx;
+    ONDeinitThreadSafe(threadsafe);
 }
 unsigned short Thing::GetType() {
     return type;
@@ -32,9 +37,11 @@ void Thing::SetCount(unsigned char count) {
     this->count = count;
 }
 void Thing::SetType(unsigned short type, unsigned short extendedtype) {
+    ONThreadSafe(threadsafe);
     this->type = type;
     //printf("NEW ITEM OF TYPE %d\n", type);
     sprgfx = new ObjSpr(type, 0);
+    ONThreadUnsafe(threadsafe);
 }
 void Thing::Render() {
     //printf("Wendewing\n");
@@ -42,12 +49,14 @@ void Thing::Render() {
     if (sprgfx) sprgfx->Render();
 }
 void Thing::Render(position_t *pos) {
+    ONThreadSafe(threadsafe);
     if (sprgfx) {
         if (items[type].stackable)
             sprgfx->Render(count);
         else
             sprgfx->Render(pos);
     }
+    ONThreadUnsafe(threadsafe);
 }
 void Thing::AnimationAdvance(float advance) {
     if (sprgfx) sprgfx->AnimationAdvance(advance);

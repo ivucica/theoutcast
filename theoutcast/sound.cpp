@@ -86,7 +86,7 @@ bool SoundSetMusic(const char* filename) {
     soundmusic=FSOUND_Stream_Open(filename,FSOUND_LOOP_NORMAL, 0, 0);
     if (!soundmusic) return false;
 
-    FSOUND_SetVolumeAbsolute(MUSICCHANNEL, 128);
+    //FSOUND_SetVolumeAbsolute(MUSICCHANNEL, 128);
     FSOUND_Stream_SetLoopCount(soundmusic,INF);
     FSOUND_Stream_Play (MUSICCHANNEL,soundmusic);
     return true;

@@ -111,12 +111,15 @@ void Tile::remove(unsigned char pos) {
     ONThreadUnsafe(threadsafe);
 }
 Thing *Tile::getstackpos(unsigned char pos) {
+    ONThreadSafe(threadsafe);
     printf("GETTING STACKPOS %d\n", pos);
 
     if (ground) {
         printf("Ground exists; are we desiring it?\n");
-        if (pos==0)
+        if (pos==0) {
+            ONThreadUnsafe(threadsafe);
             return ground;
+        }
         pos--;
     }
     printf("passed ground; position is %d\n", pos);
@@ -128,6 +131,7 @@ Thing *Tile::getstackpos(unsigned char pos) {
 
         if (pos < itemlayers[i].size()) {
             printf("Positive!\n");
+            ONThreadUnsafe(threadsafe);
             return itemlayers[i][pos];
         }
         pos -= itemlayers[i].size();
@@ -136,6 +140,7 @@ Thing *Tile::getstackpos(unsigned char pos) {
     printf("now creatures!!!\n");
     if (pos < creatures.size()) {
         printf("Its a creature!!\n");
+        ONThreadUnsafe(threadsafe);
         return creatures[pos];
     }
     pos -= creatures.size();
@@ -143,11 +148,13 @@ Thing *Tile::getstackpos(unsigned char pos) {
     printf("checking bottom items\n");
     if (pos < itemlayers[0].size()) {
         printf("it's a bottom item!\n");
+        ONThreadUnsafe(threadsafe);
         return itemlayers[0][pos];
     }
     pos -= itemlayers[0].size();
     printf("FAILED\n");
 
+    ONThreadUnsafe(threadsafe);
     return NULL;
 }
 void Tile::setpos(position_t *p) {

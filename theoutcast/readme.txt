@@ -187,7 +187,8 @@ Changes since 0.3.2
 * Textures are supported for 3DS
 * Added face culling which should (insignificantly) increase performance
 * Various internal things
-* Mouse nicer
+* Mouse cursor nicer
+* New FPS calculation mechanism
 
 Changes since 0.3.1
 * Fixed some crashes

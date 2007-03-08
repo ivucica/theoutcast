@@ -6,12 +6,14 @@ Creature::Creature() {
 Creature::~Creature() {
 }
 void Creature::SetType(unsigned short outfit, unsigned short extendedtype) {
+    ONThreadSafe(threadsafe);
     printf("Creature::SetType to %d %d\n", outfit, extendedtype);
     this->type = outfit;
     if (outfit != 0)
         sprgfx = new ObjSpr(outfit, 1);
     else
         sprgfx = new ObjSpr(extendedtype, 0);
+    ONThreadUnsafe(threadsafe);
 }
 void Creature::SetCreatureID(unsigned long creatureid) {
     this->id = creatureid;
