@@ -220,7 +220,6 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     }
 
     glMatrixMode(GL_PROJECTION);
-
     glLoadIdentity();
 
     glOrtho(0, 400, 0, 400, -100, 100);
@@ -255,8 +254,10 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     glPopMatrix();
 
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, 640, 0, 480, -100, 100);
+	glLoadIdentity();
+	glOrtho(0,winw,0,winh, -100, 100);
+	glRotatef(180.0, 1.0, 0.0, 0.0);
+	glTranslatef(0,-winh,0.0);
 
 
 }
