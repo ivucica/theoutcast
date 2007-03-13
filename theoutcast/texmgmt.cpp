@@ -11,7 +11,7 @@
 #include "sprfmts.h"
 
 #ifndef WIN32
-int filesize (FILE* f) {
+static int filesize (FILE* f) {
 	int loc = ftell(f);
 	int size = 0;
 
@@ -21,13 +21,14 @@ int filesize (FILE* f) {
 	return size;
 }
 #else
-int filesize (FILE* f) {
+static int filesize (FILE* f) {
 	return filelength(fileno(f)) ;
 }
 #endif
 Texture::Texture(std::string fname) {
 	this->fname = fname;
 	this->imgid = 0;
+	this->loaded = false;
 	std::string extension = fname.substr(fname.length() - 3, 3);
 
     pikseli = NULL;
@@ -48,6 +49,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
+	this->loaded = false;
 	pikseli=NULL;
 	std::string extension = fname.substr(fname.length() - 3, 3);
 
@@ -83,7 +85,7 @@ RGBA *Texture::FetchBMPPixels() {
 RGBA *Texture::FetchSPRPixels() {
 
     //ASSERT(this->imgid != 0);
-    //printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
+    printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
     ASSERT(this->imgid < SPRCount);
     ASSERT(SPRPointers);
 
@@ -210,6 +212,8 @@ void Texture::StorePixels() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR);
     free(pikseli);
     pikseli = NULL;
+
+    loaded = true;
 }
 
 void Texture::Bind() {

@@ -39,11 +39,6 @@ void Protocol::SetSocket(SOCKET socket) {
     key[2] = rand() % 0xFFFFFFFF;
     key[3] = rand() % 0xFFFFFFFF;
 
-    key[0] = 2;
-    key[1] = 3;
-    key[2] = 76;
-    key[3] = 15;
-
     printf("ACTIVATED KEYS %u %u %u %u\n", key[0], key[1], key[2], key[3]);
     ONThreadUnsafe(threadsafe);
 }
@@ -69,6 +64,7 @@ bool Protocol::GameworldWork() {
 
     nm.FillFromSocket(s);
 
+    if (!nm.GetSize()) return false;
     ONThreadSafe(threadsafe);
     if (protocolversion >= 770) nm.XTEADecrypt(key);
 
@@ -276,8 +272,12 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             }
             logonsuccessful = false;
             return false;
-        case 0x1E: // Ping Message
-            // TODO Respond to the ping
+        case 0x1E: {// Ping Message
+            NetworkMessage nm2;
+            nm2.AddU8(0x1E);
+            if (this->protocolversion >= 770) nm2.XTEAEncrypt(key);
+            nm2.Dump(s);
+            }
             return true;
         case 0x32: // Something Else, Bug Report
             printf("Unknown value: %d\n", nm->GetU8());
@@ -303,8 +303,9 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             printf("Move north\n");
             gamemap.Lock();
             player->SetPos(player->GetPosX(), player->GetPosY()-1, player->GetPosZ());
-            gamemap.Unlock();
+
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            gamemap.Unlock();
             printf("End move north\n");
 
             return true;
@@ -312,8 +313,9 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             printf("Move east\n");
             gamemap.Lock();
             player->SetPos(player->GetPosX()+1, player->GetPosY(), player->GetPosZ());
-            gamemap.Unlock();
+
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x + (maxx+1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            gamemap.Unlock();
             printf("End move east\n");
 
             return true;
@@ -321,8 +323,9 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             printf("Move south\n");
             gamemap.Lock();
             player->SetPos(player->GetPosX(), player->GetPosY()+1, player->GetPosZ());
-            gamemap.Unlock();
+
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y + (maxy+1 )/2, player->GetPos()->z);
+            gamemap.Unlock();
             printf("End move south\n");
 
             return true;
@@ -330,24 +333,29 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             printf("Move west\n");
             gamemap.Lock();
             player->SetPos(player->GetPosX()-1, player->GetPosY(), player->GetPosZ());
-            gamemap.Unlock();
+
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            gamemap.Unlock();
             printf("End move west\n");
             return true;
         case 0x69: {// Tile Update
             position_t pos;
+            gamemap.Lock();
             GetPosition(nm, &pos);
             ParseTileDescription(nm, pos.x,pos.y,pos.z);
+            gamemap.Unlock();
             return true;
         }
         case 0x6A: {// Add Item
             position_t pos;
+            gamemap.Lock();
             GetPosition(nm, &pos);
             printf("%d %d %d\n", pos.x, pos.y, pos.z);
             Tile *tile = gamemap.GetTile(&pos);
             Thing *t;
             t = ParseThingDescription(nm);
             tile->insert(t);
+            gamemap.Unlock();
             return true;
         }
         case 0x6B: {// Replace Item
@@ -540,6 +548,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xA3: // Cancel Attack
             return true;
         case 0xAA: {// Creature Speak
+            position_t pos;
             if (protocolversion > 760) {// i presume?
                 nm->GetU32(); // OT says always 0, perhaps it is NOT!
             }
@@ -557,10 +566,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
                 case 0x10: // monster 1
                 case 0x11: // monster 2
-                    nm->GetU16(); // position
-                    nm->GetU16();
-                    nm->GetChar();
-                    //this->GetPosition(nm, pos); FIXME should be like this
+                    this->GetPosition(nm, &pos);
                     break;
                 case 0x05: // yellow
                 case 0x0A: // red -- r1 #c gamemaster command
@@ -853,6 +859,27 @@ void Protocol::MoveEast() {
     ONThreadUnsafe(threadsafe);
 }
 
+void Protocol::Speak(speaktype_t sp, const char *message) {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+    nm.AddU8(0x96);
+    switch (sp) {
+        case NORMAL:
+            nm.AddU8(sp);
+            nm.AddString(message);
+            break;
+        default:
+            console.insert("Still unsupported way of speaking :/", CONRED);
+            ONThreadUnsafe(threadsafe);
+            return;
+    }
+
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
 void Protocol::SetStance(stanceaggression_t aggression, stancechase_t chase) {
 
     NetworkMessage nm;

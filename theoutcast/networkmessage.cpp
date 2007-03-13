@@ -4,7 +4,15 @@
 	#include <sys/socket.h>
 #endif
 #ifdef USEENCRYPTION
-#include <gmp.h>
+    #ifdef GMP
+        #include <gmp.h>
+    #endif
+    #ifdef TFM
+        #define FP_SIZE 1024
+        extern "C" {
+            #include <tfm.h> // tomfastmath ftw
+        }
+    #endif
 #endif
 #include "protocol.h"
 #include "networkmessage.h"
@@ -27,12 +35,18 @@ NetworkMessage::~NetworkMessage() {
 }
 
 bool NetworkMessage::Dump(SOCKET s) {
+
+    // FIXME it crashes on a memcpy sometimes
+    // reverify!!
     unsigned int sizetosend = GetSize();
     char *tmp = NULL;
     tmp = (char*)malloc(sizetosend+2);
 
 
-    if (!tmp) return false;
+    if (!tmp) {
+        DEBUGPRINT(0,1, "malloc() failed while sending message");
+        return false;
+    }
     DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", sizetosend, sizetosend);
 
     memcpy(tmp, &sizetosend, 2);
@@ -258,20 +272,6 @@ void NetworkMessage::RSAEncrypt() {
     //memcpy(msg+1, &rsablocksize, 2); // rsa blocks are NOT prepended with the real size of the message
     memcpy(msg+1, buffer+rsaoffset, rsablocksize); // then we copy our data into the rsa block's data area
 
-    for (int i = 0; i < 128; i++)
-        printf("%02x ", (char)msg[i]);
-    printf("\n");
-    //system("pause");
-
-
-    // after that, run the rsa encoding algorythm over both size and data area of rsa block
-   	mpz_t m_p, m_q, m_u, m_d, m_dp, m_dq;
-   	mpz_t m_mod, m_e;
-   	mpz_t m,c;
-
-    //////////////RSA INIT////////////////////////////
-    mpz_init2(m_mod, 1024);
-    mpz_init2(m_e, 32);
 
     //char* modulus = "";//paste here the modulus
     char modulus[310];
@@ -282,6 +282,19 @@ void NetworkMessage::RSAEncrypt() {
     } else { // it's an ot
         strcpy(modulus, "109120132967399429278860960508995541528237502902798129123468757937266291492576446330739696001110603907230888610072655818825358503429057592827629436413108566029093628212635953836686562675849720620786279431090218017681061521755056710823876476444260558147179707119674283982419152118103759076030616683978566631413");
     }
+
+    // after that, run the rsa encoding algorythm over data area of rsa block
+    #ifdef GMP
+
+    mpz_t m_p, m_q, m_u, m_d, m_dp, m_dq;
+   	mpz_t m_mod, m_e;
+   	mpz_t m,c;
+
+    //////////////RSA INIT////////////////////////////
+    mpz_init2(m_mod, 1024);
+    mpz_init2(m_e, 32);
+
+
 
 
     mpz_set_ui(m_e, 65537); //public exponent
@@ -309,6 +322,29 @@ void NetworkMessage::RSAEncrypt() {
     mpz_clear(m_e);
     ////////////////END RSA DEINIT////////////////////
 
+    #endif
+
+
+    #ifdef TFM
+    fp_int m_mod, m_e, m, c;
+
+
+    fp_init(&c);
+    fp_init(&m);
+    fp_init(&m_mod);
+    fp_init(&m_e);
+
+    fp_set(&m_e, 65537);
+    fp_read_radix(&m_mod, modulus, 10); // read in radix == procitaj u bazi
+
+    fp_read_unsigned_bin(&m, msg, 128);
+
+    fp_exptmod(&m, &m_e, &m_mod, &c); //  c = (m ^ m_e) % m_mod
+    fp_to_unsigned_bin(&c, msg);
+
+
+    #endif
+
     // buffer of the message should now contain enough space for both the
     // unencoded data from the buffer, as well as the encoded data
     buffer = (char*)realloc(buffer, rsaoffset + 128);
@@ -319,6 +355,8 @@ void NetworkMessage::RSAEncrypt() {
     // data from the beginning of the buffer
     size = rsaoffset + 128;
     currentposition = buffer;
+
+    ShowContents();
 #endif
 }
 
@@ -430,6 +468,15 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
     printf("now a total of %d bytes\n", size);
 #endif
 }
+
+
+
+#include "console.h"
+
+
+// following text msgs fail:
+// aa, aaa, aaaa
+
 void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
 #ifdef USEENCRYPTION
 	unsigned long k[4];
@@ -437,7 +484,9 @@ void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
 
 	int m_ReadPos = 0;
 
+    int diff = currentposition - buffer;
     buffer = (char*)realloc(buffer, size+2 + (8 - ((size+2) % 8)));
+    currentposition = buffer + diff;
     memcpy(buffer+2,buffer,size);
     buffer[0] = (unsigned char)(size);
 	buffer[1] = (unsigned char)(size >> 8);
@@ -459,13 +508,13 @@ void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
 		read_pos = read_pos + 2;
 	}
 
-
+    printf("size %d\n", size);
 #endif
 }
 void NetworkMessage::ShowContents() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "NetworkMessage::ShowContents() // %d bytes\n", size);
     for (int i = 0; i < GetSize() ; i++) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (unsigned char)currentposition[i]);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "0x%02x,", (unsigned char)currentposition[i]);
     }
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
     return;

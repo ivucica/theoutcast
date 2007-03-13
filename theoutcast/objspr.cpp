@@ -105,20 +105,58 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
 
     sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
     t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+
+    char filename [256];
+    FILE *f;
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
 
+
         switch (protocol->GetProtocolVersion()) {
             case 750:
-                t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                sprintf(filename, "tibia75/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                }
                 break;
             case 760:
             case 770:
-                t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                sprintf(filename, "tibia76/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                }
                 break;
             case 790:
             case 792:
-                t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                sprintf(filename, "tibia79/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                }
+
                 break;
         }
 
@@ -182,21 +220,56 @@ void ObjSpr::LoadItem(unsigned int itemid) {
 
     sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
     t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+
+    char filename [256];
+    FILE *f;
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
 
         switch (protocol->GetProtocolVersion()) {
             case 750:
-                t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                sprintf(filename, "tibia75/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                }
                 break;
             case 760:
             case 770:
-                t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                sprintf(filename, "tibia76/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                }
                 break;
             case 790:
             case 792:
-                t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
-                break;
+                sprintf(filename, "tibia79/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                }
         }
 
     }

@@ -113,5 +113,11 @@ typedef enum {
     CHASE=1
 } stancechase_t;
 
+typedef enum {
+    NORMAL=0x01,
+    YELL,
+    BROADCAST,
+    PRIVATE=0x04
+} speaktype_t;
 
 #endif

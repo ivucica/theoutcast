@@ -14,6 +14,7 @@ class GameMode {
 		virtual void ResizeWindow();
 		virtual void MouseClick (int button, int shift, int mousex, int mousey);
 		virtual void KeyPress (unsigned char key, int x, int y);
+		virtual void SpecKeyPress (int key, int x, int y);
 };
 
 enum gamemode_t {

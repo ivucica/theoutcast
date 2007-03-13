@@ -185,10 +185,10 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 	//glPopMatrix();
 
 	//glPopAttrib();
-            {
+            /*{
             int er;
             if ((er = glGetError()) != GL_NO_ERROR) {printf("font %s\n", gluErrorString(er));system("pause");}
-            }
+            }*/
 }
 
 // possibly it might be a good idea to rewrite this?

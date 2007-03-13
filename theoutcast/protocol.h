@@ -45,6 +45,9 @@ class Protocol {
         virtual void    MoveEast();
 
         virtual void    SetStance(stanceaggression_t aggression, stancechase_t chase);
+        virtual void    Speak(speaktype_t sp, const char *message);
+        virtual void    Speak(speaktype_t sp, const char *destination, const char *message) {}
+        virtual void    Speak(speaktype_t sp, unsigned long destination, const char *message) {}
 
         // *parse* are "smarter" abstractions
         // *get* are those that only fetch and return
@@ -93,6 +96,7 @@ class Protocol {
     friend void GM_MainMenu::CreateCharlist();
     friend void GM_MainMenu::DestroyCharlist();
     friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
+
 };
 
 // now include all protocols

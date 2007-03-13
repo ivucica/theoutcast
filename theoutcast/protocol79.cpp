@@ -53,6 +53,7 @@ bool Protocol79::CharlistLogin(const char *username, const char *password) {
 
     nm.RSAEncrypt();
 
+
     if (!nm.Dump(s)) {
         this->errormsg = "Could not write to socket.\nPossibly premature disconnect.";
         ONThreadUnsafe(threadsafe);

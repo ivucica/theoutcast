@@ -27,6 +27,9 @@ void GameMode::MouseClick (int button, int shift, int mousex, int mousey) {
 void GameMode::KeyPress (unsigned char key, int x, int y) {
 
 }
+void GameMode::SpecKeyPress (int key, int x, int y) {
+
+}
 
 void GameModeEnter(gamemode_t gm) {
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "SWITCHING GAME MODES\n");

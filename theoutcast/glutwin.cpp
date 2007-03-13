@@ -72,7 +72,7 @@ void glut_FPS (int param) {
 
     /*
     // Method 1
-    // Every frame, calculate FPS
+    // Every FRAMECONST frames, calculate FPS
     */
 
     #define FRAMECONST 14
@@ -117,6 +117,10 @@ void glut_MayAnimateToTrue (int param) {
 
 void glut_Key(unsigned char key, int x, int y) {
 	game->KeyPress(key, x, y);
+}
+
+void glut_SpecKey(int key, int x, int y) {
+    game->SpecKeyPress(key, x, y);
 }
 
 void RenderMouseCursor() {

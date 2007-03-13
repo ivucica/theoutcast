@@ -58,8 +58,8 @@ void GameInit() {
 		sysfont->SetSizeFunc(WinFontSize);
 	#endif
 
-	//GameModeEnter(GM_LOGO);
-	GameModeEnter(GM_MAINMENU);
+	GameModeEnter(GM_LOGO);
+	//GameModeEnter(GM_MAINMENU);
 
 }
 
@@ -219,6 +219,8 @@ system("pause");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");
 	GameInit();
 
+    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up callbacks\n");
+
 	glutDisplayFunc(glut_Display);
 	glutReshapeFunc(glut_Reshape);
 	glutMouseFunc(glut_Mouse);
@@ -227,9 +229,10 @@ system("pause");
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutTimerFunc(500, glut_FPS, 500);
 	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
+	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
 
-
+    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
 	glutMainLoop();
 

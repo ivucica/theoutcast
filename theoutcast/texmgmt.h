@@ -16,6 +16,7 @@ class Texture {
 		RGBA *FetchSPRPixels();
 		void StorePixels();
 
+        bool loaded;
 	private:
 		GLuint textureid;
 

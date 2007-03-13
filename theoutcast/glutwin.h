@@ -8,6 +8,7 @@ void glut_SetMousePointer(std::string texturefile);
 void glut_FPS (int param);
 void glut_MayAnimateToTrue(int param);
 void glut_Key(unsigned char key, int x, int y);
+void glut_SpecKey(int key, int x, int y);
 void RenderMouseCursor();
 extern int winw, winh;
 extern float fps;

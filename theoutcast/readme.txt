@@ -1,6 +1,6 @@
 THE OUTCAST v0.3.3
 Readme
-29.1.2007
+13.3.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
@@ -103,11 +103,12 @@ Visit www.otfans.net - The Outcast's forum - for more information.
 
 5. INSTRUCTIONS
 
-Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr". Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr"
+Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr". 
+Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr".
 
-On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760 or 770 (note: 770 is not operational in this release). Click OK. Choose one character.
+On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760, 770 or 790. Click OK. Choose one character.
 
-When the map loads, you can walk around with WSAD. Press ESC to leave the game.
+When the map loads, you can walk around with arrow keys. You can chat by clicking in the textbox in console, typing the message and pressing enter. Press ESC to leave the game.
 
 ---
 
@@ -162,8 +163,8 @@ Outcast utilizes the following libraries and wishes to thank their authors:
     by Independent JPEG Group
  GLUT
     by Mark Kilgard
- GMP
-    by GMP Team
+ Tom's Fast Math
+    by Tom St Denis
  Dr.MinGW EXCHMDL.DLL
     by MinGW Project
 
@@ -189,6 +190,12 @@ Changes since 0.3.2
 * Various internal things
 * Mouse cursor nicer
 * New FPS calculation mechanism
+* Everything is now rendered inside GLICT subwindows, including world and chat console ;)
+* You can now send messages
+* Controls changed to cursor keys
+* Esc now quits 
+* Added some spr overriding possibilities
+* Now, Tom's Fast Math is used instead of GMP
 
 Changes since 0.3.1
 * Fixed some crashes
@@ -384,18 +391,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 82
+* Number of files: 87
 
 * Code only: 67%
-* Code + Comment: 7%
-* Comments: 8%
+* Code + Comment: 6%
+* Comments: 9%
 * Empty: 18%
 
-* Code only: 4685
-* Empty lines: 1243
-* Comment lines: 545
-* Code and comments: 511
-* Total: 6984
+* Code only: 5889
+* Empty lines: 1606
+* Comment lines: 763
+* Code and comments: 515
+* Total: 8773
 
 ---
 
