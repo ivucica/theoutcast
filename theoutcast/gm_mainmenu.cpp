@@ -600,19 +600,23 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
     switch (protocol->GetProtocolVersion()) {
         case 750:
             strcpy(sprfilename, "tibia75.spr");
-            strcpy(protocolstr, "7.5's");
+            strcpy(protocolstr, "7.5");
 
             break;
         case 760:
         case 770:
             strcpy(sprfilename, "tibia76.spr");
-            strcpy(protocolstr, "7.6, 7.7, 7.72 or 7.81's");
+            strcpy(protocolstr, "7.6");
             break;
         case 790:
         case 792:
             strcpy(sprfilename, "tibia79.spr");
             strcpy(protocolstr, "7.9 or 7.92");
             break;
+        default:
+            strcpy(sprfilename, "ERROR");
+            strcpy(protocolstr, "<<INTERNAL ERROR>>");
+
     }
     if (strlen(sprfilename)) f = fopen(sprfilename, "rb");
     if (!f ) {

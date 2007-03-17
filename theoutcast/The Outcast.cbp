@@ -20,6 +20,7 @@
 					<Add option="-DDEBUGCONSOLE" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
 					<Add option="-DUSESOUNDS" />
+					<Add option="-DTFM" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -39,6 +40,7 @@
 					<Add option="-DUSEASSERT" />
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DTFM" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -57,6 +59,7 @@
 					<Add option="-DUSEASSERT" />
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DTFM" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -67,11 +70,7 @@
 		<VirtualTargets>
 			<Add alias="All" targets="debug;release;" />
 		</VirtualTargets>
-		<Compiler>
-			<Add option="-pg" />
-		</Compiler>
 		<Linker>
-			<Add option="-pg -lgmon" />
 			<Add library="gdi32" />
 			<Add library="user32" />
 			<Add library="kernel32" />
@@ -82,9 +81,9 @@
 			<Add library="ws2_32" />
 			<Add library="winmm" />
 			<Add library="3ds" />
-			<Add library="gmp" />
 			<Add library="sqlite3" />
 			<Add library="fmod" />
+			<Add library="tfm" />
 		</Linker>
 		<Unit filename="assert.h" />
 		<Unit filename="buffer.cpp" />
