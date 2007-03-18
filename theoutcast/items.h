@@ -3,6 +3,7 @@
 
 #include "types.h"
 void ItemsLoad();
+void ItemsLoad_NoUI(unsigned int protocolversion);
 void ItemsUnload();
 extern item_t *items;
 extern int items_n;

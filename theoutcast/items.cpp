@@ -152,6 +152,22 @@ void ItemsLoad() {
 
 }
 
+void ItemsLoad_NoUI(unsigned int protocolversion) {
+    items_n = 0;
+    dbExecPrintf(dbData, ItemsLoadNumFunc, 0, NULL, "select max(itemid) from items%d;", protocolversion);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d items in database for protocol %d\n", items_n, protocolversion);
+    if (!items_n) {
+        //glutHideWindow();
+        //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        exit(1);
+    }
+    items = (item_t*)malloc(sizeof(item_t)*(items_n+1));
+
+    ItemClear(items); // hurz was bugged for a long time and carries item 0 in inventory .. so lets be smarter than tibia client and allow item 0 ... ;)
+    dbExecPrintf(dbData, ItemsLoadFunc, 0, NULL, "select * from items%d;", protocolversion);
+
+}
+
 void ItemsUnload() {
     for (int i=0;i<items_n;i++) {
         ItemClear(items + i);

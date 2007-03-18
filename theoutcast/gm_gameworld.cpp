@@ -43,6 +43,7 @@ GM_Gameworld::GM_Gameworld() {
         winWorld.SetHeight(370);
         winWorld.SetWidth(370. * 640./480.);
         winWorld.SetCaption("World");
+        winWorld.SetOnClick(GM_Gameworld_WorldOnClick);
 
     desktop.AddObject(&winConsole);
         winConsole.SetOnPaint(GM_Gameworld_ConsoleOnPaint);
@@ -176,9 +177,12 @@ void PaintMap() {
     glPushMatrix();
     //glTranslatef(100, 100, 0);
     //glScalef(0.5, 0.5, 0.5);
-    for (int z = 14; z >= (player->GetPosZ()>7 ? player->GetPosZ() : 0) ; z--)
+
+    //for (int z = 14; z >= min((player->GetPosZ()>7 ? player->GetPosZ() : 0), player->GetMinZ())  ; z--)
+    for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--)
         for (int x = -16; x <= +16; x++) {
             for (int y = -12; y <= +12; y++) {
+
                 position_t p;
                 p.x = player->GetPos()->x + x; p.y = player->GetPos()->y + y; p.z = z;//player->GetPos()->z;
                 glPushMatrix();
@@ -198,7 +202,7 @@ void PaintMap() {
         }
 
     glPopMatrix();
-
+    //printf("%d\n", player->GetMinZ());
     gamemap.Unlock();
 }
 void GM_Gameworld::ResizeWindow() {
@@ -207,6 +211,17 @@ void GM_Gameworld::ResizeWindow() {
 
     winWorld.SetHeight(winh > 100 ? winh - 100 : 0);
     winWorld.SetWidth((float)(winh > 100 ? winh - 100 : 0) * 640./480.);
+    winWorld.SetPos(0, 0);
+
+    winConsole.SetWidth(winw-100);
+    winConsole.SetPos(0, winh-100+14);
+
+    txtConMessage.SetWidth(winw-100-50);
+    btnConSend.SetPos(winw-100-50, 52);
+
+
+
+
 	glutPostRedisplay();
 }
 
@@ -232,7 +247,7 @@ void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictConta
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    glOrtho(0, 400, 0, 80, -100, 100);
+    glOrtho(0, winw-100, 0, 70, -100, 100);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -289,4 +304,10 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
     protocol->Speak(NORMAL, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str() );
     ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
+}
+
+void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
+    char tmp[256];
+    sprintf(tmp, "Clicked on %d %d", pos->x, pos->y);
+    console.insert(tmp, CONORANGE);
 }

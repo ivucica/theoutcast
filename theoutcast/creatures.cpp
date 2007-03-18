@@ -66,7 +66,21 @@ void CreaturesLoad() {
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
     //system("pause");
 }
+void CreaturesLoad_NoUI(unsigned int protocolversion) {
+    creatures_n = 0;
+    dbExecPrintf(dbData, CreaturesLoadNumFunc, 0, NULL, "select max(creatureid) from creatures%d;", protocolversion);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d creatures in database for protocol %d\n", creatures_n, protocolversion);
+    if (!creatures_n) {
+        //glutHideWindow();
+        //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        exit(1);
+    }
+    creatures = (creature_t*)malloc(sizeof(creature_t)*(creatures_n+1));
 
+    CreatureClear(creatures); // hurz was bugged for a long time and carries creature 0 in inventory .. so lets be smarter than tibia client and allow creature 0 ... ;)
+    dbExecPrintf(dbData, CreaturesLoadFunc, 0, NULL, "select * from creatures%d;", protocolversion);
+
+}
 
 void CreaturesUnload() {
     for (int i=0;i<creatures_n;i++) {

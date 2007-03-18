@@ -1,5 +1,6 @@
 #include "map.h"
 Map gamemap;
+
 Map::Map() {
     ONInitThreadSafe(threadsafe);
 
@@ -25,14 +26,15 @@ Tile* Map::GetTile(position_t *pos) {
     } else {
         return it->second;
     }
-
 }
+
 Creature* Map::GetCreature(unsigned int creatureid, Creature *cr) {
     creaturelist_t::iterator it = c.find( creatureid );
     if (it==c.end()) {
         if (!cr) return NULL;
         c[creatureid] = cr;
         (cr)->SetCreatureID(creatureid);
+        printf("FORMING NEW CREATURE!!!!!!\n");
         return cr;
     } else {
         delete cr;

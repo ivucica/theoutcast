@@ -43,6 +43,12 @@ void Thing::SetType(unsigned short type, unsigned short extendedtype) {
     sprgfx = new ObjSpr(type, 0);
     ONThreadUnsafe(threadsafe);
 }
+void Thing::SetDirection(direction_t dir) {
+    ONThreadSafe(threadsafe);
+    this->direction = dir;
+    sprgfx->SetDirection(dir);
+    ONThreadUnsafe(threadsafe);
+}
 void Thing::Render() {
     //printf("Wendewing\n");
     //printf(" %d!\n", type);

@@ -119,5 +119,11 @@ typedef enum {
     BROADCAST,
     PRIVATE=0x04
 } speaktype_t;
+typedef enum {
+    NORTH = 0,
+    EAST,
+    SOUTH,
+    WEST
+} direction_t;
 
 #endif

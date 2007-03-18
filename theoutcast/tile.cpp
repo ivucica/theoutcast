@@ -13,6 +13,9 @@ Tile::Tile() {
 Tile::~Tile() {
     ONDeinitThreadSafe(threadsafe);
 }
+unsigned int Tile::getitemcount() {
+    return this->itemcount;
+}
 void Tile::insert(Thing *thing) {
     ONThreadSafe(threadsafe);
     ASSERT(thing)
@@ -178,7 +181,7 @@ void Tile::render() {
         ground->Render(&pos);
     }
     for (int i = 0; i <= 3; i++) {
-        for (std::vector<Item*>::reverse_iterator it = itemlayers[i].rbegin(); it != itemlayers[i].rend(); it++) {
+        for (std::vector<Item*>::reverse_iterator it = itemlayers[3-i].rbegin(); it != itemlayers[3-i].rend(); it++) {
             (*it)->Render(&pos);
             (*it)->AnimationAdvance(25./fps);
         }
@@ -219,9 +222,11 @@ void Tile::empty () {
     }
 
     for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ) {
-        if (*it)
-            delete (*it);
-        else
+        // DONT DELETE CREATURES!!!
+
+//        if (*it)
+//            delete (*it);
+//        else
             printf("@(@@@)@)@)(@)(@@( OMFG There's a NULL creature on a tile!!\n");
         creatures.erase(it);
     }

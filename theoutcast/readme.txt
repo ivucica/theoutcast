@@ -1,6 +1,6 @@
-THE OUTCAST v0.3.3
+THE OUTCAST v0.3.4
 Readme
-13.3.2007
+18.3.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
@@ -23,11 +23,11 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.3 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.4 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
-I'd like to point out that new The Outcast will support multiple protocols in the same executable! This means, when you enter your username and password, you also pick the protocol! There's no more trouble with the Launcher (which, I am sure, has confused a lot of you).
+I'd like to point out that new The Outcast supports multiple protocols in the same executable! This means, when you enter your username and password, you also pick the protocol! There's no more trouble with the Launcher (which, I am sure, has confused a lot of you).
 
 Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 760, 770, 790, 792 -- more upcoming.
 
@@ -40,11 +40,13 @@ It is NOT allowed to connect to CipSoft servers using alternative clients! If yo
 This release is intended to demonstrate current progress on the software development.
 In no way it is a complete working product. There are bugs, and we are in no way responsible for any damage to your data, computer, mind, brain, arms, parents, grandparents, dog, cat, bed, house or anything else in your life, that can happen.
 
-1.a) Rant about this version
-
 This is a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
 
 Currently it can log on, display character list, fetch the map from server, parse most gameworld packets in a stub manner, you can walk around, and it will show text other people say, sprite animations work for the most part, creatures are also (properly?) loaded and displayed.
+
+1.a) Rant about this version
+
+This release has a bit nicer display, and that's basically it.
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
@@ -145,6 +147,7 @@ Please send The Outcast.rpt file to us.
 * You will have less than 3 FPS on Windows without your video card drivers. And no, you can't play Quake III either with high FPS if you don't have OpenGL drivers; id software likes OpenGL, too! Microsoft's GDI implementation, the one you have by default, is slow, don't use it! And Windows use it in case you don't have OpenGL drivers installed! (Hint: OpenGL drivers are included with your graphics card drivers.)
 * Sprite animations are not in sync
 * Logging out of the game and then attempting to log in fails
+* There is a "grid" between sprites. It'll be fixed. Soon. Trust me!
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -182,6 +185,12 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 ---
 
 10. CHANGE HISTORY
+
+Changes since 0.3.3
+* SPR engine now properly renders 4x4 sprite alterations between identical items.
+* It also knows about creature direction. Hooray!
+* It properly renders "overlay sprites", too :)
+* Various smaller fixes
 
 Changes since 0.3.2
 * Protocols 7.9, 7.92
@@ -391,18 +400,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 87
+* Number of files: 89
 
 * Code only: 67%
 * Code + Comment: 6%
 * Comments: 9%
 * Empty: 18%
 
-* Code only: 5889
-* Empty lines: 1606
-* Comment lines: 763
-* Code and comments: 515
-* Total: 8773
+* Code only: 6182
+* Empty lines: 1679
+* Comment lines: 786
+* Code and comments: 532
+* Total: 9179
 
 ---
 

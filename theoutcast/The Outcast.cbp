@@ -118,6 +118,8 @@
 		<Unit filename="gm_logo.h" />
 		<Unit filename="gm_mainmenu.cpp" />
 		<Unit filename="gm_mainmenu.h" />
+		<Unit filename="gm_sprplayground.cpp" />
+		<Unit filename="gm_sprplayground.h" />
 		<Unit filename="gwlogon.cpp" />
 		<Unit filename="gwlogon.h" />
 		<Unit filename="imgfmts.cpp" />

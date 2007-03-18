@@ -297,6 +297,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 }
 
                 ParseMapDescription(nm, maxx, maxy, pos.x - (maxx-1)/2, pos.y - (maxy-1)/2, pos.z);
+                player->FindMinZ();
                 return true;
             }
         case 0x65: // Move Player North
@@ -305,6 +306,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             player->SetPos(player->GetPosX(), player->GetPosY()-1, player->GetPosZ());
 
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            player->FindMinZ();
             gamemap.Unlock();
             printf("End move north\n");
 
@@ -315,6 +317,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             player->SetPos(player->GetPosX()+1, player->GetPosY(), player->GetPosZ());
 
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x + (maxx+1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            player->FindMinZ();
             gamemap.Unlock();
             printf("End move east\n");
 
@@ -325,6 +328,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             player->SetPos(player->GetPosX(), player->GetPosY()+1, player->GetPosZ());
 
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y + (maxy+1 )/2, player->GetPos()->z);
+            player->FindMinZ();
             gamemap.Unlock();
             printf("End move south\n");
 
@@ -335,6 +339,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             player->SetPos(player->GetPosX()-1, player->GetPosY(), player->GetPosZ());
 
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            player->FindMinZ();
             gamemap.Unlock();
             printf("End move west\n");
             return true;
@@ -403,6 +408,11 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             tile = gamemap.GetTile(&dst);
             tile->insert(thing);
+
+            if (dst.y < src.y) thing->SetDirection(NORTH);
+            if (dst.y > src.y) thing->SetDirection(SOUTH);
+            if (dst.x < src.x) thing->SetDirection(WEST);
+            if (dst.x > src.x) thing->SetDirection(EAST);
             return true;
         }
         case 0x6E: // Container Open
@@ -748,7 +758,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     //printf("Object type %d\n", type);
     switch (type) {
         case 0x0061: // new creature
-        case 0x0062: // known creature
+        case 0x0062: {// known creature
             if (type == 0x0061) { // new creature
                 nm->GetU32(); // remove creature with this id
                 creatureid = nm->GetU32(); // new creature's id
@@ -761,8 +771,14 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 creature = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
                 thing = creature;
             }
+            ASSERT(thing)
+
+
+
             nm->GetU8(); // health percent
-            nm->GetU8(); // direction
+            char dir = nm->GetU8();
+            printf("Direction: %d\n", dir);
+
 
             creaturelook_t creaturelook;
             ParseCreatureLook(nm, &creaturelook);
@@ -777,15 +793,20 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 nm->GetU8(); // skull
                 nm->GetU8(); // shield
             }
-            ASSERT(thing)
+
             thing->SetType(creaturelook.type, creaturelook.extendedlook);
+            thing->SetDirection((direction_t)dir); // direction
             break;
-        case 0x0063: // creature that has only direction altered
+        }
+        case 0x0063: {// creature that has only direction altered
             creatureid = nm->GetU32(); // creature id
             thing = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
-            nm->GetU8(); // look direction
+            printf("Creature name: %s\n", ((Creature*)thing)->GetName().c_str());
+            char dir = nm->GetU8();
+            thing->SetDirection((direction_t)dir); // look direction
 
             break;
+        }
         default: // regular item
             ASSERT(type >= 100 && type <= items_n);
             if (thing)

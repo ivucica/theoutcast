@@ -601,7 +601,6 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
         case 750:
             strcpy(sprfilename, "tibia75.spr");
             strcpy(protocolstr, "7.5");
-
             break;
         case 760:
         case 770:

@@ -25,6 +25,7 @@ class GM_Gameworld : public GameMode {
 
     friend void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
 };
-
+void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
+void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);

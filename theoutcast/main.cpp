@@ -58,8 +58,9 @@ void GameInit() {
 		sysfont->SetSizeFunc(WinFontSize);
 	#endif
 
-	GameModeEnter(GM_LOGO);
+    GameModeEnter(GM_LOGO);
 	//GameModeEnter(GM_MAINMENU);
+	//GameModeEnter(GM_SPRPLAYGROUND);
 
 }
 

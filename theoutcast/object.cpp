@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 
 #include <math.h>
 #include "object.h"
@@ -8,11 +8,14 @@ Object::Object () {
 }
 void Object::AnimationAdvance(float percent) {
     int i;
-    if (isnan(percent)) return;
+    if (isnan(percent) && isinf(percent)) {
+        animation_percent = 0;
+        return;
+    }
 
 
     animation_percent += percent / animation_framecount[animation_type];
-    if (isnan(animation_percent)) animation_percent = 0;
+    if (isnan(animation_percent) || isinf(animation_percent)) animation_percent = 0;
 
     i=0;
     while (animation_percent >= 100. && i++<20) {

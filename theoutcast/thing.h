@@ -25,6 +25,7 @@ class Thing {
         virtual void AnimationAdvance(float percent);
 
         void SetCount(unsigned char count);
+        void SetDirection(direction_t dir);
 
     private:
         unsigned char count;
@@ -33,6 +34,7 @@ class Thing {
         ObjSpr *sprgfx;
         unsigned short type;
         ONCriticalSection threadsafe;
+        direction_t direction;
 };
 Thing *ThingCreate(unsigned int type);
 #endif

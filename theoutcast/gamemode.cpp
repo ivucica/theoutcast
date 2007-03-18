@@ -3,6 +3,7 @@
 #include "gm_mainmenu.h"
 #include "gm_logo.h"
 #include "gm_gameworld.h"
+#include "gm_sprplayground.h"
 #include "glutwin.h"
 #include "debugprint.h"
 GameMode* game=NULL;
@@ -52,6 +53,10 @@ void GameModeEnter(gamemode_t gm) {
 		case GM_GAMEWORLD:
 			game = new GM_Gameworld;
 			break;
+
+        case GM_SPRPLAYGROUND:
+            game = new GM_SPRPlayground;
+            break;
 		default:
 			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Invalid gamemode %d.\n", gamemode);
 			//MessageBox(0, "Invalid gamemode\n", 0, 0);

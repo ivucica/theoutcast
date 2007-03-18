@@ -20,7 +20,9 @@ class GameMode {
 enum gamemode_t {
     GM_LOGO = 0,
 	GM_MAINMENU = 1,
-	GM_GAMEWORLD = 2
+	GM_GAMEWORLD = 2,
+
+	GM_SPRPLAYGROUND = 9000
 };
 
 void GameModeEnter(gamemode_t gamemode);

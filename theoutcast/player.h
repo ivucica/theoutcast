@@ -13,9 +13,12 @@ class Player {
         unsigned short GetPosX(); unsigned short GetPosY(); unsigned char GetPosZ();
         void SetPos(position_t *p);
         void SetPos(unsigned short x, unsigned short y, unsigned char z);
+        void FindMinZ();
+        unsigned int GetMinZ();
     private:
         unsigned long creatureid;
         position_t pos;
+        unsigned char minz;
 };
 
 extern Player *player;
