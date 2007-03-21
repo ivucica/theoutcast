@@ -11,6 +11,10 @@ Thing::Thing() {
     type = 0;
     //printf("Forged a new item >D\n");
     this->count = 1;
+    this->moving = false;
+    this->speed = 0;
+    this->animationpercent = 0;
+    this->preapproved = false;
     ONInitThreadSafe(threadsafe);
 }
 Thing::~Thing() {
@@ -19,6 +23,9 @@ Thing::~Thing() {
 }
 unsigned short Thing::GetType() {
     return type;
+}
+unsigned short Thing::GetSpeedIndex() {
+    return items[type].speedindex;
 }
 bool Thing::IsGround() {
     //printf("Is ground %d: %s\n", type, items[type].ground ? "yes" : "no");
@@ -39,7 +46,6 @@ void Thing::SetCount(unsigned char count) {
 void Thing::SetType(unsigned short type, unsigned short extendedtype) {
     ONThreadSafe(threadsafe);
     this->type = type;
-    //printf("NEW ITEM OF TYPE %d\n", type);
     sprgfx = new ObjSpr(type, 0);
     ONThreadUnsafe(threadsafe);
 }
@@ -50,8 +56,6 @@ void Thing::SetDirection(direction_t dir) {
     ONThreadUnsafe(threadsafe);
 }
 void Thing::Render() {
-    //printf("Wendewing\n");
-    //printf(" %d!\n", type);
     if (sprgfx) sprgfx->Render();
 }
 void Thing::Render(position_t *pos) {
@@ -65,7 +69,23 @@ void Thing::Render(position_t *pos) {
     ONThreadUnsafe(threadsafe);
 }
 void Thing::AnimationAdvance(float advance) {
-    if (sprgfx) sprgfx->AnimationAdvance(advance);
+    if (sprgfx) animationpercent = sprgfx->AnimationAdvance(advance);
+}
+bool Thing::IsMoving() {
+    return moving;
+}
+void Thing::StartMoving() {
+    moving = true;
+    preapproved = true;
+}
+void Thing::ApproveMove() {
+    preapproved = false;
+}
+void Thing::SetSpeed(unsigned short speed) {
+    this->speed = speed;
+}
+unsigned short Thing::GetSpeed() {
+    return speed;
 }
 
 Thing *ThingCreate(unsigned int type) {

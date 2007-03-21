@@ -178,28 +178,35 @@ void PaintMap() {
     //glTranslatef(100, 100, 0);
     //glScalef(0.5, 0.5, 0.5);
 
-    //for (int z = 14; z >= min((player->GetPosZ()>7 ? player->GetPosZ() : 0), player->GetMinZ())  ; z--)
-    for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--)
-        for (int x = -16; x <= +16; x++) {
-            for (int y = -12; y <= +12; y++) {
+    if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
 
-                position_t p;
-                p.x = player->GetPos()->x + x; p.y = player->GetPos()->y + y; p.z = z;//player->GetPos()->z;
-                glPushMatrix();
-                glTranslatef((x+8 - (player->GetPos()->z - z))*32, (14-(y+6 - (player->GetPos()->z - z)))*32, 0);
+    for (int pass = 0; pass < 2; pass++)
+        for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--)
+            for (int x = -16; x <= +16; x++) {
+                for (int y = -12; y <= +12; y++) {
 
-                Tile *t;
-                Thing *g;
+                    position_t p;
+                    p.x = player->GetPos()->x + x; p.y = player->GetPos()->y + y; p.z = z;//player->GetPos()->z;
+                    glPushMatrix();
+                    glTranslatef((x+8 - (player->GetPos()->z - z))*32, (14-(y+6 - (player->GetPos()->z - z)))*32, 0);
 
-                if (x < -7 || x > 7 || y < -5 || y > 5) glColor4f(.5,.5,.5,1.); else glColor4f(1., 1., 1., 1.);
+                    Tile *t;
+                    Thing *g;
 
-                if (t=gamemap.GetTile(&p))
-                    t->render();
+                    if (x < -7 || x > 7 || y < -5 || y > 5) glColor4f(.5,.5,.5,1.); else glColor4f(1., 1., 1., 1.);
 
-                glMatrixMode(GL_MODELVIEW);
-                glPopMatrix();
+                    if (t=gamemap.GetTile(&p))
+                        if (pass==0)
+                            t->render();
+                        else
+                            t->rendercreatures();
+
+                    glMatrixMode(GL_MODELVIEW);
+                    glPopMatrix();
+                }
             }
-        }
+
+
 
     glPopMatrix();
     //printf("%d\n", player->GetMinZ());

@@ -9,10 +9,18 @@ class Creature : public Thing {
         Creature();
         ~Creature();
 
+        void Render(position_t *pos);
+        void Render();
+
+        void CauseAnimOffset(bool individual);
+
         // setting info
         void SetType(unsigned short outfit, unsigned short extendedlook);
         void SetCreatureID(unsigned long creatureid);
         void SetName(std::string creaturename);
+        void AnimationAdvance(float advance);
+
+
 
         // obtaining info
         bool IsGround();

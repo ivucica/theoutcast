@@ -26,8 +26,11 @@ class Tile {
 
         void setpos(position_t *p); // so tile can know its position
         void render();
+        void rendercreatures();
 
         unsigned int getitemcount();
+
+
     private:
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;

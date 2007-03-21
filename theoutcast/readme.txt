@@ -1,6 +1,6 @@
-THE OUTCAST v0.3.4
+THE OUTCAST v0.3.5
 Readme
-18.3.2007
+21.3.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.4 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.5 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -105,7 +105,7 @@ Visit www.otfans.net - The Outcast's forum - for more information.
 
 5. INSTRUCTIONS
 
-Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr". 
+Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr".
 Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr".
 
 On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760, 770 or 790. Click OK. Choose one character.
@@ -186,6 +186,11 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 10. CHANGE HISTORY
 
+Changes since 0.3.4
+* Sidescrolling
+* Preemptive moving
+* Minor fixes
+
 Changes since 0.3.3
 * SPR engine now properly renders 4x4 sprite alterations between identical items.
 * It also knows about creature direction. Hooray!
@@ -202,7 +207,7 @@ Changes since 0.3.2
 * Everything is now rendered inside GLICT subwindows, including world and chat console ;)
 * You can now send messages
 * Controls changed to cursor keys
-* Esc now quits 
+* Esc now quits
 * Added some spr overriding possibilities
 * Now, Tom's Fast Math is used instead of GMP
 

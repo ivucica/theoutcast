@@ -1,3 +1,4 @@
+#include "creature.h"
 #include "player.h"
 #include "tile.h"
 #include "map.h"
@@ -13,7 +14,9 @@ Player::~Player() {
 unsigned long Player::GetCreatureID() {
     return creatureid;
 }
-
+Creature *Player::GetCreature() {
+    return gamemap.GetCreature(creatureid, NULL);
+}
 void Player::GetPos(position_t *p) {
     p = &pos;
 }

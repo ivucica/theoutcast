@@ -6,11 +6,11 @@ Object::Object () {
     animation_percent = 0;
     animation_type = ANI_STAND;
 }
-void Object::AnimationAdvance(float percent) {
+float Object::AnimationAdvance(float percent) {
     int i;
     if (isnan(percent) && isinf(percent)) {
         animation_percent = 0;
-        return;
+        return 0;
     }
 
 
@@ -25,6 +25,7 @@ void Object::AnimationAdvance(float percent) {
     while (animation_percent < 0. && i++<20) {
         animation_percent += 100.;
     }
+    return animation_percent;
     //printf("new animation frame %g\n", animation_percent);
 }
 void Object::AnimationSetValue(float percent) {

@@ -413,6 +413,10 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (dst.y > src.y) thing->SetDirection(SOUTH);
             if (dst.x < src.x) thing->SetDirection(WEST);
             if (dst.x > src.x) thing->SetDirection(EAST);
+
+            if (thing != player->GetCreature() || !thing->IsMoving())
+                thing->StartMoving();
+            thing->ApproveMove();
             return true;
         }
         case 0x6E: // Container Open
@@ -783,10 +787,13 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             creaturelook_t creaturelook;
             ParseCreatureLook(nm, &creaturelook);
             printf("Creature look: %d\n", creaturelook.type);
+
+
+
             nm->GetU8(); // lightlevel
             nm->GetU8(); // lightcolor
 
-            nm->GetU16(); // speedindex
+            unsigned short speedindex = nm->GetU16(); // speedindex
 
 
             if (protocolversion >= 750) {
@@ -794,8 +801,11 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 nm->GetU8(); // shield
             }
 
+            // stuff can only be set up AFTER the SetType() call ...
+            // gotta check why, but we can live with that for now
             thing->SetType(creaturelook.type, creaturelook.extendedlook);
             thing->SetDirection((direction_t)dir); // direction
+            thing->SetSpeed(speedindex);
             break;
         }
         case 0x0063: {// creature that has only direction altered
@@ -843,40 +853,56 @@ void Protocol::MoveNorth() {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
-    nm.AddU8(0x65);
-    if (protocolversion >= 770)
-        nm.XTEAEncrypt(key);
-    nm.Dump(s);
+    if (!player->GetCreature()->IsMoving()) {
+        nm.AddU8(0x65);
+        if (protocolversion >= 770)
+            nm.XTEAEncrypt(key);
+        nm.Dump(s);
+        player->GetCreature()->StartMoving();
+        player->GetCreature()->SetDirection(NORTH);
+    }
     ONThreadUnsafe(threadsafe);
 }
 void Protocol::MoveSouth() {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
-    nm.AddU8(0x67);
-    if (protocolversion >= 770)
-        nm.XTEAEncrypt(key);
-    nm.Dump(s);
+    if (!player->GetCreature()->IsMoving()) {
+        nm.AddU8(0x67);
+        if (protocolversion >= 770)
+            nm.XTEAEncrypt(key);
+        nm.Dump(s);
+        player->GetCreature()->StartMoving();
+        player->GetCreature()->SetDirection(SOUTH);
+    }
     ONThreadUnsafe(threadsafe);
 }
 void Protocol::MoveWest() {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
-    nm.AddU8(0x68);
-    if (protocolversion >= 770)
-        nm.XTEAEncrypt(key);
-    nm.Dump(s);
+    if (!player->GetCreature()->IsMoving()) {
+        nm.AddU8(0x68);
+        if (protocolversion >= 770)
+            nm.XTEAEncrypt(key);
+        nm.Dump(s);
+        player->GetCreature()->StartMoving();
+        player->GetCreature()->SetDirection(WEST);
+    }
     ONThreadUnsafe(threadsafe);
 }
 void Protocol::MoveEast() {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
-    nm.AddU8(0x66);
-    if (protocolversion >= 770)
-        nm.XTEAEncrypt(key);
-    nm.Dump(s);
+    if (!player->GetCreature()->IsMoving()) {
+        nm.AddU8(0x66);
+        if (protocolversion >= 770)
+            nm.XTEAEncrypt(key);
+        nm.Dump(s);
+        player->GetCreature()->StartMoving();
+        player->GetCreature()->SetDirection(EAST);
+    }
     ONThreadUnsafe(threadsafe);
 }
 

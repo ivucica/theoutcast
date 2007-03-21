@@ -13,7 +13,7 @@ class Object {
         ~Object() {}
 
         virtual bool Render() {return true;}
-        virtual void AnimationAdvance(float percent);
+        virtual float AnimationAdvance(float percent);
         virtual void AnimationSetValue(float percent);
         virtual void AnimationSetType(animation_e a);
 

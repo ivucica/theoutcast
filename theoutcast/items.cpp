@@ -100,6 +100,10 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             sscanf(argv[i], "%d", &iTmp);
             items[itemid].height2d_y = iTmp;
         }
+        if (!strcmp(azColName[i], "speedindex")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid].speedindex = iTmp;
+        }
 
     }
     return 0;

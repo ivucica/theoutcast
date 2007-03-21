@@ -106,6 +106,7 @@ bool ObjSpr::Render(position_t *pos) {
             }
         }
     //printf("\n");
+
     glTranslatef(offsetx, offsety, 0);
     glDisable(GL_TEXTURE_2D);
     return true;
