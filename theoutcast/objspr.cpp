@@ -98,8 +98,11 @@ bool ObjSpr::Render(position_t *pos) {
                 }
 
                 //printf("w %d h %d xdiv %d ydiv %d blendframes %d animcount %d unknown %d\n", sli.width, sli.height, sli.xdiv, sli.ydiv, sli.blendframes, sli.animcount, sli.unknown);
-
-                ASSERT(activeframe < sli.numsprites )
+                {
+                    char tmp[256];
+                    sprintf(tmp, "Active frame is %d while number of frames is %d. And that is a problem.", activeframe, sli.numsprites);
+                    ASSERTFRIENDLY(activeframe < sli.numsprites, tmp )
+                }
                 if (activeframe < sli.numsprites) t[activeframe]->Bind();
 
                 StillEffect(-32*j, 32*i, 32 - 32*j, 32 + 32*i, 2, 2, false, false, true); // divisions were 40 10
@@ -199,7 +202,6 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
                 }
                 break;
             case 790:
-            case 792:
                 sprintf(filename, "tibia79/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
@@ -214,6 +216,23 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
                 }
 
                 break;
+
+            case 792:
+                sprintf(filename, "tibia792/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia792.spr", sli.spriteids[i]);
+                }
+
+                break;
+
         }
 
 
@@ -316,7 +335,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
                 }
                 break;
             case 790:
-            case 792:
+
                 sprintf(filename, "tibia79/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
@@ -328,6 +347,20 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
 
                 if (!f) {
                     t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                }
+                break;
+            case 792:
+                sprintf(filename, "tibia792/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("tibia792.spr", sli.spriteids[i]);
                 }
         }
 

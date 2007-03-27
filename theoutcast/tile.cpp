@@ -13,10 +13,10 @@ Tile::Tile() {
 Tile::~Tile() {
     ONDeinitThreadSafe(threadsafe);
 }
-unsigned int Tile::getitemcount() {
+unsigned int Tile::GetItemCount() {
     return this->itemcount;
 }
-void Tile::insert(Thing *thing) {
+void Tile::Insert(Thing *thing) {
     ONThreadSafe(threadsafe);
     ASSERT(thing)
     if (!thing) {
@@ -39,7 +39,7 @@ void Tile::insert(Thing *thing) {
 
     ONThreadUnsafe(threadsafe);
 }
-void Tile::remove(unsigned char pos) {
+void Tile::Remove(unsigned char pos) {
     ONThreadSafe(threadsafe);
 
     ASSERT(pos < itemcount)
@@ -97,7 +97,7 @@ void Tile::remove(unsigned char pos) {
     itemcount ++;
     ONThreadUnsafe(threadsafe);
 }
-Thing *Tile::getstackpos(unsigned char pos) {
+Thing *Tile::GetStackPos(unsigned char pos) {
     ONThreadSafe(threadsafe);
 
     if (ground) {
@@ -132,17 +132,16 @@ Thing *Tile::getstackpos(unsigned char pos) {
     ONThreadUnsafe(threadsafe);
     return NULL;
 }
-void Tile::setpos(position_t *p) {
+void Tile::SetPos(position_t *p) {
     ONThreadSafe(threadsafe);
     pos.x = p->x;
     pos.y = p->y;
     pos.z = p->z;
     ONThreadUnsafe(threadsafe);
 }
-void Tile::render() {
+void Tile::Render(int layer) {
 
 
-    ONThreadSafe(threadsafe);
 
 
     if (!itemcount) {
@@ -150,55 +149,66 @@ void Tile::render() {
         return;
     }
 
-    if (ground) {
-        ground->AnimationAdvance(25./fps);
-        ground->Render(&pos);
-    }
-    for (int i = 0; i <= 3; i++) {
-        for (std::vector<Item*>::reverse_iterator it = itemlayers[3-i].rbegin(); it != itemlayers[3-i].rend(); it++) {
-            (*it)->Render(&pos);
-            (*it)->AnimationAdvance(25./fps);
-        }
-    }
+    static std::vector<Item*>::reverse_iterator it;
+    for (layer = 0; layer <= 5; layer++)
+    switch (layer) {
+        case 0:
+            if (ground) {
+                ground->AnimationAdvance(25./fps);
+                ground->Render(&pos);
+            }
+            break;
+        case 1:
+            for (it = itemlayers[3].rbegin(); it != itemlayers[3].rend(); it++) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
+            break;
+        case 2: {
+
+            static unsigned int grndspeed = 500;// a safe default ...
+            static unsigned int creaturespeed = 220; //  a safe default...
+            if (ground) {
+                grndspeed = ground->GetSpeedIndex();
+                if (!grndspeed) grndspeed = 500; // a safe fallback, once again
+            }
+
+            if (pos.x < player->pos.x + 8
+             && pos.x > player->pos.x - 8
+             && pos.y < player->pos.y + 6
+             && pos.y > player->pos.y - 6
+             && creatures.size())
+                for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
+                    creaturespeed = (*it)->GetSpeed();
+                    creaturespeed = (creaturespeed ? creaturespeed : 220);
 
 
 
-
-    ONThreadUnsafe(threadsafe);
-
-
-}
-void Tile::rendercreatures() {
-
-    ONThreadSafe(threadsafe);
-
-
-    if (!itemcount) {
-        ONThreadUnsafe(threadsafe);
-        return;
-    }
-
-    unsigned int grndspeed = 500;// a safe default ...
-    if (ground) {
-        grndspeed = ground->GetSpeedIndex();
-        if (!grndspeed) grndspeed = 500; // a safe fallback, once again
-    }
-
-    if (pos.x < player->GetPosX() + 8
-     && pos.x > player->GetPosX() - 8
-     && pos.y < player->GetPosY() + 6
-     && pos.y > player->GetPosY() - 6)
-        for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
-            (*it)->Render(&pos);
-            if ((*it)->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                (*it)->AnimationAdvance((((float)grndspeed*1000.) / ((*it)->GetSpeed() ? (*it)->GetSpeed() : 220))/fps);
+                    (*it)->Render(&pos);
+                    if ((*it)->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                        (*it)->AnimationAdvance(100. * grndspeed / (*it)->GetSpeed() );
+                }
+            break;
         }
 
 
-    ONThreadUnsafe(threadsafe);
+        default: // 3, 4, 5
+            for (it = itemlayers[3-(layer-2)].rbegin(); it != itemlayers[3-(layer-2)].rend(); it++) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
+            break;
+
+
+    }
+
+
+
+
 
 }
-void Tile::empty () {
+
+void Tile::Empty () {
     ONThreadSafe(threadsafe);
     if (ground) {
         delete ground;

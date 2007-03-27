@@ -12,23 +12,23 @@ class Tile {
         Tile();
         ~Tile();
 
-        void insert(Thing *obj);
+        void Insert(Thing *obj);
         //void remove(Thing *obj);
-        void remove(unsigned char stackpos);
+        void Remove(unsigned char stackpos);
 
-        void replace(Thing *original, Thing *newobject);
-        void replace(unsigned char stackpos, Thing *newobject);
+        void Replace(Thing *original, Thing *newobject);
+        void Replace(unsigned char stackpos, Thing *newobject);
 
-        void empty ();
+        void Empty ();
 
-        Thing *getstackpos(unsigned char stackpos);
-        Thing *getground() {return ground;} // TEMPORARY F. that is TO BE REMOVED.
+        Thing *GetStackPos(unsigned char stackpos);
+        Thing *GetGround() {return ground;} // TEMPORARY F. that is TO BE REMOVED.
 
-        void setpos(position_t *p); // so tile can know its position
-        void render();
-        void rendercreatures();
+        void SetPos(position_t *p); // so tile can know its position
+        void Render(int layer);
 
-        unsigned int getitemcount();
+
+        unsigned int GetItemCount();
 
 
     private:

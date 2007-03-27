@@ -180,8 +180,9 @@ void PaintMap() {
 
     if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
 
-    for (int pass = 0; pass < 2; pass++)
-        for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--)
+
+    for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--)
+        //for (int pass = 0; pass <= 5; pass++)
             for (int x = -16; x <= +16; x++) {
                 for (int y = -12; y <= +12; y++) {
 
@@ -196,10 +197,8 @@ void PaintMap() {
                     if (x < -7 || x > 7 || y < -5 || y > 5) glColor4f(.5,.5,.5,1.); else glColor4f(1., 1., 1., 1.);
 
                     if (t=gamemap.GetTile(&p))
-                        if (pass==0)
-                            t->render();
-                        else
-                            t->rendercreatures();
+                            t->Render(0);//t->Render(pass);
+
 
                     glMatrixMode(GL_MODELVIEW);
                     glPopMatrix();

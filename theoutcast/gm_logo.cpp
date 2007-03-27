@@ -25,6 +25,13 @@ GM_Logo::GM_Logo () {
     fadein = 0;
     fadeout = 0;
     oldmayanimate = false;
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_NORMALIZE);
+
+
+
 }
 GM_Logo::~GM_Logo() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing logo\n");
@@ -55,6 +62,10 @@ void GM_Logo::Render() {
 
         glPushMatrix();
         flythrough.set_cam_pos(mayanimate && fps > 2. ? fps : 90000);
+
+        static GLfloat lightpos[] = { 1., 1., 1., 0. }; // 0 = directional light, 1 = positional light
+        glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+
         if (!done) logo->Render();
         glPopMatrix();
 

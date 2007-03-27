@@ -33,11 +33,19 @@ bool flythrough_c::load(std::string filename)
     FILE* f = fopen(filename.c_str(), "rb");
     if (!f) return false;
 
-    unsigned long n;
-    fread(&n, sizeof(n), 1, f);
-    for (int i = 0 ; i < n ; ++i) {
+    flyversion_t ver;
+    flyheader_t head;
+
+    fread(&ver, sizeof(ver), 1, f);
+    if (!(ver.major == 1 && ver.minor == 0 && ver.revision == 0)) {
+	    // version mismatch
+	    fclose(f);
+	    return false;
+    }
+    fread(&head, sizeof(head), 1, f);
+    for (int i = 0 ; i < head.n ; ++i) {
         new_keyframe();
-        fread(kf[i], sizeof(kf_t), 1, f);
+        fread(kf[i], sizeof(flykf_t), 1, f);
     }
 
     fclose(f);
@@ -73,7 +81,7 @@ flythrough_c::flythrough_c()
   */
 void flythrough_c::new_keyframe()
 {
-    kf_t* kframe = new kf_t;
+    flykf_t* kframe = new flykf_t;
     //ZeroMemory(kframe, sizeof(kf_t));
     kf.insert(kf.end(), kframe);
 }
@@ -92,7 +100,7 @@ void flythrough_c::set_cam_pos(float fps)
     glRotatef(rotx1*percent + rotx2*percent2, 1., 0., 0.);
     glRotatef(roty1*percent + roty2*percent2, 0., 1., 0.);
     glRotatef(rotz1*percent + rotz2*percent2, 0., 0., 1.);
-    glTranslatef(posx1*percent + posx2*percent2, posy1*percent + posy2*percent2, posz1*percent + posz2*percent2);
+    glTranslatef(-(posx1*percent + posx2*percent2), -(posy1*percent + posy2*percent2), (posz1*percent + posz2*percent2));
 
 
 

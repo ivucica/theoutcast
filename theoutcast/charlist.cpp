@@ -15,7 +15,7 @@
 #include "database.h"
 #include "sound.h"
 #include "bsdsockets.h"
-
+#include "glutfont.h"
 void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
@@ -28,7 +28,7 @@ void CharList_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Message of the Day");
-	mb->SetHeight(64);
+	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonOK);
 	SoundPlay("sounds/bell.wav");
 }

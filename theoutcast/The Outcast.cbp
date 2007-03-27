@@ -103,7 +103,10 @@
 		<Unit filename="debugprint.cpp" />
 		<Unit filename="debugprint.h" />
 		<Unit filename="defines.h" />
-		<Unit filename="exchndl2.cxx" />
+		<Unit filename="exchndl2.cxx">
+			<Option target="debug" />
+			<Option target="release" />
+		</Unit>
 		<Unit filename="flythrough.cpp" />
 		<Unit filename="flythrough.h" />
 		<Unit filename="gamemode.cpp" />

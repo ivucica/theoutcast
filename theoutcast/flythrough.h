@@ -3,16 +3,25 @@
 
 #include <string>
 #include <vector>
+
+typedef struct {// version of file format
+	char major, minor;
+	int revision; 
+} flyversion_t;
 typedef struct {
-    float posx1, posy1, posz1;
-    float rotx1, roty1, rotz1;
-    float length;
-    float posx2, posy2, posz2;
-    float rotx2, roty2, rotz2;
-} kf_t;
+	int n; // number of frames
+} flyheader_t;
+typedef struct { // individual keyframe data
+	float posx1, posy1, posz1;
+	float rotx1, roty1, rotz1;
+	float length;
+	float posx2, posy2, posz2;
+	float rotx2, roty2, rotz2;
+	char subtitle[256];
+} flykf_t;
 
 
-typedef std::vector<kf_t*>::iterator Kf_Iterator; // keyframe iterator
+typedef std::vector<flykf_t*>::iterator Kf_Iterator; // keyframe iterator
 
 
 class flythrough_c {
@@ -33,7 +42,7 @@ class flythrough_c {
 
         float posx1, posy1, posz1, posx2, posy2, posz2;float rotx1, roty1, rotz1, rotx2, roty2, rotz2;
 
-        std::vector<kf_t*> kf; // keyframes
+        std::vector<flykf_t*> kf; // keyframes
         int kf_i; // current keyframe
 
         float player_current_time;

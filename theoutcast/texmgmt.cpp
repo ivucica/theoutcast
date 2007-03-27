@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdio.h>
 
+#include "debugprint.h"
 #include "texmgmt.h"
 #include "imgfmts.h"
 #include "assert.h"
@@ -79,13 +80,15 @@ RGBA *Texture::FetchBMPPixels() {
         return NULL;
     }
     fclose(f);
+
+
     return pikseli;
 }
 
 RGBA *Texture::FetchSPRPixels() {
 
     //ASSERT(this->imgid != 0);
-    printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
+    //printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
     ASSERT(this->imgid < SPRCount);
     ASSERT(SPRPointers);
 
@@ -101,7 +104,7 @@ RGBA *Texture::FetchSPRPixels() {
 
     FILE *f = fopen(fname.c_str(), "rb");
     if (!f) {
-        printf("Error opening sprite file %s.", fname.c_str());
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Error opening sprite file %s.", fname.c_str());
         return NULL;
     }
 
@@ -113,7 +116,7 @@ RGBA *Texture::FetchSPRPixels() {
         return NULL;
     }
     if (SPRPointers[imgid]>filesize(f)) {
-            printf("SIZE DOUBLEPLUSUNGOOD\n");
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SIZE DOUBLEPLUSUNGOOD\n");
             //system("pause");
         fclose(f);
         return NULL;
@@ -155,7 +158,7 @@ RGBA *Texture::FetchSPRPixels() {
         unsigned short pixelchunksize;
         fread(&pixelchunksize, 2, 1, f);
         if ( pixelchunksize>1024) {
-            printf("PIXELCHUNKSIZE invalid for sprite beginning at %d, imgid %d\n", initialftell, imgid);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "PIXELCHUNKSIZE invalid for sprite beginning at %d, imgid %d\n", initialftell, imgid);
             //system("pause");
 
             fclose(f);
@@ -207,9 +210,17 @@ void Texture::StorePixels() {
 
     gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w,
                     h, GL_RGBA, GL_UNSIGNED_BYTE, pikseli /*pImage->data*/);
+
     bool simpletextures = false; // to fool him until simpletextures is truly implemented
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR_MIPMAP_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR);
+    if (fname.substr(fname.length() - 3, 3)=="spr") {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR);
+    }
+
+
     free(pikseli);
     pikseli = NULL;
 

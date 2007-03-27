@@ -38,6 +38,7 @@ class Thing {
         virtual void StartMoving();
 
         void ApproveMove();
+        void CancelMoving();
 
     private:
         unsigned char count;

@@ -47,10 +47,12 @@ bool Obj3ds::Render() {
     }
     //lib3ds_file_eval(data3ds, animation_frame += 25. / fps);
 
-
+    glPushMatrix();
+    glRotatef(270., 1., 0., 0.);
     for (p=data3ds->nodes; p!=0; p=p->next) {
         this->RenderNode(p);
     }
+    glPopMatrix();
     return true;
 }
 

@@ -139,8 +139,8 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
     unsigned int sizereadresult = 0;
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
 	if (sizereadresult != 2) {
-	    printf("I have read %d bytes for size (should be 2)\n", sizereadresult);
-	    printf("%s\n", SocketErrorDescription());
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "I have read %d bytes for size (should be 2)\n", sizereadresult);
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s\n", SocketErrorDescription());
 	    return false;
 	}
 
@@ -148,7 +148,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
-        printf("Trying to read %d\n", MIN(sz-readsofar, 100));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", MIN(sz-readsofar, 100));
         int readthisturn = recv(s, toadd+readsofar, MIN(sz-readsofar, 100), 0);
         for (int i=0;i<readthisturn;i++)
             printf("%02x ", (char)(*(toadd+readsofar+i)));
@@ -158,8 +158,8 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
             //printf("Now %d, after having read %d\n", readsofar, readthisturn);
             //if (readthisturn) system("pause");
         } else {
-            printf("Error reading!! Readthisturn contains %d\n", readthisturn);
-            printf("%s\n", SocketErrorDescription());
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Error reading!! Readthisturn contains %d\n", readthisturn);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s\n", SocketErrorDescription());
             free(toadd);
             return false;
         }
@@ -242,11 +242,11 @@ std::string NetworkMessage::GetString () {
 	unsigned short usdsize;
 
     strsize = GetU16();
-    printf("STR SIZE %hd\n", strsize);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "STR SIZE %hd\n", strsize);
 
     char *toreturn;
     usdsize = MIN(strsize, this->GetSize());
-    printf("USD SIZE %d\n", usdsize);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "USD SIZE %d\n", usdsize);
     toreturn = (char*)malloc(usdsize+1);
 
 
@@ -254,7 +254,7 @@ std::string NetworkMessage::GetString () {
     this->Peek(toreturn, usdsize);
     this->Trim(strsize);
     toreturn[usdsize] = 0;
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting string: %s, size: %d, usdsize: %d\n", toreturn, strsize, usdsize);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Getting string: %s, size: %d, usdsize: %d\n", toreturn, strsize, usdsize);
 
     return toreturn;
 }
@@ -278,7 +278,7 @@ void NetworkMessage::RSAEncrypt() {
     if (protocol->CipSoft()) { // if were logging into one of cip's servers
         //strcpy(modulus, "142996239624163995200701773828988955507954033454661532174705160829347375827760388829672133862046006741453928458538592179906264509724520840657286865659265687630979195970404721891201847792002125535401292779123937207447574596692788513647179235335529307251350570728407373705564708871762033017096809910315212883967"); // 7.7
         strcpy(modulus, "124710459426827943004376449897985582167801707960697037164044904862948569380850421396904597686953877022394604239428185498284169068581802277612081027966724336319448537811441719076484340922854929273517308661370727105382899118999403808045846444647284499123164879035103627004668521005328367415259939915284902061793"); // 7.72, 7.81, 7.9*
-        printf("ENCODING WITH CIPSOFT\n");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "ENCODING WITH CIPSOFT\n");
     } else { // it's an ot
         strcpy(modulus, "109120132967399429278860960508995541528237502902798129123468757937266291492576446330739696001110603907230888610072655818825358503429057592827629436413108566029093628212635953836686562675849720620786279431090218017681061521755056710823876476444260558147179707119674283982419152118103759076030616683978566631413");
     }
@@ -368,15 +368,16 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
   unsigned long delta = 0x9e3779b9;                   /* a key schedule constant */
   unsigned long sum;
 
-  printf("%d %d %d %d\n", m_key[0], m_key[1], m_key[2], m_key[3]);
+  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%d %d %d %d\n", m_key[0], m_key[1], m_key[2], m_key[3]);
 
   int n = 0;
 
-  printf("WILL DECRYPT THIS STUFF: \n");
-  for (int i=0; i < length; i++)
-    printf("%02x ", (unsigned char)(currentposition[i]));
-  printf("\n");
-//  system("pause");
+  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "WILL DECRYPT THIS STUFF: \n");
+  for (int i=0; i < length; i++) {
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (unsigned char)(currentposition[i]));
+  }
+  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
+
 
   while (n < length)
   {
@@ -401,18 +402,18 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
     ASSERT((*((unsigned short*)currentposition)+2 <= GetSize()))
     ASSERT(currentposition)
 	if (*((unsigned short*)currentposition)+2 <= GetSize()) {
-	    printf("Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
         size = size - GetSize() + *((unsigned short*)currentposition)+2;
-        printf("New size: %d\n", GetSize());
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "New size: %d\n", GetSize());
         //ShowContents();
 	}
     else {
-        printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)currentposition)+2);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)currentposition)+2);
         ShowContents();
     }
 //	_assert(size < 5000);
 	Trim(2);
-    printf("now a total of %d bytes\n", size);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "now a total of %d bytes\n", size);
 
 #endif
 
@@ -461,11 +462,11 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 	if (*((unsigned short*)buffer)+2 <= size)
         size = *((unsigned short*)buffer)+2;
     else
-        printf("There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)buffer)+2);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "There was a decryption error, for certain! We decrypted more data than received!\nDecrypted message claims we have %d bytes?\n", *((unsigned short*)buffer)+2);
 
 //	_assert(size < 5000);
 	Trim(2);
-    printf("now a total of %d bytes\n", size);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "now a total of %d bytes\n", size);
 #endif
 }
 
@@ -508,7 +509,7 @@ void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
 		read_pos = read_pos + 2;
 	}
 
-    printf("size %d\n", size);
+
 #endif
 }
 void NetworkMessage::ShowContents() {

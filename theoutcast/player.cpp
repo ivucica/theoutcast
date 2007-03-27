@@ -53,7 +53,7 @@ void Player::FindMinZ() { // finds highest place that we may render on
         postmp.y = pos.y-(z-pos.z);
         postmp.z = z;
         t = gamemap.GetTile(&postmp);
-        if (t && t->getitemcount()) {
+        if (t && t->GetItemCount()) {
             minz = z+1;
 
             return;

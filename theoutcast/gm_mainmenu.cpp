@@ -372,6 +372,7 @@ void GM_MainMenu::Render() {
 
 
 
+
 	glDisable(GL_TEXTURE_2D);
 
 	glMatrixMode(GL_PROJECTION);
@@ -608,9 +609,12 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
             strcpy(protocolstr, "7.6");
             break;
         case 790:
-        case 792:
             strcpy(sprfilename, "tibia79.spr");
-            strcpy(protocolstr, "7.9 or 7.92");
+            strcpy(protocolstr, "7.9");
+            break;
+        case 792:
+            strcpy(sprfilename, "tibia792.spr");
+            strcpy(protocolstr, "7.92");
             break;
         default:
             strcpy(sprfilename, "ERROR");

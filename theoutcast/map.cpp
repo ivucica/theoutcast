@@ -21,7 +21,7 @@ Tile* Map::GetTile(position_t *pos) {
     if (it==m.end()) {
         Tile* t = new Tile;
         m[tileid] = t;
-        t->setpos(pos);
+        t->SetPos(pos);
         return t;
     } else {
         return it->second;

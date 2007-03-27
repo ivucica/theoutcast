@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "creature.h"
+#include "tile.h"
 class Player {
     public:
         Player(unsigned long creatureid);
@@ -23,6 +24,9 @@ class Player {
         unsigned long creatureid;
         position_t pos;
         unsigned char minz;
+
+
+    friend void Tile::Render(int layer);
 };
 
 extern Player *player;

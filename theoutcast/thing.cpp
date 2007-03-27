@@ -81,6 +81,10 @@ void Thing::StartMoving() {
 void Thing::ApproveMove() {
     preapproved = false;
 }
+void Thing::CancelMoving() {
+    moving = false;
+    preapproved = false;
+}
 void Thing::SetSpeed(unsigned short speed) {
     this->speed = speed;
 }

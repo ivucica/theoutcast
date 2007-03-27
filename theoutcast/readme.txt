@@ -1,4 +1,4 @@
-THE OUTCAST v0.3.5
+THE OUTCAST v0.3.6
 Readme
 21.3.2007
 
@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.5 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.51 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -106,7 +106,9 @@ Visit www.otfans.net - The Outcast's forum - for more information.
 5. INSTRUCTIONS
 
 Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr".
-Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr".
+Also, please copy the "Tibia.spr" from your "Tibia version 7.9" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr".
+Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia792.spr".
+If you do not copy one of the above, you won't be able to use that protocol. Other protocols will work as usual.
 
 On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760, 770 or 790. Click OK. Choose one character.
 
@@ -148,6 +150,8 @@ Please send The Outcast.rpt file to us.
 * Sprite animations are not in sync
 * Logging out of the game and then attempting to log in fails
 * There is a "grid" between sprites. It'll be fixed. Soon. Trust me!
+* Creatures appear to be walking OVER 2x2 items
+* Blendframes sprites are drawn in wrong order
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -185,6 +189,10 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 ---
 
 10. CHANGE HISTORY
+
+Changes since 0.3.5
+* Implemented cancelmove packet
+* Fixed the order in which creatures are drawn
 
 Changes since 0.3.4
 * Sidescrolling
@@ -407,16 +415,16 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 Current code statistics:
 * Number of files: 89
 
-* Code only: 67%
+* Code only: 68%
 * Code + Comment: 6%
-* Comments: 9%
+* Comments: 8%
 * Empty: 18%
 
-* Code only: 6182
-* Empty lines: 1679
-* Comment lines: 786
-* Code and comments: 532
-* Total: 9179
+* Code only: 6293
+* Empty lines: 1706
+* Comment lines: 771
+* Code and comments: 538
+* Total: 9308
 
 ---
 
