@@ -4,6 +4,12 @@
 #ifdef WIN32
 	#include <windows.h>
 #endif
+
+#ifdef _MSC_VER
+    #include <float.h>
+    #define isnan _isnan
+#endif
+
 #include <GL/gl.h>
 #include <math.h>
 #include "flythrough.h"

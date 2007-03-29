@@ -42,7 +42,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
 
 
-	((GM_MainMenu*)game)->charlist.SetMessage("Storing to database...");
+	((GM_MainMenu*)game)->charlist.SetMessage("Storing login data...");
 
     dbExec(dbUser, "begin transaction;", NULL, 0, NULL);
     dbSaveSetting("protocol", menuclass->txtLoginProtocol.GetCaption().c_str());
@@ -59,7 +59,8 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
         protocol->CipSoft(false);
     }
 
-	menuclass->charlist.SetCaption("Logging in...");
+	menuclass->charlist.SetCaption("Getting character list...");
+	menuclass->charlist.SetMessage("Creating socket...");
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s==INVALID_SOCKET) {
@@ -73,7 +74,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 	ioctlsocket(s, FIONBIO, &mode);
 	#endif
 
-	CharList_Status(&menuclass->charlist, "Resolving service...");
+	CharList_Status(&menuclass->charlist, "Resolving server name to IP...");
 	hostent *he = gethostbyname(menuclass->txtLoginServer.GetCaption().c_str() );
 	char convertedaddr[256];
 	unsigned long addr;

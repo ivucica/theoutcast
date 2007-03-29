@@ -141,16 +141,17 @@ void Tile::SetPos(position_t *p) {
 }
 void Tile::Render(int layer) {
 
-
-
-
     if (!itemcount) {
-        ONThreadUnsafe(threadsafe);
+        //ONThreadUnsafe(threadsafe);
         return;
     }
 
+    ONThreadSafe(threadsafe);
+
+
+
     static std::vector<Item*>::reverse_iterator it;
-    for (layer = 0; layer <= 5; layer++)
+    //for (layer = 0; layer <= 5; layer++)
     switch (layer) {
         case 0:
             if (ground) {
@@ -159,12 +160,14 @@ void Tile::Render(int layer) {
             }
             break;
         case 1:
-            for (it = itemlayers[3].rbegin(); it != itemlayers[3].rend(); it++) {
+        case 2:
+        case 3:
+            for (std::vector<Item*>::iterator it = itemlayers[2-(layer-1)].begin(); it != itemlayers[2-(layer-1)].end(); it++) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
             break;
-        case 2: {
+        case 4: {
 
             static unsigned int grndspeed = 500;// a safe default ...
             static unsigned int creaturespeed = 220; //  a safe default...
@@ -186,14 +189,15 @@ void Tile::Render(int layer) {
 
                     (*it)->Render(&pos);
                     if ((*it)->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                        (*it)->AnimationAdvance(100. * grndspeed / (*it)->GetSpeed() );
+                        (*it)->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
                 }
             break;
         }
 
 
-        default: // 3, 4, 5
-            for (it = itemlayers[3-(layer-2)].rbegin(); it != itemlayers[3-(layer-2)].rend(); it++) {
+        default: // 4, 5
+            for (std::vector<Item*>::iterator it = itemlayers[(layer-2)].begin(); it != itemlayers[(layer-2)].end(); it++) {
+            //for (it = itemlayers[layer-3].rbegin(); it != itemlayers[layer-3].rend(); it++) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
@@ -203,7 +207,7 @@ void Tile::Render(int layer) {
     }
 
 
-
+    ONThreadUnsafe(threadsafe);
 
 
 }
@@ -214,6 +218,7 @@ void Tile::Empty () {
         delete ground;
         ground = NULL;
     }
+
     for (int i = 3; i >= 0; i--) {
         for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); ) {
             if (*it)

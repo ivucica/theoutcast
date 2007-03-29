@@ -20,10 +20,30 @@ class Player {
         void            FindMinZ();
         unsigned int    GetMinZ();
 
+
+
+
+        void            SetHP(unsigned short hp); // hp
+        void            SetMaxHP(unsigned short maxhp); // max hp
+        void            SetCap(unsigned short cap); // cap
+        void            SetExp(unsigned long exp); // exp
+        void            SetLevel(unsigned short lvl); // lvl
+        void            SetLevelPercent(unsigned char lvlpercent); // level percent
+        void            SetMP(unsigned short mp); // mp
+        void            SetMaxMP(unsigned short maxmp); // mmp
+        void            SetMLevel(unsigned char mlvl); // mag lvl
+        void            SetMLevelPercent(unsigned char mlvlpercent); // maglvl percent
+        void            SetSoulPoints(unsigned char soul); // soul
+        /* dunno where this was added but it is there in 792 */
+        void            SetStamina(unsigned short stamina); // stamina (minutes)
+
+        void            SetInventorySlot(unsigned int slot, Thing *item);
+        void            RenderInventory(unsigned int slot);
     private:
-        unsigned long creatureid;
-        position_t pos;
-        unsigned char minz;
+        unsigned long   creatureid;
+        position_t      pos;
+        unsigned char   minz;
+        Thing           *inventory[10];
 
 
     friend void Tile::Render(int layer);

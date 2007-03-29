@@ -97,3 +97,24 @@ bool Protocol75::GameworldLogin () {
     return logonsuccessful;
 }
 
+
+
+void Protocol75::GetPlayerStats(NetworkMessage *nm) {
+// 7.5 version
+// for more check out old outcast :/
+
+
+    player->SetHP(nm->GetU16()); // hp
+    player->SetMaxHP(nm->GetU16()); // max hp
+    player->SetCap(nm->GetU16()); // cap
+    player->SetExp(nm->GetU32()); // exp
+    player->SetLevel(nm->GetU8()); // lvl
+    player->SetLevelPercent(nm->GetU8()); // level percent
+    player->SetMP(nm->GetU16()); // mp
+    player->SetMaxMP(nm->GetU16()); // mmp
+    player->SetMLevel(nm->GetU8()); // mag lvl
+    player->SetMLevelPercent(nm->GetU8()); // maglvl percent
+    player->SetSoulPoints(nm->GetU8()); // soul
+
+
+}

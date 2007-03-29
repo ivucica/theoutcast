@@ -193,6 +193,11 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 Changes since 0.3.5
 * Implemented cancelmove packet
 * Fixed the order in which creatures are drawn
+* Implemented floorchange packets
+* Only 14x10 part of the map is being rendered now (read: the part you see in Tibia) (will later on add option to change the zoom)
+* The above brought a significant boost in FPS. Though some other changes brought it down again, but we'll see where we'll end
+* Added inventory
+* Addressed various issues
 
 Changes since 0.3.4
 * Sidescrolling

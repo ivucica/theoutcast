@@ -1,7 +1,11 @@
+#ifdef _MSC_VER
+    #include <stdlib.h> // doesnt like exit() defined elsewhere.
+#endif
+
 #include <string.h>
 #include <malloc.h>
 #include <math.h>
-#include <GL/gl.h>
+
 #include <GL/glut.h>
 #include "obj3ds.h"
 #include "texmgmt.h"

@@ -43,5 +43,5 @@ bool SPRUnloader() {
     if (SPRPointers) free(SPRPointers);
     SPRPointers = NULL;
     SPRCount = 0;
-
+    return true;
 }

@@ -77,6 +77,7 @@ bool Thing::IsMoving() {
 void Thing::StartMoving() {
     moving = true;
     preapproved = true;
+    animationpercent = 0;
 }
 void Thing::ApproveMove() {
     preapproved = false;

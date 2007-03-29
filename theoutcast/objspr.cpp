@@ -74,7 +74,7 @@ bool ObjSpr::Render(position_t *pos) {
 
                 switch (type) {
                     case 0: // item
-                        activeframe =   (((((( // same number of ( as *
+                        activeframe =   (((((( // same amount of ('s as of *'s
                                         currentframe)
                                         * sli.ydiv + pos->y % sli.ydiv)
                                         * sli.xdiv + pos->x % sli.xdiv)
@@ -85,7 +85,7 @@ bool ObjSpr::Render(position_t *pos) {
                                         ;
                         break;
                     case 1:
-                        activeframe =   (((((( // same number of ( as *
+                        activeframe =   (((((( // same amount of ('s as of *'s
                                         currentframe)
                                         * sli.ydiv + 0)//pos->y % sli.ydiv)
                                         * sli.xdiv + direction)//pos->x % sli.xdiv)

@@ -13,6 +13,9 @@
             #include <tfm.h> // tomfastmath ftw
         }
     #endif
+    #ifdef LTM
+        #include <tommath.h> // on msvc we can't build tomsfastmath :/
+    #endif
 #endif
 #include "protocol.h"
 #include "networkmessage.h"
@@ -148,11 +151,11 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 
 	toadd = (char*)malloc(sz);
 	while (readsofar != sz) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", MIN(sz-readsofar, 100));
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", (char)(MIN(sz-readsofar, 100)));
         int readthisturn = recv(s, toadd+readsofar, MIN(sz-readsofar, 100), 0);
-        for (int i=0;i<readthisturn;i++)
-            printf("%02x ", (char)(*(toadd+readsofar+i)));
-        printf("\n");
+        //for (int i=0;i<readthisturn;i++)
+        //    printf("%02x ", (char)(*(toadd+readsofar+i)));
+        //printf("\n");
         if (readthisturn != SOCKET_ERROR) {
             readsofar += readthisturn;
             //printf("Now %d, after having read %d\n", readsofar, readthisturn);
@@ -286,63 +289,81 @@ void NetworkMessage::RSAEncrypt() {
     // after that, run the rsa encoding algorythm over data area of rsa block
     #ifdef GMP
 
-    mpz_t m_p, m_q, m_u, m_d, m_dp, m_dq;
-   	mpz_t m_mod, m_e;
-   	mpz_t m,c;
+        mpz_t m_p, m_q, m_u, m_d, m_dp, m_dq;
+        mpz_t m_mod, m_e;
+        mpz_t m,c;
 
-    //////////////RSA INIT////////////////////////////
-    mpz_init2(m_mod, 1024);
-    mpz_init2(m_e, 32);
-
-
+        //////////////RSA INIT////////////////////////////
+        mpz_init2(m_mod, 1024);
+        mpz_init2(m_e, 32);
 
 
-    mpz_set_ui(m_e, 65537); //public exponent
-    mpz_set_str(m_mod, modulus, 10);
-    /////////////END RSA INIT//////////////////////////
-
-    mpz_init2(m, 1024);
-    mpz_init2(c, 1024);
-
-    //size is ignored always copy 128 bytes
-    mpz_import(m, 128, 1, 1, 0, 0, msg);
-
-    mpz_powm(c, m, m_e, m_mod);
-
-    size_t count = (mpz_sizeinbase(c, 2) + 7)/8;
-    memset(msg, 0, 128 - count);
-    mpz_export(&msg[128 - count], NULL, 1, 1, 0, 0, c);
-
-    mpz_clear(m);
-    mpz_clear(c);
 
 
-    //////////////////RSA DEINIT//////////////////////
-    mpz_clear(m_mod);
-    mpz_clear(m_e);
-    ////////////////END RSA DEINIT////////////////////
+        mpz_set_ui(m_e, 65537); //public exponent
+        mpz_set_str(m_mod, modulus, 10);
+        /////////////END RSA INIT//////////////////////////
+
+        mpz_init2(m, 1024);
+        mpz_init2(c, 1024);
+
+        //size is ignored always copy 128 bytes
+        mpz_import(m, 128, 1, 1, 0, 0, msg);
+
+        mpz_powm(c, m, m_e, m_mod);
+
+        size_t count = (mpz_sizeinbase(c, 2) + 7)/8;
+        memset(msg, 0, 128 - count);
+        mpz_export(&msg[128 - count], NULL, 1, 1, 0, 0, c);
+
+        mpz_clear(m);
+        mpz_clear(c);
+
+
+        //////////////////RSA DEINIT//////////////////////
+        mpz_clear(m_mod);
+        mpz_clear(m_e);
+        ////////////////END RSA DEINIT////////////////////
 
     #endif
 
 
     #ifdef TFM
-    fp_int m_mod, m_e, m, c;
+        fp_int m_mod, m_e, m, c;
 
 
-    fp_init(&c);
-    fp_init(&m);
-    fp_init(&m_mod);
-    fp_init(&m_e);
+        fp_init(&c);
+        fp_init(&m);
+        fp_init(&m_mod);
+        fp_init(&m_e);
 
-    fp_set(&m_e, 65537);
-    fp_read_radix(&m_mod, modulus, 10); // read in radix == procitaj u bazi
+        fp_set(&m_e, 65537);
+        fp_read_radix(&m_mod, modulus, 10); // read in radix == procitaj u bazi
 
-    fp_read_unsigned_bin(&m, msg, 128);
+        fp_read_unsigned_bin(&m, msg, 128);
 
-    fp_exptmod(&m, &m_e, &m_mod, &c); //  c = (m ^ m_e) % m_mod
-    fp_to_unsigned_bin(&c, msg);
+        fp_exptmod(&m, &m_e, &m_mod, &c); //  c = (m ^ m_e) % m_mod
+        fp_to_unsigned_bin(&c, msg);
 
 
+    #endif
+
+    #ifdef LTM
+        mp_int m_mod, m_e, m, c;
+
+
+        mp_init(&c);
+        mp_init(&m);
+        mp_init(&m_mod);
+        mp_init(&m_e);
+
+        mp_set(&m_e, 65537);
+        mp_read_radix(&m_mod, modulus, 10); // read in radix == procitaj u bazi
+
+        mp_read_unsigned_bin(&m, msg, 128);
+
+        mp_exptmod(&m, &m_e, &m_mod, &c); //  c = (m ^ m_e) % m_mod
+        mp_to_unsigned_bin(&c, msg);
     #endif
 
     // buffer of the message should now contain enough space for both the
@@ -356,7 +377,7 @@ void NetworkMessage::RSAEncrypt() {
     size = rsaoffset + 128;
     currentposition = buffer;
 
-    ShowContents();
+    //ShowContents();
 #endif
 }
 
@@ -368,15 +389,15 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
   unsigned long delta = 0x9e3779b9;                   /* a key schedule constant */
   unsigned long sum;
 
-  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%d %d %d %d\n", m_key[0], m_key[1], m_key[2], m_key[3]);
+  //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%d %d %d %d\n", m_key[0], m_key[1], m_key[2], m_key[3]);
 
   int n = 0;
 
-  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "WILL DECRYPT THIS STUFF: \n");
-  for (int i=0; i < length; i++) {
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (unsigned char)(currentposition[i]));
-  }
-  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
+//  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "WILL DECRYPT THIS STUFF: \n");
+//  for (int i=0; i < length; i++) {
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%02x ", (char)(currentposition[i]));
+//  }
+//  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
 
 
   while (n < length)
@@ -402,9 +423,9 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
     ASSERT((*((unsigned short*)currentposition)+2 <= GetSize()))
     ASSERT(currentposition)
 	if (*((unsigned short*)currentposition)+2 <= GetSize()) {
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
+//	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Message claims it's %d bytes big\n", *((unsigned short*)currentposition)+2);
         size = size - GetSize() + *((unsigned short*)currentposition)+2;
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "New size: %d\n", GetSize());
+//        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "New size: %d\n", GetSize());
         //ShowContents();
 	}
     else {
@@ -413,7 +434,7 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
     }
 //	_assert(size < 5000);
 	Trim(2);
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "now a total of %d bytes\n", size);
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "now a total of %d bytes\n", size);
 
 #endif
 
@@ -466,7 +487,7 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 
 //	_assert(size < 5000);
 	Trim(2);
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "now a total of %d bytes\n", size);
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "now a total of %d bytes\n", size);
 #endif
 }
 

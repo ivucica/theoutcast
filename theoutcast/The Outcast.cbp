@@ -66,6 +66,35 @@
 					<Add option="-fexceptions" />
 				</Linker>
 			</Target>
+			<Target title="debug_msvc">
+				<Option output="The Outcast debug msvc.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objsdebug_msvc" />
+				<Option type="0" />
+				<Option compiler="msvc8" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="/MTd" />
+					<Add option="/Gd" />
+					<Add option="/DWIN32" />
+					<Add option="/DUSEASSERT" />
+					<Add option="/DDEBUGCONSOLE" />
+					<Add option="/DDEBUGLEVEL_BUILDTIME=3" />
+					<Add option="/DLTM" />
+				</Compiler>
+				<Linker>
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="glict" />
+					<Add library="glut32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="lib3ds-120sd" />
+					<Add library="tommath" />
+				</Linker>
+			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="All" targets="debug;release;" />
@@ -86,6 +115,7 @@
 			<Add library="tfm" />
 		</Linker>
 		<Unit filename="assert.h" />
+		<Unit filename="bsdsockets.h" />
 		<Unit filename="buffer.cpp" />
 		<Unit filename="buffer.h" />
 		<Unit filename="charlist.cpp" />
@@ -106,6 +136,7 @@
 		<Unit filename="exchndl2.cxx">
 			<Option target="debug" />
 			<Option target="release" />
+			<Option target="debug_msvc" />
 		</Unit>
 		<Unit filename="flythrough.cpp" />
 		<Unit filename="flythrough.h" />

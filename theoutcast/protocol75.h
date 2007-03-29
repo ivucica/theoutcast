@@ -10,7 +10,10 @@ class Protocol75 : public Protocol {
 
         bool CharlistLogin(const char *username, const char *password);
         bool GameworldLogin ();
-        
+
+        // overridden data types that should behave differently
+        void GetPlayerStats(NetworkMessage *nm);
+
 };
 
 #endif

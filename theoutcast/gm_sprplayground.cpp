@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+    #include <stdlib.h> // doesnt like exit() defined elsewhere.
+#endif
+
 #include <GL/glut.h>
 
 #include "gm_sprplayground.h"

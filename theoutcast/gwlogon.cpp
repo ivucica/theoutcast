@@ -40,7 +40,8 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	sockaddr_in sin;
 
     SoundPlay("sounds/drums.wav");
-	menuclass->charlist.SetCaption("Entering game world");
+	menuclass->charlist.SetCaption("Entering game");
+	menuclass->charlist.SetMessage("Creating socket...");
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s==INVALID_SOCKET) {
@@ -61,18 +62,6 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	ioctlsocket(s, FIONBIO, &mode);
 	#endif
 
-	/*GWLogon_Status(&menuclass->charlist, "Resolving service...");
-	hostent *he = gethostbyname( protocol->charlist[protocol->charlistselected].ipaddress   );
-	char convertedaddr[256];
-	ULONG addr;
-	char** addrs;
-	if (he) {
-		addrs = (char**)he->h_addr_list;
-	} else {
-		GWLogon_ReportError(&menuclass->charlist, "Cannot resolve server name. (2)");
-		return 2;
-	}*/
-
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = protocol->charlist[protocol->charlistselected].ipaddress; //*(ULONG*)(addrs[0]);
 	sin.sin_port = htons(protocol->charlist[protocol->charlistselected].port );
@@ -87,10 +76,9 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	    );
 
 	    GWLogon_Status(&menuclass->charlist, tmp);
-	    printf("%s\n", tmp);
 	}
 
-	//GWLogon_Status(&menuclass->charlist, "Connecting...");
+
 
 	if (connect(s, (SOCKADDR*)&sin, sizeof(sin))) {
 		char tmp[256];
@@ -102,11 +90,12 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 
 
 
-	GWLogon_Status(&menuclass->charlist, "Entering game...");
+	GWLogon_Status(&menuclass->charlist, "Logging in...");
 
     protocol->SetSocket(s);
 
     if (protocol->GameworldLogin() ) {
+        GWLogon_Status(&menuclass->charlist, "Entering game...");
         //GWLogon_ReportSuccess(&menuclass->charlist, protocol->GetMotd().c_str() );
         menuclass->GoToGameworld();
     } else {

@@ -11,7 +11,11 @@
 #endif
 #include <setjmp.h>
 
-#ifndef BI_RGB // is windows.h included 
+#if defined(WIN32)
+#include <windows.h>
+#endif
+
+#ifndef BI_RGB // is windows.h included
 
 
 
@@ -19,35 +23,35 @@
 #pragma pack(1)
 
 
-typedef struct tagBITMAP {  // bm 
-   long   bmType; 
-   long   bmWidth; 
-   long   bmHeight; 
-   long   bmWidthBytes; 
-   unsigned short int bmPlanes; 
-   unsigned short int bmBitsPixel; 
-   void*  bmBits; 
-} BITMAP; 
-typedef struct tagBITMAPFILEHEADER { // bmfh 
-        unsigned short bfType; 
-        unsigned int   bfSize; 
-        unsigned short bfReserved1; 
-        unsigned short bfReserved2; 
-        unsigned int   bfOffBits; 
-} BITMAPFILEHEADER; 
-typedef struct tagBITMAPINFOHEADER{ // bmih 
-   unsigned int   biSize; 
-   long           biWidth; 
-   long           biHeight; 
-   unsigned short biPlanes; 
+typedef struct tagBITMAP {  // bm
+   long   bmType;
+   long   bmWidth;
+   long   bmHeight;
+   long   bmWidthBytes;
+   unsigned short int bmPlanes;
+   unsigned short int bmBitsPixel;
+   void*  bmBits;
+} BITMAP;
+typedef struct tagBITMAPFILEHEADER { // bmfh
+        unsigned short bfType;
+        unsigned int   bfSize;
+        unsigned short bfReserved1;
+        unsigned short bfReserved2;
+        unsigned int   bfOffBits;
+} BITMAPFILEHEADER;
+typedef struct tagBITMAPINFOHEADER{ // bmih
+   unsigned int   biSize;
+   long           biWidth;
+   long           biHeight;
+   unsigned short biPlanes;
    unsigned short biBitCount;
-   unsigned int   biCompression; 
-   unsigned int   biSizeImage; 
-   long           biXPelsPerMeter; 
-   long           biYPelsPerMeter; 
-   unsigned int   biClrUsed; 
-   unsigned int   biClrImportant; 
-} BITMAPINFOHEADER; 
+   unsigned int   biCompression;
+   unsigned int   biSizeImage;
+   long           biXPelsPerMeter;
+   long           biYPelsPerMeter;
+   unsigned int   biClrUsed;
+   unsigned int   biClrImportant;
+} BITMAPINFOHEADER;
 #define BI_RGB        0L
 #define BI_RLE8       1L
 #define BI_RLE4       2L
@@ -96,9 +100,9 @@ typedef struct {
     unsigned int size;
     unsigned char* dump;
     unsigned int internal;
-} Sprite; 
+} Sprite;
 #include <map>
-typedef std::map<unsigned long, Sprite*> SpriteMap; 
+typedef std::map<unsigned long, Sprite*> SpriteMap;
 typedef SpriteMap::iterator SpriteIterator;
 extern SpriteMap sprites;
 extern bool sprLoaded;

@@ -1,9 +1,9 @@
 #ifndef __OBJSPR_H
 #define __OBJSPR_H
 
+#include "texmgmt.h"
 #include "object.h"
 #include "types.h"
-#include "texmgmt.h"
 class ObjSpr : public Object {
     public:
         ObjSpr();

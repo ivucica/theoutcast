@@ -1,7 +1,12 @@
+#ifdef _MSC_VER
+    #include <stdlib.h> // doesnt like exit() defined elsewhere.
+#endif
+
 #include <GL/glut.h>
 #include <GLICT/fonts.h>
 #include <GLICT/globals.h>
 
+#include "assert.h"
 #include "gm_gameworld.h"
 #include "items.h"
 #include "creatures.h"
@@ -16,6 +21,11 @@
 #include "sound.h"
 #include "debugprint.h"
 
+#define VISIBLEW 14 // 14
+#define VISIBLEH 10 // 10
+
+#define VISIBLEWPIXEL (VISIBLEW*32.)
+#define VISIBLEHPIXEL (VISIBLEH*32.)
 extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 
@@ -29,19 +39,21 @@ ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgume
         console.insert("Connection interrupted.");
     delete protocol;
     protocol = NULL;
+
+    return 0;
 }
 GM_Gameworld::GM_Gameworld() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
 
     SoundSetMusic("music/game.mp3");
 
-    g = new ObjSpr(5022, 0);
+    //g = new ObjSpr(5022, 0);
     //g = new ObjSpr(4597);
 
     desktop.AddObject(&winWorld);
         winWorld.SetOnPaint(GM_Gameworld_WorldOnPaint);
         winWorld.SetHeight(370);
-        winWorld.SetWidth(370. * 640./480.);
+        winWorld.SetWidth(370. * VISIBLEWPIXEL/VISIBLEHPIXEL);
         winWorld.SetCaption("World");
         winWorld.SetOnClick(GM_Gameworld_WorldOnClick);
 
@@ -63,6 +75,33 @@ GM_Gameworld::GM_Gameworld() {
             btnConSend.SetWidth(50);
             btnConSend.SetBGColor(.6,.6,.6,1.);
             btnConSend.SetOnClick(GM_Gameworld_ConSendOnClick);
+
+    desktop.AddObject(&winInventory);
+        winInventory.SetWidth(120);
+        winInventory.SetHeight(150);
+        winInventory.SetCaption("Inventory");
+        winInventory.SetPos(410, 0);
+
+        glictPos posInvSlots[10] = {
+            {45, 3},  // helmet
+            {8, 17},  // necklace
+            {83, 17}, // backpack
+            {45, 40}, // armor
+            {83, 54}, // right weapon
+            {8, 54},  // left weapon
+            {45, 77}, // legs
+            {45, 115},// feet
+            {8, 91},  // ring
+            {83, 91}};// hand
+        for (int i=0;i<10;i++) {
+            winInventory.AddObject(&panInvSlots[i]);
+            panInvSlots[i].SetBGColor(.2,.2,.2, 1.);
+            panInvSlots[i].SetPos(posInvSlots[i]);
+            panInvSlots[i].SetHeight(32);
+            panInvSlots[i].SetWidth(32);
+            panInvSlots[i].SetOnPaint(GM_Gameworld_InvSlotsOnPaint);
+        }
+
 
 
     //glDisable(GL_CULL_FACE);
@@ -178,13 +217,35 @@ void PaintMap() {
     //glTranslatef(100, 100, 0);
     //glScalef(0.5, 0.5, 0.5);
 
+
+
+
+
+    // Idea for optimization:
+    // We introduce a variable called "minfloor". minfloor is initially set to
+    // 7 (surface) and through consequent calls to "render" we inspect
+    // what's the last tile that contains anything renderable.
+    // we also have an auxiliary boolean "needrenewminfloor" which will be
+    // initially true, until first inspection of how far do we need to render
+    // and then it will be set to false. whenever a gamemap operation is done,
+    // needrenewminfloor gets set to true, and the above procedure of
+    // "consequent calls to render and finding min floor" is executed.
+    // do not store in player->GetMinZ(), because it could be used later on to
+    // save recalc time
+
+
+    ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")
     if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
+    static int offset;
 
 
-    for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--)
-        //for (int pass = 0; pass <= 5; pass++)
-            for (int x = -16; x <= +16; x++) {
-                for (int y = -12; y <= +12; y++) {
+
+    for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
+        offset = z - player->GetPosZ();
+        for (int layer= 0; layer <= 5; layer++)
+
+            for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+                for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
 
                     position_t p;
                     p.x = player->GetPos()->x + x; p.y = player->GetPos()->y + y; p.z = z;//player->GetPos()->z;
@@ -194,17 +255,21 @@ void PaintMap() {
                     Tile *t;
                     Thing *g;
 
-                    if (x < -7 || x > 7 || y < -5 || y > 5) glColor4f(.5,.5,.5,1.); else glColor4f(1., 1., 1., 1.);
+                    if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
+                        glColor4f(.5,.5,.5,1.);
+                    else
+                        glColor4f(1., 1., 1., 1.);
 
                     if (t=gamemap.GetTile(&p))
-                            t->Render(0);//t->Render(pass);
+                            //t->Render(0);
+                            t->Render(layer);
 
 
                     glMatrixMode(GL_MODELVIEW);
                     glPopMatrix();
                 }
             }
-
+    }
 
 
     glPopMatrix();
@@ -216,16 +281,15 @@ void GM_Gameworld::ResizeWindow() {
 	desktop.SetWidth(winw);
 
     winWorld.SetHeight(winh > 100 ? winh - 100 : 0);
-    winWorld.SetWidth((float)(winh > 100 ? winh - 100 : 0) * 640./480.);
+    winWorld.SetWidth((float)(winh > 100 ? winh - 100 : 0) * VISIBLEWPIXEL/VISIBLEHPIXEL);
     winWorld.SetPos(0, 0);
 
     winConsole.SetWidth(winw-100);
     winConsole.SetPos(0, winh-100+14);
+        txtConMessage.SetWidth(winw-100-50);
+        btnConSend.SetPos(winw-100-50, 52);
 
-    txtConMessage.SetWidth(winw-100-50);
-    btnConSend.SetPos(winw-100-50, 52);
-
-
+    winInventory.SetPos(winw-120, 0);
 
 
 	glutPostRedisplay();
@@ -283,14 +347,15 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    glOrtho(0, 640, 0, 480, -100, 100);
+    glOrtho(0, VISIBLEWPIXEL, 0, VISIBLEHPIXEL, -100, 100);
 
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
 
-
+    glTranslatef(-1*32. + (VISIBLEW - 14)/2. * 32., -4*32. + (VISIBLEH - 10)/2. * 32., 0);
+    //glTranslatef(-1*32., -4*32., 0);
     PaintMap();
 
     glMatrixMode(GL_MODELVIEW);
@@ -316,4 +381,43 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
     char tmp[256];
     sprintf(tmp, "Clicked on %d %d", pos->x, pos->y);
     console.insert(tmp, CONORANGE);
+}
+void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
+    /*char tmp[256];
+    sprintf(tmp, "%d", (glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
+    caller->SetCaption(tmp);
+
+    printf("%s\n", tmp);
+    return;*/
+
+    glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
+    glClearColor(.1, .1, .1, 1.);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0., 0., 0., 1.);
+
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glOrtho(0, 32, 0, 32, -100, 100);
+
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    player->RenderInventory((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0,winw,0,winh, -100, 100);
+	glRotatef(180.0, 1.0, 0.0, 0.0);
+	glTranslatef(0,-winh,0.0);
+
+
+    glViewport(0,0,glictGlobals.w,glictGlobals.h);
+
 }

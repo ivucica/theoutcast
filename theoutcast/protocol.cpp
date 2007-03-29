@@ -68,7 +68,7 @@ bool Protocol::GameworldWork() {
     ONThreadSafe(threadsafe);
     if (protocolversion >= 770) nm.XTEADecrypt(key);
 
-    nm.ShowContents();
+//    nm.ShowContents();
 
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
 
@@ -82,7 +82,7 @@ bool Protocol::GameworldWork() {
 
 void Protocol::Close() {
     ONThreadSafe(threadsafe);
-    #ifdef WIN32
+    #if defined(WIN32) && !defined(_MSC_VER)
 	shutdown(s, SD_BOTH);
 	#endif
     closesocket(s);
@@ -173,23 +173,21 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
 // 7.6 version
 // for more check out old outcast :/
 
-// FIXME store into player
 
-    nm->GetU16(); // hp
-    nm->GetU16(); // max hp
-    nm->GetU16(); // cap
-    nm->GetU32(); // exp
-    nm->GetU16(); // lvl
-    nm->GetU8(); // level percent
-    nm->GetU16(); // mp
-    nm->GetU16(); // mmp
-    nm->GetU8(); // mag lvl
-    nm->GetU8(); // maglvl percent
-    nm->GetU8(); // soul
+    player->SetHP(nm->GetU16()); // hp
+    player->SetMaxHP(nm->GetU16()); // max hp
+    player->SetCap(nm->GetU16()); // cap
+    player->SetExp(nm->GetU32()); // exp
+    player->SetLevel(nm->GetU16()); // lvl
+    player->SetLevelPercent(nm->GetU8()); // level percent
+    player->SetMP(nm->GetU16()); // mp
+    player->SetMaxMP(nm->GetU16()); // mmp
+    player->SetMLevel(nm->GetU8()); // mag lvl
+    player->SetMLevelPercent(nm->GetU8()); // maglvl percent
+    player->SetSoulPoints(nm->GetU8()); // soul
 
     /* dunno where this was added but it is there in 792 */
-    if (protocolversion>=792) nm->GetU16(); // stamina (minutes)
-
+    if (protocolversion>=792) player->SetStamina(nm->GetU16()); // stamina (minutes)
 }
 
 Creature *Protocol::GetCreatureByID(NetworkMessage *nm) {
@@ -460,12 +458,16 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU8(); // slot
             return true;
         case 0x78: // Inventory Item
-        case 0x79: // Inventory Empty
-            nm->GetU8(); // item slot
+        case 0x79:{// Inventory Empty
+            unsigned int slot = nm->GetU8(); // item slot
+
             if (packetid == 0x78) {
-                delete ParseThingDescription(nm);
+                player->SetInventorySlot(slot, ParseThingDescription(nm));
+            } else {
+                player->SetInventorySlot(slot, NULL);
             }
             return true;
+        }
         case 0x7D: // Trade Request
         case 0x7E: // Trade Ack
             nm->GetString(); // Other player
@@ -744,7 +746,7 @@ void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx,
 
     }
     skip = 0;
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Receiving map - floors %d to %d (step %d)\n", startz, endz, stepz);
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Receiving map - floors %d to %d (step %d)\n", startz, endz, stepz);
     for (int z = startz; z != endz + stepz; z+=stepz) {
         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
         ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
@@ -781,7 +783,7 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
 
 void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
 
-//    printf("Tile %d %d %d\n", x, y, z);
+    //printf("Tile %d %d %d\n", x, y, z);
     position_t p;
     p.x = x; p.y = y; p.z = z;
 
@@ -796,12 +798,15 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
             t->Insert(obj);
         }
     }
-
 }
 
 Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     // MUST ACCEPT NULL as second param
     unsigned int type = GetItemTypeID(nm);
+
+
+    //printf("Object type %d\n", type);
+
 
     Thing *thing = ThingCreate(type);
     ASSERTFRIENDLY(thing, "Unknown 'type'. Cant create thing");
@@ -811,7 +816,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     int looktype;
     unsigned long creatureid;
     unsigned short extendedlook=0;
-    printf("Object type %d\n", type);
+
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: {// known creature
@@ -821,6 +826,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 creature = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
                 thing = creature;
                 creature->SetName(nm->GetString()); // name string
+                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Got creature %s\n", creature->GetName().c_str());
             }
             if (type == 0x0062) {
                 creatureid = nm->GetU32(); // known creature's id

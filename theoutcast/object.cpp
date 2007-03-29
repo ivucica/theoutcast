@@ -1,3 +1,10 @@
+
+#ifdef _MSC_VER
+    #include <float.h>
+    #define isnan _isnan
+    #define isinf _isnan
+#endif
+
 #include <stdio.h>
 
 #include <math.h>

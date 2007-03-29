@@ -142,6 +142,7 @@ const char* SocketErrorDescription() {
         case WSANO_DATA:
             return "Valid name, no data record of requested type. ";
             break;
+        #ifndef _MSC_VER
         case WSA_INVALID_HANDLE:
             return "Specified event object handle is invalid. ";
             break;
@@ -160,6 +161,7 @@ const char* SocketErrorDescription() {
         case WSA_OPERATION_ABORTED:
             return "Overlapped operation aborted. ";
             break;
+        #endif
         case WSASYSCALLFAILURE:
             return "System call failure. ";
             break;
