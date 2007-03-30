@@ -157,7 +157,7 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 //	glCullFace(GL_BACK);
 	glEnable (GL_CULL_FACE);
     glMatrixMode(GL_MODELVIEW);
-//	glPushMatrix();
+	//glPushMatrix();
 
 	glTranslatef(x,y,0);
 	glScalef(1.5,1.5,1.);
@@ -178,8 +178,11 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 
 		}
 	}
+	glTranslatef(-(sizesofar / (float)(1 << 16)), 0 ,0);
 	glScalef(1./1.5,1./1.5,1.);
 	glTranslatef(-x,-y,0);
+
+
 
 
 	//glPopMatrix();

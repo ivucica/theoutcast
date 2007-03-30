@@ -168,21 +168,40 @@ void GM_Gameworld::SpecKeyPress(int key, int x, int y ) {
         GameModeEnter(GM_MAINMENU);
         return;
     }
+    int modifiers = glutGetModifiers();
+
     switch (key) {
         //case GLUT_KEY_F11: // function key
         case GLUT_KEY_UP:
-            protocol->MoveNorth();
+            if (modifiers & GLUT_ACTIVE_CTRL)
+                protocol->Turn(NORTH);
+            else
+                protocol->Move(NORTH);
             break;
         case GLUT_KEY_DOWN:
-            protocol->MoveSouth();
+            if (modifiers & GLUT_ACTIVE_CTRL)
+                protocol->Turn(SOUTH);
+            else
+                protocol->Move(SOUTH);
             break;
+
         case GLUT_KEY_LEFT:
-            protocol->MoveWest();
+            if (modifiers & GLUT_ACTIVE_CTRL)
+                protocol->Turn(WEST);
+            else
+                protocol->Move(WEST);
             break;
+
         case GLUT_KEY_RIGHT:
-            protocol->MoveEast();
+            if (modifiers & GLUT_ACTIVE_CTRL)
+                protocol->Turn(EAST);
+            else
+                protocol->Move(EAST);
+
             break;
     }
+
+
 }
 void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
     if (!protocol) {
@@ -233,7 +252,7 @@ void PaintMap() {
     // do not store in player->GetMinZ(), because it could be used later on to
     // save recalc time
 
-
+    ASSERTFRIENDLY(player, "Server did not send us information about player's creatureID. This is strange.");
     ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")
     if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
     static int offset;
@@ -242,15 +261,17 @@ void PaintMap() {
 
     for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
         offset = z - player->GetPosZ();
-        for (int layer= 0; layer <= 5; layer++)
+        for (int layer= 0; layer <= 2; layer++)
+
 
             for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
                 for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
 
                     position_t p;
-                    p.x = player->GetPos()->x + x; p.y = player->GetPos()->y + y; p.z = z;//player->GetPos()->z;
+                    p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
+
                     glPushMatrix();
-                    glTranslatef((x+8 - (player->GetPos()->z - z))*32, (14-(y+6 - (player->GetPos()->z - z)))*32, 0);
+                    glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
 
                     Tile *t;
                     Thing *g;
@@ -270,6 +291,38 @@ void PaintMap() {
                 }
             }
     }
+
+
+// now we just render the overlay
+// keep code in sync with above
+    int z = player->GetPosZ();
+    int layer = 3;
+    for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+        for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
+            position_t p;
+            p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
+
+            glPushMatrix();
+            glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
+
+            Tile *t;
+            Thing *g;
+
+            if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
+                glColor4f(.5,.5,.5,1.);
+            else
+                glColor4f(1., 1., 1., 1.);
+
+            if (t=gamemap.GetTile(&p))
+                    //t->Render(0);
+                    t->Render(layer);
+
+
+            glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+        }
+    }
+
 
 
     glPopMatrix();
@@ -378,9 +431,35 @@ void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
 }
 
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
-    char tmp[256];
-    sprintf(tmp, "Clicked on %d %d", pos->x, pos->y);
-    console.insert(tmp, CONORANGE);
+
+    glictSize size;
+    position_t pos2;
+    int modifiers;
+    caller->GetSize(&size);
+    pos->x *= VISIBLEWPIXEL / size.w;
+    pos->y *= VISIBLEHPIXEL / size.h;
+
+    pos->x /= 32;
+    pos->y /= 32;
+
+
+    pos2.x = pos->x - (VISIBLEW / 2) + player->GetPosX();
+    pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
+    pos2.z = player->GetPosZ();
+
+
+    modifiers = glutGetModifiers();
+
+    if (modifiers & GLUT_ACTIVE_SHIFT)
+        protocol->LookAt(&pos2);
+    else if (modifiers & GLUT_ACTIVE_ALT) {
+        Tile *t = gamemap.GetTile(&pos2);
+
+        if (Creature *c = t->GetCreature())
+            protocol->Attack(c->GetCreatureID());
+    } else {
+        gamemap.GetTile(&pos2)->ShowContents();
+    }
 }
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
     /*char tmp[256];

@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.51 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.6 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -143,15 +143,15 @@ d) It crashes!
 Please send The Outcast.rpt file to us.
 ---
 
-8. KNOWN PROBLEMS AND BUGS
+8. KNOWN BUGS AND PROBLEMS
 
 * You can enter letters under the account number.
 * You will have less than 3 FPS on Windows without your video card drivers. And no, you can't play Quake III either with high FPS if you don't have OpenGL drivers; id software likes OpenGL, too! Microsoft's GDI implementation, the one you have by default, is slow, don't use it! And Windows use it in case you don't have OpenGL drivers installed! (Hint: OpenGL drivers are included with your graphics card drivers.)
 * Sprite animations are not in sync
 * Logging out of the game and then attempting to log in fails
-* There is a "grid" between sprites. It'll be fixed. Soon. Trust me!
-* Creatures appear to be walking OVER 2x2 items
 * Blendframes sprites are drawn in wrong order
+* Countables are not rendered properly
+* Multicolor items are not rendered properly
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -197,6 +197,8 @@ Changes since 0.3.5
 * Only 14x10 part of the map is being rendered now (read: the part you see in Tibia) (will later on add option to change the zoom)
 * The above brought a significant boost in FPS. Though some other changes brought it down again, but we'll see where we'll end
 * Added inventory
+* Added attacking (alt+click) and looking (shift+click)
+* Tibia79.spr is no longer used for version 7.92, please use Tibia792.spr
 * Addressed various issues
 
 Changes since 0.3.4

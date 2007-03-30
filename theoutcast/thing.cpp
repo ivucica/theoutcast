@@ -18,7 +18,7 @@ Thing::Thing() {
     ONInitThreadSafe(threadsafe);
 }
 Thing::~Thing() {
-    delete sprgfx;
+    if (sprgfx) delete sprgfx;
     ONDeinitThreadSafe(threadsafe);
 }
 unsigned short Thing::GetType() {

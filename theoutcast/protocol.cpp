@@ -27,6 +27,10 @@ Protocol::Protocol() {
 
 }
 Protocol::~Protocol() {
+    if (player) {
+        delete player;
+        player = NULL;
+    }
     ONDeinitThreadSafe(threadsafe);
 }
 
@@ -513,7 +517,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x8C: {// Creature HP
             Creature *c = GetCreatureByID(nm);
-            nm->GetU8(); // health percent
+            c->SetHP(nm->GetU8()); // health percent
             //if (c) printf("Creature %s health adjustment\n", c->GetName().c_str());
 
             return true;
@@ -635,8 +639,40 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0xB4: {// Text Message
             std::string y;
-            nm->GetU8(); // msg class
-            console.insert( y = nm->GetString() ); // message itself
+            unsigned char msgclass;
+            consolecolors color;
+            msgclass = nm->GetU8(); // msg class
+
+
+            switch (msgclass) {
+                case 0x12: // msgredinfo
+                    color = CONRED;
+                    break;
+                case 0x13: // msgadvance
+                    color = CONGREEN;
+                    break;
+                case 0x14: // msgevent
+                case 0x15: // msgevent (commented out in otserv)
+                    color = CONWHITE;
+                    break;
+                case 0x16: // msginfo
+                    color = CONGREEN;
+                    nm->ShowContents();
+                    break;
+                case 0x17: // msgsmallinfo
+                    color = CONWHITE;
+                    break;
+                case 0x18: // msgbluetext
+                    color = CONBLUE;
+                    break;
+                case 0x19: // msgredtext
+                    color = CONRED;
+                    break;
+                default:
+                    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "Unknown textmsg class: 0x%02x\n", msgclass);
+                    color = CONWHITE;
+            }
+            console.insert( y = nm->GetString(), color ); // message itself
             if (y == "Sorry, not possible.") SoundPlay("sounds/bleep.wav");
             if (y == "You are not invited.") SoundPlay("sounds/bleep2.wav");
             return true;
@@ -837,8 +873,8 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
 
 
 
-            nm->GetU8(); // health percent
-            char dir = nm->GetU8();
+            unsigned char hp = nm->GetU8(); // health percent
+            unsigned char dir = nm->GetU8();
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Direction: %d\n", dir);
 
 
@@ -864,6 +900,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             thing->SetType(creaturelook.type, creaturelook.extendedlook);
             thing->SetDirection((direction_t)dir); // direction
             thing->SetSpeed(speedindex);
+            ((Creature*)thing)->SetHP(hp);
             break;
         }
         case 0x0063: {// creature that has only direction altered
@@ -883,7 +920,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
                 DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR, "For orientation purposes, the remaining unprocessed netmessage is below\n");
                 nm->ShowContents();
             }
-            ASSERTFRIENDLY(type >= 100 && type <= items_n, tmp);
+            //ASSERTFRIENDLY(type >= 100 && type <= items_n, tmp);
             if (thing)
                 thing->SetType(type, 0);
 
@@ -915,59 +952,32 @@ bool Protocol::CipSoft(bool cipsoft) {
     return cipsoft;
 }
 
-void Protocol::MoveNorth() {
+void Protocol::Move(direction_t dir) {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moving\n");
     if (!player->GetCreature()->IsMoving()) {
-        nm.AddU8(0x65);
+        nm.AddU8(0x65 + dir);
         if (protocolversion >= 770)
             nm.XTEAEncrypt(key);
         nm.Dump(s);
         player->GetCreature()->StartMoving();
-        player->GetCreature()->SetDirection(NORTH);
+        player->GetCreature()->SetDirection(dir);
     }
     ONThreadUnsafe(threadsafe);
 }
-void Protocol::MoveSouth() {
+void Protocol::Turn(direction_t dir) {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Turning\n");
     if (!player->GetCreature()->IsMoving()) {
-        nm.AddU8(0x67);
+        nm.AddU8(0x6F + dir);
         if (protocolversion >= 770)
             nm.XTEAEncrypt(key);
         nm.Dump(s);
-        player->GetCreature()->StartMoving();
-        player->GetCreature()->SetDirection(SOUTH);
-    }
-    ONThreadUnsafe(threadsafe);
-}
-void Protocol::MoveWest() {
-
-    NetworkMessage nm;
-    ONThreadSafe(threadsafe);
-    if (!player->GetCreature()->IsMoving()) {
-        nm.AddU8(0x68);
-        if (protocolversion >= 770)
-            nm.XTEAEncrypt(key);
-        nm.Dump(s);
-        player->GetCreature()->StartMoving();
-        player->GetCreature()->SetDirection(WEST);
-    }
-    ONThreadUnsafe(threadsafe);
-}
-void Protocol::MoveEast() {
-
-    NetworkMessage nm;
-    ONThreadSafe(threadsafe);
-    if (!player->GetCreature()->IsMoving()) {
-        nm.AddU8(0x66);
-        if (protocolversion >= 770)
-            nm.XTEAEncrypt(key);
-        nm.Dump(s);
-        player->GetCreature()->StartMoving();
-        player->GetCreature()->SetDirection(EAST);
+        player->GetCreature()->SetDirection(dir);
     }
     ONThreadUnsafe(threadsafe);
 }
@@ -1009,7 +1019,38 @@ void Protocol::SetStance(stanceaggression_t aggression, stancechase_t chase) {
     nm.Dump(s);
     ONThreadUnsafe(threadsafe);
 }
+void Protocol::LookAt(position_t *pos) {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+    nm.AddU8(0x8C);
+    this->AddPosition(&nm, pos);
 
+
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+void Protocol::Attack(unsigned long creatureid) {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+
+
+
+    nm.AddU8(0xA1);
+    nm.AddU32(gamemap.SetAttackedCreature(creatureid)); // FIXME abstract this with AddCreatureID() or sth
+
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+
+void Protocol::AddPosition(NetworkMessage *nm, position_t *pos) {
+    nm->AddU16(pos->x);
+    nm->AddU16(pos->y);
+    nm->AddU8(pos->z);
+}
 unsigned short Protocol::GetProtocolVersion () {
     return protocolversion;
 }

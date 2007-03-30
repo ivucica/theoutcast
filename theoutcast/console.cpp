@@ -97,13 +97,16 @@ void Console::draw(char count) {
             p += glutxNumberOfLines((*it)->text);
             //glPushMatrix();
             glictFontRender((*it)->text, "system", 0, p*12 );
-            glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
+            //glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
+            glTranslatef(0, (glutxNumberOfLines((*it)->text)-1)*11. , 0);
             //glPopMatrix();
+
         }
         {
         int er;
         if ((er = glGetError()) != GL_NO_ERROR) {printf("CON %s\n",  gluErrorString(er));system("pause");}
         }
+
     }
     glColor4fv(oldcolor);
     ONThreadUnsafe(threadsafe);

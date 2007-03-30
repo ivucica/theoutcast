@@ -23,14 +23,14 @@ class Tile {
 
         Thing *GetStackPos(unsigned char stackpos);
         Thing *GetGround() {return ground;} // TEMPORARY F. that is TO BE REMOVED.
+        Creature *GetCreature();
 
         void SetPos(position_t *p); // so tile can know its position
         void Render(int layer);
 
-
         unsigned int GetItemCount();
 
-
+        void ShowContents();
     private:
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;

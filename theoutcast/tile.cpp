@@ -3,6 +3,7 @@
 #include "thing.h"
 #include "player.h"
 #include "debugprint.h"
+#include "items.h"
 extern float fps;
 Tile::Tile() {
     //printf("Forging a tile\n");
@@ -151,23 +152,37 @@ void Tile::Render(int layer) {
 
 
     static std::vector<Item*>::reverse_iterator it;
-    //for (layer = 0; layer <= 5; layer++)
+    //for (layer = 0; layer <= 2; layer++)
     switch (layer) {
-        case 0:
+        case 0: // before creatures
             if (ground) {
                 ground->AnimationAdvance(25./fps);
                 ground->Render(&pos);
             }
-            break;
-        case 1:
-        case 2:
-        case 3:
-            for (std::vector<Item*>::iterator it = itemlayers[2-(layer-1)].begin(); it != itemlayers[2-(layer-1)].end(); it++) {
+            for (it = itemlayers[4].rbegin(); it != itemlayers[4].rend(); it++) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
+
+
+            for (it = itemlayers[1].rbegin(); it != itemlayers[1].rend(); it++) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
+
+            for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (items[(*it)->GetType()].splash) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
+
+            for (it = itemlayers[0].rbegin(); it != itemlayers[0].rend(); it++) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
             break;
-        case 4: {
+
+        case 1: { // creatures
+
 
             static unsigned int grndspeed = 500;// a safe default ...
             static unsigned int creaturespeed = 220; //  a safe default...
@@ -193,17 +208,23 @@ void Tile::Render(int layer) {
                 }
             break;
         }
+        case 2: // after creatures
 
-
-        default: // 4, 5
-            for (std::vector<Item*>::iterator it = itemlayers[(layer-2)].begin(); it != itemlayers[(layer-2)].end(); it++) {
-            //for (it = itemlayers[layer-3].rbegin(); it != itemlayers[layer-3].rend(); it++) {
+            for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (!items[(*it)->GetType()].splash) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
+
+            for (it = itemlayers[3].rbegin(); it != itemlayers[3].rend(); it++) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
+
             break;
-
-
+        case 3: // creature overlay
+            for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
+                (*it)->RenderOverlay();
+            }
     }
 
 
@@ -243,3 +264,19 @@ void Tile::Empty () {
     ONThreadUnsafe(threadsafe);
 }
 
+Creature *Tile::GetCreature() {
+    if (creatures.size()) return *(creatures.begin()); else return NULL;
+}
+
+void Tile::ShowContents() {
+    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Contents of tile %d %d %d:\n", pos.x, pos.y, pos.z);
+    if (ground) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Ground: %d\n", ground->GetType());
+    }
+    for (int i = 0; i <= 3 ; i++) {
+        for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
+            DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Layer %d: %d\n", i, (*it)->GetType());
+        }
+    }
+
+}

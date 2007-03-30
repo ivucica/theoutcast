@@ -3,6 +3,7 @@ Map gamemap;
 
 Map::Map() {
     ONInitThreadSafe(threadsafe);
+    attackedcreature = NULL;
 
 }
 Map::~Map() {
@@ -28,7 +29,7 @@ Tile* Map::GetTile(position_t *pos) {
     }
 }
 
-Creature* Map::GetCreature(unsigned int creatureid, Creature *cr) {
+Creature* Map::GetCreature(unsigned long creatureid, Creature *cr) {
     creaturelist_t::iterator it = c.find( creatureid );
     if (it==c.end()) {
         if (!cr) return NULL;
@@ -48,4 +49,17 @@ void Map::Lock() {
 }
 void Map::Unlock() {
     ONThreadUnsafe(threadsafe);
+}
+
+unsigned long Map::SetAttackedCreature(unsigned long creatureid) {
+    Creature *c = GetCreature(creatureid, NULL);
+    if (c) {
+        if (attackedcreature) attackedcreature->SetAttacked(false);
+        if (attackedcreature == c) return (attackedcreature = NULL), 0;
+        c->SetAttacked(true);
+        attackedcreature = c;
+        return creatureid;
+    }
+    return (attackedcreature = NULL), 0;
+
 }

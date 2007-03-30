@@ -3,7 +3,7 @@
 #include "tile.h"
 #include "map.h"
 #include "debugprint.h"
-
+#include <windows.h>
 Player *player=0; // it says NULL not declared?!
 Player::Player(unsigned long creatureid) {
     this->creatureid = creatureid;
@@ -11,9 +11,15 @@ Player::Player(unsigned long creatureid) {
     for (int i = 0; i < 10; i++) {
         inventory[i] = NULL;
     }
+    MessageBox(0, "Creating player", 0, 0);
 }
 
 Player::~Player() {
+    for (int i = 0; i < 10; i++) {
+        if (inventory[i]) delete inventory[i];
+        inventory[i] = NULL;
+    }
+    MessageBox(0, "Destroying player", 0, 0);
 }
 
 unsigned long Player::GetCreatureID() {

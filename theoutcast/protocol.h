@@ -39,16 +39,16 @@ class Protocol {
         virtual void    Close();
 
         // transmissives
-        virtual void    MoveNorth();
-        virtual void    MoveSouth();
-        virtual void    MoveWest();
-        virtual void    MoveEast();
+        virtual void    Move(direction_t dir);
+        virtual void    Turn(direction_t dir);
 
         virtual void    SetStance(stanceaggression_t aggression, stancechase_t chase);
         virtual void    Speak(speaktype_t sp, const char *message);
         virtual void    Speak(speaktype_t sp, const char *destination, const char *message) {}
         virtual void    Speak(speaktype_t sp, unsigned long destination, const char *message) {}
 
+        virtual void    LookAt(position_t *pos);
+        virtual void    Attack(unsigned long creatureid);
         // *parse* are "smarter" abstractions
         // *get* are those that only fetch and return
 
@@ -71,6 +71,10 @@ class Protocol {
         // abstractions that store in a struct
         virtual void            GetPosition(NetworkMessage *nm, position_t *pos);
         virtual void            ParseCreatureLook(NetworkMessage *nm, creaturelook_t *crl);
+
+
+        // transmited abstractions
+        virtual void            AddPosition(NetworkMessage *nm, position_t *pos);
 
         // internal stuff
         unsigned short GetProtocolVersion ();

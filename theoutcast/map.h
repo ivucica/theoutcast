@@ -26,13 +26,17 @@ class Map {
         ~Map();
 
         Tile* GetTile(position_t *pos);
-        Creature* GetCreature(unsigned int creatureid, Creature *cr);
+        Creature* GetCreature(unsigned long creatureid, Creature *cr);
+
         void Lock();
         void Unlock();
+
+        unsigned long SetAttackedCreature(unsigned long creatureid);
     private:
         maptype_t m;
         creaturelist_t c;
         ONCriticalSection threadsafe;
+        Creature *attackedcreature;
 };
 
 extern Map gamemap;
