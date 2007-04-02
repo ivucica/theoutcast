@@ -67,7 +67,7 @@ void DBInit() {
         dbUser=NULL;
         goto datadb;
     }
-    // try to access table
+    // try to access settings table
     if (!dbTableExists(dbUser, "settings")) {
         DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "SQLite could not access table 'settings'. Reason: %s. Trying to create...\n", sqlite3_errmsg(dbUser));
         //sqlite3_free((char*)freeme);
@@ -78,6 +78,19 @@ void DBInit() {
             goto datadb;
         }
     }
+    // try to access map table
+        // try to access table
+    if (!dbTableExists(dbUser, "map")) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "SQLite could not access table 'map'. Reason: %s. Trying to create...\n", sqlite3_errmsg(dbUser));
+        //sqlite3_free((char*)freeme);
+        if (dbExec(dbUser, "create table map (`server` string, `port` integer, `x` integer, `y` integer, `z` integer, `stackpos` integer, `itemid` integer);", NULL, 0, NULL) != SQLITE_OK) {
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot initialize settings table in user database. Verify access rights on user.db!\nError: %s", sqlite3_errmsg(dbUser));
+            //sqlite3_free((char*)freeme);
+            sqlite3_close(dbUser);
+            goto datadb;
+        }
+    }
+
 
     datadb:
     if (dbData) {
@@ -90,8 +103,8 @@ void DBInit() {
 	{
 		char **tmp;
 		dbData = sqlite_open("data.db", 0, tmp);
-		if (dbData) 
-			rc = SQLITE_OK; 
+		if (dbData)
+			rc = SQLITE_OK;
 		else {
 			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open data database. Verify directory access rights!\nError: %s", *tmp);
 			rc = SQLITE_OK + 1;

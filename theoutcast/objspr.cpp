@@ -117,7 +117,8 @@ bool ObjSpr::Render(position_t *pos) {
 bool ObjSpr::Render(unsigned char stackcount) {
     glEnable(GL_TEXTURE_2D);
     t[min(stackcount,sli.numsprites-1)]->Bind();
-    StillEffect(0, 0, 32, 32, 2, 2); // divisions were 40 10
+
+    StillEffect(0, 0, 32 , 32 , 2, 2, false, false, true); // divisions were 40 10
     glTranslatef(offsetx, offsety, 0);
     glDisable(GL_TEXTURE_2D);
     return true;

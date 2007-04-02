@@ -175,6 +175,8 @@
 		<Unit filename="object.h" />
 		<Unit filename="objspr.cpp" />
 		<Unit filename="objspr.h" />
+		<Unit filename="options.cpp" />
+		<Unit filename="options.h" />
 		<Unit filename="player.cpp" />
 		<Unit filename="player.h" />
 		<Unit filename="protocol.cpp" />

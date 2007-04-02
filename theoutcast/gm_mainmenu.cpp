@@ -14,9 +14,11 @@
 #include "sprfmts.h"
 #include "sound.h"
 #include "debugprint.h"
+#include "options.h"
 int currentspr;
 
 GM_MainMenu::GM_MainMenu() {
+
 
     SoundSetMusic("music/logon.mp3");
 
@@ -68,7 +70,7 @@ GM_MainMenu::GM_MainMenu() {
 	btnOptions.SetBGColor(.6,.6,.6,1.);
 	btnOptions.SetWidth(120);
 	btnOptions.SetCaption("Options");
-    //btnOptions.SetOnClick(GM_MainMenu_Options);
+    btnOptions.SetOnClick(GM_MainMenu_Options);
   //  btnOptions.SetOnClick(GM_MainMenu_NextSprite);
 	btnOptions.SetPos(200/2 - 120/2,  32*3 );
 
@@ -236,6 +238,70 @@ GM_MainMenu::GM_MainMenu() {
 	tos.SetMessage(tostext);
 	tos.SetHeight(390);
 	tos.SetWidth(500);
+
+
+
+
+
+
+	desktop.AddObject(&options);
+	options.SetVisible(false);
+	options.SetCaption("Options");
+	options.SetWidth(220);
+	options.SetHeight(200);
+
+    options.AddObject(&pnlOptionsRestartWarning);
+	pnlOptionsRestartWarning.SetPos(0, 200-16-16);
+	pnlOptionsRestartWarning.SetCaption("(*) Won't apply until restart");
+	pnlOptionsRestartWarning.SetHeight(16);
+	pnlOptionsRestartWarning.SetWidth(220);
+
+
+    options.AddObject(&pnlOptionsMaptrack);
+    pnlOptionsMaptrack.SetPos(0, 20);
+    pnlOptionsMaptrack.SetHeight(16);
+    pnlOptionsMaptrack.SetWidth(100);
+    pnlOptionsMaptrack.SetCaption("Maptrack:");
+
+    options.AddObject(&btnOptionsMaptrack);
+    btnOptionsMaptrack.SetPos(100, 20);
+    btnOptionsMaptrack.SetHeight(16);
+    btnOptionsMaptrack.SetWidth(16);
+    btnOptionsMaptrack.SetOnClick(GM_MainMenu_OptionsCheckbox);
+    btnOptionsMaptrack.SetBGColor(.6,.6,.6,1.);
+
+    options.AddObject(&pnlOptionsFullscreen);
+    pnlOptionsFullscreen.SetPos(0, 40);
+    pnlOptionsFullscreen.SetHeight(16);
+    pnlOptionsFullscreen.SetWidth(100);
+    pnlOptionsFullscreen.SetCaption("Fullscreen: (*)");
+
+    options.AddObject(&btnOptionsFullscreen);
+    btnOptionsFullscreen.SetPos(100, 40);
+    btnOptionsFullscreen.SetHeight(16);
+    btnOptionsFullscreen.SetWidth(16);
+    btnOptionsFullscreen.SetOnClick(GM_MainMenu_OptionsCheckbox);
+    btnOptionsFullscreen.SetBGColor(.6,.6,.6,1.);
+
+	options.AddObject(&btnOptionsOk);
+	btnOptionsOk.SetPos(220 - 64 - 64 - 5, 200-16);
+	btnOptionsOk.SetCaption("Ok");
+	btnOptionsOk.SetHeight(16);
+	btnOptionsOk.SetWidth(64);
+    btnOptionsOk.SetOnClick(GM_MainMenu_OptionsOk);
+	btnOptionsOk.SetBGColor(.6,.6,.6,1.);
+
+	options.AddObject(&btnOptionsCancel);
+	btnOptionsCancel.SetPos(220 - 64, 200-16);
+	btnOptionsCancel.SetCaption("Cancel");
+	btnOptionsCancel.SetHeight(16);
+	btnOptionsCancel.SetWidth(64);
+    btnOptionsCancel.SetOnClick(GM_MainMenu_OptionsCancel);
+	btnOptionsCancel.SetBGColor(.6,.6,.6,1.);
+
+
+
+
 
 
 
@@ -460,6 +526,9 @@ void GM_MainMenu::ResizeWindow() {
 
 	tos.GetSize(&s);
 	tos.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
+
+	options.GetSize(&s);
+	options.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
 
 	glutPostRedisplay();
 }
@@ -709,6 +778,37 @@ void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller) {
 void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller) {
 	((GM_MainMenu*)game)->desktop.RemoveObject(caller);
 	delete caller;
+}
+
+
+void GM_MainMenu_Options(glictPos* pos, glictContainer *caller) {
+    ((GM_MainMenu*)game)->mainmenu.SetEnabled(false);
+    ((GM_MainMenu*)game)->options.SetVisible(true);
+    ((GM_MainMenu*)game)->options.Focus(NULL);
+
+    if (options.maptrack) ((GM_MainMenu*)game)->btnOptionsMaptrack.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsMaptrack.SetCaption("");
+    if (options.fullscreen) ((GM_MainMenu*)game)->btnOptionsFullscreen.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsFullscreen.SetCaption("");
+}
+void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
+
+    GM_MainMenu_OptionsCancel(pos, caller);
+    game->Render();
+    glutSwapBuffers();
+
+    options.maptrack = ((GM_MainMenu*)game)->btnOptionsMaptrack.GetCaption() == "X";
+    options.fullscreen = ((GM_MainMenu*)game)->btnOptionsFullscreen.GetCaption() == "X";
+    options.Save();
+}
+void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller) {
+    ((GM_MainMenu*)game)->mainmenu.SetEnabled(true);
+    ((GM_MainMenu*)game)->options.SetVisible(false);
+    ((GM_MainMenu*)game)->mainmenu.Focus(NULL);
+}
+void GM_MainMenu_OptionsCheckbox(glictPos* pos, glictContainer *caller) {
+    if (caller->GetCaption() == "X")
+        caller->SetCaption("");
+    else
+        caller->SetCaption("X");
 }
 void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller) {
 

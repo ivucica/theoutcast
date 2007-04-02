@@ -20,12 +20,14 @@ class Thing {
         // this item's info retrieval
         unsigned short GetType();
         unsigned char GetCount();
+        unsigned char GetSubType();
         unsigned short GetSpeed();
 
         // this item info setup
         virtual void SetType(unsigned short type, unsigned short extendedtype);
         virtual void SetSpeed(unsigned short speed);
         void SetCount(unsigned char count);
+        void SetSubType(unsigned char subtype);
         void SetDirection(direction_t dir);
 
         // others
@@ -42,7 +44,7 @@ class Thing {
 
     private:
         unsigned char count;
-
+        unsigned char subtype;
     protected:
         ObjSpr *sprgfx;
         unsigned short type;

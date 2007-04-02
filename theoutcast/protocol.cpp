@@ -11,6 +11,8 @@
 #include "sound.h"
 #include "assert.h"
 #include "bsdsockets.h"
+#include "database.h"
+#include "options.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -18,6 +20,10 @@ Protocol::Protocol() {
     protocolversion = 0;
     connectiontype = NONE;
     motd = "";
+    charlistserver = "";
+    charlistport = 7171;
+    gameworldserver = "";
+    gameworldport = 7171;
     errormsg = "";
     username = "";
     password = "";
@@ -46,7 +52,6 @@ void Protocol::SetSocket(SOCKET socket) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "ACTIVATED KEYS %u %u %u %u\n", key[0], key[1], key[2], key[3]);
     ONThreadUnsafe(threadsafe);
 }
-
 bool Protocol::CharlistLogin(const char *username, const char *password) {
     this->errormsg = "Protocol does not support this functionality.";
 	return false;
@@ -675,6 +680,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             console.insert( y = nm->GetString(), color ); // message itself
             if (y == "Sorry, not possible.") SoundPlay("sounds/bleep.wav");
             if (y == "You are not invited.") SoundPlay("sounds/bleep2.wav");
+            if (y == "You may not logout during or immediately after a fight!") SoundPlay("sounds/bleep2.wav");
             return true;
         }
         case 0xB5: // Cancel Walk
@@ -794,6 +800,9 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
     //static unsigned int skip; // statics are kept between function calls ... neato! cooooool! yipiiiyeah! :)
     // however im not sure what happens if they're declaration-time initialized ... are they reinitialized with every function call?
 
+    if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
+
+
     for (int x = destx; x < destx + w; x++) {
         for (int y = desty; y < desty + h; y++) {
 
@@ -815,6 +824,7 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
                 }
             }
         }
+    if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
 }
 
 void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
@@ -828,6 +838,7 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
+            t->StoreToDatabase();
             return;
         } else {
             Thing *obj = ParseThingDescription(nm);
@@ -930,6 +941,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             }
             if (items[type].splash || items[type].fluidcontainer) {
                 unsigned char x = nm->GetU8();
+                if (thing) thing->SetSubType(x);
             }
         }
     }

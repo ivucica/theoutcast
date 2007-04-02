@@ -4,6 +4,9 @@
 #include "player.h"
 #include "debugprint.h"
 #include "items.h"
+#include "database.h"
+#include "protocol.h"
+#include "options.h"
 extern float fps;
 Tile::Tile() {
     //printf("Forging a tile\n");
@@ -159,22 +162,18 @@ void Tile::Render(int layer) {
                 ground->AnimationAdvance(25./fps);
                 ground->Render(&pos);
             }
-            for (it = itemlayers[4].rbegin(); it != itemlayers[4].rend(); it++) {
-                (*it)->Render(&pos);
-                (*it)->AnimationAdvance(25./fps);
-            }
 
 
-            for (it = itemlayers[1].rbegin(); it != itemlayers[1].rend(); it++) {
-                (*it)->Render(&pos);
-                (*it)->AnimationAdvance(25./fps);
-            }
 
             for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (items[(*it)->GetType()].splash) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
 
+            for (it = itemlayers[1].rbegin(); it != itemlayers[1].rend(); it++) {
+                (*it)->Render(&pos);
+                (*it)->AnimationAdvance(25./fps);
+            }
             for (it = itemlayers[0].rbegin(); it != itemlayers[0].rend(); it++) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
@@ -200,10 +199,8 @@ void Tile::Render(int layer) {
                     creaturespeed = (*it)->GetSpeed();
                     creaturespeed = (creaturespeed ? creaturespeed : 220);
 
-
-
                     (*it)->Render(&pos);
-                    if ((*it)->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                    if ((*it)->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
                         (*it)->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
                 }
             break;
@@ -221,10 +218,29 @@ void Tile::Render(int layer) {
             }
 
             break;
-        case 3: // creature overlay
-            for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
-                (*it)->RenderOverlay();
+        case 3: {// creature overlay
+            static unsigned int grndspeed = 500;// a safe default ...
+            static unsigned int creaturespeed = 220; //  a safe default...
+            if (ground) {
+                grndspeed = ground->GetSpeedIndex();
+                if (!grndspeed) grndspeed = 500; // a safe fallback, once again
             }
+
+            if (pos.x < player->pos.x + 8
+             && pos.x > player->pos.x - 8
+             && pos.y < player->pos.y + 6
+             && pos.y > player->pos.y - 6
+             && creatures.size())
+                for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
+                    creaturespeed = (*it)->GetSpeed();
+                    creaturespeed = (creaturespeed ? creaturespeed : 220);
+
+                    (*it)->RenderOverlay();
+                    if ((*it)->IsMoving() && pos.z == player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                        (*it)->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+
+                }
+        }
     }
 
 
@@ -278,5 +294,42 @@ void Tile::ShowContents() {
             DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Layer %d: %d\n", i, (*it)->GetType());
         }
     }
+
+}
+void Tile::StoreToDatabase() {
+    static std::string *serv;
+    static unsigned short *port;
+    static int stackpos;
+    static std::vector<Item*>::iterator it;
+
+    if (!options.maptrack) return;
+    stackpos = 0;
+    if (protocol->CipSoft()) {
+        serv = &(protocol->charlistserver);
+        port = &(protocol->charlistport);
+    } else {
+        serv = &(protocol->gameworldserver);
+        port = &(protocol->gameworldport);
+    }
+    dbExecPrintf(dbUser, NULL, NULL, NULL, "delete from map where server='%s' and port='%d' and x=%d and y=%d and z=%d;",
+                                                                  serv->c_str(),  *port,      pos.x,  pos.y,     pos.z);
+
+
+
+    if (ground) {
+
+        dbExecPrintf(dbUser, NULL, NULL, NULL, "insert into map (server, port, x, y, z, stackpos, itemid) values ('%s', %d, %d, %d, %d, %d, %d);",
+                                                    serv->c_str(), *port, pos.x, pos.y, pos.z, stackpos, ground->GetType());
+        stackpos ++;
+    }
+
+    for (int i = 3; i >=0 ; i-- ) {
+        for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
+            dbExecPrintf(dbUser, NULL, NULL, NULL, "insert into map (server, port, x, y, z, stackpos, itemid) values ('%s', %d, %d, %d, %d, %d, %d);",
+                                                    serv->c_str(), *port, pos.x, pos.y, pos.z, stackpos, (*it)->GetType());
+            stackpos ++;
+        }
+    }
+
 
 }

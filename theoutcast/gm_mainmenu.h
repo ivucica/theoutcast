@@ -52,6 +52,12 @@ class GM_MainMenu : public GameMode {
 		glictWindow characterlist;
 		glictButton btnCharlistCancel;
 
+		glictWindow options;
+		glictPanel pnlOptionsMaptrack, pnlOptionsFullscreen; // checkboxes here only, please
+		glictButton btnOptionsMaptrack, btnOptionsFullscreen; // checkboxes here only, please
+		glictPanel pnlOptionsRestartWarning;
+		glictButton btnOptionsOk, btnOptionsCancel;
+
 		Texture *logo, *bg;
         Obj3ds *city;
         flythrough_c flythrough;
@@ -81,6 +87,10 @@ class GM_MainMenu : public GameMode {
 	friend void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller);
 	friend void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller);
     friend void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller);
+    friend void GM_MainMenu_Options(glictPos* pos, glictContainer *caller);
+    friend void GM_MainMenu_OptionsCheckbox(glictPos* pos, glictContainer *caller);
+    friend void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller);
+    friend void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentType menuclass_void);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 	friend void ItemsLoad();
@@ -102,7 +112,10 @@ void GM_MainMenu_AboutOnDismiss(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_ToSOnDismiss(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller);
-
+void GM_MainMenu_Options(glictPos* pos, glictContainer *caller);
+void GM_MainMenu_OptionsCheckbox(glictPos* pos, glictContainer *caller);
+void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller);
+void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller);
 void GM_MainMenu_ExitDo();
 void GM_MainMenu_GoToGameworldDo();
 

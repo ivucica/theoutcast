@@ -31,6 +31,7 @@ class Tile {
         unsigned int GetItemCount();
 
         void ShowContents();
+        void StoreToDatabase();
     private:
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;

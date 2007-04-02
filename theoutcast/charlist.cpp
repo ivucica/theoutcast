@@ -53,6 +53,9 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
 	sockaddr_in sin;
 
+    protocol->charlistserver = menuclass->txtLoginServer.GetCaption();
+    protocol->charlistport = 7171;
+
     if (!strcmp(menuclass->txtLoginServer.GetCaption().c_str(), "server.tibia.com")) {
         protocol->CipSoft(true);
     } else {

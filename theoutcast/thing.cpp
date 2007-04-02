@@ -11,6 +11,7 @@ Thing::Thing() {
     type = 0;
     //printf("Forged a new item >D\n");
     this->count = 1;
+    this->subtype = 0;
     this->moving = false;
     this->speed = 0;
     this->animationpercent = 0;
@@ -40,8 +41,14 @@ unsigned char Thing::GetTopIndex() {
 unsigned char Thing::GetCount() {
     if (items[type].stackable) return count; else return 1;
 }
+unsigned char Thing::GetSubType() {
+    if (items[type].splash) return subtype; else return 0;
+}
 void Thing::SetCount(unsigned char count) {
     this->count = count;
+}
+void Thing::SetSubType(unsigned char subtype) {
+    this->subtype = subtype;
 }
 void Thing::SetType(unsigned short type, unsigned short extendedtype) {
     ONThreadSafe(threadsafe);
@@ -61,8 +68,10 @@ void Thing::Render() {
 void Thing::Render(position_t *pos) {
     ONThreadSafe(threadsafe);
     if (sprgfx) {
-        if (items[type].stackable)
+        if (!(dynamic_cast<Creature*>(this)) && items[type].stackable)
             sprgfx->Render(count);
+        else if (!(dynamic_cast<Creature*>(this)) && items[type].splash)
+            sprgfx->Render(subtype);
         else
             sprgfx->Render(pos);
     }

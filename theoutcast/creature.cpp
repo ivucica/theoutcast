@@ -82,7 +82,6 @@ void Creature::Render(position_t *pos) {
     Thing::Render(pos);
     if (moving) glPopMatrix();
 }
-#include "console.h"
 void Creature::Render() {
     position_t p = {0, 0, 0};
     Render(&p);
@@ -104,8 +103,6 @@ void Creature::RenderOverlay() {
         CauseAnimOffset(true);
 
     }
-
-
     glColor3f(.3, .3, .3);
     glBegin(GL_QUADS);
     glVertex2f(0, 32+11);

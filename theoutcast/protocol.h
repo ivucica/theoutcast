@@ -78,6 +78,14 @@ class Protocol {
 
         // internal stuff
         unsigned short GetProtocolVersion ();
+
+
+        // public variables
+        std::string charlistserver;
+        unsigned short charlistport;
+        std::string gameworldserver;
+        unsigned short gameworldport;
+
     protected:
         SOCKET s;
         unsigned short protocolversion;

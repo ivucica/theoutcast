@@ -27,6 +27,7 @@
 #include "gm_mainmenu.h"
 #include "glutwin.h"
 #include "glutfont.h"
+#include "options.h"
 #ifdef WIN32
 	#include "winfont.h"
 #endif
@@ -127,13 +128,23 @@ if(AllocConsole())
 	printf("THE OUTCAST 0.3\n");
 	printf("===============\n");
 
+
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up net\n");
+	NetInit();
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up database\n");
+	DBInit();
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up sound system\n");
+	SoundInit(NULL);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
 	glutInitWindowSize (640, 480);
 	//glutInitWindowPosition (0, 0);
 
-    if (fullscreen) {
-        glutGameModeString("640x480:32");
+    options.Load();
+
+    if (options.fullscreen) {
+        glutGameModeString("800x600:32");
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering fullscreen\n");
         glut_WindowHandle = glutEnterGameMode();
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
@@ -145,17 +156,11 @@ if(AllocConsole())
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
     }
 
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
-	glut_SetMousePointer("mousepointer.bmp");
-
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up GL\n");
 	GLInit();
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up net\n");
-	NetInit();
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up database\n");
-	DBInit();
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up sound system\n");
-	SoundInit(NULL);
+
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
+	glut_SetMousePointer("mousepointer.bmp");
 
 	// game must be inited LAST.
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");

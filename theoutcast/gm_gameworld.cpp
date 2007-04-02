@@ -257,12 +257,9 @@ void PaintMap() {
     if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
     static int offset;
 
-
-
     for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
         offset = z - player->GetPosZ();
         for (int layer= 0; layer <= 2; layer++)
-
 
             for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
                 for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
@@ -291,7 +288,6 @@ void PaintMap() {
                 }
             }
     }
-
 
 // now we just render the overlay
 // keep code in sync with above
@@ -457,6 +453,8 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
 
         if (Creature *c = t->GetCreature())
             protocol->Attack(c->GetCreatureID());
+    } else if (modifiers & GLUT_ACTIVE_CTRL) {
+        console.insert("Still working on USE feature...", CONBLUE);
     } else {
         gamemap.GetTile(&pos2)->ShowContents();
     }
