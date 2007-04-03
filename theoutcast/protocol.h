@@ -49,6 +49,8 @@ class Protocol {
 
         virtual void    LookAt(position_t *pos);
         virtual void    Attack(unsigned long creatureid);
+        virtual void    Use(position_t *pos, unsigned char stackpos);
+        virtual void    Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2);
         // *parse* are "smarter" abstractions
         // *get* are those that only fetch and return
 
@@ -101,6 +103,7 @@ class Protocol {
         int maxx, maxy, maxz;
         bool active;
         bool cipsoft;
+        unsigned short lastsuccessfulitem;
         ONCriticalSection threadsafe;
 
 
@@ -108,6 +111,8 @@ class Protocol {
     friend void GM_MainMenu::CreateCharlist();
     friend void GM_MainMenu::DestroyCharlist();
     friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
+
+
 
 };
 

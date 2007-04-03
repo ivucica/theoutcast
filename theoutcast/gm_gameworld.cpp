@@ -21,24 +21,29 @@
 #include "sound.h"
 #include "debugprint.h"
 
-#define VISIBLEW 14 // 14
-#define VISIBLEH 10 // 10
+#define VISIBLEW 15 // 14
+#define VISIBLEH 11 // 10
 
 #define VISIBLEWPIXEL (VISIBLEW*32.)
 #define VISIBLEHPIXEL (VISIBLEH*32.)
 extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 
+static bool useex_item2;
 void PaintMap();
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
-    while (gamemode == GM_GAMEWORLD) { // while we're in gameworld game mode
+    while (1) { // while we're in gameworld game mode
         if (!protocol->GameworldWork()) break;
+        //if (!(gamemode == GM_GAMEWORLD)) break;
     }
     protocol->Close();
     if (gamemode == GM_GAMEWORLD)
         console.insert("Connection interrupted.");
+    else
+        MessageBox(0, "Connection interrupted.", 0, 0);
     delete protocol;
     protocol = NULL;
+
 
     return 0;
 }
@@ -100,6 +105,7 @@ GM_Gameworld::GM_Gameworld() {
             panInvSlots[i].SetHeight(32);
             panInvSlots[i].SetWidth(32);
             panInvSlots[i].SetOnPaint(GM_Gameworld_InvSlotsOnPaint);
+            panInvSlots[i].SetOnClick(GM_Gameworld_InvSlotsOnClick);
         }
 
 
@@ -108,6 +114,8 @@ GM_Gameworld::GM_Gameworld() {
     ONNewThread(GM_Gameworld_Thread, NULL);
 
     glDisable(GL_SCISSOR_TEST);
+
+    useex_item2 = false;
 }
 
 
@@ -219,6 +227,7 @@ void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
             break;
         case 27: // esc
             protocol->Close();
+            //protocol->Logout();
             GameModeEnter(GM_MAINMENU);
             break;
 
@@ -252,7 +261,7 @@ void PaintMap() {
     // do not store in player->GetMinZ(), because it could be used later on to
     // save recalc time
 
-    ASSERTFRIENDLY(player, "Server did not send us information about player's creatureID. This is strange.");
+    ASSERTFRIENDLY(player, "It is possible that server did not send us information about player's creatureID. This is strange.\nAt present stage, it also might be caused by an unpredicted bug.\nThis happens quite often, and a cure for this bug will be sought after.");
     ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")
     if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
     static int offset;
@@ -261,8 +270,8 @@ void PaintMap() {
         offset = z - player->GetPosZ();
         for (int layer= 0; layer <= 2; layer++)
 
-            for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
-                for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
+            for (int x = -(VISIBLEW/2) - 2; x <= +(VISIBLEW/2) - offset + 2; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+                for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
 
                     position_t p;
                     p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
@@ -273,7 +282,7 @@ void PaintMap() {
                     Tile *t;
                     Thing *g;
 
-                    if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
+                    if (x+offset < -9 || x+offset > 9 || y+offset < -7 || y+offset > 7)
                         glColor4f(.5,.5,.5,1.);
                     else
                         glColor4f(1., 1., 1., 1.);
@@ -403,7 +412,7 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     glPushMatrix();
     glLoadIdentity();
 
-    glTranslatef(-1*32. + (VISIBLEW - 14)/2. * 32., -4*32. + (VISIBLEH - 10)/2. * 32., 0);
+    glTranslatef(-1*32. + (VISIBLEW - 15)/2. * 32., -3*32. + (VISIBLEH - 11)/2. * 32., 0);
     //glTranslatef(-1*32., -4*32., 0);
     PaintMap();
 
@@ -430,7 +439,7 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
 
     glictSize size;
     position_t pos2;
-    int modifiers;
+
     caller->GetSize(&size);
     pos->x *= VISIBLEWPIXEL / size.w;
     pos->y *= VISIBLEHPIXEL / size.h;
@@ -444,20 +453,69 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
     pos2.z = player->GetPosZ();
 
 
+    GM_Gameworld_ClickExec(&pos2);
+
+}
+void GM_Gameworld_ClickExec(position_t *pos) {
+    static int modifiers;
     modifiers = glutGetModifiers();
 
+    if (useex_item2) {
+        useex_item2 = false;
+        Tile *t;
+        if (pos->x!=0xFFFF) t = gamemap.GetTile(pos);
+
+        protocol->Use(&(((GM_Gameworld*)game)->useex_item1_pos), ((GM_Gameworld*)game)->useex_item1_stackpos, pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
+        glut_SetMousePointer("mousepointer.bmp");
+        return;
+    }
+
     if (modifiers & GLUT_ACTIVE_SHIFT)
-        protocol->LookAt(&pos2);
+        protocol->LookAt(pos);
     else if (modifiers & GLUT_ACTIVE_ALT) {
-        Tile *t = gamemap.GetTile(&pos2);
+        if (pos->x==0xFFFF) return;
+        Tile *t = gamemap.GetTile(pos);
 
         if (Creature *c = t->GetCreature())
             protocol->Attack(c->GetCreatureID());
     } else if (modifiers & GLUT_ACTIVE_CTRL) {
-        console.insert("Still working on USE feature...", CONBLUE);
+        Tile *t;
+        Thing *th;
+        if (pos->x!=0xFFFF) {
+            t = gamemap.GetTile(pos);
+            th = t->GetStackPos(t->GetTopUsableStackpos());
+        } else {
+            th = player->inventory[pos->y-1];
+        }
+        if (th) {
+            unsigned short itemid = th->GetType();
+            if (items[itemid].usable) {
+                // extended usable
+                console.insert("Specify where do you want to use this item", CONLTBLUE);
+                glut_SetMousePointer(new ObjSpr(itemid,0));
+                ((GM_Gameworld*)game)->useex_item1_pos = *pos;
+                ((GM_Gameworld*)game)->useex_item1_stackpos = pos->x != 0xFFFF ? t->GetTopUsableStackpos() : 0;
+                useex_item2 = true;
+            } else {
+                // simple usable
+                protocol->Use(pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
+            }
+        } else {
+            if (pos->x!=0xFFFF) {
+                char tmp[256];
+                sprintf(tmp, "There's a bug in GetTopUsableStackpos() routine or the tile is empty. %d/%d", t->GetTopUsableStackpos(), t->GetItemCount() );
+
+                console.insert(tmp, CONRED);
+            }
+        }
     } else {
-        gamemap.GetTile(&pos2)->ShowContents();
+        char tmp [256];
+        sprintf(tmp, "You clicked on location (%d, %d, %d).", pos->x, pos->y, pos->z);
+        console.insert(tmp, CONWHITE);
+        gamemap.GetTile(pos)->ShowContents();
     }
+
+
 }
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
     /*char tmp[256];
@@ -496,5 +554,18 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
 
 
     glViewport(0,0,glictGlobals.w,glictGlobals.h);
+}
+void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller) {
+    //char tmp[256];
+    //sprintf(tmp, "Clicked on %d", (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots));
+    //console.insert(tmp, CONYELLOW);
+    int slot = (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots) + 1;
+    position_t pos2;
+
+    pos2.x = 0xFFFF;
+    pos2.y = slot;
+    pos2.z = 0;
+
+    GM_Gameworld_ClickExec(&pos2);
 
 }

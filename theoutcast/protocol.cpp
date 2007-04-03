@@ -31,12 +31,19 @@ Protocol::Protocol() {
     charlistcount = 0;
     ONInitThreadSafe(threadsafe);
 
-}
-Protocol::~Protocol() {
     if (player) {
         delete player;
         player = NULL;
+
     }
+
+}
+Protocol::~Protocol() {
+/*    if (player) {
+        delete player;
+        player = NULL;
+
+    }*/
     ONDeinitThreadSafe(threadsafe);
 }
 
@@ -384,8 +391,10 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             stackpos = GetStackpos(nm);
 
-            t->Remove(stackpos);
-            t->Insert(ParseThingDescription(nm));
+            /*t->Remove(stackpos);
+            t->Insert(ParseThingDescription(nm));*/
+
+            t->Replace(stackpos, ParseThingDescription(nm));
             return true;
         }
         case 0x6C: {// Remove Item
@@ -436,10 +445,13 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             thing->ApproveMove();
             return true;
         }
-        case 0x6E: // Container Open
-            nm->GetU8(); // container id
+        case 0x6E: {// Container Open
+            std::string title;
+            unsigned char containerid;
+
+            containerid = nm->GetU8(); // container id
             nm->GetU16(); // container icon
-            nm->GetString(); // container title
+            title = nm->GetString(); // container title
             nm->GetU8(); // capacity
             nm->GetU8(); // hasparent
             {
@@ -448,10 +460,28 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                     delete ParseThingDescription(nm);
                 }
             }
+
+            {
+                char tmp[256];
+                sprintf(tmp, "Opened container %d - %s", containerid, title.c_str());
+                console.insert(tmp);
+            }
             return true;
-        case 0x6F: // Container Close
-            nm->GetU8();
+        }
+        case 0x6F: {// Container Close
+
+            unsigned char containerid;
+            containerid = nm->GetU8();
+
+            {
+                char tmp[256];
+                sprintf(tmp, "Closed container %d ", containerid);
+                console.insert(tmp);
+            }
+
+
             return true;
+        }
         case 0x70: // Add Container Item
             nm->GetU8(); // container id
             ParseThingDescription(nm);
@@ -838,7 +868,10 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
     for (;;) {
         if (nm->PeekU16() >= 0xFF00) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
+            static bool locked;
+            if (locked = gamemap.locked) gamemap.Unlock();
             t->StoreToDatabase();
+            if (locked) gamemap.Lock();
             return;
         } else {
             Thing *obj = ParseThingDescription(nm);
@@ -925,26 +958,28 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
         }
         default: {// regular item
             char tmp[256];
-            sprintf(tmp, "Invalid item received from server: %d.", type);
+            sprintf(tmp, "Invalid item received from server: %d. Last successful item: %d", type, lastsuccessfulitem);
             if (!(type >= 100 && type <= items_n)) {
                 DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, tmp);
                 DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR, "For orientation purposes, the remaining unprocessed netmessage is below\n");
                 nm->ShowContents();
             }
-            //ASSERTFRIENDLY(type >= 100 && type <= items_n, tmp);
+            ASSERTFRIENDLY(type >= 100 && type <= items_n, tmp);
             if (thing)
                 thing->SetType(type, 0);
 
-            if (items[type].stackable) {
+            if (items[type].stackable || items[type].rune) {
                 unsigned char x = nm->GetU8();
                 if (thing) thing->SetCount(x);
             }
-            if (items[type].splash || items[type].fluidcontainer) {
+            if (items[type].splash ||  items[type].fluidcontainer) {
                 unsigned char x = nm->GetU8();
                 if (thing) thing->SetSubType(x);
             }
+            lastsuccessfulitem = type;
         }
     }
+
     return thing;
 }
 
@@ -956,7 +991,7 @@ void Protocol::SetProtocolStatus(const char *protostat) {
 }
 
 bool Protocol::CipSoft() {
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "==========> CONNECTING to CIPSOFT? %s\n", cipsoft ? "YES" : "NO");
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "==========> CONNECTING to CIPSOFT? %s\n", cipsoft ? "YES" : "NO");
     return cipsoft;
 }
 bool Protocol::CipSoft(bool cipsoft) {
@@ -1036,8 +1071,31 @@ void Protocol::LookAt(position_t *pos) {
     ONThreadSafe(threadsafe);
     nm.AddU8(0x8C);
     this->AddPosition(&nm, pos);
+    if (pos->x!=0xFFFF) {
+        Tile *t = gamemap.GetTile(pos);
+        Thing *th;
+        if (!t) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
 
+        unsigned char stackpos = t->GetTopLookAt();
+        th = t->GetStackPos(stackpos);
+        if (!th) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
 
+        nm.AddU16(th->GetType());
+        nm.AddU8(stackpos);
+    } else {
+        if (!player->inventory[pos->y-1]) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        };
+        nm.AddU16(player->inventory[pos->y-1]->GetType());
+        nm.AddU8(0);
+    }
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
     nm.Dump(s);
@@ -1051,6 +1109,139 @@ void Protocol::Attack(unsigned long creatureid) {
 
     nm.AddU8(0xA1);
     nm.AddU32(gamemap.SetAttackedCreature(creatureid)); // FIXME abstract this with AddCreatureID() or sth
+
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+void Protocol::Use(position_t *pos, unsigned char stackpos) {
+    // this is "single-click" use, meaning only one item is affected
+
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+
+
+    nm.AddU8(0x82);
+    AddPosition(&nm, pos);
+    if (pos->x != 0xFFFF) {
+        Tile *t = gamemap.GetTile(pos);
+
+        if (!t) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        Thing *th = t->GetStackPos(stackpos);
+
+        if (!th) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(th->GetType() );
+
+        nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
+        nm.AddU8(0); // FIXME this is "index". it seems to be specifying the amount of items to use?! or what? 0 seems to work fine
+    } else {
+        if (!player->inventory[pos->y - 1]) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(player->inventory[pos->y - 1]->GetType() );
+        nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
+        nm.AddU8(0); // FIXME this is "index". it seems to be specifying the amount of items to use?! or what? 0 seems to work fine
+    }
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+
+void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2) {
+    // this is "single-click" use, meaning only one item is affected
+
+    NetworkMessage nm;
+    Thing *th;
+    Tile *t;
+    ONThreadSafe(threadsafe);
+
+
+
+    nm.AddU8(0x83);
+
+
+
+    // first item
+    AddPosition(&nm, pos1);
+    if (pos1->x != 0xFFFF) {
+        Tile *t = gamemap.GetTile(pos1);
+
+        if (!t) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        Thing *th = t->GetStackPos(stackpos1);
+
+        if (!th) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(th->GetType() );
+
+        nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+
+    } else {
+        if (!player->inventory[pos1->y - 1]) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(player->inventory[pos1->y - 1]->GetType() );
+        nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+
+
+
+
+
+    }
+
+    // second item
+    AddPosition(&nm, pos2);
+    if (pos2->x != 0xFFFF) {
+        Tile *t = gamemap.GetTile(pos2);
+
+        if (!t) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        Thing *th = t->GetStackPos(stackpos2);
+
+        if (!th) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(th->GetType() );
+
+        nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
+
+
+
+    } else {
+        if (!player->inventory[pos2->y - 1]) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(player->inventory[pos2->y - 1]->GetType());
+        nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
+
+    }
 
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);

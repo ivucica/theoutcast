@@ -137,7 +137,7 @@ bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const
     dbLoadSettingReturnValue = NULL;
     if (dbExecPrintf(dbUser, dbLoadSettingFunc, 0, NULL, "select `value` from settings where `field` = '%q';", settingname) == SQLITE_OK) { // Crash report #1
         if (dbLoadSettingReturnValue) {
-            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Returned value %s\n", dbLoadSettingReturnValue);
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Returned value %s\n", dbLoadSettingReturnValue);
             memcpy(valuetarget, dbLoadSettingReturnValue, min(maxlen, strlen(dbLoadSettingReturnValue)));
             valuetarget[min(maxlen, strlen(dbLoadSettingReturnValue))] = 0;
 
@@ -166,7 +166,7 @@ bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const
 }
 static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColName) {
     dbLoadSettingReturnValue = (char*)malloc(strlen(argv[0])+2);
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%s\n", argv[0]);
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "%s\n", argv[0]);
     if (!dbLoadSettingReturnValue) {
         DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Could not alloc %d bytes\n", strlen(argv[0]+2));
         return 0;
@@ -192,13 +192,14 @@ int dbExecPrintf(
 
 	va_end(vl);
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "QUERY: %s\n", z);
 
     int rc = sqlite3_exec(db, z, cb, arg, errmsg); // Crash report #1
     if (rc != SQLITE_OK) {
+
         DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite: Error: '%s', RC: %s, query '%s'\n", sqlite3_errmsg(dbUser), dbProcessRC(rc), z);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "QUERY: %s\n", z);
     } else {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "SQLite query success\n");
+        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "SQLite query success\n");
     }
     sqlite3_free(z);
 

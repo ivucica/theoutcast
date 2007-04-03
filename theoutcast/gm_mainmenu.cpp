@@ -222,7 +222,7 @@ GM_MainMenu::GM_MainMenu() {
 
 		i = j+1;
 	}
-	sprintf(abouttext, "%s 0.3.6\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
+	sprintf(abouttext, "%s 0.3.61\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
 	about.SetMessage(abouttext);
 //    about.SetMessage("oi");
 	about.SetHeight(390);
@@ -261,7 +261,7 @@ GM_MainMenu::GM_MainMenu() {
     pnlOptionsMaptrack.SetPos(0, 20);
     pnlOptionsMaptrack.SetHeight(16);
     pnlOptionsMaptrack.SetWidth(100);
-    pnlOptionsMaptrack.SetCaption("Maptrack:");
+    pnlOptionsMaptrack.SetCaption("Map storing:");
 
     options.AddObject(&btnOptionsMaptrack);
     btnOptionsMaptrack.SetPos(100, 20);

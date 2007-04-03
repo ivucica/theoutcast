@@ -39,14 +39,18 @@ class Player {
 
         void            SetInventorySlot(unsigned int slot, Thing *item);
         void            RenderInventory(unsigned int slot);
+
+// public variables
+        Thing           *inventory[10];
+
     private:
         unsigned long   creatureid;
         position_t      pos;
         unsigned char   minz;
-        Thing           *inventory[10];
 
 
     friend void Tile::Render(int layer);
+
 };
 
 extern Player *player;

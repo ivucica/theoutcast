@@ -55,14 +55,14 @@ bool Protocol79::CharlistLogin(const char *username, const char *password) {
 
 
     if (!nm.Dump(s)) {
-        this->errormsg = "Could not write to socket.\nPossibly premature disconnect.";
+        this->errormsg = "Could not write to socket.\nPossible it's a premature disconnect.\n\nCheck you typed in the correct protocol!";
         ONThreadUnsafe(threadsafe);
         return false;
     }
 
     nm.Clean();
     if (!nm.FillFromSocket(s)) {
-        this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
+        this->errormsg = "Could not read from socket.\nPossibly it's a premature disconnect.\n\nCheck you typed in the correct protocol!";
         ONThreadUnsafe(threadsafe);
         return false;
     }
@@ -119,7 +119,7 @@ bool Protocol79::GameworldLogin () {
     SetProtocolStatus("Transmitting logon data...");
 
     if (!nm.Dump(s)) {
-        this->errormsg = "Could not write to socket.\nPossibly premature disconnect.";
+        this->errormsg = "Could not write to socket.\nPossible it's a premature disconnect.\n\nCheck you typed in the correct protocol!";
         return false;
     }
 
@@ -131,7 +131,7 @@ bool Protocol79::GameworldLogin () {
     NetworkMessage nm2;
     //nm.FillFromSocket(s);
     if (!nm2.FillFromSocket(s )) {
-        this->errormsg = "Could not read from socket.\nPossibly premature disconnect.";
+        this->errormsg = "Could not read from socket.\nPossibly it's a premature disconnect.\n\nCheck you typed in the correct protocol!";
         return false;
     }
     nm2.XTEADecrypt(key);

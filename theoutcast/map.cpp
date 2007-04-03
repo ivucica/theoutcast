@@ -46,11 +46,12 @@ Creature* Map::GetCreature(unsigned long creatureid, Creature *cr) {
 
 void Map::Lock() {
     ONThreadSafe(threadsafe);
+    locked = true;
 }
 void Map::Unlock() {
+    locked = false;
     ONThreadUnsafe(threadsafe);
 }
-
 unsigned long Map::SetAttackedCreature(unsigned long creatureid) {
     Creature *c = GetCreature(creatureid, NULL);
     if (c) {

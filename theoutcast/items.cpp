@@ -22,6 +22,7 @@ void ItemClear(item_t* item) {
     item->writable = false;
     item->fluidcontainer = false;
     item->splash = false;
+    item->rune = false;
     item->movable = true;
     item->pickupable = false;
     item->blocking = false;
@@ -89,6 +90,17 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             if (iTmp) items[itemid].stackable = true;
             //if (items[itemid].stackable) printf("STACKABLE ITEM %d\n", itemid);
         }
+        if (!strcmp(azColName[i], "rune")) {
+            sscanf(argv[i], "%d", &iTmp);
+            if (iTmp) items[itemid].rune = true;
+            //if (items[itemid].stackable) printf("RUNE ITEM %d\n", itemid);
+        }
+        if (!strcmp(azColName[i], "usable")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid].usable = iTmp;
+            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+        }
+
         if (!strcmp(azColName[i], "spritelist")) {
             strcpy(items[itemid].spritelist, argv[i]);
         }

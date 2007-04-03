@@ -16,18 +16,19 @@
 #include "items.h"
 #include "sound.h"
 #include "bsdsockets.h"
+#include "glutfont.h"
 inline void GWLogon_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
-	mb->SetCaption("Error accessing account");
-	mb->SetHeight(64);
+	mb->SetCaption("Error accessing character");
+	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
 }
 inline void GWLogon_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
-	mb->SetCaption("Message of the Day");
-	mb->SetHeight(64);
+	mb->SetCaption("Logged on!");
+	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonOK);
 }
 

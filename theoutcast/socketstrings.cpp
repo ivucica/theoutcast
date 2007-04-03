@@ -1,18 +1,30 @@
 
 #include <malloc.h>
 #include <stdio.h>
+#include "socketstrings.h"
+
+
+
 #ifndef WIN32
 
 const char* SocketErrorDescription() {
 	return "Can't identify errors under BSD sockets.";
 }
 
+const char* SocketErrorDescription(int err) {
+    return SocketErrorDescription(err);
+}
+
 #else
 
 #include <windows.h>
+
 const char* SocketErrorDescription() {
-    int wsalasterr;
-    switch (wsalasterr=WSAGetLastError()) {
+    return SocketErrorDescription(WSAGetLastError());
+}
+const char* SocketErrorDescription(int wsalasterr) {
+
+    switch (wsalasterr) {
         case WSAEINTR:
             return "Interrupted function call. "; //return("WSAEINTR");
             break;

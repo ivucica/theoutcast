@@ -43,6 +43,7 @@ typedef struct {
     bool writable;
     bool fluidcontainer;
     bool splash;
+    bool rune;
     bool movable;
     bool pickupable;
     bool blocking;

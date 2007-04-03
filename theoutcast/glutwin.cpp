@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <GLICT/globals.h>
 
+#include "glutwin.h"
 #include "gamemode.h"
 #include "texmgmt.h"
 #include "defines.h"
@@ -16,6 +17,7 @@ float fps=0;
 bool mayanimate=false;
 float cursoraniangle=0.;
 int glut_WindowHandle;
+Object *mousepointer_object;
 void glut_FPS(int param);
 void glut_Display() {
 	game->Render();
@@ -65,9 +67,20 @@ void glut_PassiveMouse (int mousex, int mousey) {
 	ptry = mousey;
 }
 void glut_SetMousePointer(std::string texturefile) {
+    if (mousepointer_object) {
+        delete mousepointer_object;
+        mousepointer_object = NULL;
+    }
 	if (mousepointer) delete mousepointer;
 	mousepointer = new Texture(texturefile);
 }
+void glut_SetMousePointer(Object *obj) {
+	if (mousepointer_object) {
+	    delete mousepointer_object;
+	}
+	mousepointer_object = obj;
+}
+
 void glut_FPS (int param) {
 
     /*
@@ -131,14 +144,23 @@ void RenderMouseCursor() {
 	glRotatef(180.0, 1.0, 0.0, 0.0);
 	glTranslatef(0,-winh,0.0);
 
-	mousepointer->Bind();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glEnable(GL_TEXTURE_2D);
 
-	//FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
-	StillEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, false, true	);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    if (!mousepointer_object) {
+        mousepointer->Bind();
+        glEnable(GL_TEXTURE_2D);
 
+        //FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
+        StillEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, false, true	);
+    } else {
+        glDisable(GL_CULL_FACE);
+        glPushMatrix();
+        glTranslatef(ptrx - 16., ptry - 16., 0);
+        mousepointer_object->Render();
+        glPopMatrix();
+        glEnable(GL_CULL_FACE);
+    }
 	glDisable(GL_TEXTURE_2D);
 	if (fps && mayanimate) cursoraniangle += 180. / fps;
 	if (cursoraniangle > 360.) cursoraniangle -= 360.;

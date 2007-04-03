@@ -20,7 +20,7 @@ void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Error accessing account");
-	mb->SetHeight(64);
+	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
 	SoundPlay("sounds/error.wav");
 }
@@ -85,7 +85,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 	if (he) {
 		addrs = (char**)he->h_addr_list;
 	} else {
-		CharList_ReportError(&menuclass->charlist, "Cannot resolve server name. (2)");
+		CharList_ReportError(&menuclass->charlist, "Cannot resolve server name. \nThere is a possible Internet connection problem.\n1) Check you spelled the server name correctly\n2) If you're on dialup, close some Internet programs\n\nThis is not a bug. Do not report. (2)");
 		return (ONThreadFuncReturnType)2;
 	}
 
@@ -96,11 +96,26 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 	CharList_Status(&menuclass->charlist, "Connecting...");
 
 	if (connect(s, (SOCKADDR*)&sin, sizeof(sin))) {
+
+		#ifdef WIN32
+            int wsaerror = WSAGetLastError();
+		#else
+            int wsaerror = 0;
+            #define WSAECONNREFUSED 59
+		#endif
+
+		const char *er = SocketErrorDescription(wsaerror);
+
 		char tmp[256];
-		sprintf(tmp, "Socket error:\n%s (3)", SocketErrorDescription());
+		sprintf(tmp, "Socket error:\n%s\n\n%s (3)", er,
+             wsaerror == WSAECONNREFUSED ? "This is not a bug in The Outcast. Do not report this.\nWe think that the server is probably not running." : "When reporting a bug, please type in this entire\nmessage as it appears!" );
 		CharList_ReportError(&menuclass->charlist, tmp);
 
 		return (ONThreadFuncReturnType)3;
+
+		#ifndef WIN32
+            #undef WSAECONNREFUSED
+		#endif
 	}
 
 	CharList_Status(&menuclass->charlist, "Retrieving character list...");

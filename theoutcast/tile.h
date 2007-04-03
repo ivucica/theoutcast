@@ -25,6 +25,9 @@ class Tile {
         Thing *GetGround() {return ground;} // TEMPORARY F. that is TO BE REMOVED.
         Creature *GetCreature();
 
+        unsigned char GetTopUsableStackpos();
+        unsigned char GetTopLookAt();
+
         void SetPos(position_t *p); // so tile can know its position
         void Render(int layer);
 
@@ -32,6 +35,7 @@ class Tile {
 
         void ShowContents();
         void StoreToDatabase();
+
     private:
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;

@@ -1,6 +1,6 @@
-THE OUTCAST v0.3.6
+THE OUTCAST v0.3.7
 Readme
-2.4.2007
+3.4.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
@@ -46,17 +46,7 @@ Currently it can log on, display character list, fetch the map from server, pars
 
 1.a) Rant about this version
 
-You can attack using alt+click and look at object using shift+click :)
-
-I also changed the visible area (a boost in FPS and looks a bit nicer).
-
-Now you can move between floors (implemented floorchange packets).
-
-You won't get stuck into the wall like in 0.3.5 -- cancelmove has also been implemented.
-
-Options on the main menu works! If maptrack option is turned on, map will be stored to user.db, and if you turn on fullscreen and restart The Outcast, it will -- guess what -- go fullscreen!
-
-Note, you must use filename Tibia792.spr from now on!
+Now you can use items and the inventory! So, use another client, put a rope in your hand, log on to a server and start hunting! Why? Because you can!
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
@@ -162,9 +152,7 @@ Please send The Outcast.rpt file to us.
 * Sprite animations are not in sync
 * Logging out of the game and then attempting to log in fails
 * Blendframes sprites are drawn in wrong order
-* Countables are not rendered properly
 * Multicolor items are not rendered properly
-* Some items seem to be incorrectly received from the server. This is of highest priority and will hopefully soon be fixed
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -203,6 +191,17 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 10. CHANGE HISTORY
 
+Changes since 0.3.61
+* Eagle sight of K-Zodron's noticed I put in 14x10 visible area, while it should have been 15x11. Thank you!
+* Using items works! Both "extended" and regular using is supported.
+* Main inventory interaction to the same level as with the world (containers not included)
+* Fixed an "item replace" issue
+* Optimized DB storage just a tiny bit
+
+Changes since 0.3.6
+* Rune property added in the database
+* Protocol fixed to use the rune property
+
 Changes since 0.3.5
 * Implemented cancelmove packet
 * Fixed the order in which creatures are drawn
@@ -217,14 +216,14 @@ Changes since 0.3.5
 * Addressed various other issues
 
 /** <Small digression> **
- ** Please do NOT steal other people's maps even if you figure out how 
- ** to extract data from The Outcast's database. If I get complaints that 
- ** The Outcast was used with stealing maps, I'll either remove this feature 
- ** or will do some "crypt-o-matic" stuff so you can't read it, but The 
- ** Outcast can. Or some other nasty things that I might think of. Don't 
- ** steal map. Simply don't. It's other people's hard work. And the maps 
- ** you might want to steal are probably copyrighted, so you might get sued. 
- ** (Come to think of it, even for letting The Outcast store it into 
+ ** Please do NOT steal other people's maps even if you figure out how
+ ** to extract data from The Outcast's database. If I get complaints that
+ ** The Outcast was used with stealing maps, I'll either remove this feature
+ ** or will do some "crypt-o-matic" stuff so you can't read it, but The
+ ** Outcast can. Or some other nasty things that I might think of. Don't
+ ** steal map. Simply don't. It's other people's hard work. And the maps
+ ** you might want to steal are probably copyrighted, so you might get sued.
+ ** (Come to think of it, even for letting The Outcast store it into
  ** database! To be safe, turn off the option in the Options menu.)
  ** </Small digression> **
  **/
@@ -452,14 +451,14 @@ Current code statistics:
 
 * Code only: 68%
 * Code + Comment: 6%
-* Comments: 8%
+* Comments: 7%
 * Empty: 19%
 
-* Code only: 6925
-* Empty lines: 1905
-* Comment lines: 771
-* Code and comments: 610
-* Total: 10211
+* Code only: 7274
+* Empty lines: 2022
+* Comment lines: 796
+* Code and comments: 619
+* Total: 10711
 
 ---
 

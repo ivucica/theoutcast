@@ -28,11 +28,20 @@ class GM_Gameworld : public GameMode {
         // wininventory
         glictPanel panInvSlots[10];
 
+
+        position_t useex_item1_pos; unsigned char useex_item1_stackpos;
+
+
+
     friend void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
+    friend void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller);
+    friend void GM_Gameworld_ClickExec(position_t *pos);
 };
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
+void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller);
+void GM_Gameworld_ClickExec(position_t *pos);

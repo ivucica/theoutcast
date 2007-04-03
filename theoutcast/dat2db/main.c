@@ -32,6 +32,7 @@ typedef struct {
     BOOL writable;
     BOOL fluidcontainer;
     BOOL splash;
+    BOOL rune;
     BOOL movable;
     BOOL pickupable;
     BOOL blocking;
@@ -106,6 +107,7 @@ char check_tables() {
 			"writable boolean, " /* can stuff be written on this item */
 			"fluidcontainer boolean, " /* is this item a fluid container */
 			"splash boolean, " /* is this a 'splash' item, meaning, colorable */
+			"rune boolean, " /* is this a rune item, meaning, same as countable but with only one spr look */
 			"movable boolean, " /* can this item be moved */
 			"pickupable boolean, " /* can this item be picked up */
 			"blocking boolean, " /* is this item blocking movement */
@@ -172,6 +174,7 @@ void clear_item(item_t* item) {
     item->writable = FALSE;
     item->fluidcontainer = FALSE;
     item->splash = FALSE;
+    item->rune = FALSE;
     item->movable = TRUE;
     item->pickupable = FALSE;
     item->blocking = FALSE;
@@ -453,6 +456,7 @@ char dat_readitem(item_t *item) {
                         item->usable = TRUE;
                         break;
                     case 0x08: /* runes */
+                        item->rune = TRUE;
                         break;
                     case 0x09: /* writable */
                         item->writable = TRUE;
@@ -647,6 +651,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "writable, "
                         "fluidcontainer, "
                         "splash, "
+                        "rune, "
                         "movable, "
                         "pickupable, "
                         "blocking, "
@@ -659,7 +664,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "minimapcolor, "
                         "spritelist, "
                         "otid "
-                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
+                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
 
                         datversion, /* part of table name */
 
@@ -677,6 +682,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->writable,
                         i->fluidcontainer,
                         i->splash,
+                        i->rune,
                         i->movable,
                         i->pickupable,
                         i->blocking,
@@ -704,6 +710,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "writable = '%d', "
                         "fluidcontainer = '%d', "
                         "splash = '%d', "
+                        "rune = '%d', "
                         "movable = '%d', "
                         "pickupable = '%d', "
                         "blocking = '%d', "
@@ -732,6 +739,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->writable,
                         i->fluidcontainer,
                         i->splash,
+                        i->rune,
                         i->movable,
                         i->pickupable,
                         i->blocking,

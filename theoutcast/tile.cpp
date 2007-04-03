@@ -103,7 +103,7 @@ void Tile::Remove(unsigned char pos) {
 }
 Thing *Tile::GetStackPos(unsigned char pos) {
     ONThreadSafe(threadsafe);
-
+    char initialpos = pos; // just for debugggin purposes, remove me
     if (ground) {
         if (pos==0) {
             ONThreadUnsafe(threadsafe);
@@ -112,7 +112,7 @@ Thing *Tile::GetStackPos(unsigned char pos) {
         pos--;
     }
 
-    for (int i = 3; i >=1 ; i-- ) {
+    for (int i = 1; i <=3 ; i++ ) {
 
         if (pos < itemlayers[i].size()) {
             ONThreadUnsafe(threadsafe);
@@ -131,11 +131,57 @@ Thing *Tile::GetStackPos(unsigned char pos) {
         return itemlayers[0][pos];
     }
     pos -= itemlayers[0].size();
-    printf("Tile::getstackpos(unsigned char pos): FAILED\n");
+    printf("Tile::getstackpos(unsigned char pos): FAILED (argument: %d, total size: %d, remaining: %d)\n", initialpos, itemcount, pos );
 
     ONThreadUnsafe(threadsafe);
     return NULL;
 }
+
+
+void Tile::Replace(unsigned char pos, Thing* newthing) {
+    ONThreadSafe(threadsafe);
+
+    //printf("Replacing %d with %d\n", GetStackPos
+    if (ground) {
+        if (pos==0) {
+            ground = newthing;
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+        pos--;
+    }
+
+    for (int i = 1; i <=3 ; i++ ) {
+
+        if (pos < itemlayers[i].size()) {
+            itemlayers[i][pos] = (Item*)newthing;
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+        pos -= itemlayers[i].size();
+    }
+    if (pos < creatures.size()) {
+        creatures[pos] = (Creature*)newthing;
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
+    pos -= creatures.size();
+
+    if (pos < itemlayers[0].size()) {
+        itemlayers[0][pos] = (Item*)newthing;
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
+    pos -= itemlayers[0].size();
+    printf("Tile::replace(): FAILED\n");
+
+    ONThreadUnsafe(threadsafe);
+    return;
+}
+
+
+
+
 void Tile::SetPos(position_t *p) {
     ONThreadSafe(threadsafe);
     pos.x = p->x;
@@ -162,8 +208,6 @@ void Tile::Render(int layer) {
                 ground->AnimationAdvance(25./fps);
                 ground->Render(&pos);
             }
-
-
 
             for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (items[(*it)->GetType()].splash) {
                 (*it)->Render(&pos);
@@ -273,7 +317,7 @@ void Tile::Empty () {
 //        if (*it)
 //            delete (*it);
 //        else
-            printf("@(@@@)@)@)(@)(@@( OMFG There's a NULL creature on a tile!!\n");
+//            printf("@(@@@)@)@)(@)(@@( OMFG There's a NULL creature on a tile!!\n");
         creatures.erase(it);
     }
     this->itemcount = 0;
@@ -301,8 +345,9 @@ void Tile::StoreToDatabase() {
     static unsigned short *port;
     static int stackpos;
     static std::vector<Item*>::iterator it;
-
+    static int i;
     if (!options.maptrack) return;
+    ONThreadSafe(threadsafe);
     stackpos = 0;
     if (protocol->CipSoft()) {
         serv = &(protocol->charlistserver);
@@ -317,13 +362,12 @@ void Tile::StoreToDatabase() {
 
 
     if (ground) {
-
         dbExecPrintf(dbUser, NULL, NULL, NULL, "insert into map (server, port, x, y, z, stackpos, itemid) values ('%s', %d, %d, %d, %d, %d, %d);",
                                                     serv->c_str(), *port, pos.x, pos.y, pos.z, stackpos, ground->GetType());
         stackpos ++;
     }
 
-    for (int i = 3; i >=0 ; i-- ) {
+    for (i = 3; i >=0 ; i-- ) {
         for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
             dbExecPrintf(dbUser, NULL, NULL, NULL, "insert into map (server, port, x, y, z, stackpos, itemid) values ('%s', %d, %d, %d, %d, %d, %d);",
                                                     serv->c_str(), *port, pos.x, pos.y, pos.z, stackpos, (*it)->GetType());
@@ -331,5 +375,105 @@ void Tile::StoreToDatabase() {
         }
     }
 
+    ONThreadUnsafe(threadsafe);
 
+}
+unsigned char Tile::GetTopLookAt() {
+    static unsigned char stackpos;
+    static unsigned char topusable;
+    static int i;
+
+    static std::vector<Item*>::iterator it;
+
+    stackpos = 0;
+    topusable = 255;
+    if (ground) {
+
+        if (items[ground->GetType()].usable) {
+            topusable = stackpos;
+
+        }
+        stackpos ++;
+    }
+
+    for (i = 1; i <=3 ; i++ ) {
+        for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
+            if (items[(*it)->GetType()].usable) {
+                topusable = stackpos;
+            }
+            stackpos ++;
+        }
+    }
+
+
+    if (creatures.size())
+        return stackpos + creatures.size() - 1;
+
+    for (it = itemlayers[0].begin(); it != itemlayers[0].end(); it++) {
+        if (items[(*it)->GetType()].usable) {
+            topusable = stackpos;
+        }
+        stackpos ++;
+    }
+
+    if (topusable == 255) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "Nothing usable there, defaulting.");
+        topusable = stackpos-1;
+    }
+
+
+    return topusable;
+}
+
+unsigned char Tile::GetTopUsableStackpos() {
+    static unsigned char stackpos;
+    static unsigned char topusable;
+    static int i;
+
+    static std::vector<Item*>::iterator it;
+
+    stackpos = 0;
+    topusable = 255;
+    if (ground) {
+
+        if (items[ground->GetType()].usable) {
+            topusable = stackpos;
+
+        }
+        stackpos ++;
+    }
+
+    for (i = 1; i <=3 ; i++ ) {
+        for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
+            if (items[(*it)->GetType()].usable) {
+                topusable = stackpos;
+            }
+            stackpos ++;
+        }
+    }
+
+    if (!itemlayers[0].size()) {
+        if (topusable == 255) {
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "Nothing usable there, defaulting.");
+            topusable = stackpos-1;
+        }
+
+        return topusable;
+    }
+
+    stackpos += creatures.size();
+
+    for (it = itemlayers[0].begin(); it != itemlayers[0].end(); it++) {
+        if (items[(*it)->GetType()].usable) {
+            topusable = stackpos;
+        }
+        stackpos ++;
+    }
+
+    if (topusable == 255) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "Nothing usable there, defaulting.");
+        topusable = stackpos-1;
+    }
+
+    return topusable;
 }

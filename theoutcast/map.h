@@ -32,11 +32,14 @@ class Map {
         void Unlock();
 
         unsigned long SetAttackedCreature(unsigned long creatureid);
+
+        bool locked;
     private:
         maptype_t m;
         creaturelist_t c;
         ONCriticalSection threadsafe;
         Creature *attackedcreature;
+
 };
 
 extern Map gamemap;
