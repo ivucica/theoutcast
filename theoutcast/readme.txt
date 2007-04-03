@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.6 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.7 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -393,13 +393,13 @@ Changes since 0.11
 
 0. TERMINOLOGY. Throughout this license, "the original The Outcast archive" or "the original archive" refers to the set of files originally distributed by OBJECT Networks as The Outcast. This license only applies to the freely distributable versions of The Outcast, OBJECT Networks may make The Outcast, or portions of it, available under different licensing conditions for selected licensees.
 
-"Data files" refers to all files that are placed in one of the sub-folders of the original archive, or are named items.txt in the original archive.
+"Data files" refers to all files that are placed in one of the sub-folders of the original archive, or files with extension ".BMP" or are named "data.db" in the original archive.
 
 "To destroy the software" means to destroy the software, the original archive and any other form and medium you may have The Outcast in.
 
 "You" refers to the licensee, the person or other legal entity using The Outcast. "Using" The Outcast means executing The Outcast.
 
-This license applies to all files distributed in the original The Outcast archive, including all source code, libraries, textures, sounds, music, binaries and documentation, unless otherwise stated in the file in its original, unmodified form as distributed in the original archive. If you are unsure whether or not a particular file is covered by this license, you must contact us to verify this.
+This license applies to all files distributed in the original The Outcast archive, including all source code, libraries, textures, sounds, music, binaries and documentation, unless otherwise stated in the file in its original, unmodified form as distributed in the original archive. If you are unsure whether or not a particular file is covered by this license, you must contact us to verify this. If a file is not included in the original The Outcast archive, it is not covered by this license.
 
 1. REPRODUCTION. Reproduction and redistribution of this software in completely unlimited form is permitted for non-commercial purposes only. Redistribution of software outside the original archive or modified software is not permitted and results in termination of license, which means you must destroy the software.
 

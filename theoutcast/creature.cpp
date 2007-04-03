@@ -61,6 +61,19 @@ void Creature::CauseAnimOffset(bool individual) {   // if we're rendering an ind
         case EAST:
             glTranslatef(((preapproved ? 0 : -32) + 32.*animationpercent/100.) * (individual ? 1. : -1), 0, 0);
             break;
+
+        case NORTHWEST:
+            glTranslatef(((preapproved ? 0 : 32.) - 32.*animationpercent/100.) * (individual ? 1. : -1), ((preapproved ? 0 : -32.)  + 32.*animationpercent/100.) * (individual ? 1. : -1), 0);
+            break;
+        case SOUTHWEST:
+            glTranslatef(((preapproved ? 0 : 32.) - 32.*animationpercent/100.) * (individual ? 1. : -1), ((preapproved ? 0 : 32.) - 32.*animationpercent/100.) * (individual ? 1. : -1), 0);
+            break;
+        case NORTHEAST:
+            glTranslatef(((preapproved ? 0 : -32) + 32.*animationpercent/100.) * (individual ? 1. : -1), ((preapproved ? 0 : -32.)  + 32.*animationpercent/100.) * (individual ? 1. : -1), 0);
+            break;
+        case SOUTHEAST:
+            glTranslatef(((preapproved ? 0 : -32) + 32.*animationpercent/100.) * (individual ? 1. : -1), ((preapproved ? 0 : 32.) - 32.*animationpercent/100.) * (individual ? 1. : -1), 0);
+            break;
     }
 }
 void Creature::Render(position_t *pos) {

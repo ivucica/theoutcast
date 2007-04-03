@@ -124,7 +124,12 @@ typedef enum {
     NORTH = 0,
     EAST,
     SOUTH,
-    WEST
+    WEST,
+    STOP,
+    NORTHEAST,
+    SOUTHEAST,
+    SOUTHWEST,
+    NORTHWEST
 } direction_t;
 
 #endif

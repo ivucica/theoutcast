@@ -1009,8 +1009,12 @@ void Protocol::Move(direction_t dir) {
         if (protocolversion >= 770)
             nm.XTEAEncrypt(key);
         nm.Dump(s);
-        player->GetCreature()->StartMoving();
-        player->GetCreature()->SetDirection(dir);
+        if (dir != STOP) {
+            player->GetCreature()->StartMoving();
+            player->GetCreature()->SetDirection(dir);
+        }
+        else
+            player->GetCreature()->CancelMoving();
     }
     ONThreadUnsafe(threadsafe);
 }

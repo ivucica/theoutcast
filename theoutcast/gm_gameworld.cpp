@@ -207,6 +207,24 @@ void GM_Gameworld::SpecKeyPress(int key, int x, int y ) {
                 protocol->Move(EAST);
 
             break;
+
+
+
+        // diagonal moving
+        case GLUT_KEY_END: // 1
+            protocol->Move(SOUTHWEST);
+            break;
+        case GLUT_KEY_PAGE_DOWN: // 3
+            protocol->Move(SOUTHEAST);
+            break;
+        case GLUT_KEY_HOME: // 7
+            protocol->Move(NORTHWEST);
+            break;
+        case GLUT_KEY_PAGE_UP: // 9
+            protocol->Move(NORTHEAST);
+            break;
+        // 5 with numlock off is used to stop moving
+        // protocol->Move(STOP);
     }
 
 

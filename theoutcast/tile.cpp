@@ -282,7 +282,6 @@ void Tile::Render(int layer) {
                     (*it)->RenderOverlay();
                     if ((*it)->IsMoving() && pos.z == player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
                         (*it)->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
-
                 }
         }
     }

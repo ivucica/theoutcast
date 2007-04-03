@@ -59,7 +59,25 @@ void Thing::SetType(unsigned short type, unsigned short extendedtype) {
 void Thing::SetDirection(direction_t dir) {
     ONThreadSafe(threadsafe);
     this->direction = dir;
-    sprgfx->SetDirection(dir);
+    if (dir < STOP)
+        sprgfx->SetDirection(dir);
+    else {
+        switch (dir) {
+            case NORTHWEST:
+                sprgfx->SetDirection(WEST);
+                break;
+            case NORTHEAST:
+                sprgfx->SetDirection(EAST);
+                break;
+            case SOUTHWEST:
+                sprgfx->SetDirection(SOUTH);
+                break;
+            case SOUTHEAST:
+                sprgfx->SetDirection(SOUTH);
+                break;
+
+        }
+    }
     ONThreadUnsafe(threadsafe);
 }
 void Thing::Render() {
