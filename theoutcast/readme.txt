@@ -191,6 +191,12 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 10. CHANGE HISTORY
 
+Changes since 0.3.7
+* Implemented 0x28 "you died" packet
+* Fixes to change outfit packet (did not test them yet)
+* Diagonal moving using Home/End/Pageup/Pagedown (that is, 1/3/7/9 using keypad)
+* Includes the latest GLICT with skin support! Now, if we only had a better artist than me ... :)
+
 Changes since 0.3.61
 * Eagle sight of K-Zodron's noticed I put in 14x10 visible area, while it should have been 15x11. Thank you!
 * Using items works! Both "extended" and regular using is supported.

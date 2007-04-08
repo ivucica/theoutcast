@@ -4,6 +4,7 @@
 #include <GL/glu.h> // FIXME remove me! only for gluGetError()
 #include <stdio.h>
 #include "winfont.h"
+#include "debugprint.h"
 WinFontStruct *WinFontCreate(char* fontname, char style, char size) {
 	HFONT	font;						// Windows Font ID
 	GLuint	base;
@@ -162,7 +163,9 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 	glTranslatef(x,y,0);
 	glScalef(1.5,1.5,1.);
 	//glCallLists(strlen(txt), GL_UNSIGNED_BYTE, txt);	// Draws The Display List Text
+	DEBUGMARKER(strlen(txt), txt);
 	unsigned int sizesofar = 0.;
+	float linessofar = 0.;
 	for (unsigned char *t = (unsigned char*)txt; *t; ++t) {
 		switch (*t) {
 			default:
@@ -172,14 +175,17 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 			case '\n':
 			case '\r':
 				glTranslatef(-(sizesofar / (float)(1 << 16)), -(float)(font->gmf['a'].gmfBlackBoxY) * 1.6 ,0);
+				linessofar += (float)(font->gmf['a'].gmfBlackBoxY) * 1.6;
 				sizesofar = 0;
 				if (*t == '\n' && *(t+1)=='\r' || *t == '\r' && *(t+1)=='\n' ) t++;
                 break;
 
 		}
 	}
-	glTranslatef(-(sizesofar / (float)(1 << 16)), 0 ,0);
+    glTranslatef(-(sizesofar / (float)(1 << 16)), linessofar ,0);
+    if (linessofar > 0.) printf("Falling back for %g\n", linessofar);
 	glScalef(1./1.5,1./1.5,1.);
+
 	glTranslatef(-x,-y,0);
 
 

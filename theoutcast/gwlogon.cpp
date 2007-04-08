@@ -66,7 +66,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = protocol->charlist[protocol->charlistselected].ipaddress; //*(ULONG*)(addrs[0]);
-	sin.sin_port = htons(protocol->charlist[protocol->charlistselected].port );
+    sin.sin_port = htons(protocol->charlist[protocol->charlistselected].port );
 
 	{
 	    char ip[256], tmp[256];

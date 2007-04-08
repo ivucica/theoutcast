@@ -75,13 +75,18 @@
 				<Compiler>
 					<Add option="/MTd" />
 					<Add option="/Gd" />
+					<Add option="/Zi /D_DEBUG" />
 					<Add option="/DWIN32" />
 					<Add option="/DUSEASSERT" />
 					<Add option="/DDEBUGCONSOLE" />
 					<Add option="/DDEBUGLEVEL_BUILDTIME=3" />
 					<Add option="/DLTM" />
+					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 				</Compiler>
 				<Linker>
+					<Add option="/DEBUG" />
+					<Add option="/force:multiple" />
+					<Add option="/subsystem:console" />
 					<Add library="gdi32" />
 					<Add library="user32" />
 					<Add library="kernel32" />
@@ -93,6 +98,7 @@
 					<Add library="winmm" />
 					<Add library="lib3ds-120sd" />
 					<Add library="tommath" />
+					<Add library="sqlite3" />
 				</Linker>
 			</Target>
 		</Build>
@@ -193,6 +199,8 @@
 		<Unit filename="readme.txt" />
 		<Unit filename="simple_effects.cpp" />
 		<Unit filename="simple_effects.h" />
+		<Unit filename="skin.cpp" />
+		<Unit filename="skin.h" />
 		<Unit filename="socketstrings.cpp" />
 		<Unit filename="socketstrings.h" />
 		<Unit filename="sound.cpp" />

@@ -81,11 +81,11 @@ void StillEffect(float beginx, // 200
 				float endy, // 100
 				int divx, // 10
 				int divy, // 10
-				bool flipx,
+                bool flipx,
 				bool flipy,
 				bool culltype
         ) {
-    glPushMatrix();
+
 	//float beginx = 200., beginy = 0;
 	//float endx = 425., endy = 100.;
 
@@ -135,6 +135,6 @@ void StillEffect(float beginx, // 200
             }
 		}
 	glEnd();
-	glPopMatrix();
+	glTranslatef(0,-deltay,0.0);
 
 }

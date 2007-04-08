@@ -77,7 +77,9 @@ void Creature::CauseAnimOffset(bool individual) {   // if we're rendering an ind
     }
 }
 void Creature::Render(position_t *pos) {
+	bool wasmoving = false;
     if (moving) {
+		wasmoving = true;
         glPushMatrix();
         CauseAnimOffset(true);
     }
@@ -93,7 +95,9 @@ void Creature::Render(position_t *pos) {
         glEnd();
     }
     Thing::Render(pos);
-    if (moving) glPopMatrix();
+    if (wasmoving) {
+        glPopMatrix();
+    }
 }
 void Creature::Render() {
     position_t p = {0, 0, 0};
@@ -111,7 +115,9 @@ unsigned char Creature::GetHP() {
     return hp;
 }
 void Creature::RenderOverlay() {
+	bool wasmoving = false;
     if (moving) {
+		wasmoving = true;
         glPushMatrix();
         CauseAnimOffset(true);
 
@@ -139,6 +145,6 @@ void Creature::RenderOverlay() {
     glictFontRender(GetName().c_str(), "system", 0, 32);
 
     glColor4f(1.,1.,1.,1.);
-    if (moving) glPopMatrix();
+    if (wasmoving) glPopMatrix();
 
 }

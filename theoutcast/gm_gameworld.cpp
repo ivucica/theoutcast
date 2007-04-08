@@ -2,6 +2,8 @@
     #include <stdlib.h> // doesnt like exit() defined elsewhere.
 #endif
 
+
+
 #include <GL/glut.h>
 #include <GLICT/fonts.h>
 #include <GLICT/globals.h>
@@ -48,12 +50,12 @@ ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgume
     return 0;
 }
 GM_Gameworld::GM_Gameworld() {
+	glIsTexture(1);
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
 
     SoundSetMusic("music/game.mp3");
 
-    //g = new ObjSpr(5022, 0);
-    //g = new ObjSpr(4597);
+
 
     desktop.AddObject(&winWorld);
         winWorld.SetOnPaint(GM_Gameworld_WorldOnPaint);
@@ -124,6 +126,7 @@ GM_Gameworld::~GM_Gameworld() {
     ItemsUnload();
     CreaturesUnload();
     SPRUnloader();
+
 }
 
 void GM_Gameworld::Render() {
@@ -132,6 +135,7 @@ void GM_Gameworld::Render() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, 640, 0, 480, -100, 100);
+
 
 //    glColor4f(1., 1., 1., 1.);
     //console.draw(10);
@@ -145,6 +149,8 @@ void GM_Gameworld::Render() {
 */
 
 
+
+
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0,winw,0,winh, -100, 100);
@@ -154,9 +160,8 @@ void GM_Gameworld::Render() {
 
 
 	glMatrixMode(GL_MODELVIEW);
-
 	glLoadIdentity();
-	glEnable(GL_SCISSOR_TEST);
+//	glEnable(GL_SCISSOR_TEST);
 	//glTranslatef(winw/2, winh/2,0);
 	//glRotatef( sin( bg_move_angle * PI / 180. )*2., 0., 0, 1);
 	//glTranslatef(-winw/2, -winh/2,0);
@@ -260,91 +265,89 @@ void PaintMap() {
     glMatrixMode(GL_MODELVIEW);
 
     glPushMatrix();
-    //glTranslatef(100, 100, 0);
-    //glScalef(0.5, 0.5, 0.5);
+		//glTranslatef(100, 100, 0);
+		//glScalef(0.5, 0.5, 0.5);
 
 
+		// Idea for optimization:
+		// We introduce a variable called "minfloor". minfloor is initially set to
+		// 7 (surface) and through consequent calls to "render" we inspect
+		// what's the last tile that contains anything renderable.
+		// we also have an auxiliary boolean "needrenewminfloor" which will be
+		// initially true, until first inspection of how far do we need to render
+		// and then it will be set to false. whenever a gamemap operation is done,
+		// needrenewminfloor gets set to true, and the above procedure of
+		// "consequent calls to render and finding min floor" is executed.
+		// do not store in player->GetMinZ(), because it could be used later on to
+		// save recalc time
+
+		ASSERTFRIENDLY(player, "It is possible that server did not send us information about player's creatureID. This is strange.\nAt present stage, it also might be caused by an unpredicted bug.\nThis happens quite often, and a cure for this bug will be sought after.");
+		ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")
+		if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
+		static int offset;
+
+		glMatrixMode(GL_MODELVIEW);
+		for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
+			offset = z - player->GetPosZ();
+			for (int layer= 0; layer <= 2; layer++)
+
+				for (int x = -(VISIBLEW/2) - 2; x <= +(VISIBLEW/2) - offset + 2; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+					for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
+
+						position_t p;
+						p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
+
+						glPushMatrix();
+							glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
+
+							Tile *t;
+							Thing *g;
+
+							if (x+offset < -9 || x+offset > 9 || y+offset < -7 || y+offset > 7)
+								glColor4f(.5,.5,.5,1.);
+							else
+								glColor4f(1., 1., 1., 1.);
+
+							if (t=gamemap.GetTile(&p))
+									//t->Render(0);
+									t->Render(layer);
 
 
+							glMatrixMode(GL_MODELVIEW);
+						glPopMatrix();
+					}
+				}
+		}
 
-    // Idea for optimization:
-    // We introduce a variable called "minfloor". minfloor is initially set to
-    // 7 (surface) and through consequent calls to "render" we inspect
-    // what's the last tile that contains anything renderable.
-    // we also have an auxiliary boolean "needrenewminfloor" which will be
-    // initially true, until first inspection of how far do we need to render
-    // and then it will be set to false. whenever a gamemap operation is done,
-    // needrenewminfloor gets set to true, and the above procedure of
-    // "consequent calls to render and finding min floor" is executed.
-    // do not store in player->GetMinZ(), because it could be used later on to
-    // save recalc time
+	// now we just render the overlay
+	// keep code in sync with above
+		int z = player->GetPosZ();
+		int layer = 3;
+		for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+			for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
+				position_t p;
+				p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
 
-    ASSERTFRIENDLY(player, "It is possible that server did not send us information about player's creatureID. This is strange.\nAt present stage, it also might be caused by an unpredicted bug.\nThis happens quite often, and a cure for this bug will be sought after.");
-    ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")
-    if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
-    static int offset;
+				glPushMatrix();
+					glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
 
-    for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
-        offset = z - player->GetPosZ();
-        for (int layer= 0; layer <= 2; layer++)
+					Tile *t;
+					Thing *g;
 
-            for (int x = -(VISIBLEW/2) - 2; x <= +(VISIBLEW/2) - offset + 2; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
-                for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
+					if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
+						glColor4f(.5,.5,.5,1.);
+					else
+						glColor4f(1., 1., 1., 1.);
 
-                    position_t p;
-                    p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
-
-                    glPushMatrix();
-                    glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
-
-                    Tile *t;
-                    Thing *g;
-
-                    if (x+offset < -9 || x+offset > 9 || y+offset < -7 || y+offset > 7)
-                        glColor4f(.5,.5,.5,1.);
-                    else
-                        glColor4f(1., 1., 1., 1.);
-
-                    if (t=gamemap.GetTile(&p))
-                            //t->Render(0);
-                            t->Render(layer);
+					if (t=gamemap.GetTile(&p))
+							//t->Render(0);
+							t->Render(layer);
 
 
-                    glMatrixMode(GL_MODELVIEW);
-                    glPopMatrix();
-                }
-            }
-    }
-
-// now we just render the overlay
-// keep code in sync with above
-    int z = player->GetPosZ();
-    int layer = 3;
-    for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
-        for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
-            position_t p;
-            p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
-
-            glPushMatrix();
-            glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
-
-            Tile *t;
-            Thing *g;
-
-            if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
-                glColor4f(.5,.5,.5,1.);
-            else
-                glColor4f(1., 1., 1., 1.);
-
-            if (t=gamemap.GetTile(&p))
-                    //t->Render(0);
-                    t->Render(layer);
-
-
-            glMatrixMode(GL_MODELVIEW);
-            glPopMatrix();
-        }
-    }
+					glMatrixMode(GL_MODELVIEW);
+				glPopMatrix();
+			}
+		}
 
 
 
@@ -387,37 +390,46 @@ void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
 
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
+
+
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
-    glClear(GL_COLOR_BUFFER_BIT);
+//    glClear(GL_COLOR_BUFFER_BIT);
+    float ProjectionMatrix[16];
+    glGetFloatv(GL_PROJECTION_MATRIX, ProjectionMatrix);
 
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
 
+    glLoadIdentity();
     glOrtho(0, winw-100, 0, 70, -100, 100);
 
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(0, 10, 0);
-    glColor4f(1., 1., 1., 1.);
-    console.draw(10);
-    glPopMatrix();
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(0, 10, 0);
+		glColor4f(1., 1., 1., 1.);
+		console.draw(10);
+
 
     glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	/*glLoadIdentity();
 	glOrtho(0,winw,0,winh, -100, 100);
 	glRotatef(180.0, 1.0, 0.0, 0.0);
-	glTranslatef(0,-winh,0.0);
+	glTranslatef(0,-winh,0.0);*/
+	glLoadMatrixf(ProjectionMatrix);
 
     glViewport(0,0,glictGlobals.w,glictGlobals.h);
 
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
+
+
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
-    glClearColor(.1, .1, .1, 1.);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0., 0., 0., 1.);
+  //  glClearColor(.1, .1, .1, 1.);
+//    glClear(GL_COLOR_BUFFER_BIT);
+    //glClearColor(0., 0., 0., 1.);
 
 
     glMatrixMode(GL_PROJECTION);
@@ -428,21 +440,21 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glLoadIdentity();
+		glLoadIdentity();
 
-    glTranslatef(-1*32. + (VISIBLEW - 15)/2. * 32., -3*32. + (VISIBLEH - 11)/2. * 32., 0);
-    //glTranslatef(-1*32., -4*32., 0);
-    PaintMap();
+		glTranslatef(-1*32. + (VISIBLEW - 15)/2. * 32., -3*32. + (VISIBLEH - 11)/2. * 32., 0);
+		//glTranslatef(-1*32., -4*32., 0);
+		PaintMap();
 
-    glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0,winw,0,winh, -100, 100);
+		glRotatef(180.0, 1.0, 0.0, 0.0);
+		glTranslatef(0,-winh,0.0);
+
+
+		glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-
-    glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0,winw,0,winh, -100, 100);
-	glRotatef(180.0, 1.0, 0.0, 0.0);
-	glTranslatef(0,-winh,0.0);
-
 
     glViewport(0,0,glictGlobals.w,glictGlobals.h);
 
@@ -536,18 +548,27 @@ void GM_Gameworld_ClickExec(position_t *pos) {
 
 }
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
-    /*char tmp[256];
+/*    char tmp[256];
     sprintf(tmp, "%d", (glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
     caller->SetCaption(tmp);
 
-    printf("%s\n", tmp);
-    return;*/
+    //printf("%s\n", tmp);
+
+
+
+    ((glictPanel*)caller)->SetBGColor(
+        0,
+        0,
+        ((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots)  / 20. + 0.25,
+        1. );
+
+*/
 
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
-    glClearColor(.1, .1, .1, 1.);
+/*    glClearColor(.1, .1, .1, 1.);
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0., 0., 0., 1.);
-
+*/
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -557,19 +578,19 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glLoadIdentity();
+		glLoadIdentity();
 
-    player->RenderInventory((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
+		player->RenderInventory((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
 
-    glMatrixMode(GL_MODELVIEW);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0,winw,0,winh, -100, 100);
+		glRotatef(180.0, 1.0, 0.0, 0.0);
+		glTranslatef(0,-winh,0.0);
+
+		glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-
-    glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0,winw,0,winh, -100, 100);
-	glRotatef(180.0, 1.0, 0.0, 0.0);
-	glTranslatef(0,-winh,0.0);
-
 
     glViewport(0,0,glictGlobals.w,glictGlobals.h);
 }

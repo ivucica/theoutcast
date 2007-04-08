@@ -23,7 +23,11 @@ static int filesize (FILE* f) {
 }
 #else
 static int filesize (FILE* f) {
+#ifdef _MSC_VER
+	return _filelength(_fileno(f));
+#else
 	return filelength(fileno(f)) ;
+#endif
 }
 #endif
 Texture::Texture(std::string fname) {

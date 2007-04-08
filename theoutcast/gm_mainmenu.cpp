@@ -37,7 +37,7 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-	glictGlobals.clippingMode = GLICT_SCISSORTEST;
+
 
 
 	desktop.AddObject(&mainmenu);
@@ -107,6 +107,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLogin.SetWidth(300);
 	pnlLogin.SetPos(0,0);
 	pnlLogin.SetHeight(92);
+	pnlLogin.SetBGActiveness(false);
 
     char tmp[256];
 
@@ -115,6 +116,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLoginProtocol.SetPos(0, 5*15);
 	pnlLoginProtocol.SetHeight(14);
 	pnlLoginProtocol.SetWidth(70);
+	pnlLoginProtocol.SetBGActiveness(false);
 	login.AddObject(&txtLoginProtocol);
 	txtLoginProtocol.SetPos(100, 5*15);
 	txtLoginProtocol.SetHeight(14);
@@ -127,6 +129,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLoginServer.SetPos(0, 6*15);
 	pnlLoginServer.SetHeight(14);
 	pnlLoginServer.SetWidth(70);
+	pnlLoginServer.SetBGActiveness(false);
 	login.AddObject(&txtLoginServer);
 	txtLoginServer.SetPos(100, 6*15);
 	txtLoginServer.SetHeight(14);
@@ -139,6 +142,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLoginUsername.SetPos(0, 7*15);
 	pnlLoginUsername.SetHeight(14);
 	pnlLoginUsername.SetWidth(70);
+	pnlLoginUsername.SetBGActiveness(false);
 	login.AddObject(&txtLoginUsername);
 	txtLoginUsername.SetPos(100, 7*15);
 	txtLoginUsername.SetHeight(14);
@@ -151,6 +155,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLoginPassword.SetPos(0, 8*15);
 	pnlLoginPassword.SetHeight(14);
 	pnlLoginPassword.SetWidth(70);
+	pnlLoginPassword.SetBGActiveness(false);
 	login.AddObject(&txtLoginPassword);
 	txtLoginPassword.SetPos(100, 8*15);
 	txtLoginPassword.SetHeight(14);
@@ -255,6 +260,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlOptionsRestartWarning.SetCaption("(*) Won't apply until restart");
 	pnlOptionsRestartWarning.SetHeight(16);
 	pnlOptionsRestartWarning.SetWidth(220);
+	pnlOptionsRestartWarning.SetBGActiveness(false);
 
 
     options.AddObject(&pnlOptionsMaptrack);
@@ -262,6 +268,7 @@ GM_MainMenu::GM_MainMenu() {
     pnlOptionsMaptrack.SetHeight(16);
     pnlOptionsMaptrack.SetWidth(100);
     pnlOptionsMaptrack.SetCaption("Map storing:");
+    pnlOptionsMaptrack.SetBGActiveness(false);
 
     options.AddObject(&btnOptionsMaptrack);
     btnOptionsMaptrack.SetPos(100, 20);
@@ -275,6 +282,7 @@ GM_MainMenu::GM_MainMenu() {
     pnlOptionsFullscreen.SetHeight(16);
     pnlOptionsFullscreen.SetWidth(100);
     pnlOptionsFullscreen.SetCaption("Fullscreen: (*)");
+    pnlOptionsFullscreen.SetBGActiveness(false);
 
     options.AddObject(&btnOptionsFullscreen);
     btnOptionsFullscreen.SetPos(100, 40);

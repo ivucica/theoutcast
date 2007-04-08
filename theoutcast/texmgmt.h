@@ -4,7 +4,10 @@
 #include <string>
 #include <stdlib.h> // so glut.h works
 #include <GL/glut.h>
+
 #include "imgfmts.h"
+
+class Skin;
 class Texture {
 	public:
 		Texture (std::string file);
@@ -24,6 +27,7 @@ class Texture {
 		unsigned int imgid; // id inside the picture file itself ; for example, in tibia's spr file format, the id of sprite, or in still unsupported gif format's animated variant, the frame
 		unsigned long w,h;
 		RGBA *pikseli;
+		friend class Skin;
 };
 
 #endif

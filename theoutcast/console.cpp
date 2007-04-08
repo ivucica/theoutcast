@@ -57,12 +57,6 @@ void Console::draw(char count) {
     //DEBUGPRINT("Beginning console render...\n");
     ONThreadSafe(threadsafe);
 
-
-        {
-        int er;
-        if ((er = glGetError()) != GL_NO_ERROR) {printf("CONfirst %s\n",  gluErrorString(er));system("pause");}
-        }
-
     for (it=con.begin(); it!=con.end() && p<count; it++) {
         //p++;
         //printf("Line %d / %d\n", p, count);
@@ -90,7 +84,7 @@ void Console::draw(char count) {
                 break;
             case CONWHITE:
             default:
-                glColor3f(1.0f, 1.0f, 1.0f);
+                glColor3f(1.0f,1.0f, 1.0f);
                 break;
         }
         if ((*it)->text) {
@@ -101,10 +95,6 @@ void Console::draw(char count) {
             glTranslatef(0, (glutxNumberOfLines((*it)->text)-1)*11. , 0);
             //glPopMatrix();
 
-        }
-        {
-        int er;
-        if ((er = glGetError()) != GL_NO_ERROR) {printf("CON %s\n",  gluErrorString(er));system("pause");}
         }
 
     }

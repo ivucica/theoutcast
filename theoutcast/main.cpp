@@ -23,11 +23,18 @@
 #include <GL/glut.h>
 #include <GLICT/fonts.h>
 #include <GLICT/globals.h>
+
+#include <GL/GRemdeyExtensions.h>
+PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
+HINSTANCE glinstance;
+HMODULE glmodule;
+
 #include "gamemode.h"
 #include "gm_mainmenu.h"
 #include "glutwin.h"
 #include "glutfont.h"
 #include "options.h"
+#include "skin.h"
 #ifdef WIN32
 	#include "winfont.h"
 #endif
@@ -36,6 +43,7 @@
 #include "sound.h"
 #include "debugprint.h"
 #include "networkmessage.h" // FIXME remove me
+
 
 
 #define WINFONT
@@ -65,6 +73,7 @@ void GameInit() {
 
 }
 
+
 void GLInit() {
 
     // FIXME gotta fix
@@ -73,7 +82,13 @@ void GLInit() {
 	glAlphaFunc(GL_GEQUAL, .5);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
-	glictGlobals.clippingMode = GLICT_SCISSORTEST;
+//	glictGlobals.clippingMode = GLICT_SCISSORTEST;
+
+
+	glinstance = LoadLibrary("opengl32.dll");
+	glmodule = GetModuleHandle("opengl32.dll");
+	glStringMarkerGREMEDY = (PFNGLSTRINGMARKERGREMEDYPROC) GetProcAddress(glmodule, "glStringMarkerGREMEDY");
+	glictGlobals.debugCallback = (GLICTDEBUGCALLBACKPROC)DEBUGMARKER;
 
 }
 
@@ -108,6 +123,8 @@ void NetInit() {
 	/* The WinSock DLL is acceptable. Proceed. */
 #endif
 }
+
+
 
 int main(int argc, char** argv) {
 
@@ -178,6 +195,8 @@ if(AllocConsole())
 	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
+
+    skin.Load("default");
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");

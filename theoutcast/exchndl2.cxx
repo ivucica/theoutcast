@@ -11,7 +11,7 @@
 class ExceptionHandler
 {
 	public:
-	
+
 	ExceptionHandler()
 	{
 		LoadLibrary("exchndl.dll");

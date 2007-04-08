@@ -295,6 +295,11 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm2.Dump(s);
             }
             return true;
+        case 0x28: {// You are dead message
+            nm->ShowContents();
+            console.insert("You've died, mister. Really really badly died.", CONRED);
+            return true;
+        }
         case 0x32: // Something Else, Bug Report
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Unknown value: %d\n", nm->GetU8());
             printf("Can report bugs: %d\n", nm->GetU8());
@@ -599,7 +604,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xA0: // Player Stats
 
             GetPlayerStats(nm);
-            break;
+            return true;
         case 0xA1: // Player Skills
             GetPlayerSkills(nm);
             return true;
@@ -764,13 +769,24 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         }
         case 0xC8: {// Outfit List
             creaturelook_t crl;
-            GetCreatureByID(nm); // creature id
 
-            ParseCreatureLook(nm, &crl);
+	    if (this->protocolversion < 790) { // FIXME this is probably incorrect version of protocol where this first appeared. check!
 
-            nm->GetU8(); // first outfit
-            nm->GetU8(); // last outfit
+	            Creature *c = GetCreatureByID(nm); // creature id
 
+	            ParseCreatureLook(nm, &crl);
+
+	            nm->GetU8(); // first outfit
+	            nm->GetU8(); // last outfit
+
+	    } else {
+		    unsigned char countoutfits = nm->GetU8();
+		    for (int i = 0; i < countoutfits; i++) {
+		        nm->GetU16(); // look type
+                nm->GetString(); // outift name
+                nm->GetU8(); // addons
+		    }
+	    }
             return true;
         }
         case 0xD2: // VIP Add
@@ -784,20 +800,19 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xD4: // VIP Logout
             nm->GetU32(); // GUID
             return true;
+	}
+	
+    {
+        char tmp[256];
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
+        sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is in testing. Report bugs!", protocolversion, packetid);
+        this->errormsg = tmp;
+        console.insert(tmp, CONRED);
 
-        default: {
-            char tmp[256];
-            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
-            sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is in testing. Report bugs!", protocolversion, packetid);
-            this->errormsg = tmp;
-            console.insert(tmp, CONRED);
-
-            nm->ShowContents();
-            this->Close();
-            logonsuccessful = false;
-            return false;
-        }
-
+        nm->ShowContents();
+        this->Close();
+        logonsuccessful = false;
+        return false;
     }
 }
 

@@ -7,6 +7,10 @@
         #include <windows.h>
         #include <assert.h>
 
+		#ifdef ASSERT
+			#undef ASSERT
+		#endif
+
         #define ASSERT(x) assert(x);
         #define ASSERTFRIENDLY(x, y) if (!(x)) { MessageBox(HWND_DESKTOP, y, "Something unpredicted happened! :(", MB_ICONSTOP); assert(x); }
     #else

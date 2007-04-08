@@ -27,7 +27,7 @@ void glut_Display() {
 	glutSwapBuffers();
 	{
 	int er;
-	if ((er = glGetError()) != GL_NO_ERROR) printf("%s\n", gluErrorString(glGetError()));
+	//if ((er = glGetError()) != GL_NO_ERROR) printf("In display %s\n", gluErrorString(er));
 	}
 
 }
@@ -156,8 +156,8 @@ void RenderMouseCursor() {
     } else {
         glDisable(GL_CULL_FACE);
         glPushMatrix();
-        glTranslatef(ptrx - 16., ptry - 16., 0);
-        mousepointer_object->Render();
+			glTranslatef(ptrx - 16., ptry - 16., 0);
+			mousepointer_object->Render();
         glPopMatrix();
         glEnable(GL_CULL_FACE);
     }

@@ -8,6 +8,11 @@
 #include <stdarg.h>
 #include "debugprint.h"
 
+#include <windows.h>
+#include <GL/gl.h>
+#include <GL/GRemdeyExtensions.h>
+extern PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
+
 char debuglevel=DEBUGLEVEL_BUILDTIME;
 
 std::string DEBUG_FILE; int DEBUG_LINE;
@@ -69,4 +74,9 @@ void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
 
     	va_end(vl);
     }
+}
+
+
+void DEBUGMARKER (unsigned int size, const char *val) {
+	if (glStringMarkerGREMEDY) glStringMarkerGREMEDY(size, val);
 }

@@ -15,6 +15,6 @@
 extern char debuglevel;
 void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...);
 extern std::string DEBUG_FILE; extern int DEBUG_LINE;
-
+void DEBUGMARKER (unsigned int size, const char *val);
 
 #endif

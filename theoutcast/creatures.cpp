@@ -24,7 +24,7 @@ static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColN
         if (!strcmp(azColName[i], "creatureid")) break;
     }
     sscanf(argv[i], "%d", &creatureid);
-    if (!creatureid > creatures_n) {
+    if (creatureid > creatures_n) {
         glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nCreature ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
