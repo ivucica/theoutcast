@@ -1,6 +1,7 @@
 #ifndef __OPTIONS_H
 #define __OPTIONS_H
 
+#include <string>
 #include "database.h"
 
 class Options {
@@ -13,6 +14,10 @@ class Options {
 
         bool maptrack;
         bool fullscreen;
+		bool intro;
+		bool os_cursor;
+		std::string skin;
+
 };
 
 

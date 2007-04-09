@@ -15,6 +15,10 @@ class Skin {
         glictSkinner win;
         Texture *btntl, *btnt, *btntr, *btnl, *btnc, *btnr, *btnbl, *btnb, *btnbr;
         glictSkinner btn;
+        Texture *bthtl, *btht, *bthtr, *bthl, *bthc, *bthr, *bthbl, *bthb, *bthbr;
+        glictSkinner bth;
+        Texture *txttl, *txtt, *txttr, *txtl, *txtc, *txtr, *txtbl, *txtb, *txtbr;
+        glictSkinner txt;
 
 };
 extern Skin skin;

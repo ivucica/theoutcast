@@ -9,6 +9,10 @@ Map::Map() {
 Map::~Map() {
     ONDeinitThreadSafe(threadsafe);
 // FIXME destroy every tile and remove it from the std::map
+/*
+    for (maptype_t::iterator it = m.begin(); it != m.end(); ) {
+        m.erase(it);
+    }*/
 }
 
 Tile* Map::GetTile(position_t *pos) {
@@ -32,13 +36,17 @@ Tile* Map::GetTile(position_t *pos) {
 Creature* Map::GetCreature(unsigned long creatureid, Creature *cr) {
     creaturelist_t::iterator it = c.find( creatureid );
     if (it==c.end()) {
-        if (!cr) return NULL;
+
+        if (!cr) {
+            printf ("DIRECTED NOT TO FORM NEW CREATURE %d!!!! Arrr...!!\n", creatureid);
+            return NULL;
+        }
         c[creatureid] = cr;
         (cr)->SetCreatureID(creatureid);
         printf("FORMING NEW CREATURE!!!!!!\n");
         return cr;
     } else {
-        delete cr;
+        if (cr) delete cr;
         return it->second;
     }
 }

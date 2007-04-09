@@ -16,10 +16,12 @@ class GM_Gameworld : public GameMode {
         void SpecKeyPress(int key, int x, int y);
         void MouseClick (int button, int shift, int mousex, int mousey);
         void ResizeWindow();
+
+        void UpdateStats();
     private:
         ObjSpr *g;
         glictContainer desktop;
-        glictWindow winWorld, winConsole, winInventory;
+        glictWindow winWorld, winConsole, winInventory, winStats;
 
         // winconsole
         glictTextbox txtConMessage;
@@ -28,6 +30,8 @@ class GM_Gameworld : public GameMode {
         // wininventory
         glictPanel panInvSlots[10];
 
+        // winstats
+        glictPanel panStaStats;
 
         position_t useex_item1_pos; unsigned char useex_item1_stackpos;
 

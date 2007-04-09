@@ -183,7 +183,7 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 		}
 	}
     glTranslatef(-(sizesofar / (float)(1 << 16)), linessofar ,0);
-    if (linessofar > 0.) printf("Falling back for %g\n", linessofar);
+//    if (linessofar > 0.) printf("Falling back for %g\n", linessofar);
 	glScalef(1./1.5,1./1.5,1.);
 
 	glTranslatef(-x,-y,0);

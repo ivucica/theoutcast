@@ -15,6 +15,7 @@
 #include "sound.h"
 #include "debugprint.h"
 #include "options.h"
+#include "skin.h"
 int currentspr;
 
 GM_MainMenu::GM_MainMenu() {
@@ -227,7 +228,7 @@ GM_MainMenu::GM_MainMenu() {
 
 		i = j+1;
 	}
-	sprintf(abouttext, "%s 0.3.7\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
+	sprintf(abouttext, "%s 0.3.8\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
 	about.SetMessage(abouttext);
 //    about.SetMessage("oi");
 	about.SetHeight(390);
@@ -290,6 +291,48 @@ GM_MainMenu::GM_MainMenu() {
     btnOptionsFullscreen.SetWidth(16);
     btnOptionsFullscreen.SetOnClick(GM_MainMenu_OptionsCheckbox);
     btnOptionsFullscreen.SetBGColor(.6,.6,.6,1.);
+
+	options.AddObject(&pnlOptionsIntro);
+    pnlOptionsIntro.SetPos(0, 60);
+    pnlOptionsIntro.SetHeight(16);
+    pnlOptionsIntro.SetWidth(100);
+    pnlOptionsIntro.SetCaption("Show intro: (*)");
+    pnlOptionsIntro.SetBGActiveness(false);
+
+    options.AddObject(&btnOptionsIntro);
+    btnOptionsIntro.SetPos(100, 60);
+    btnOptionsIntro.SetHeight(16);
+    btnOptionsIntro.SetWidth(16);
+    btnOptionsIntro.SetOnClick(GM_MainMenu_OptionsCheckbox);
+    btnOptionsIntro.SetBGColor(.6,.6,.6,1.);
+
+	options.AddObject(&pnlOptionsOSCursor);
+    pnlOptionsOSCursor.SetPos(0, 80);
+    pnlOptionsOSCursor.SetHeight(16);
+    pnlOptionsOSCursor.SetWidth(100);
+	pnlOptionsOSCursor.SetCaption("Use OS cursor:");
+    pnlOptionsOSCursor.SetBGActiveness(false);
+
+
+    options.AddObject(&btnOptionsOSCursor);
+    btnOptionsOSCursor.SetPos(100, 80);
+    btnOptionsOSCursor.SetHeight(16);
+    btnOptionsOSCursor.SetWidth(16);
+    btnOptionsOSCursor.SetOnClick(GM_MainMenu_OptionsCheckbox);
+    btnOptionsOSCursor.SetBGColor(.6,.6,.6,1.);
+
+	options.AddObject(&pnlOptionsSkin);
+    pnlOptionsSkin.SetPos(0, 100);
+    pnlOptionsSkin.SetHeight(16);
+    pnlOptionsSkin.SetWidth(100);
+    pnlOptionsSkin.SetCaption("Skin: ");
+    pnlOptionsSkin.SetBGActiveness(false);
+
+    options.AddObject(&txtOptionsSkin);
+    txtOptionsSkin.SetPos(100, 100);
+    txtOptionsSkin.SetHeight(16);
+    txtOptionsSkin.SetWidth(100);
+    txtOptionsSkin.SetBGColor(.6,.6,.6,1.);
 
 	options.AddObject(&btnOptionsOk);
 	btnOptionsOk.SetPos(220 - 64 - 64 - 5, 200-16);
@@ -446,7 +489,9 @@ void GM_MainMenu::Render() {
 
 
 
-	glDisable(GL_TEXTURE_2D);
+
+
+
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -467,7 +512,7 @@ void GM_MainMenu::Render() {
 	glPopMatrix();
 
 
-
+    glColor4f(1,1,1,1);
 	RenderMouseCursor();
 
 	if (fadein || fadeout) {
@@ -511,12 +556,15 @@ void GM_MainMenu::Render() {
         OnFadeout();
 	}
 
+    glColor4f(1,1,1,1);
 }
 
 void GM_MainMenu::ResizeWindow() {
 	desktop.SetHeight(winh);
 	desktop.SetWidth(winw);
 
+    glictGlobals.w = winw;
+    glictGlobals.h = winh;
 	glictSize s;
 
 	mainmenu.SetPos(winw / 2 - 200 / 2, winh / 2 - 200 / 2);
@@ -796,15 +844,46 @@ void GM_MainMenu_Options(glictPos* pos, glictContainer *caller) {
 
     if (options.maptrack) ((GM_MainMenu*)game)->btnOptionsMaptrack.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsMaptrack.SetCaption("");
     if (options.fullscreen) ((GM_MainMenu*)game)->btnOptionsFullscreen.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsFullscreen.SetCaption("");
+	if (options.intro) ((GM_MainMenu*)game)->btnOptionsIntro.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsIntro.SetCaption("");
+	if (options.os_cursor) ((GM_MainMenu*)game)->btnOptionsOSCursor.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsOSCursor.SetCaption("");
+
+	((GM_MainMenu*)game)->txtOptionsSkin.SetCaption(options.skin);
 }
 void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
+
+
+
+	// first, do some argument check
+
+	{// skin
+		char tmp[256];
+		sprintf(tmp, "skins/%s/window/tl.bmp", ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption().c_str());
+		FILE *f = fopen(tmp,"r");
+		if (!f) {
+			sprintf(tmp, "You have entered invalid skin name,\n '%s'.\n\nPlease check that the skin exists.\n(To see available skins, open subfolder 'skins/'.)", ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption().c_str());
+			((GM_MainMenu*)game)->MsgBox(tmp, "Skin name invalid");
+			return;
+		} else {
+			fclose(f);
+		}
+	}
 
     GM_MainMenu_OptionsCancel(pos, caller);
     game->Render();
     glutSwapBuffers();
 
+
+
     options.maptrack = ((GM_MainMenu*)game)->btnOptionsMaptrack.GetCaption() == "X";
     options.fullscreen = ((GM_MainMenu*)game)->btnOptionsFullscreen.GetCaption() == "X";
+	options.intro = ((GM_MainMenu*)game)->btnOptionsIntro.GetCaption() == "X";
+	options.os_cursor = ((GM_MainMenu*)game)->btnOptionsOSCursor.GetCaption() == "X";
+
+	options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
+
+	glut_SetMousePointer("DEFAULT");
+	skin.Load(options.skin.c_str());
+	((GM_MainMenu*)game)->ResizeWindow();
     options.Save();
 }
 void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller) {

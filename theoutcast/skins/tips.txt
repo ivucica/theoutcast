@@ -1,0 +1,37 @@
+THE OUTCAST 
+(c) 2005-2007 OBJECT Networks
+
+GLICT Skinning Tips
+----
+Since The Outcast's version 0.3.8, GLICT shipped in The Outcast contains a basic skinning engine. Here's some instructions and tips. If you don't understand this, well, make the art and try to get someone on the forums to do the implementation for you.
+
+
+1. INSTRUCTIONS
+
+Each skin comes in a subfolder of the skins/ folder. So, it's like this:
+
+* outcast/skins/yourskin
+
+It should contain additional subfolders called window/ and button/, and an optional file called colors.txt. Both window/ and button/ should contain files tl.bmp, t.bmp, tr.bmp, l.bmp, c.bmp, r.bmp, bl.bmp, b.bmp and br.bmp. They stand for following sections of the rectangle that forms a button or a window, respectively: top left corner, top, top right, left, center, right, bottom left, bottom and bottom right. Please consult the provided skins to see the usage.
+
+File colors.txt contains RGBA elements -- meaning in each line, put 4 numbers from 0-1. It contains following RGBA elements, in order of appearance:
+* button text color
+* highlighted button text color
+* panel text color
+* textbox text color
+* window titlebar text color
+* console colors: red, blue, yellow, orange, white, ltblue, green
+
+Top, left, center, right, and bottom are repeated to fill the area they need to cover.
+
+2. TIPS
+
+Tip #1
+
+COMPLICATED: Do not be conservative on dimensions of the repeated portions! In case they are too small, they will be repeated too often and framerate will drop more than if you'd simply give a big original file. So, it might be a better idea to tile it yourself, and then feed it to GLICT. 
+SIMPLE: Don't make 'top' 8x8, make it 64x8. Don't make 'center' 3x3, make it 64x64.
+
+Tip #2
+
+COMPLICATED: Keep the textbox borders small, preferably 1 or 2 on the shorter part.
+SIMPLE: Don't make 'top' 8x8, make it 8x1, don't make 'left' 8x8, make it 1x8.

@@ -30,11 +30,13 @@ GM_Logo::GM_Logo () {
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
 
+	glut_SetMousePointer(NULL);
 
 
 }
 GM_Logo::~GM_Logo() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing logo\n");
+	glut_SetMousePointer("DEFAULT");
     delete logo;
     SoundSetMusic(NULL);
 }

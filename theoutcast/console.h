@@ -3,10 +3,11 @@
 #include <string>
 #include <vector>
 #include "colors.h"
+#include "types.h"
 #include "threads.h"
 typedef struct {
     char* text;
-    consolecolors color;
+    consolecolors_t color;
 } consoleentry;
 
 
@@ -23,7 +24,7 @@ class Console {
 
         const std::string operator [](int id);
         void insert(std::string txt); // inserts default yellow text
-        void insert(std::string txt, consolecolors col); // inserts anycolor text
+        void insert(std::string txt, consolecolors_t col); // inserts anycolor text
         void draw(char count);
         void clear();
 };

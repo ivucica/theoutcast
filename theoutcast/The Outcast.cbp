@@ -215,6 +215,7 @@
 		<Unit filename="threads.h" />
 		<Unit filename="tile.cpp" />
 		<Unit filename="tile.h" />
+		<Unit filename="todo.txt" />
 		<Unit filename="types.h" />
 		<Unit filename="winfont.cpp" />
 		<Unit filename="winfont.h" />

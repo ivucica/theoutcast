@@ -155,3 +155,12 @@ float colors[] = {
     // end of row 6
 };
 
+float consolecolors [] = {
+    1,0,0,1,    //CONRED = 0,
+	0,0,1,1,    //CONBLUE = 1,
+	1,1,0,1,    //CONYELLOW = 2,
+	1,.5,0,1,   //CONORANGE = 3,
+	.5,.5,1,1,  //CONLTBLUE = 4,
+	0,1,0,1,    //CONGREEN = 5,
+    1,1,1,1     //CONWHITE = 6
+};

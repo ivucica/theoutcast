@@ -21,6 +21,10 @@ class Player {
         unsigned int    GetMinZ();
 
 
+        unsigned short  GetHP();
+        unsigned short  GetMaxHP();
+        unsigned short  GetMP();
+        unsigned short  GetMaxMP();
 
 
         void            SetHP(unsigned short hp); // hp
@@ -47,6 +51,13 @@ class Player {
         unsigned long   creatureid;
         position_t      pos;
         unsigned char   minz;
+
+
+        // stats
+        unsigned short  hp;
+        unsigned short  maxhp;
+        unsigned short  mp;
+        unsigned short  maxmp;
 
 
     friend void Tile::Render(int layer);

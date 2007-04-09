@@ -19,7 +19,7 @@
 void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
-	mb->SetCaption("Error accessing account");
+    mb->SetCaption("Error accessing account");
 	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
 	SoundPlay("sounds/error.wav");

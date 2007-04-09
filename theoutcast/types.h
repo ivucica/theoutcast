@@ -132,4 +132,13 @@ typedef enum {
     NORTHWEST
 } direction_t;
 
+typedef struct  {
+    unsigned char major, minor;
+    unsigned int revision;
+} version_t;
+typedef struct {
+    float r,g,b,a;
+} color_t;
+
+
 #endif

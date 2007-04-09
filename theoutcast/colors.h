@@ -5,15 +5,17 @@
 
 extern float colors[];
 
-enum consolecolors {
+enum consolecolors_t {
 	CONRED = 0,
 	CONBLUE = 1,
 	CONYELLOW = 2,
 	CONORANGE = 3,
-	CONWHITE = 4,
-	CONLTBLUE = 5,
-	CONGREEN = 6
+	CONLTBLUE = 4,
+	CONGREEN = 5,
+	CONWHITE = 6
 };
 
+
+extern float consolecolors[];
 
 #endif

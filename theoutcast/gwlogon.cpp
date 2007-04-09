@@ -83,6 +83,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	    );
 
 	    GWLogon_Status(&menuclass->charlist, tmp);
+	    printf("%s\n", tmp);
 	}
 
 

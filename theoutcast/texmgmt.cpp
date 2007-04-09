@@ -4,12 +4,17 @@
 #endif
 #include <vector>
 #include <stdio.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 #include "debugprint.h"
 #include "texmgmt.h"
 #include "imgfmts.h"
 #include "assert.h"
 #include "sprfmts.h"
+#include "types.h"
+
+extern version_t glversion;
 
 #ifndef WIN32
 static int filesize (FILE* f) {
@@ -212,17 +217,30 @@ void Texture::StorePixels() {
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
     glBindTexture(GL_TEXTURE_2D, textureid);
 
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w,
-                    h, GL_RGBA, GL_UNSIGNED_BYTE, pikseli /*pImage->data*/);
-
     bool simpletextures = false; // to fool him until simpletextures is truly implemented
-    if (fname.substr(fname.length() - 3, 3)=="spr") {
+
+    if (fname.substr(fname.length() - 3, 3)=="spr" || fname.substr(0, 6)=="skins/") {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        if (glversion.major == 1 && glversion.minor >= 2 || glversion.major >= 2) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        }
+
     } else {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, simpletextures ? GL_NEAREST : GL_LINEAR);
     }
+
+
+
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w,
+                    h, GL_RGBA, GL_UNSIGNED_BYTE, pikseli /*pImage->data*/);
 
 
     free(pikseli);

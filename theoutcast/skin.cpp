@@ -1,9 +1,50 @@
 #include <GLICT/globals.h>
 #include <GLICT/skinner.h>
 #include "skin.h"
+#include "colors.h"
 
 Skin skin;
 Skin::Skin() {
+    wintl = NULL;
+    wint  = NULL;
+    wintr = NULL;
+    winl  = NULL;
+    winc  = NULL;
+    winr  = NULL;
+    winbl = NULL;
+    winb  = NULL;
+    winbr = NULL;
+
+    btntl = NULL;
+    btnt  = NULL;
+    btntr = NULL;
+    btnl  = NULL;
+    btnc  = NULL;
+    btnr  = NULL;
+    btnbl = NULL;
+    btnb  = NULL;
+    btnbr = NULL;
+
+    bthtl = NULL;
+    btht  = NULL;
+    bthtr = NULL;
+    bthl  = NULL;
+    bthc  = NULL;
+    bthr  = NULL;
+    bthbl = NULL;
+    bthb  = NULL;
+    bthbr = NULL;
+
+    txttl = NULL;
+    txtt  = NULL;
+    txttr = NULL;
+    txtl  = NULL;
+    txtc  = NULL;
+    txtr  = NULL;
+    txtbl = NULL;
+    txtb  = NULL;
+    txtbr = NULL;
+
 
 }
 Skin::~Skin() {
@@ -16,6 +57,26 @@ void Skin::Load(const char* what) {
     dirname += "/";
 
     Unload();
+
+
+    {
+        FILE *f = fopen((dirname + "colors.txt").c_str(), "r");
+        if (f) {
+            fscanf(f, "%g %g %g %g", &glictGlobals.buttonTextColor.r, &glictGlobals.buttonTextColor.g, &glictGlobals.buttonTextColor.b, &glictGlobals.buttonTextColor.a);
+            fscanf(f, "%g %g %g %g", &glictGlobals.buttonHighlightTextColor.r, &glictGlobals.buttonHighlightTextColor.g, &glictGlobals.buttonHighlightTextColor.b, &glictGlobals.buttonHighlightTextColor.a);
+            fscanf(f, "%g %g %g %g", &glictGlobals.panelTextColor.r,  &glictGlobals.panelTextColor.g,  &glictGlobals.panelTextColor.b,  &glictGlobals.panelTextColor.a);
+            fscanf(f, "%g %g %g %g", &glictGlobals.textboxTextColor.r,  &glictGlobals.textboxTextColor.g,  &glictGlobals.textboxTextColor.b,  &glictGlobals.textboxTextColor.a);
+            fscanf(f, "%g %g %g %g", &glictGlobals.windowTitleColor[0], &glictGlobals.windowTitleColor[1], &glictGlobals.windowTitleColor[2], &glictGlobals.windowTitleColor[3]);
+
+            for (int i = 0; i < 7; i++) {
+                fscanf(f, "%g %g %g %g", &consolecolors[i*4], &consolecolors[i*4+1], &consolecolors[i*4+2], &consolecolors[i*4+3]);
+            }
+
+
+
+            fclose(f);
+        }
+    }
 
     wintl = new Texture(dirname + "window/tl.bmp");
     wint  = new Texture(dirname + "window/t.bmp");
@@ -62,22 +123,72 @@ void Skin::Load(const char* what) {
     s.w = btnb->w; s.h = btnb->h; btn.SetBottom(btnb->textureid, &s);
     s.w = btnbr->w; s.h = btnbr->h; btn.SetBR(btnbr->textureid, &s);
 
+
     glictGlobals.buttonSkin = &btn;
-    glictGlobals.buttonHighlightSkin = &btn;
+
+
+
+
+    bthtl = new Texture(dirname + "buttonhighlight/tl.bmp");
+    btht  = new Texture(dirname + "buttonhighlight/t.bmp");
+    bthtr = new Texture(dirname + "buttonhighlight/tr.bmp");
+    bthl  = new Texture(dirname + "buttonhighlight/l.bmp");
+    bthc  = new Texture(dirname + "buttonhighlight/c.bmp");
+    bthr  = new Texture(dirname + "buttonhighlight/r.bmp");
+    bthbl = new Texture(dirname + "buttonhighlight/bl.bmp");
+    bthb  = new Texture(dirname + "buttonhighlight/b.bmp");
+    bthbr = new Texture(dirname + "buttonhighlight/br.bmp");
+
+    s.w = bthtl->w; s.h = bthtl->h; bth.SetTL(bthtl->textureid, &s);
+    s.w = btht->w; s.h = btht->h; bth.SetTop(btht->textureid, &s);
+    s.w = bthtr->w; s.h = bthtr->h; bth.SetTR(bthtr->textureid, &s);
+    s.w = bthl->w; s.h = bthl->h; bth.SetLeft(bthl->textureid, &s);
+    s.w = bthc->w; s.h = bthc->h; bth.SetCenter(bthc->textureid, &s);
+    s.w = bthr->w; s.h = bthr->h; bth.SetRight(bthr->textureid, &s);
+    s.w = bthbl->w; s.h = bthbl->h; bth.SetBL(bthbl->textureid, &s);
+    s.w = bthb->w; s.h = bthb->h; bth.SetBottom(bthb->textureid, &s);
+    s.w = bthbr->w; s.h = bthbr->h; bth.SetBR(bthbr->textureid, &s);
+
+
+    glictGlobals.buttonHighlightSkin = &bth;
+
+
+    txttl = new Texture(dirname + "textbox/tl.bmp");
+    txtt  = new Texture(dirname + "textbox/t.bmp");
+    txttr = new Texture(dirname + "textbox/tr.bmp");
+    txtl  = new Texture(dirname + "textbox/l.bmp");
+    txtc  = new Texture(dirname + "textbox/c.bmp");
+    txtr  = new Texture(dirname + "textbox/r.bmp");
+    txtbl = new Texture(dirname + "textbox/bl.bmp");
+    txtb  = new Texture(dirname + "textbox/b.bmp");
+    txtbr = new Texture(dirname + "textbox/br.bmp");
+
+    s.w = txttl->w; s.h = txttl->h; txt.SetTL(txttl->textureid, &s);
+    s.w = txtt->w; s.h = txtt->h; txt.SetTop(txtt->textureid, &s);
+    s.w = txttr->w; s.h = txttr->h; txt.SetTR(txttr->textureid, &s);
+    s.w = txtl->w; s.h = txtl->h; txt.SetLeft(txtl->textureid, &s);
+    s.w = txtc->w; s.h = txtc->h; txt.SetCenter(txtc->textureid, &s);
+    s.w = txtr->w; s.h = txtr->h; txt.SetRight(txtr->textureid, &s);
+    s.w = txtbl->w; s.h = txtbl->h; txt.SetBL(txtbl->textureid, &s);
+    s.w = txtb->w; s.h = txtb->h; txt.SetBottom(txtb->textureid, &s);
+    s.w = txtbr->w; s.h = txtbr->h; txt.SetBR(txtbr->textureid, &s);
+
+
+    glictGlobals.textboxSkin = &txt;
 
 
 }
 void Skin::Unload() {
 
-    delete wintl;
-    delete wint;
-    delete wintr;
-    delete winl;
-    delete winc;
-    delete winr;
-    delete winbl;
-    delete winb;
-    delete winbr;
+    if (wintl) delete wintl; wintl = NULL;
+    if (wint)  delete wint;  wint  = NULL;
+    if (wintr) delete wintr; wintr = NULL;
+    if (winl)  delete winl;  winl  = NULL;
+    if (winc)  delete winc;  winc  = NULL;
+    if (winr)  delete winr;  winr  = NULL;
+    if (winbl) delete winbl; winbl = NULL;
+    if (winb)  delete winb;  winb  = NULL;
+    if (winbr) delete winbr; winbr = NULL;
 
     win.SetTL(0, NULL);
     win.SetTop(0, NULL);
@@ -89,15 +200,15 @@ void Skin::Unload() {
     win.SetBottom(0, NULL);
     win.SetBR(0, NULL);
 
-	delete btntl;
-    delete btnt;
-    delete btntr;
-    delete btnl;
-    delete btnc;
-    delete btnr;
-    delete btnbl;
-    delete btnb;
-    delete btnbr;
+    if (btntl) delete btntl; btntl = NULL;
+    if (btnt)  delete btnt;  btnt  = NULL;
+    if (btntr) delete btntr; btntr = NULL;
+    if (btnl)  delete btnl;  btnl  = NULL;
+    if (btnc)  delete btnc;  btnc  = NULL;
+    if (btnr)  delete btnr;  btnr  = NULL;
+    if (btnbl) delete btnbl; btnbl = NULL;
+    if (btnb)  delete btnb;  btnb  = NULL;
+    if (btnbr) delete btnbr; btnbr = NULL;
 
     btn.SetTL(0, NULL);
     btn.SetTop(0, NULL);
@@ -110,6 +221,50 @@ void Skin::Unload() {
     btn.SetBR(0, NULL);
 
     glictGlobals.buttonSkin = NULL;
+
+
+    if (bthtl) delete bthtl; bthtl = NULL;
+    if (btht)  delete btht;  btht  = NULL;
+    if (bthtr) delete bthtr; bthtr = NULL;
+    if (bthl)  delete bthl;  bthl  = NULL;
+    if (bthc)  delete bthc;  bthc  = NULL;
+    if (bthr)  delete bthr;  bthr  = NULL;
+    if (bthbl) delete bthbl; bthbl = NULL;
+    if (bthb)  delete bthb;  bthb  = NULL;
+    if (bthbr) delete bthbr; bthbr = NULL;
+
+    bth.SetTL(0, NULL);
+    bth.SetTop(0, NULL);
+    bth.SetTR(0, NULL);
+    bth.SetLeft(0, NULL);
+    bth.SetCenter(0, NULL);
+    bth.SetRight(0, NULL);
+    bth.SetBL(0, NULL);
+    bth.SetBottom(0, NULL);
+    bth.SetBR(0, NULL);
+
     glictGlobals.buttonHighlightSkin = NULL;
+
+    if (txttl) delete txttl; txttl = NULL;
+    if (txtt)  delete txtt;  txtt  = NULL;
+    if (txttr) delete txttr; txttr = NULL;
+    if (txtl)  delete txtl;  txtl  = NULL;
+    if (txtc)  delete txtc;  txtc  = NULL;
+    if (txtr)  delete txtr;  txtr  = NULL;
+    if (txtbl) delete txtbl; txtbl = NULL;
+    if (txtb)  delete txtb;  txtb  = NULL;
+    if (txtbr) delete txtbr; txtbr = NULL;
+
+    txt.SetTL(0, NULL);
+    txt.SetTop(0, NULL);
+    txt.SetTR(0, NULL);
+    txt.SetLeft(0, NULL);
+    txt.SetCenter(0, NULL);
+    txt.SetRight(0, NULL);
+    txt.SetBL(0, NULL);
+    txt.SetBottom(0, NULL);
+    txt.SetBR(0, NULL);
+
+    glictGlobals.textboxSkin = NULL;
 
 }

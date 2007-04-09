@@ -8,6 +8,7 @@
 #include "texmgmt.h"
 #include "defines.h"
 #include "simple_effects.h"
+#include "options.h"
 int winw=0, winh=0;
 int ptrx=0, ptry=0;
 Texture* mousepointer=NULL;
@@ -72,13 +73,26 @@ void glut_SetMousePointer(std::string texturefile) {
         mousepointer_object = NULL;
     }
 	if (mousepointer) delete mousepointer;
-	mousepointer = new Texture(texturefile);
+
+	if (texturefile=="DEFAULT") {
+		if (options.os_cursor) texturefile = "WINDOWS"; else texturefile = "mousepointer.bmp";
+	}
+
+	if (texturefile == "WINDOWS") {
+		glutSetCursor(GLUT_CURSOR_INHERIT );
+		mousepointer = NULL;
+	}
+	else {
+		glutSetCursor(GLUT_CURSOR_NONE);
+		mousepointer = new Texture(texturefile);
+	}
 }
 void glut_SetMousePointer(Object *obj) {
 	if (mousepointer_object) {
 	    delete mousepointer_object;
 	}
 	mousepointer_object = obj;
+	glutSetCursor(GLUT_CURSOR_NONE);
 }
 
 void glut_FPS (int param) {
@@ -147,13 +161,13 @@ void RenderMouseCursor() {
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    if (!mousepointer_object) {
+    if (!mousepointer_object && mousepointer) {
         mousepointer->Bind();
         glEnable(GL_TEXTURE_2D);
 
         //FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
         StillEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, false, true	);
-    } else {
+    } else if (mousepointer_object) {
         glDisable(GL_CULL_FACE);
         glPushMatrix();
 			glTranslatef(ptrx - 16., ptry - 16., 0);

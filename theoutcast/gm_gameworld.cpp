@@ -112,6 +112,17 @@ GM_Gameworld::GM_Gameworld() {
 
 
 
+    desktop.AddObject(&winStats);
+        winStats.SetWidth(120);
+        winStats.SetHeight(150);
+        winStats.SetCaption("Stats");
+        winStats.SetPos(410, 200);
+        winStats.AddObject(&panStaStats);
+            panStaStats.SetBGActiveness(false);
+
+
+    UpdateStats();
+
     //glDisable(GL_CULL_FACE);
     ONNewThread(GM_Gameworld_Thread, NULL);
 
@@ -169,7 +180,7 @@ void GM_Gameworld::Render() {
 	desktop.Paint();
 
 	glDisable(GL_SCISSOR_TEST);
-
+    glColor4f(1,1,1,1);
 
     RenderMouseCursor();
 }
@@ -359,17 +370,18 @@ void GM_Gameworld::ResizeWindow() {
 	desktop.SetHeight(winh);
 	desktop.SetWidth(winw);
 
-    winWorld.SetHeight(winh > 100 ? winh - 100 : 0);
-    winWorld.SetWidth((float)(winh > 100 ? winh - 100 : 0) * VISIBLEWPIXEL/VISIBLEHPIXEL);
+    winWorld.SetHeight((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0));
+    winWorld.SetWidth((float)((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0)) * VISIBLEWPIXEL/VISIBLEHPIXEL);
     winWorld.SetPos(0, 0);
 
     winConsole.SetWidth(winw-100);
-    winConsole.SetPos(0, winh-100+14);
+    winConsole.SetPos(0, winh-100+32 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetBottomSize()->h : 0));
         txtConMessage.SetWidth(winw-100-50);
         btnConSend.SetPos(winw-100-50, 52);
 
-    winInventory.SetPos(winw-120, 0);
+    winInventory.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize()->w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize()->w : 0), 0);
 
+    winStats.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize()->w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize()->w : 0), winInventory.GetHeight());
 
 	glutPostRedisplay();
 }
@@ -385,6 +397,17 @@ void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
 	desktop.TransformScreenCoords(&pos);
 	if (shift==GLUT_DOWN) desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
 	if (shift==GLUT_UP) desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
+
+}
+
+void GM_Gameworld::UpdateStats() {
+    static char tmp[1024];
+    sprintf(tmp,"HP: %d/%d\n"
+                "MP: %d/%d\n",
+                player->GetHP(), player->GetMaxHP(),
+                player->GetMP(), player->GetMaxMP());
+
+    panStaStats.SetCaption(tmp);
 
 }
 
@@ -496,7 +519,7 @@ void GM_Gameworld_ClickExec(position_t *pos) {
         if (pos->x!=0xFFFF) t = gamemap.GetTile(pos);
 
         protocol->Use(&(((GM_Gameworld*)game)->useex_item1_pos), ((GM_Gameworld*)game)->useex_item1_stackpos, pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
-        glut_SetMousePointer("mousepointer.bmp");
+        glut_SetMousePointer("DEFAULT");
         return;
     }
 

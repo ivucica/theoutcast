@@ -80,9 +80,11 @@ unsigned int Player::GetMinZ() {
 
 void Player::SetHP(unsigned short hp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "HP: %d\n", hp);
+    this->hp = hp;
 }
 void Player::SetMaxHP(unsigned short maxhp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MaxHP: %d\n", maxhp);
+    this->maxhp = maxhp;
 }
 void Player::SetCap(unsigned short cap) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Cap: %d\n", cap);
@@ -98,9 +100,11 @@ void Player::SetLevelPercent(unsigned char lvlpercent) {
 }
 void Player::SetMP(unsigned short mp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MP: %d\n", mp);
+    this->mp = mp;
 }
 void Player::SetMaxMP(unsigned short maxmp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MaxMP: %d\n", maxmp);
+    this->maxmp = maxmp;
 }
 void Player::SetMLevel(unsigned char mlvl) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MLevel: %d\n", mlvl);
@@ -116,6 +120,22 @@ void Player::SetSoulPoints(unsigned char soul) {
 void Player::SetStamina(unsigned short stamina) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Stamina: %d\n", stamina);
 }
+
+
+unsigned short Player::GetHP() {
+    return hp;
+}
+unsigned short Player::GetMaxHP() {
+    return maxhp;
+}
+unsigned short Player::GetMP() {
+    return mp;
+}
+unsigned short Player::GetMaxMP() {
+    return maxmp;
+}
+
+
 
 void Player::SetInventorySlot(unsigned int slot, Thing *item) {
     if (inventory[slot-1]) delete inventory[slot-1];

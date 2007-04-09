@@ -1,6 +1,6 @@
-THE OUTCAST v0.3.7
+THE OUTCAST v0.3.8
 Readme
-3.4.2007
+9.4.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.7 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.8 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -46,7 +46,7 @@ Currently it can log on, display character list, fetch the map from server, pars
 
 1.a) Rant about this version
 
-Now you can use items and the inventory! So, use another client, put a rope in your hand, log on to a server and start hunting! Why? Because you can!
+I've added the ultra-uber-cool skin support, so it all looks much nicer!
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
@@ -164,7 +164,6 @@ So far this could be called a one man project. 99% done by Ivan Vucica - Khaos. 
 As I upgrade The Outcast with more features including some from old The Outcast, this list will be enhanced with people who contributed to those features in old The Outcast.
 
 Credit for the name goes to Ryan Majetich a.k.a. Scotchy.
-Credit for the logo goes to summvitae.
 
 Outcast utilizes the following libraries and wishes to thank their authors:
  JPEG Library
@@ -196,6 +195,10 @@ Changes since 0.3.7
 * Fixes to change outfit packet (did not test them yet)
 * Diagonal moving using Home/End/Pageup/Pagedown (that is, 1/3/7/9 using keypad)
 * Includes the latest GLICT with skin support! Now, if we only had a better artist than me ... :)
+* Added option to set skin
+* Added option to use OS mouse pointer instead of rendered one
+* Some fixes (e.g. you can now relog, for the time being)
+* New logo, because the old one might have been used without authorization
 
 Changes since 0.3.61
 * Eagle sight of K-Zodron's noticed I put in 14x10 visible area, while it should have been 15x11. Thank you!
@@ -453,18 +456,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 92
+* Number of files: 95
 
 * Code only: 68%
 * Code + Comment: 6%
 * Comments: 7%
 * Empty: 19%
 
-* Code only: 7274
-* Empty lines: 2022
-* Comment lines: 796
-* Code and comments: 619
-* Total: 10711
+* Code only: 7761
+* Empty lines: 2175
+* Comment lines: 821
+* Code and comments: 640
+* Total: 11397
 
 ---
 

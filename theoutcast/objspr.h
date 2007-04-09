@@ -27,6 +27,7 @@ class ObjSpr : public Object {
         unsigned char offsetx, offsety;
         unsigned int type; // item, creature, ...
         direction_t direction;
+
 };
 
 #endif

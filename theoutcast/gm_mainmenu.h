@@ -53,8 +53,10 @@ class GM_MainMenu : public GameMode {
 		glictButton btnCharlistCancel;
 
 		glictWindow options;
-		glictPanel pnlOptionsMaptrack, pnlOptionsFullscreen; // checkboxes here only, please
-		glictButton btnOptionsMaptrack, btnOptionsFullscreen; // checkboxes here only, please
+		glictPanel pnlOptionsMaptrack, pnlOptionsFullscreen, pnlOptionsIntro, pnlOptionsOSCursor; // checkboxes here only, please
+		glictButton btnOptionsMaptrack, btnOptionsFullscreen, btnOptionsIntro, btnOptionsOSCursor; // checkboxes here only, please
+		glictPanel pnlOptionsSkin; // textboxes here only, please
+		glictTextbox txtOptionsSkin; // textboxes here only, please
 		glictPanel pnlOptionsRestartWarning;
 		glictButton btnOptionsOk, btnOptionsCancel;
 

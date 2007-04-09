@@ -41,13 +41,15 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
 
 }
 ObjSpr::~ObjSpr() {
-    /*if (sli.spriteids)  {
+	return;
+    if (sli.spriteids)  { // FIXME: if (sli.usagecount == 0) ,,,;
         free(sli.spriteids);
         for (int i = 0 ; i < sli.numsprites; i++) {
             delete(t[i]);
+			
         }
         free(t);
-    }*/
+    }
 }
 bool ObjSpr::Render() {
     position_t p;
@@ -102,6 +104,7 @@ bool ObjSpr::Render(position_t *pos) {
                     char tmp[256];
                     sprintf(tmp, "Active frame is %d while number of frames is %d. And that is a problem.", activeframe, sli.numsprites);
                     ASSERTFRIENDLY(activeframe < sli.numsprites, tmp )
+                    //printf("%s\n", tmp);
                 }
                 if (activeframe < sli.numsprites) t[activeframe]->Bind();
 

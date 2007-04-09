@@ -16,6 +16,7 @@ Console::Console() {
     ONInitThreadSafe(threadsafe);
 }
 Console::~Console() {
+	
     ONDeinitThreadSafe(threadsafe);
 }
 const std::string Console::operator[](int id) {
@@ -24,7 +25,7 @@ const std::string Console::operator[](int id) {
 void Console::insert(std::string txt) {
     this->insert(txt, CONWHITE);
 }
-void Console::insert(std::string txt, consolecolors col) {
+void Console::insert(std::string txt, consolecolors_t col) {
 //    DEBUGPRINT("Inserting new console entry, color %d\n", col);
 
     consoleentry* x = new consoleentry;
@@ -41,8 +42,9 @@ void Console::clear() {
     ONThreadSafe(threadsafe);
     consolecontainer::iterator it;
     for (it=con.begin(); it!=con.end();) {
-        con.erase(it);
+        
         free((*it)->text);
+		con.erase(it);
     }
     ONThreadUnsafe(threadsafe);
 }
@@ -61,39 +63,20 @@ void Console::draw(char count) {
         //p++;
         //printf("Line %d / %d\n", p, count);
         //DEBUGPRINT("%s\n", (*it)->text);
-        switch ((*it) ->color) {
-            /* TODO (Khaos#3#): These colors should perhaps use colors.h? Not sure
-                                about this xD */
-            case CONRED:
-                glColor3f(1.0f, 0.0f, 0.0f);
-                break;
-            case CONBLUE:
-                glColor3f(0.0f, 0.0f, 1.0f);
-                break;
-            case CONYELLOW:
-                glColor3f(1.0f, 1.0f, 0.0f);
-                break;
-            case CONORANGE:
-                glColor3f(1.0f, 0.5f, 0.0f);
-                break;
-            case CONLTBLUE:
-                glColor3f(0.5f, 0.5f, 1.0f);
-                break;
-            case CONGREEN:
-                glColor3f(0.0f, 1.0f, 0.0f);
-                break;
-            case CONWHITE:
-            default:
-                glColor3f(1.0f,1.0f, 1.0f);
-                break;
-        }
+
+
+        glColor4fv (&consolecolors[(*it) ->color * 4]);
+
+
         if ((*it)->text) {
             p += glutxNumberOfLines((*it)->text);
+
             //glPushMatrix();
-            glictFontRender((*it)->text, "system", 0, p*12 );
+            glictFontRender(((*it) ->text), "system", 0, p*12 );
             //glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
             glTranslatef(0, (glutxNumberOfLines((*it)->text)-1)*11. , 0);
             //glPopMatrix();
+
 
         }
 

@@ -43,8 +43,8 @@ HMODULE glmodule;
 #include "sound.h"
 #include "debugprint.h"
 #include "networkmessage.h" // FIXME remove me
-
-
+#include "types.h"
+version_t glversion;
 
 #define WINFONT
 bool fullscreen = false;
@@ -62,16 +62,20 @@ void GameInit() {
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);
 	#else
-		sysfont->SetFontParam(WinFontCreate("Arial", WINFONT_BOLD, 7));
+		//sysfont->SetFontParam(WinFontCreate("Arial", WINFONT_BOLD, 7));
+		sysfont->SetFontParam(WinFontCreate("Tahoma", 0 , 7));
 		sysfont->SetRenderFunc(WinFontDraw);
 		sysfont->SetSizeFunc(WinFontSize);
 	#endif
 
-    GameModeEnter(GM_LOGO);
-	//GameModeEnter(GM_MAINMENU);
+    if (options.intro)
+		GameModeEnter(GM_LOGO);
+	else
+		GameModeEnter(GM_MAINMENU);
 	//GameModeEnter(GM_SPRPLAYGROUND);
 
 }
+
 
 
 void GLInit() {
@@ -82,13 +86,26 @@ void GLInit() {
 	glAlphaFunc(GL_GEQUAL, .5);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
-//	glictGlobals.clippingMode = GLICT_SCISSORTEST;
+	glictGlobals.clippingMode = GLICT_SCISSORTEST;
 
 
 	glinstance = LoadLibrary("opengl32.dll");
 	glmodule = GetModuleHandle("opengl32.dll");
 	glStringMarkerGREMEDY = (PFNGLSTRINGMARKERGREMEDYPROC) GetProcAddress(glmodule, "glStringMarkerGREMEDY");
 	glictGlobals.debugCallback = (GLICTDEBUGCALLBACKPROC)DEBUGMARKER;
+
+
+    {
+        char * glversions = (char*)malloc(strlen((char*)glGetString( GL_VERSION ) )+1); strcpy(glversions, (char*)glGetString( GL_VERSION ) );
+        char *glverspace = strchr(glversions, ' ');
+        *glverspace = 0;
+
+        int x=0,y=0,z=0;
+        sscanf(glversions, "%d.%d.%d", &x, &y, &z);
+        glversion.major = x; glversion.minor = y; glversion.revision = z;
+
+        free(glversions);
+    }
 
 }
 
@@ -177,7 +194,7 @@ if(AllocConsole())
 	GLInit();
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
-	glut_SetMousePointer("mousepointer.bmp");
+	glut_SetMousePointer("DEFAULT");
 
 	// game must be inited LAST.
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");
@@ -190,13 +207,12 @@ if(AllocConsole())
 	glutMouseFunc(glut_Mouse);
 	glutIdleFunc(glut_Idle);
 	glutPassiveMotionFunc(glut_PassiveMouse);
-	glutSetCursor(GLUT_CURSOR_NONE);
 	glutTimerFunc(500, glut_FPS, 500);
 	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
 
-    skin.Load("default");
+    skin.Load(options.skin.c_str());
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");

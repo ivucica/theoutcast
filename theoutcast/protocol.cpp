@@ -13,6 +13,7 @@
 #include "bsdsockets.h"
 #include "database.h"
 #include "options.h"
+#include "gm_gameworld.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -204,10 +205,16 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
 
     /* dunno where this was added but it is there in 792 */
     if (protocolversion>=792) player->SetStamina(nm->GetU16()); // stamina (minutes)
+
+    if (dynamic_cast<GM_Gameworld*>(game)) ((GM_Gameworld*)game)->UpdateStats();
 }
 
 Creature *Protocol::GetCreatureByID(NetworkMessage *nm) {
-    return gamemap.GetCreature(nm->GetU32(), NULL);
+    Creature * cr = gamemap.GetCreature(nm->GetU32(), NULL);
+    if (!cr) {
+        system("pause");
+    }
+    return cr;
 }
 unsigned short Protocol::GetItemTypeID(NetworkMessage *nm) {
     return nm->GetU16();
@@ -557,7 +564,11 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x8C: {// Creature HP
             Creature *c = GetCreatureByID(nm);
-            c->SetHP(nm->GetU8()); // health percent
+            //if (c)
+                c->SetHP(nm->GetU8()); // health percent
+            //else
+            //    console.insert("There was a problem adjusting a creature's health.\n", CONRED);
+
             //if (c) printf("Creature %s health adjustment\n", c->GetName().c_str());
 
             return true;
@@ -680,7 +691,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xB4: {// Text Message
             std::string y;
             unsigned char msgclass;
-            consolecolors color;
+            consolecolors_t color;
             msgclass = nm->GetU8(); // msg class
 
 
@@ -801,7 +812,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU32(); // GUID
             return true;
 	}
-	
+
     {
         char tmp[256];
         DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
