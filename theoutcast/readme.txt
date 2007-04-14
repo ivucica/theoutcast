@@ -1,6 +1,6 @@
-THE OUTCAST v0.3.8
+THE OUTCAST v0.3.81
 Readme
-9.4.2007
+13.4.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
@@ -190,13 +190,17 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 10. CHANGE HISTORY
 
+Changes since 0.3.8
+* Fixed startup bug regarding GL_VERSION (sorry!)
+
 Changes since 0.3.7
 * Implemented 0x28 "you died" packet
 * Fixes to change outfit packet (did not test them yet)
 * Diagonal moving using Home/End/Pageup/Pagedown (that is, 1/3/7/9 using keypad)
 * Includes the latest GLICT with skin support! Now, if we only had a better artist than me ... :)
 * Added option to set skin
-* Added option to use OS mouse pointer instead of rendered one
+* Added option to use OS mouse pointer instead of rendered one (request by Jason)
+* Added option to skip intro (request by Jason)
 * Some fixes (e.g. you can now relog, for the time being)
 * New logo, because the old one might have been used without authorization
 

@@ -12,6 +12,7 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-g" />
 					<Add option="-g3" />
 					<Add option="-fexceptions" />
 					<Add option="-DWIN32" />
@@ -25,6 +26,7 @@
 				<Linker>
 					<Add option="-g3" />
 					<Add option="-fexceptions" />
+					<Add option='-Wl,-Map=&quot;The Outcast debug.map&quot;' />
 				</Linker>
 			</Target>
 			<Target title="release">
@@ -32,7 +34,6 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O3" />
 					<Add option="-g" />
 					<Add option="-fexceptions" />
 					<Add option="-DWIN32" />
@@ -44,6 +45,8 @@
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
+					<Add option="-g3" />
+					<Add option='-Wl,-Map=&quot;The Outcast.map&quot;' />
 				</Linker>
 			</Target>
 			<Target title="release_lite">

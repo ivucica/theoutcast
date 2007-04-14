@@ -96,15 +96,11 @@ void GLInit() {
 
 
     {
-        char * glversions = (char*)malloc(strlen((char*)glGetString( GL_VERSION ) )+1); strcpy(glversions, (char*)glGetString( GL_VERSION ) );
-        char *glverspace = strchr(glversions, ' ');
-        *glverspace = 0;
 
         int x=0,y=0,z=0;
-        sscanf(glversions, "%d.%d.%d", &x, &y, &z);
+        sscanf((char*)glGetString( GL_VERSION ), "%d.%d.%d", &x, &y, &z);
         glversion.major = x; glversion.minor = y; glversion.revision = z;
 
-        free(glversions);
     }
 
 }
