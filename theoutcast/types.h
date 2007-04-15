@@ -54,6 +54,7 @@ typedef struct {
     double height;
     unsigned char height2d_x, height2d_y;
     unsigned short minimapcolor;
+    unsigned char extraproperty;
     char spritelist[4096];
     unsigned short otid;
 

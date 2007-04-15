@@ -16,7 +16,7 @@ Console::Console() {
     ONInitThreadSafe(threadsafe);
 }
 Console::~Console() {
-	
+
     ONDeinitThreadSafe(threadsafe);
 }
 const std::string Console::operator[](int id) {
@@ -31,6 +31,15 @@ void Console::insert(std::string txt, consolecolors_t col) {
     consoleentry* x = new consoleentry;
     x->text = (char*)malloc(strlen(txt.c_str()) + 1);
     strcpy(x->text, txt.c_str());
+    if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
+    if (x->text[0] == 10) memmove(x->text, x->text+1, strlen(x->text)-1);
+    if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
+    if ((x->text[strlen(x->text)-2]==13 && x->text[strlen(x->text)-1]==10) || (
+         x->text[strlen(x->text)-2]==10 && x->text[strlen(x->text)-1]==13))
+        x->text[strlen(x->text)-2] = 0;
+
+    if (x->text[strlen(x->text)-1]==13 || x->text[strlen(x->text)-1]==10)
+        x->text[strlen(x->text)-1] = 0;
     x->color = col;
 
     //DEBUGPRINT("Adding %s to console\n", x->text);
@@ -42,7 +51,7 @@ void Console::clear() {
     ONThreadSafe(threadsafe);
     consolecontainer::iterator it;
     for (it=con.begin(); it!=con.end();) {
-        
+
         free((*it)->text);
 		con.erase(it);
     }

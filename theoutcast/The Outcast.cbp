@@ -133,6 +133,8 @@
 		<Unit filename="colors.h" />
 		<Unit filename="console.cpp" />
 		<Unit filename="console.h" />
+		<Unit filename="container.cpp" />
+		<Unit filename="container.h" />
 		<Unit filename="creature.cpp" />
 		<Unit filename="creature.h" />
 		<Unit filename="creatures.cpp" />

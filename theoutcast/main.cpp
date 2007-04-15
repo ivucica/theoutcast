@@ -155,8 +155,8 @@ if(AllocConsole())
 #endif
 
 
-	printf("THE OUTCAST 0.3\n");
-	printf("===============\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "THE OUTCAST 0.3\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "===============\n");
 
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up net\n");
@@ -208,7 +208,8 @@ if(AllocConsole())
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
 
-    skin.Load(options.skin.c_str());
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
+	skin.Load(options.skin.c_str());
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");

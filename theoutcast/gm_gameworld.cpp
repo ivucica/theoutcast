@@ -50,6 +50,9 @@ ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgume
     return 0;
 }
 GM_Gameworld::GM_Gameworld() {
+
+    ONInitThreadSafe(desktopthreadsafe);
+
 	glIsTexture(1);
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
 
@@ -119,6 +122,8 @@ GM_Gameworld::GM_Gameworld() {
         winStats.SetPos(410, 200);
         winStats.AddObject(&panStaStats);
             panStaStats.SetBGActiveness(false);
+            panStaStats.SetHeight(150);
+            panStaStats.SetWidth(120);
 
 
     UpdateStats();
@@ -138,6 +143,7 @@ GM_Gameworld::~GM_Gameworld() {
     CreaturesUnload();
     SPRUnloader();
 
+    ONDeinitThreadSafe(desktopthreadsafe);
 }
 
 void GM_Gameworld::Render() {
@@ -177,9 +183,14 @@ void GM_Gameworld::Render() {
 	//glRotatef( sin( bg_move_angle * PI / 180. )*2., 0., 0, 1);
 	//glTranslatef(-winw/2, -winh/2,0);
 	//desktop.RememberTransformations();
+	ONThreadSafe(desktopthreadsafe);
+    glEnable(GL_SCISSOR_TEST);
 	desktop.Paint();
-
+	containerdesktop.Paint();
 	glDisable(GL_SCISSOR_TEST);
+	ONThreadUnsafe(desktopthreadsafe);
+
+
     glColor4f(1,1,1,1);
 
     RenderMouseCursor();
@@ -267,6 +278,7 @@ void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
 
         default:
             desktop.CastEvent(GLICT_KEYPRESS, &key, 0);
+            //containerdesktop.CastEvent(GLICT_KEYPRESS, &key, 0);
 
     }
 }
@@ -367,6 +379,7 @@ void PaintMap() {
     gamemap.Unlock();
 }
 void GM_Gameworld::ResizeWindow() {
+
 	desktop.SetHeight(winh);
 	desktop.SetWidth(winw);
 
@@ -383,6 +396,11 @@ void GM_Gameworld::ResizeWindow() {
 
     winStats.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize()->w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize()->w : 0), winInventory.GetHeight());
 
+
+	containerdesktop.SetHeight(winh);
+	containerdesktop.SetWidth(winw);
+
+
 	glutPostRedisplay();
 }
 
@@ -395,8 +413,13 @@ void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
 	pos.x = mousex;
 	pos.y = mousey;
 	desktop.TransformScreenCoords(&pos);
-	if (shift==GLUT_DOWN) desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
-	if (shift==GLUT_UP) desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
+	if (shift==GLUT_DOWN)
+        if (!containerdesktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0))
+            desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
+	if (shift==GLUT_UP) {
+        if (!containerdesktop.CastEvent(GLICT_MOUSEUP, &pos, 0))
+            desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
+	}
 
 }
 
@@ -411,6 +434,34 @@ void GM_Gameworld::UpdateStats() {
 
 }
 
+void GM_Gameworld::AddContainer(Container *c, unsigned int x, unsigned int y) {
+    ONThreadSafe(desktopthreadsafe);
+    if (c->GetWindow()) {
+        containerdesktop.AddObject(c->GetWindow());
+        c->GetWindow()->SetPos(x, y);
+    }
+    ONThreadUnsafe(desktopthreadsafe);
+
+}
+void GM_Gameworld::RemoveContainer(Container *c) {
+    ONThreadSafe(desktopthreadsafe);
+    if (c->GetWindow()) {
+        containerdesktop.RemoveObject(c->GetWindow());
+    }
+    ONThreadUnsafe(desktopthreadsafe);
+}
+
+unsigned int GM_Gameworld::GetContainersX() {
+    return winw-166;
+}
+unsigned int GM_Gameworld::GetContainersY() {
+    ONThreadSafe(desktopthreadsafe);
+    glictPos p; unsigned int h;
+    panStaStats.GetPos(&p);
+    h = panStaStats.GetHeight();
+    ONThreadUnsafe(desktopthreadsafe);
+    return p.y + h;
+}
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
 
@@ -538,11 +589,19 @@ void GM_Gameworld_ClickExec(position_t *pos) {
             t = gamemap.GetTile(pos);
             th = t->GetStackPos(t->GetTopUsableStackpos());
         } else {
-            th = player->inventory[pos->y-1];
+            if (!(pos->y & 0x40))
+                th = player->inventory[pos->y-1];
+            else {
+                Container *c = player->GetContainer(pos->y & 0x0F);
+                if (!c) return;
+                th = c->GetItem(pos->z);
+            }
+
         }
         if (th) {
             unsigned short itemid = th->GetType();
-            if (items[itemid].usable) {
+
+            if (items[itemid].usable || items[itemid].rune ) {
                 // extended usable
                 console.insert("Specify where do you want to use this item", CONLTBLUE);
                 glut_SetMousePointer(new ObjSpr(itemid,0));
@@ -553,6 +612,16 @@ void GM_Gameworld_ClickExec(position_t *pos) {
                 // simple usable
                 protocol->Use(pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
             }
+
+
+
+            {
+                char tmp[256];
+                sprintf(tmp,"Item %d - Rune : %s, Usable : %s", itemid, (items[itemid].rune ? "yes" : "no"), (items[itemid].usable ? "yes" : "no"));
+                console.insert(tmp, CONBLUE);
+            }
+
+
         } else {
             if (pos->x!=0xFFFF) {
                 char tmp[256];
@@ -561,9 +630,11 @@ void GM_Gameworld_ClickExec(position_t *pos) {
                 console.insert(tmp, CONRED);
             }
         }
+
+
     } else {
         char tmp [256];
-        sprintf(tmp, "You clicked on location (%d, %d, %d).", pos->x, pos->y, pos->z);
+        sprintf(tmp, "You clicked on location (%d, %d, %d)", pos->x, pos->y, pos->z );
         console.insert(tmp, CONWHITE);
         gamemap.GetTile(pos)->ShowContents();
     }
@@ -577,8 +648,6 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
 
     //printf("%s\n", tmp);
 
-
-
     ((glictPanel*)caller)->SetBGColor(
         0,
         0,
@@ -588,10 +657,6 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
 */
 
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
-/*    glClearColor(.1, .1, .1, 1.);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0., 0., 0., 1.);
-*/
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

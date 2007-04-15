@@ -155,8 +155,8 @@ void RenderMouseCursor() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0.,winw,0.,winh);
-	glRotatef(180.0, 1.0, 0.0, 0.0);
-	glTranslatef(0,-winh,0.0);
+	//glRotatef(180.0, 1.0, 0.0, 0.0);
+	//glTranslatef(0,-winh,0.0);
 
 
     glMatrixMode(GL_MODELVIEW);
@@ -166,14 +166,15 @@ void RenderMouseCursor() {
         glEnable(GL_TEXTURE_2D);
 
         //FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
-        StillEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, false, true	);
+        StillEffect(ptrx-32., winh-ptry-32., ptrx+32., winh-ptry+32., 10, 10, false, false, true);
+
     } else if (mousepointer_object) {
-        glDisable(GL_CULL_FACE);
+
         glPushMatrix();
-			glTranslatef(ptrx - 16., ptry - 16., 0);
+			glTranslatef(ptrx - 16., winh-ptry - 16., 0);
 			mousepointer_object->Render();
         glPopMatrix();
-        glEnable(GL_CULL_FACE);
+
     }
 	glDisable(GL_TEXTURE_2D);
 	if (fps && mayanimate) cursoraniangle += 180. / fps;

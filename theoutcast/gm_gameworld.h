@@ -6,6 +6,8 @@
 #include "gamemode.h"
 #include "objspr.h"
 #include "types.h"
+#include "container.h"
+#include "threads.h"
 class GM_Gameworld : public GameMode {
     public:
         GM_Gameworld();
@@ -18,9 +20,14 @@ class GM_Gameworld : public GameMode {
         void ResizeWindow();
 
         void UpdateStats();
+
+        void AddContainer(Container *c, unsigned int x, unsigned int y);
+        void RemoveContainer(Container *c);
+        unsigned int GetContainersX();
+        unsigned int GetContainersY();
     private:
         ObjSpr *g;
-        glictContainer desktop;
+        glictContainer desktop, containerdesktop;
         glictWindow winWorld, winConsole, winInventory, winStats;
 
         // winconsole
@@ -36,6 +43,7 @@ class GM_Gameworld : public GameMode {
         position_t useex_item1_pos; unsigned char useex_item1_stackpos;
 
 
+        ONCriticalSection desktopthreadsafe;
 
     friend void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);

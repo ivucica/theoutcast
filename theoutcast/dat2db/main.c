@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
+
+
+int currentid;
+
 /* defines */
 #define BOOL char
 #define TRUE 1
@@ -43,9 +47,10 @@ typedef struct {
     double height;
     unsigned char height2d_x, height2d_y;
     unsigned short minimapcolor;
+    unsigned char extraproperty;
+
     char spritelist[4096];
     unsigned short otid;
-
     spritelist_t *sl;
 } item_t;
 
@@ -118,6 +123,7 @@ char check_tables() {
 			"height double, " /* how much does this item alter the height of items above it */
 			"height2d_x integer, height2d_y integer, " /* how much does this item alter the height of items above it, in x and y*/
 			"minimapcolor integer," /* what is the color of this item on the minimap */
+			"extraproperty integer," /* additional property, set up with packet 0x1D */
 			"spritelist varchar[4096], " /* spritelist */
 			"otid integer" /* under what id does OTserv store this item */
 			"); ",NULL, 0, NULL, tablename) != SQLITE_OK) {
@@ -185,6 +191,7 @@ void clear_item(item_t* item) {
     item->height = 0.;
     item->height2d_x = 0; item->height2d_y = 0;
     item->minimapcolor = 0;
+    item->extraproperty = 0;
     item->spritelist[0] = 0;
     item->otid = 0;
 
@@ -202,7 +209,7 @@ char dat_readitem(item_t *item) {
     clear_item(item);
 
     for (option = fgetc(fi); option != 0xFF; option = fgetc(fi)) {
-        /*printf("Byte %02x\n", option);*/
+        /*if (currentid == 101 || currentid == 386) printf("%d Byte %02x\n", currentid, option);*/
         switch (datversion) {
             case 750:
 
@@ -293,9 +300,10 @@ char dat_readitem(item_t *item) {
                     case 0x1D:/* line spot ?!? */
 
                         tmpchar = fgetc(fi); /* 86 -> openable holes, 77-> can be used to go down, 76 can be used to go up, 82 -> stairs up, 79 switch, */
-
+                        item->extraproperty = tmpchar;
                         if(tmpchar == 0x58)
                             item->readable = TRUE;
+
                         fgetc(fi); /* always 4 */
                         break;
                     case 0x1E: /* ground items */
@@ -405,7 +413,7 @@ char dat_readitem(item_t *item) {
                     case 0x1D:/* line spot ?!? */
 
                         tmpchar = fgetc(fi); /* 86 -> openable holes, 77-> can be used to go down, 76 can be used to go up, 82 -> stairs up, 79 switch, */
-
+                        item->extraproperty = tmpchar;
                         if(tmpchar == 0x58)
                             item->readable = TRUE;
                         fgetc(fi); /* always 4 */
@@ -521,7 +529,7 @@ char dat_readitem(item_t *item) {
                     case 0x1E:/* line spot ?!? */
 
                         tmpchar = fgetc(fi); /* 86 -> openable holes, 77-> can be used to go down, 76 can be used to go up, 82 -> stairs up, 79 switch, */
-
+                        item->extraproperty = tmpchar;
                         if(tmpchar == 0x58)
                             item->readable = TRUE;
                         fgetc(fi); /* always 4 */
@@ -662,9 +670,10 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height, "
                         "height2d_x, height2d_y, "
                         "minimapcolor, "
+                        "extraproperty, "
                         "spritelist, "
                         "otid "
-                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
+                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
 
                         datversion, /* part of table name */
 
@@ -693,6 +702,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
+                        i->extraproperty,
                         spritelist,
                         i->otid
                         ) != SQLITE_OK) return FALSE; else return TRUE;
@@ -721,6 +731,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height = '%f', "
                         "height2d_x = '%d', height2d_y = '%d', "
                         "minimapcolor = '%d', "
+                        "extraproperty = '%d', "
                         "spritelist = '%q', "
                         "otid = '%d' "
 
@@ -750,6 +761,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height,
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
+                        i->extraproperty,
                         spritelist,
                         i->otid,
 
@@ -845,7 +857,6 @@ void patchitem (unsigned int itemid, item_t *item) {
 int main (int argc, char **argv) {
 	int rc;
 	int size;
-	int currentid;
 	item_t item;
 
 	printf("The Outcast DAT Convertor\n---\n");

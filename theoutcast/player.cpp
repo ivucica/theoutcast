@@ -76,8 +76,6 @@ unsigned int Player::GetMinZ() {
     return minz;
 }
 
-
-
 void Player::SetHP(unsigned short hp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "HP: %d\n", hp);
     this->hp = hp;
@@ -144,4 +142,32 @@ void Player::SetInventorySlot(unsigned int slot, Thing *item) {
 void Player::RenderInventory(unsigned int slot) {
     if (!inventory[slot]) return;
     inventory[slot]->Render();
+}
+
+void Player::SetContainer(unsigned char cid, Container *container) {
+    containers[cid] = container;
+}
+unsigned char Player::GetFreeContainer() {
+    for (unsigned char i = 0; i < 16; i++) {
+        if ((containers.find(i))==containers.end())
+            return i;
+    }
+    return 0;
+}
+void Player::RemoveContainer(unsigned int cid) {
+    ContainerMap::iterator it;
+
+    if ((it = containers.find(cid))==containers.end()) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Could not find a container to remove");
+    } else {
+        containers.erase(it);
+    }
+}
+Container *Player::GetContainer(unsigned char container) {
+    ContainerMap::iterator it;
+    if ((it = containers.find(container))==containers.end()) {
+        return NULL;
+    } else {
+        return it->second;
+    }
 }

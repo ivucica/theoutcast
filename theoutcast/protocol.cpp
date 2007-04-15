@@ -460,22 +460,54 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x6E: {// Container Open
             std::string title;
             unsigned char containerid;
+            unsigned short icon;
+            unsigned char capacity;
+            Container *c;
 
             containerid = nm->GetU8(); // container id
-            nm->GetU16(); // container icon
+            icon = nm->GetU16(); // container icon
             title = nm->GetString(); // container title
-            nm->GetU8(); // capacity
+            capacity = nm->GetU8(); // capacity
             nm->GetU8(); // hasparent
+
+
+
+            int x = 10; int y = 10;
+
+            if (dynamic_cast<GM_Gameworld*>(game)) {
+                GM_Gameworld *gw  = dynamic_cast<GM_Gameworld*>(game);
+                x = gw->GetContainersX();
+                y = gw->GetContainersY() + containerid * 10;
+            }
+
+
+            if (Container *tmpc = player->GetContainer(containerid)) {
+                glictPos p;
+                tmpc->GetWindow()->GetPos(&p);
+                x = p.x; y = p.y;
+                if (dynamic_cast<GM_Gameworld*>(game))
+                    ((GM_Gameworld*)game)->RemoveContainer(player->GetContainer(containerid));
+                player->RemoveContainer(containerid);
+            }
+
+            player->SetContainer(containerid, c = new Container(title, containerid, icon, capacity));
+            if (dynamic_cast<GM_Gameworld*>(game)) // FIXME we need to add delayed addcontainer of some sort
+                ((GM_Gameworld*)game)->AddContainer(c, x, y); // perhaps gameworld should during startup check if there's a container that it has not added to desktop yet
+
+
+
             {
                 int itemcount = nm->GetU8(); // item count
                 for (int i = 0 ; i < itemcount ; i++) {
-                    delete ParseThingDescription(nm);
+                    //delete ParseThingDescription(nm);
+                    c->Insert(ParseThingDescription(nm));
                 }
             }
 
+
             {
                 char tmp[256];
-                sprintf(tmp, "Opened container %d - %s", containerid, title.c_str());
+                sprintf(tmp, "Opened container %d - %s (%d,%d)", containerid, title.c_str(), x, y);
                 console.insert(tmp);
             }
             return true;
@@ -484,6 +516,11 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             unsigned char containerid;
             containerid = nm->GetU8();
+
+
+            if (dynamic_cast<GM_Gameworld*>(game))
+                ((GM_Gameworld*)game)->RemoveContainer(player->GetContainer(containerid));
+            player->RemoveContainer(containerid);
 
             {
                 char tmp[256];
@@ -1101,7 +1138,7 @@ void Protocol::LookAt(position_t *pos) {
     ONThreadSafe(threadsafe);
     nm.AddU8(0x8C);
     this->AddPosition(&nm, pos);
-    if (pos->x!=0xFFFF) {
+    if (pos->x!=0xFFFF) { // tile
         Tile *t = gamemap.GetTile(pos);
         Thing *th;
         if (!t) {
@@ -1118,13 +1155,28 @@ void Protocol::LookAt(position_t *pos) {
 
         nm.AddU16(th->GetType());
         nm.AddU8(stackpos);
-    } else {
-        if (!player->inventory[pos->y-1]) {
-            ONThreadUnsafe(threadsafe);
-            return;
-        };
-        nm.AddU16(player->inventory[pos->y-1]->GetType());
-        nm.AddU8(0);
+    } else { // inventory or container
+        if (!(pos->y & 0x40)) { // inventory
+            if (!player->inventory[pos->y-1]) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            };
+            nm.AddU16(player->inventory[pos->y-1]->GetType());
+            nm.AddU8(0);
+        } else {
+            Container *c = player->GetContainer(pos->y & 0x0F);
+            if (!c) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            Thing* t = c->GetItem(pos->z);
+            if (!t) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            nm.AddU16(t->GetType());
+            nm.AddU8(0);
+        }
     }
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
@@ -1172,16 +1224,33 @@ void Protocol::Use(position_t *pos, unsigned char stackpos) {
         nm.AddU16(th->GetType() );
 
         nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
-        nm.AddU8(0); // FIXME this is "index". it seems to be specifying the amount of items to use?! or what? 0 seems to work fine
+        nm.AddU8(player->GetFreeContainer()); // specifies which container to replace
     } else {
-        if (!player->inventory[pos->y - 1]) {
-            ONThreadUnsafe(threadsafe);
-            return;
-        }
+        if (!(pos->y & 0x40)) { // inventory
+            if (!player->inventory[pos->y - 1]) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
 
-        nm.AddU16(player->inventory[pos->y - 1]->GetType() );
-        nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
-        nm.AddU8(0); // FIXME this is "index". it seems to be specifying the amount of items to use?! or what? 0 seems to work fine
+            nm.AddU16(player->inventory[pos->y - 1]->GetType() );
+            nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
+            nm.AddU8(player->GetFreeContainer()); // specifies which container to replace
+        } else {
+            Container *c = player->GetContainer(pos->y & 0x0F);
+            if (!c) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            Thing* t = c->GetItem(pos->z);
+            if (!t) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            nm.AddU16(t->GetType());
+            nm.AddU8(stackpos);
+            nm.AddU8(pos->y & 0x0F); // replace which container ...
+
+        }
     }
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
@@ -1190,7 +1259,7 @@ void Protocol::Use(position_t *pos, unsigned char stackpos) {
 }
 
 void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2) {
-    // this is "single-click" use, meaning only one item is affected
+    // this is "extended-click" use, meaning multiple items are affected
 
     NetworkMessage nm;
     Thing *th;
@@ -1225,18 +1294,28 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
         nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
 
     } else {
-        if (!player->inventory[pos1->y - 1]) {
-            ONThreadUnsafe(threadsafe);
-            return;
+        if (!(pos1->y & 0x40)) { // inventory
+            if (!player->inventory[pos1->y - 1]) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+
+            nm.AddU16(player->inventory[pos1->y - 1]->GetType() );
+            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+        } else {
+            Container *c = player->GetContainer(pos1->y & 0x0F);
+            if (!c) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            Thing* t = c->GetItem(pos1->z);
+            if (!t) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            nm.AddU16(t->GetType());
+            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
         }
-
-        nm.AddU16(player->inventory[pos1->y - 1]->GetType() );
-        nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
-
-
-
-
-
     }
 
     // second item
@@ -1263,14 +1342,28 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
 
 
     } else {
-        if (!player->inventory[pos2->y - 1]) {
-            ONThreadUnsafe(threadsafe);
-            return;
+        if (!(pos2->y & 0x40)) { // inventory
+            if (!player->inventory[pos2->y - 1]) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+
+            nm.AddU16(player->inventory[pos2->y - 1]->GetType() );
+            nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
+        } else {
+            Container *c = player->GetContainer(pos2->y & 0x0F);
+            if (!c) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            Thing* t = c->GetItem(pos2->z);
+            if (!t) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            nm.AddU16(t->GetType());
+            nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
         }
-
-        nm.AddU16(player->inventory[pos2->y - 1]->GetType());
-        nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
-
     }
 
     if (protocolversion >= 770)
@@ -1278,6 +1371,19 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
     nm.Dump(s);
     ONThreadUnsafe(threadsafe);
 }
+
+
+void Protocol::CloseContainer(unsigned char cid) {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+    nm.AddU8(0x87);
+    nm.AddU8(cid);
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+
 
 void Protocol::AddPosition(NetworkMessage *nm, position_t *pos) {
     nm->AddU16(pos->x);

@@ -1,9 +1,9 @@
-THE OUTCAST v0.3.81
+THE OUTCAST v0.3.9
 Readme
-13.4.2007
+15.4.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
-Reproduction of this software is free for non-commercial purposes only. Redistribution is, however, not allowed.
+Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
 ---
 
 CONTENTS
@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.8 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.3.9 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -38,27 +38,25 @@ It is NOT allowed to connect to CipSoft servers using alternative clients! If yo
 1. ABOUT THIS RELEASE
 
 This release is intended to demonstrate current progress on the software development.
-In no way it is a complete working product. There are bugs, and we are in no way responsible for any damage to your data, computer, mind, brain, arms, parents, grandparents, dog, cat, bed, house or anything else in your life, that can happen.
+In no way it is a complete working product. There are bugs, and we are in no way responsible for any damage to your data, computer, mind, brain, arms, parents, grandparents, dog, cat, bed, house or anything else in your life, that can happen, including being PKed because you could not fire that rune on time.
 
 This is a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
 
-Currently it can log on, display character list, fetch the map from server, parse most gameworld packets in a stub manner, you can walk around, and it will show text other people say, sprite animations work for the most part, creatures are also (properly?) loaded and displayed.
-
 1.a) Rant about this version
 
-I've added the ultra-uber-cool skin support, so it all looks much nicer!
+In this version I've added container support! Hopefully it will satisfy basic hunting needs, because now you can eat ;)
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
 1.b) Rant about the future
 
-No significant plans.
+Next version should include item moving support.
 
 ---
 
 2. HISTORY
 
-This is a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
+Version 0.3 was a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
 
 Original The Outcast was being developed since ~13. 10. 2005.
 
@@ -74,12 +72,12 @@ On October 24th 2006 I concluded what I was thinking for a few months then: that
 
 Barely any, for this version.
 
-Note: this has not been tested on large number of machines yet (I belive that I did not yet test it on anything under 1.8 GHz). So, these are just my estimates.
+Note: this has not been tested on large number of machines yet (I believe that I did not yet test it on anything under 1.7 GHz). So, these are just my estimates.
 
 PROCESSOR: 500MHz
 MEMORY: 64MB
 GRAPHICS CARD: Probably one with at least 32MB video memory. I've got one with 2MB, I'll check up with that one later.
-OS: Windows 98SE minimum (possible API incompatibility, untested)
+OS: Windows 98SE minimum (possible API incompatibility, untested -- XP is tested only)
 
 Developed on:
 PROCESSOR: Intel Celeron M 1.7GHz laptop
@@ -120,9 +118,9 @@ Press ESC to leave the game.
 
 6. COMPATIBILITY
 
-The client given out for free by CIPSoft contains simply too much graphics, and it is too much to expect that one student would ever be able to achieve full compatibility with their software. However, as much compatibility as possible will be attempted, and as much graphics as possible recreated.
+The client given out for free by Cipsoft contains simply too much graphics, and it is too much to expect that one student would ever be able to achieve full compatibility with their software. However, as much compatibility as possible will be attempted, and as much graphics as possible recreated.
 
-Protocols 7.6, 7.7, 7.9, 7.92 - post-gameworld stub packet support and moving around. We plan to add as much protocols as possible.
+Protocols 7.5, 7.6, 7.7, 7.9, 7.92 are currently mostly supported. We plan to add as much protocols as possible.
 
 
 ---
@@ -189,6 +187,10 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 ---
 
 10. CHANGE HISTORY
+
+Changes since 0.3.81
+* Fixed UseEx() cursor being flipped bug
+* Added container support! You can do anything you did with inventory
 
 Changes since 0.3.8
 * Fixed startup bug regarding GL_VERSION (sorry!)
@@ -460,19 +462,20 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 95
+* Number of files: 97
 
 * Code only: 68%
 * Code + Comment: 6%
 * Comments: 7%
 * Empty: 19%
 
-* Code only: 7761
-* Empty lines: 2175
-* Comment lines: 821
-* Code and comments: 640
-* Total: 11397
+* Code only: 8093
+* Empty lines: 2276
+* Comment lines: 836
+* Code and comments: 653
+* Total: 11858
 
+Count above does not include GLICT.
 ---
 
 14. BIG BADDA BOOM

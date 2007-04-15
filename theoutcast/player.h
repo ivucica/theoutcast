@@ -1,9 +1,15 @@
 #ifndef __PLAYER_H
 #define __PLAYER_H
 
+#include <map>
 #include "types.h"
 #include "creature.h"
 #include "tile.h"
+#include "container.h"
+
+
+typedef std::map <unsigned char, Container*> ContainerMap;
+
 class Player {
     public:
         Player(unsigned long creatureid);
@@ -44,8 +50,12 @@ class Player {
         void            SetInventorySlot(unsigned int slot, Thing *item);
         void            RenderInventory(unsigned int slot);
 
+        void            SetContainer(unsigned char cid, Container *container);
+        Container *     GetContainer(unsigned char container);
+        void            RemoveContainer(unsigned int cid);
+        unsigned char   GetFreeContainer();
 // public variables
-        Thing           *inventory[10];
+        Thing*          inventory[10];
 
     private:
         unsigned long   creatureid;
@@ -59,6 +69,7 @@ class Player {
         unsigned short  mp;
         unsigned short  maxmp;
 
+        ContainerMap containers;
 
     friend void Tile::Render(int layer);
 

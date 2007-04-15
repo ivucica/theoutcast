@@ -116,6 +116,10 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             sscanf(argv[i], "%d", &iTmp);
             items[itemid].speedindex = iTmp;
         }
+        if (!strcmp(azColName[i], "extraproperty")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid].extraproperty = iTmp;
+        }
 
     }
     return 0;

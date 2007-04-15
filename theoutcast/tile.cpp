@@ -423,13 +423,31 @@ unsigned char Tile::GetTopLookAt() {
 
     return topusable;
 }
-
+#include "console.h"
 unsigned char Tile::GetTopUsableStackpos() {
     static unsigned char stackpos;
     static unsigned char topusable;
     static int i;
 
     static std::vector<Item*>::iterator it;
+
+
+
+    if (ground) {
+
+        if (items[ground->GetType()].extraproperty==78) {
+ //           console.insert("Using on ground, extra property is 78", CONRED);
+            return 0; // use the ground
+        } else {
+ //           char tmp[256];
+//            sprintf(tmp, "Ground's extra property %d", items[ground->GetType()].extraproperty);
+//            console.insert(tmp, CONRED);
+        }
+    }
+
+    return GetTopLookAt();
+
+
 
     stackpos = 0;
     topusable = 255;
