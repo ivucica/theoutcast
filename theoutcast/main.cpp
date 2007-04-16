@@ -24,10 +24,12 @@
 #include <GLICT/fonts.h>
 #include <GLICT/globals.h>
 
-#include <GL/GRemdeyExtensions.h>
-PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
-HINSTANCE glinstance;
-HMODULE glmodule;
+#ifdef WIN32
+    #include <GL/GRemdeyExtensions.h>
+    PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
+    HINSTANCE glinstance;
+    HMODULE glmodule;
+#endif
 
 #include "gamemode.h"
 #include "gm_mainmenu.h"
@@ -89,10 +91,12 @@ void GLInit() {
 	glictGlobals.clippingMode = GLICT_SCISSORTEST;
 
 
+ #ifdef WIN32
 	glinstance = LoadLibrary("opengl32.dll");
 	glmodule = GetModuleHandle("opengl32.dll");
 	glStringMarkerGREMEDY = (PFNGLSTRINGMARKERGREMEDYPROC) GetProcAddress(glmodule, "glStringMarkerGREMEDY");
 	glictGlobals.debugCallback = (GLICTDEBUGCALLBACKPROC)DEBUGMARKER;
+#endif
 
 
     {
@@ -168,7 +172,7 @@ if(AllocConsole())
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
-	glutInitWindowSize (640, 480);
+	glutInitWindowSize (320, 240);
 	//glutInitWindowPosition (0, 0);
 
     options.Load();
@@ -203,7 +207,7 @@ if(AllocConsole())
 	glutMouseFunc(glut_Mouse);
 	glutIdleFunc(glut_Idle);
 	glutPassiveMotionFunc(glut_PassiveMouse);
-	glutTimerFunc(500, glut_FPS, 500);
+	glutTimerFunc(1000, glut_FPS, 1000);
 	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);

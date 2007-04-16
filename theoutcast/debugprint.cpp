@@ -8,10 +8,12 @@
 #include <stdarg.h>
 #include "debugprint.h"
 
-#include <windows.h>
+
 #include <GL/gl.h>
-#include <GL/GRemdeyExtensions.h>
-extern PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
+#ifdef WIN32
+    #include <GL/GRemdeyExtensions.h>
+    extern PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
+#endif
 
 char debuglevel=DEBUGLEVEL_BUILDTIME;
 
@@ -56,9 +58,11 @@ void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
 
 
         FILE* DEBUGLOG = fopen("debuglog.txt","a");
-        fprintf(DEBUGLOG,tx);
-        fflush(DEBUGLOG);
-        fclose(DEBUGLOG);
+		if (DEBUGLOG) {
+        	fprintf(DEBUGLOG,tx);
+        	fflush(DEBUGLOG);
+        	fclose(DEBUGLOG);
+		}
 
 /*
     	char tmp[6000];
@@ -78,5 +82,7 @@ void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
 
 
 void DEBUGMARKER (unsigned int size, const char *val) {
+#ifdef WIN32
 	if (glStringMarkerGREMEDY) glStringMarkerGREMEDY(size, val);
+#endif
 }

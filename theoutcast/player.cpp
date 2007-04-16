@@ -3,7 +3,11 @@
 #include "tile.h"
 #include "map.h"
 #include "debugprint.h"
-#include <windows.h>
+
+#ifdef WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#endif
 Player *player=0; // it says NULL not declared?!
 Player::Player(unsigned long creatureid) {
     this->creatureid = creatureid;

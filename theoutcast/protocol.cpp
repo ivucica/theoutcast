@@ -14,6 +14,7 @@
 #include "database.h"
 #include "options.h"
 #include "gm_gameworld.h"
+#include "creatures.h"
 Protocol* protocol;
 
 Protocol::Protocol() {

@@ -16,6 +16,7 @@
 #include "debugprint.h"
 #include "options.h"
 #include "skin.h"
+#include "charlist.h"
 int currentspr;
 
 GM_MainMenu::GM_MainMenu() {

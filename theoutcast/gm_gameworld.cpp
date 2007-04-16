@@ -22,12 +22,18 @@
 #include "protocol.h"
 #include "sound.h"
 #include "debugprint.h"
+#include "defines.h" // min and max
 
 #define VISIBLEW 15 // 14
 #define VISIBLEH 11 // 10
 
 #define VISIBLEWPIXEL (VISIBLEW*32.)
 #define VISIBLEHPIXEL (VISIBLEH*32.)
+
+
+#ifndef WIN32
+    #define MessageBox(x,y,z,u) 
+#endif
 extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 

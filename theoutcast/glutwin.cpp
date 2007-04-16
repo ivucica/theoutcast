@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <GLICT/globals.h>
+#include <math.h>
 
 #include "glutwin.h"
 #include "gamemode.h"
@@ -19,6 +20,13 @@ bool mayanimate=false;
 float cursoraniangle=0.;
 int glut_WindowHandle;
 Object *mousepointer_object;
+
+
+//#define FPSMETHOD1
+#define FPSMETHOD2
+//#define FPSMETHOD3
+
+
 void glut_FPS(int param);
 void glut_Display() {
 	game->Render();
@@ -97,6 +105,8 @@ void glut_SetMousePointer(Object *obj) {
 
 void glut_FPS (int param) {
 
+	
+	#ifdef FPSMETHOD1
     /*
     // Method 1
     // Every FRAMECONST frames, calculate FPS
@@ -110,16 +120,21 @@ void glut_FPS (int param) {
         frames = 0;
     }
 
+	#endif
 
-	/*
+	#ifdef FPSMETHOD2	
+	
 	// Method 2
 	// Every 1 second, calculate FPS
 	glutTimerFunc(1000, glut_FPS, 1000);
 	fps = 1000./(float)param * frames;
 	frames = 0;
-    */
-
-    /*
+    
+	#endif
+	
+	
+	#ifdef FPSMETHOD3
+    
     // Method 3
     // Every arbitrary num of seconds, calculate FPS
     glutTimerFunc(100, glut_FPS, 100);
@@ -127,10 +142,21 @@ void glut_FPS (int param) {
 		fps = fps * ((1000./(float)param - 5)/(1000./(float)param)) + frames*5;
 	else
 		fps = fps * ((1000./(float)param - 1)/(1000./(float)param)) + frames;
+	
+	
+	
     frames = 0;
-    */
+    
+	
+	#endif
 
 
+	
+	if (isnan(fps) || isinf(fps)) {
+		printf("FPS is NAN!!\n");
+		fps = 5.;
+	}
+	
 
 	char tmp[256];
 	sprintf(tmp, "%s / FPS: %c%c%.02f", APPTITLE, fps <= 10.009 ? '<' : ' ', fps <= 10.009 ? '=' : ' ', fps);
