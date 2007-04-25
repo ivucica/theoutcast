@@ -27,6 +27,15 @@ glictGlobalsClass glictGlobals;
 glictGlobalsClass::glictGlobalsClass() {
 	windowTitleBgColor[0] = 0.0; windowTitleBgColor[1] = 0.0; windowTitleBgColor[2] = 1.0; windowTitleBgColor[3] = 1.0;
 	windowTitleColor[0] = 1.0; windowTitleColor[1] = 1.0; windowTitleColor[2] = 1.0; windowTitleColor[3] = 1.0;
+    windowTitleSkin = NULL;
+    windowBodySkin = NULL;
+    buttonSkin = NULL;
+    buttonHighlightSkin = NULL;
+    textboxSkin = NULL;
+    buttonTextColor.r = 1.; buttonTextColor.g = 1.; buttonTextColor.b = 1.; buttonTextColor.a = 1.;
+    buttonHighlightTextColor.r = 1.; buttonHighlightTextColor.g = 1.; buttonHighlightTextColor.b = 1.; buttonHighlightTextColor.a = 1.;
+    panelTextColor.r = 1.; panelTextColor.g = 1.; panelTextColor.b = 1.; panelTextColor.a = 1.;
+    textboxTextColor.r = 1.; textboxTextColor.g = 1.; textboxTextColor.b = 1.; textboxTextColor.a = 1.;
 
 	//renderMode = GLICT_RENDERING; defunct
 
@@ -38,6 +47,7 @@ glictGlobalsClass::glictGlobalsClass() {
 
 	clippingMode = GLICT_NOCLIP;
 
+	this->debugCallback = NULL;
 }
 glictGlobalsClass::~glictGlobalsClass() {
 }
