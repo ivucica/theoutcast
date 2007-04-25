@@ -90,7 +90,8 @@ void GM_Logo::Render() {
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-//	printf("Rendering fade\n");
+//
+	printf("Rendering fade\n");
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);
 		glBegin(GL_QUADS);

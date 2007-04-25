@@ -195,6 +195,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\container.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\creature.cpp"
 				>
 			</File>
@@ -386,6 +390,10 @@
 			</File>
 			<File
 				RelativePath=".\console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\container.h"
 				>
 			</File>
 			<File
