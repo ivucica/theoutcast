@@ -43,6 +43,8 @@ void GameModeEnter(gamemode_t gm) {
 		delete game;
 	}
 
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Forming new gamemode\n");
+
 	switch (gm) {
 		case GM_LOGO:
 			game = new GM_Logo;

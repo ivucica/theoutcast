@@ -43,6 +43,7 @@ void TextureFreeSlot();
 Texture::Texture(std::string fname) {
 //	if (texcount > 50) TextureFreeSlot();
 
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s\n", fname.c_str());
 	this->fname = fname;
 	this->imgid = 0;
 
@@ -86,7 +87,7 @@ Texture::Texture(std::string fname) {
 }
 Texture::Texture(std::string fname, unsigned short id) {
 //	if (texcount > 50) TextureFreeSlot();
-
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
@@ -131,7 +132,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 RGBA *Texture::FetchBMPPixels() {
     RGBA *pikseli;
 	FILE *f = fopen(fname.c_str(), "rb");
-printf("Loading bitmap %s\n", fname.c_str());
+
     if (!f) {
         printf("Error opening bitmap %s.", fname.c_str());
         return NULL;
@@ -257,7 +258,7 @@ RGBA *Texture::FetchSPRPixels() {
 }
 
 Texture::~Texture() {
-printf("Destroying a texture\n");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
     if (*(usecount)==1) {
 		printf("Unloading texture %d\n", *textureid);
 
@@ -279,17 +280,22 @@ printf("Destroying a texture\n");
 		free(usecount);
 
     }
+    (*usecount)--;
 
 }
 void Texture::StorePixels() {
-   // glEnable(GL_TEXTURE_2D);
-   texcount ++;
-   if (texcount > 50) TextureFreeSlot();
-   //printf("Allocating texture number %d\n", texcount);
-   ASSERT(textureid);
+    // glEnable(GL_TEXTURE_2D);
+    texcount ++;
+    if (texcount > 50) TextureFreeSlot();
+
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Storing texture %s\n", fname.c_str());
+
+    ASSERT(textureid);
     glGenTextures(1, textureid);
+    ASSERT(*textureid);
     if (!(*textureid)) {
-        printf("ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
+
         //system("pause");
         //return;
         exit(1);
@@ -349,7 +355,7 @@ bool Texture::UnloadGL() {
 }
 
 void Texture::AssureLoadedness() {
-    printf("Checking up on %s\n", fname.c_str());
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking up on %s\n", fname.c_str());
     ASSERTFRIENDLY(textureid, "Texture::AssureLoadedness(): I thought we had a texture id malloc()'ed. But it appears not so.");
 
 	if (!(*textureid)) {
@@ -375,19 +381,21 @@ void Texture::AssureLoadedness() {
 }
 void Texture::Bind() {
 	AssureLoadedness();
-/*
-	for (std::vector<Texture*>::reverse_iterator it = textures.rbegin(); it != textures.rend() ; it++) {
+
+	for (std::vector<Texture*>::reverse_iterator it = textures.rbegin()+1; it != textures.rend() ; it++) {
 		if (*it == this) {
-			//printf("Moving texture %s...\n", (*it)->fname.c_str());
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moving texture %s...\n", (*it)->fname.c_str());
 			textures.erase(it.base());
 			textures.insert(textures.end(), this);
 			break;
 		}
 	}
-*/
+
 //	glEnable(GL_TEXTURE_2D);
 	//printf("Binding %s\n", fname.c_str());
-	if (*textureid) glBindTexture(GL_TEXTURE_2D, *textureid); else printf("We had a major situation here, soldier.\n");
+	if (*textureid) glBindTexture(GL_TEXTURE_2D, *textureid); else {
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "We had a major binding problem with %s\n", fname.c_str());
+	}
 }
 
 Texture* Texture::Find() {
@@ -396,6 +404,7 @@ Texture* Texture::Find() {
 			return *it;
 		}
 	}
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Requested texture twin of mine not found \n");
 	return NULL;
 }
 

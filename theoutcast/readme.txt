@@ -188,6 +188,9 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 10. CHANGE HISTORY
 
+Changes since 0.3.9
+* Fixed various GLICT related issues
+
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug
 * Added container support! You can do anything you did with inventory

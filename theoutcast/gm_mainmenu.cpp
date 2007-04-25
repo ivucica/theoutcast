@@ -20,7 +20,7 @@
 int currentspr;
 
 GM_MainMenu::GM_MainMenu() {
-
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Entering main menu\n");
 
     SoundSetMusic("music/logon.mp3");
 
@@ -38,7 +38,7 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing GLICT UI\n");
 
 
 
@@ -196,15 +196,16 @@ GM_MainMenu::GM_MainMenu() {
 	//about.SetBGColor(.5,.5,.5,1.);
 	about.SetOnDismiss(&GM_MainMenu_AboutOnDismiss);
 	char abouttext[8192];
-	char extensions[7000];
+	char extensions[20000];
 	strcpy(extensions, (char*)glGetString(GL_EXTENSIONS));
 	int lenext = strlen(extensions);
 	int linelen = 0;
-	char outext[7000];
+	char outext[20000];
 	strcpy(outext,"");
-	char outextension[7000];
+	char outextension[20000];
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Building extension list\n");
 	for (int i = 0 ; i < lenext ; ) {
-		char extension[100];
+		char extension[1000];
 
 		int j;
 		for (j = i; j < lenext && extensions[j]!=' ' ; ++j);
@@ -355,7 +356,7 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading logo and background\n");
 
 	logo = new Texture("logo.bmp");
 
@@ -370,6 +371,8 @@ GM_MainMenu::GM_MainMenu() {
 	tosIsOpen = false;
 
 	glDisable(GL_DEPTH_TEST);
+
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Construction of main menu complete\n");
 }
 
 GM_MainMenu::~GM_MainMenu() {
@@ -387,6 +390,7 @@ void GM_MainMenu::Render() {
 	//glClear(GL_STENCIL_BUFFER_BIT); <-- already done in glict
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
     if (false) {
 
@@ -414,6 +418,7 @@ void GM_MainMenu::Render() {
         glEnable(GL_NORMALIZE);
         GLfloat lightpos[] = { 1., 1., 1., 0. }; // 0 = directional light, 1 = positional light
 
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking flythrough loadedness\n");
         if (!flythrough.loaded) {
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
@@ -429,6 +434,7 @@ void GM_MainMenu::Render() {
 
         } else {
 
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Flythrough is loaded\n");
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
@@ -448,6 +454,8 @@ void GM_MainMenu::Render() {
 
         } else {
 
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Flythrough is loaded 2\n");
+
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
@@ -459,6 +467,9 @@ void GM_MainMenu::Render() {
             glPushMatrix();
             flythrough.set_cam_pos(fps);
             glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Rendering city\n");
+
             city->Render();
             glPopMatrix();
 
@@ -472,6 +483,7 @@ void GM_MainMenu::Render() {
 
     }
 
+DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
     glEnable(GL_TEXTURE_2D);
 
     glMatrixMode(GL_PROJECTION);
@@ -492,7 +504,7 @@ void GM_MainMenu::Render() {
 
 
 
-
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting UI\n");
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -513,10 +525,13 @@ void GM_MainMenu::Render() {
 	glDisable(GL_SCISSOR_TEST);
 	glPopMatrix();
 
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting cursor\n");
 
     glColor4f(1,1,1,1);
 	RenderMouseCursor();
 
+
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Finishing touches\n");
 	if (fadein || fadeout) {
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);

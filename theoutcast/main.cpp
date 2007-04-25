@@ -66,7 +66,7 @@ void GameInit() {
 
 void GLInit() {
 	glClearColor(0., 0., 0., 0.);
-	glClearDepth(10000.);
+	glClearDepth(900.);
 
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GEQUAL, .5);
@@ -201,8 +201,8 @@ if(AllocConsole())
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");
 	GameInit();
 
-	
-	
+
+
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up callbacks\n");
 
 	glutDisplayFunc(glut_Display);
@@ -215,8 +215,8 @@ if(AllocConsole())
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
 
-	
-	
+
+
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
 	glutMainLoop();
