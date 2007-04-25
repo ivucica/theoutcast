@@ -65,8 +65,8 @@ void GameInit() {
 
 
 void GLInit() {
-	glClearColor(0., 0., 0., 0.);
-	glClearDepth(900.);
+	//glClearColor(0., 0., 0., 0.);
+	//glClearDepth(200.);
 
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GEQUAL, .5);
@@ -91,6 +91,7 @@ void GLInit() {
 
     }
 
+    TextureInit();
 }
 
 void NetInit() {
@@ -188,11 +189,12 @@ if(AllocConsole())
 
 
 
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up GL\n");
+	GLInit();
+
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
 	skin.Load(options.skin.c_str());
 
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up GL\n");
-	GLInit();
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
 	glut_SetMousePointer("DEFAULT");

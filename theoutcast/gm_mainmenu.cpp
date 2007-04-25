@@ -390,7 +390,7 @@ void GM_MainMenu::Render() {
 	//glClear(GL_STENCIL_BUFFER_BIT); <-- already done in glict
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
     if (false) {
 
@@ -418,7 +418,7 @@ void GM_MainMenu::Render() {
         glEnable(GL_NORMALIZE);
         GLfloat lightpos[] = { 1., 1., 1., 0. }; // 0 = directional light, 1 = positional light
 
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking flythrough loadedness\n");
+        //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking flythrough loadedness\n");
         if (!flythrough.loaded) {
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
@@ -434,10 +434,10 @@ void GM_MainMenu::Render() {
 
         } else {
 
-            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Flythrough is loaded\n");
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Flythrough is loaded\n");
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
+            gluPerspective(45.0, (float)winw/(float)winh, 1., 900.0);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -454,11 +454,11 @@ void GM_MainMenu::Render() {
 
         } else {
 
-            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Flythrough is loaded 2\n");
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Flythrough is loaded 2\n");
 
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
+            gluPerspective(45.0, (float)winw/(float)winh, 1., 900.0);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -468,7 +468,7 @@ void GM_MainMenu::Render() {
             flythrough.set_cam_pos(fps);
             glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Rendering city\n");
+            //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Rendering city\n");
 
             city->Render();
             glPopMatrix();
@@ -483,7 +483,7 @@ void GM_MainMenu::Render() {
 
     }
 
-DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
+//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
     glEnable(GL_TEXTURE_2D);
 
     glMatrixMode(GL_PROJECTION);
@@ -504,7 +504,7 @@ DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
 
 
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting UI\n");
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting UI\n");
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -525,13 +525,13 @@ DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
 	glDisable(GL_SCISSOR_TEST);
 	glPopMatrix();
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting cursor\n");
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting cursor\n");
 
     glColor4f(1,1,1,1);
 	RenderMouseCursor();
 
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Finishing touches\n");
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Finishing touches\n");
 	if (fadein || fadeout) {
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);

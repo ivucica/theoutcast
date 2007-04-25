@@ -34,7 +34,7 @@ Object *mousepointer_object;
 #define FPSMETHOD2
 //#define FPSMETHOD3
 
-
+extern int texcount;
 void glut_FPS(int param);
 void glut_Display() {
 	game->Render();
@@ -167,7 +167,7 @@ void glut_FPS (int param) {
 
 
 	char tmp[256];
-	sprintf(tmp, "%s / FPS: %c%c%.02f", APPTITLE, fps <= 10.009 ? '<' : ' ', fps <= 10.009 ? '=' : ' ', fps);
+	sprintf(tmp, "%s / FPS: %c%c%.02f, TexCount: %d", APPTITLE, fps <= 10.009 ? '<' : ' ', fps <= 10.009 ? '=' : ' ', fps, texcount);
 	glutSetWindowTitle(tmp);
 
 }

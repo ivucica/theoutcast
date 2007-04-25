@@ -22,8 +22,8 @@ class Texture {
 		Texture* Find(); // finds another texture with its own properties (fname and imgid)
 		bool UnloadGL(); // unloads the texture from opengl context.
 
-		void AssureLoadedness(); 
-		
+		void AssureLoadedness();
+
 		bool *loaded;
 	private:
 
@@ -42,4 +42,6 @@ class Texture {
 		friend void TextureFreeSlot();
 };
 
+void TextureInit();
+void TextureDeinit();
 #endif

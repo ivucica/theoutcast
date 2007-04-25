@@ -58,7 +58,7 @@ void GM_Logo::Render() {
 //	printf("Drawing\n");
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(45.0, (float)winw/(float)winh, 10, 1000.0);
+        gluPerspective(45.0, (float)winw/(float)winh, 1., 900.0);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -73,8 +73,8 @@ void GM_Logo::Render() {
         glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
 //	printf("Rendering\n");
-        if (!done) 
-		logo->Render();
+        if (!done)
+            logo->Render();
         glPopMatrix();
 
 //	printf("Checking doneness\n");
