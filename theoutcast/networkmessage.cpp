@@ -31,41 +31,39 @@
 #endif
 
 
-NetworkMessage::NetworkMessage() {
-}
+NetworkMessage::NetworkMessage() {}
 
-NetworkMessage::~NetworkMessage() {
-}
+NetworkMessage::~NetworkMessage() {}
 
-bool NetworkMessage::Dump(SOCKET s) {
-
+bool NetworkMessage::Dump(SOCKET s) 
+{
     // FIXME it crashes on a memcpy sometimes
     // reverify!!
     unsigned int sizetosend = GetSize();
     char *tmp = NULL;
     tmp = (char*)malloc(sizetosend+2);
 
-
     if (!tmp) {
-        DEBUGPRINT(0,1, "malloc() failed while sending message");
+        DEBUGPRINT(0, 1, "malloc() failed while sending message");
         return false;
     }
     DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", sizetosend, sizetosend);
 
-    memcpy(tmp, &sizetosend, 2);
+    //memcpy(tmp, &sizetosend, 2); //memcpy for extremely small predetermined amounts of data is wasteful
+	*(unsigned short*)tmp = (unsigned short)sizetosend;
     memcpy(tmp+2, currentposition, sizetosend);
 
-    if (send(s, tmp, sizetosend+2, 0) != sizetosend+2) {
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket -- %s\n", SocketErrorDescription());
+    if (send(s, tmp, sizetosend + 2, 0) != sizetosend + 2)
+	{
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket %x -- %s\n", (int)s, SocketErrorDescription());
 	    return false;
 	}
-
     free(tmp);
 
     return true;
 
 //////////////////////////////
-
+/*
 	if (send(s, (char*)&sizetosend, 2, 0) != 2) {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (1) -- %s\n", SocketErrorDescription());
 	    return false;
@@ -77,6 +75,7 @@ bool NetworkMessage::Dump(SOCKET s) {
 	}
 	DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", size, size);
 	return true;
+*/
 }
 
 void NetworkMessage::AddString(const char *str) {
@@ -124,56 +123,86 @@ int NetworkMessage::FillFromBuffer (Buffer *buf) {
 // FIXME this function is so utterly wrong written and full of assumptions that
 // connection is still active that i'm disgousted at it, but at the same time
 // unwilling to rewrite it at the moment. proofing the concept at the moment...
-bool NetworkMessage::FillFromSocket (SOCKET s) {
-
-
+bool NetworkMessage::FillFromSocket (SOCKET s)
+{
+	//declare all variables at the very start of the respective {} block, it
+	//makes the code much more readable
+	signed int sizereadresult = 0;
+	signed int readsofar = 0;
 	unsigned short sz;
 	char *toadd;
-    int readsofar=0;
-
+    
+/*
 	#ifdef WIN32
 	// 0 = blocking, 1 = nonblocking
 	// perhaps move this to initialization of the socket?
 	// would that work? (is the blockability altered by some other winapi?)
     unsigned long mode = 0;
 	ioctlsocket(s, FIONBIO, &mode);
-	#endif
 
-    unsigned int sizereadresult = 0;
-    printf("Expecting sizeread\n");
+	//no, it is not altered by any winapi function we use. -- John
+	#endif
+*/
+
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Expecting size read on netmsg %x.\n", (int)this);
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
-	if (sizereadresult != 2) {
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "I have read %d bytes for size (should be 2)\n", sizereadresult);
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s\n", SocketErrorDescription());
+
+	if (sizereadresult != 2) 
+	{
+		if(sizereadresult == SOCKET_ERROR)
+		{
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Connection error of some sort on netmsg %x;\n", (int)this);
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s\n", SocketErrorDescription());
+		}
+		else if(sizereadresult)
+		{
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Netmsg %x has read %d bytes for size (should be 2)\n", (int)this, sizereadresult);
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s\n", SocketErrorDescription());
+		}
+		else
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Socket %x gracefully closed, nothing we can do about it.\n", (int)s);
 	    return false;
 	}
 
-	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg has already %d bytes\n", sz, GetSize());
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filling %d bytes from socket; this msg(%x) has already %d bytes\n", sz, (int)this, GetSize());
 
 	toadd = (char*)malloc(sz);
-	while (readsofar != sz) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", (char)(MIN(sz-readsofar, 100)));
-        int readthisturn = recv(s, toadd+readsofar, MIN(sz-readsofar, 100), 0);
-        //for (int i=0;i<readthisturn;i++)
+
+	while (readsofar < sz)
+	{
+		signed int readthisturn;
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", (char)(MIN(sz - readsofar, 0xff)));
+        readthisturn = recv(s, toadd + readsofar, MIN(sz-readsofar, 0xff), 0); 
+
+		//for (int i=0;i<readthisturn;i++)
         //    printf("%02x ", (char)(*(toadd+readsofar+i)));
         //printf("\n");
-        if (readthisturn != SOCKET_ERROR) {
-            readsofar += readthisturn;
-            //printf("Now %d, after having read %d\n", readsofar, readthisturn);
+
+        if (readthisturn > 0)
+		{
+			readsofar += readthisturn;
+			//printf("Now %d, after having read %d\n", readsofar, readthisturn);
             //if (readthisturn) system("pause");
-        } else {
-            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Error reading!! Readthisturn contains %d\n", readthisturn);
+        }
+		else if(!readthisturn)
+		{
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Socket %x gracefully closed, nothing we can do about it.\n", (int)s);
+            free(toadd);
+			return false;
+        }
+		else
+		{
+			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Error reading on netmsg %x! Readthisturn contains %d\n", (int)this, readthisturn);
             DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s\n", SocketErrorDescription());
             free(toadd);
-            return false;
-        }
-
+			return false;
+		}
 	}
-	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Filled\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Netmsg %x filled.\n", (int)this);
 
 	this->Add(toadd, sz);
 	free(toadd);
-	printf("Returning true\n");
+
 	return true;
 }
 
@@ -225,13 +254,16 @@ char* NetworkMessage::GetString (char* target, unsigned int maxsize) {
 	unsigned int usdsize;
 	if (target == NULL) {
 		char *toreturn;
+
 		usdsize = MIN(strsize, this->GetSize());
 		toreturn = (char*)malloc(usdsize+1);
 
 		this->Peek(toreturn, usdsize);
 		this->Trim(strsize);
 		toreturn[usdsize] = 0;
+
 		//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting string: %s\n", toreturn);
+
 		return toreturn;
 	} else {
 		usdsize = MIN(MIN(maxsize-1, strsize), this->GetSize());
@@ -254,8 +286,6 @@ std::string NetworkMessage::GetString () {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "USD SIZE %d\n", usdsize);
     toreturn = (char*)malloc(usdsize+1);
 
-
-
     this->Peek(toreturn, usdsize);
     this->Trim(strsize);
     toreturn[usdsize] = 0;
@@ -270,7 +300,6 @@ void NetworkMessage::RSABegin() {
 
 void NetworkMessage::RSAEncrypt() {
 #ifdef USEENCRYPTION
-
     int rsablocksize = size - rsaoffset;
     unsigned char msg[128] = {0}; // every rsa data block is 128 bytes in size. if we have less data then rest if simply unused, but rsa algorythm always generates 128 byte blocks and it still needs 128 bytes of space
     // first byte in block must be 0, encryption demands it
