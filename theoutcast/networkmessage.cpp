@@ -140,6 +140,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 	#endif
 
     unsigned int sizereadresult = 0;
+    printf("Expecting sizeread\n");
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
 	if (sizereadresult != 2) {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "I have read %d bytes for size (should be 2)\n", sizereadresult);
@@ -172,6 +173,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s) {
 
 	this->Add(toadd, sz);
 	free(toadd);
+	printf("Returning true\n");
 	return true;
 }
 
@@ -384,6 +386,7 @@ void NetworkMessage::RSAEncrypt() {
 void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 #ifdef USEENCRYPTION
 
+printf("DEKRIPT.\n");
   unsigned char *key = (unsigned char*)m_key;
   unsigned long length = GetSize();
   unsigned long delta = 0x9e3779b9;                   /* a key schedule constant */
@@ -399,9 +402,9 @@ void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 //  }
 //  DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "\n");
 
-
   while (n < length)
   {
+	printf("%d < %d\n", n, length);  
     sum = 0xC6EF3720;
     unsigned long v0 = *((unsigned long*)(currentposition+n));
     unsigned long v1 = *((unsigned long*)(currentposition+n+4));

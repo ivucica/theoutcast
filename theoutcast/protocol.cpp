@@ -100,6 +100,7 @@ bool Protocol::GameworldWork() {
 
 void Protocol::Close() {
     ONThreadSafe(threadsafe);
+    printf("Trying to close socket\n");
     #if defined(WIN32) && !defined(_MSC_VER)
 	shutdown(s, SD_BOTH);
 	#endif
@@ -207,7 +208,7 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
     /* dunno where this was added but it is there in 792 */
     if (protocolversion>=792) player->SetStamina(nm->GetU16()); // stamina (minutes)
 
-    if (dynamic_cast<GM_Gameworld*>(game)) ((GM_Gameworld*)game)->UpdateStats();
+    if (gamemode==GM_GAMEWORLD) ((GM_Gameworld*)game)->UpdateStats();
 }
 
 Creature *Protocol::GetCreatureByID(NetworkMessage *nm) {
@@ -320,7 +321,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Player location: %d %d %d\n", pos.x, pos.y, pos.z);
 
                 // only if we're in main menu then let's do the item loading
-                if (dynamic_cast<GM_MainMenu*>(game)) {
+                if (gamemode==GM_MAINMENU) {
                     ItemsLoad();
                     CreaturesLoad();
                 }
@@ -475,7 +476,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             int x = 10; int y = 10;
 
-            if (dynamic_cast<GM_Gameworld*>(game)) {
+            if (gamemode==GM_GAMEWORLD) {
                 GM_Gameworld *gw  = dynamic_cast<GM_Gameworld*>(game);
                 x = gw->GetContainersX();
                 y = gw->GetContainersY() + containerid * 10;
@@ -486,13 +487,13 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 glictPos p;
                 tmpc->GetWindow()->GetPos(&p);
                 x = p.x; y = p.y;
-                if (dynamic_cast<GM_Gameworld*>(game))
+                if (gamemode==GM_GAMEWORLD)
                     ((GM_Gameworld*)game)->RemoveContainer(player->GetContainer(containerid));
                 player->RemoveContainer(containerid);
             }
 
             player->SetContainer(containerid, c = new Container(title, containerid, icon, capacity));
-            if (dynamic_cast<GM_Gameworld*>(game)) // FIXME we need to add delayed addcontainer of some sort
+            if (gamemode==GM_GAMEWORLD) // FIXME we need to add delayed addcontainer of some sort
                 ((GM_Gameworld*)game)->AddContainer(c, x, y); // perhaps gameworld should during startup check if there's a container that it has not added to desktop yet
 
 
@@ -519,7 +520,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             containerid = nm->GetU8();
 
 
-            if (dynamic_cast<GM_Gameworld*>(game))
+            if (gamemode==GM_GAMEWORLD)
                 ((GM_Gameworld*)game)->RemoveContainer(player->GetContainer(containerid));
             player->RemoveContainer(containerid);
 
@@ -1022,7 +1023,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
         }
         default: {// regular item
             char tmp[256];
-            sprintf(tmp, "Invalid item received from server: %d. Last successful item: %d", type, lastsuccessfulitem);
+            sprintf(tmp, "Invalid item received from server: %d. Loaded items: %d. Last successful item: %d", type, items_n, lastsuccessfulitem);
             if (!(type >= 100 && type <= items_n)) {
                 DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, tmp);
                 DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR, "For orientation purposes, the remaining unprocessed netmessage is below\n");

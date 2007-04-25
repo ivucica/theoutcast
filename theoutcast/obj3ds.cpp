@@ -10,7 +10,7 @@
 #include "obj3ds.h"
 #include "texmgmt.h"
 extern float fps;
-bool uselists = true;
+bool uselists = false;
 /* public functions */
 
 
@@ -18,7 +18,8 @@ Obj3ds::Obj3ds() {
 }
 
 Obj3ds::Obj3ds(const char* filename) {
-    LoadFile(filename);
+    printf("OBJ3DS Trying to load %s\n", filename);
+    if (!LoadFile(filename)) printf("Obj3ds NOT loaded\n");
 }
 
 Obj3ds::~Obj3ds() {
@@ -26,6 +27,7 @@ Obj3ds::~Obj3ds() {
 }
 
 bool Obj3ds::LoadFile(const char* filename) {
+    printf("Obj3ds:\tLoading %s.\n", filename);
     data3ds = lib3ds_file_load(filename);
     if (!data3ds) {
         printf("Obj3ds:\tFailed to load %s.\n", filename);
@@ -46,7 +48,9 @@ bool Obj3ds::LoadFile(const char* filename) {
 
 bool Obj3ds::Render() {
     Lib3dsNode *p;
+//    printf("Rendering\n");
     if (!data3ds) {
+    	printf("Can't render nonexisting object\n");
         return false;
     }
     //lib3ds_file_eval(data3ds, animation_frame += 25. / fps);
@@ -54,8 +58,10 @@ bool Obj3ds::Render() {
     glPushMatrix();
     glRotatef(270., 1., 0., 0.);
     for (p=data3ds->nodes; p!=0; p=p->next) {
+        //printf("Rendering one of root nodes\n");
         this->RenderNode(p);
     }
+    //printf("Popping\n");
     glPopMatrix();
     return true;
 }
@@ -70,6 +76,7 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
       this->RenderNode(p);
     }
   }
+  static int pushes=0;
   if (node->type==LIB3DS_OBJECT_NODE) {
     if (strcmp(node->name,"$$$DUMMY")==0) {
       return;
@@ -85,8 +92,6 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
     if (uselists) {
       node->user.d=glGenLists(1);
       glNewList(node->user.d, GL_COMPILE);
-
-
     } else {
       Lib3dsObjectData *d;
 
@@ -96,7 +101,7 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
 
       glMultMatrixf(&node->matrix[0][0]);
       glTranslatef(-d->pivot[0], -d->pivot[1], -d->pivot[2]);
-
+//      printf("Pivotization %d\n", pushes++);
     }
 
       {
@@ -107,6 +112,7 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
           Lib3dsMatrix M;
           lib3ds_matrix_copy(M, mesh->matrix);
           lib3ds_matrix_inv(M);
+//	  printf("Multiplying by matrix\n");
           glMultMatrixf(&M[0][0]);
         }
         lib3ds_mesh_calculate_normals(mesh, normalL);
@@ -119,17 +125,17 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
           }
 
           if (mat) {
-            static GLfloat a[4]={0,0,0,1};
+            static GLfloat black[4]={0,0,0,1};
             float s;
             Texture *t = (Texture*)mat->user.p;
             if (t) {
                 glEnable(GL_TEXTURE_2D);
-                t->Bind();
-                //printf("Applying texture\n");
+//                printf("Applying texture\n");
+		t->Bind();
 
-                Lib3dsRgba a={0.2, 0.2, 0.2, 1.0};
-                Lib3dsRgba d={0.8, 0.8, 0.8, 1.0};
-                Lib3dsRgba s={0.0, 0.0, 0.0, 1.0};
+                static Lib3dsRgba a={0.2, 0.2, 0.2, 1.0};
+                static Lib3dsRgba d={0.8, 0.8, 0.8, 1.0};
+                static Lib3dsRgba s={0.0, 0.0, 0.0, 1.0};
                 glMaterialfv(GL_FRONT, GL_AMBIENT, a);
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, d);
                 //glMaterialfv(GL_FRONT, GL_SPECULAR, s);
@@ -137,8 +143,8 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
             } else {
                 glDisable(GL_TEXTURE_2D);
 
-                //printf("Material application %s\n", f->material);
-                glMaterialfv(GL_FRONT, GL_AMBIENT, a);
+//                printf("Material application %s\n", f->material);
+                glMaterialfv(GL_FRONT, GL_AMBIENT, black);
                 glMaterialfv(GL_FRONT, GL_DIFFUSE, mat->diffuse);
                 //glMaterialfv(GL_FRONT, GL_SPECULAR, mat->specular);
                 //glColor4fv(mat->diffuse);
@@ -151,19 +157,25 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
             glMaterialf(GL_FRONT, GL_SHININESS, s);
           }
           else {
-            //printf("Default material application\n");
+//            printf("Default material application\n");
             glDisable(GL_TEXTURE_2D);
-            Lib3dsRgba a={0.2, 0.2, 0.2, 1.0};
-            Lib3dsRgba d={0.8, 0.8, 0.8, 1.0};
-            Lib3dsRgba s={0.0, 0.0, 0.0, 1.0};
+            static Lib3dsRgba a={0.2, 0.2, 0.2, 1.0};
+            static Lib3dsRgba d={0.8, 0.8, 0.8, 1.0};
+            static Lib3dsRgba s={0.0, 0.0, 0.0, 1.0};
             glMaterialfv(GL_FRONT, GL_AMBIENT, a);
             glMaterialfv(GL_FRONT, GL_DIFFUSE, d);
             //glMaterialfv(GL_FRONT, GL_SPECULAR, s);
           }
           {
             int i;
-            glBegin(GL_TRIANGLES);
-              glNormal3fv(f->normal);
+//	    printf("Painting triangles\n");
+//	    glDisable(GL_LIGHTING);
+	    glColor4f(1,1,1,1);
+
+
+
+	    glBegin(GL_TRIANGLES);
+              //glNormal3fv(f->normal);
               for (i=0; i<3; ++i) {
                 glNormal3fv(normalL[3*p+i]);
                 if (mesh->texelL) {
@@ -174,19 +186,26 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
 
               }
             glEnd();
+
+//	    printf("Done with triangles\n");
           }
         }
-
+	
         free(normalL);
+	//printf("Freeing\n");
       }
 
-      if (uselists)
+      if (uselists) {
         glEndList();
-      else
+	//printf("Ended list\n");
+      } else {
+//        printf("Pop %d\n", pushes--);
         glPopMatrix();
+        //printf("Popped\n");
+      }
     }
 
-    if (node->user.d) {
+    if (node->user.d && uselists) {
       Lib3dsObjectData *d;
 
       glPushMatrix();

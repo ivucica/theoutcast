@@ -177,7 +177,7 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
 
         switch (protocolversion) {
             case 750:
-                sprintf(filename, "tibia75/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia75/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -187,12 +187,12 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia75.spr", sli.spriteids[i]);
                 }
                 break;
             case 760:
             case 770:
-                sprintf(filename, "tibia76/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia76/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -202,11 +202,11 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia76.spr", sli.spriteids[i]);
                 }
                 break;
             case 790:
-                sprintf(filename, "tibia79/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia79/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -216,13 +216,13 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia79.spr", sli.spriteids[i]);
                 }
 
                 break;
 
             case 792:
-                sprintf(filename, "tibia792/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia792/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -232,7 +232,7 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia792.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
                 }
 
                 break;
@@ -279,7 +279,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         sli.spriteids[0]=0;
         t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
         items[itemid].textures = t;
-        t[0] = new Texture("tibia76.spr", 0);
+        t[0] = new Texture("Tibia76.spr", 0);
         return;
     }
     ASSERTFRIENDLY(items[itemid].loaded, "itemid not loaded");
@@ -310,7 +310,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
 
         switch (protocolversion) {
             case 750:
-                sprintf(filename, "tibia75/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia75/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -320,12 +320,12 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia75.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia75.spr", sli.spriteids[i]);
                 }
                 break;
             case 760:
             case 770:
-                sprintf(filename, "tibia76/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia76/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -335,12 +335,12 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia76.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia76.spr", sli.spriteids[i]);
                 }
                 break;
             case 790:
 
-                sprintf(filename, "tibia79/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia79/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -350,11 +350,11 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia79.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia79.spr", sli.spriteids[i]);
                 }
                 break;
             case 792:
-                sprintf(filename, "tibia792/%d.bmp", sli.spriteids[i]);
+                sprintf(filename, "Tibia792/%d.bmp", sli.spriteids[i]);
                 f = fopen(filename, "r");
                 if (f) {
                     fclose(f);
@@ -364,7 +364,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
                 }
 
                 if (!f) {
-                    t[i] = new Texture("tibia792.spr", sli.spriteids[i]);
+                    t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
                 }
         }
 

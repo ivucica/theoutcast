@@ -8,6 +8,7 @@
 #ifdef _MSC_VER
     #include <float.h>
     #define isnan _isnan
+    #define isinf _isnan
 #endif
 
 #include <GL/gl.h>
@@ -103,6 +104,8 @@ void flythrough_c::set_cam_pos(float fps)
     percent2 = player_current_kf_time / kf[kf_i]->length;
     percent = 1. - percent2;
 
+    //printf("%g %g\n", percent2, percent);
+
     glRotatef(rotx1*percent + rotx2*percent2, 1., 0., 0.);
     glRotatef(roty1*percent + roty2*percent2, 0., 1., 0.);
     glRotatef(rotz1*percent + rotz2*percent2, 0., 0., 1.);
@@ -113,12 +116,12 @@ void flythrough_c::set_cam_pos(float fps)
     if (fps) {
         player_current_time += 1. / fps;
         player_current_kf_time += 1. / fps;
-        if (isnan(player_current_time) || isnan(player_current_kf_time)) {
+        if (isnan(player_current_time) || isnan(player_current_kf_time) || isinf(player_current_time) || isinf(player_current_kf_time)) {
             player_current_time = 0;
             player_current_kf_time = 0;
         }
         if (player_current_kf_time > kf[kf_i]->length || player_current_kf_time < 0.) {
-            //printf("Next keyframe\n");
+            printf("Next keyframe\n");
             if (kf_i + 1 != kf.size()) set_active_keyframe(kf_i+1); else ++kf_i; // 'else' is here because we want the comparison in kf_i == kf_size() to work properly
             player_current_kf_time = 0.;
         }

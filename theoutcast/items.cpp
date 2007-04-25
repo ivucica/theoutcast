@@ -45,6 +45,9 @@ void ItemClear(item_t* item) {
     item->loaded = false;
 }
 
+void ItemInit(item_t *item) {
+    item->textures = NULL;
+}
 
 static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName) {
     int itemid;
@@ -135,18 +138,18 @@ void ItemsLoad() {
 
     switch (protocol->GetProtocolVersion()) {
         case 750:
-            SPRLoader("tibia75.spr");
+            SPRLoader("Tibia75.spr");
             break;
 
         case 760:
         case 770:
-            SPRLoader("tibia76.spr");
+            SPRLoader("Tibia76.spr");
             break;
         case 790:
-            SPRLoader("tibia79.spr");
+            SPRLoader("Tibia79.spr");
             break;
         case 792:
-            SPRLoader("tibia792.spr");
+            SPRLoader("Tibia792.spr");
             break;
         default:
             printf("!(Y$*#)QY$()!$(!&#)($\n");
@@ -166,7 +169,7 @@ void ItemsLoad() {
     }
     items = (item_t*)malloc(sizeof(item_t)*(items_n+1));
 
-    ItemClear(items); // hurz was bugged for a long time and carries item 0 in inventory .. so lets be smarter than tibia client and allow item 0 ... ;)
+    ItemInit(items); // hurz was bugged for a long time and carries item 0 in inventory .. so lets be smarter than tibia client and allow item 0 ... ;)
     dbExecPrintf(dbData, ItemsLoadFunc, 0, NULL, "select * from items%d;", protocol->GetProtocolVersion());
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");

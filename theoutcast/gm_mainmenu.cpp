@@ -31,7 +31,7 @@ GM_MainMenu::GM_MainMenu() {
     glClear(GL_COLOR_BUFFER_BIT);
     glutSwapBuffers();
 
-    city = new Obj3ds("outcastcity.3ds");
+    city = new Obj3ds("outcastcity.3DS");
     if (!flythrough.load("outcastcity.fly")) {
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Failed to load flythrough file!\n");
     }
@@ -508,6 +508,7 @@ void GM_MainMenu::Render() {
 	//glRotatef( sin( bg_move_angle * PI / 180. )*2., 0., 0, 1);
 	//glTranslatef(-winw/2, -winh/2,0);
 	//desktop.RememberTransformations();
+//	skin.AssureLoadedness();
 	desktop.Paint();
 	glDisable(GL_SCISSOR_TEST);
 	glPopMatrix();
@@ -727,20 +728,20 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
     char protocolstr[10] = {0};
     switch (protocol->GetProtocolVersion()) {
         case 750:
-            strcpy(sprfilename, "tibia75.spr");
+            strcpy(sprfilename, "Tibia75.spr");
             strcpy(protocolstr, "7.5");
             break;
         case 760:
         case 770:
-            strcpy(sprfilename, "tibia76.spr");
+            strcpy(sprfilename, "Tibia76.spr");
             strcpy(protocolstr, "7.6");
             break;
         case 790:
-            strcpy(sprfilename, "tibia79.spr");
+            strcpy(sprfilename, "Tibia79.spr");
             strcpy(protocolstr, "7.9");
             break;
         case 792:
-            strcpy(sprfilename, "tibia792.spr");
+            strcpy(sprfilename, "Tibia792.spr");
             strcpy(protocolstr, "7.92");
             break;
         default:
@@ -951,7 +952,7 @@ void GM_MainMenu_NextSprite(glictPos* pos, glictContainer* caller) {
         default:
         break;
     }
-    ((GM_MainMenu*)game)->logo = new Texture ("tibia76.spr", w);
+    ((GM_MainMenu*)game)->logo = new Texture ("Tibia76.spr", w);
     //((GM_MainMenu*)game)->logo = new Texture ("tibia76.spr", currentspr++);
 }
 

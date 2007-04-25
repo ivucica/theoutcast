@@ -1,19 +1,3 @@
-/* Need to make it so the second chunk gets properly decoded with 0,1,8,2 xtea
-
-00000000  85 00                                            ..
-00000002  0a 02 00 18 03 51 9a 1d  b7 e9 ad b5 9b 49 e8 26 .....Q.. .....I.&
-00000012  a2 6d b0 dc 88 bb 98 f4  84 8d 19 a4 99 1f e7 1c .m...... ........
-00000022  d8 99 89 c0 4c 70 f7 85  3f 90 ca a8 ae d1 5e 15 ....Lp.. ?.....^.
-00000032  df 6e f8 03 76 ed fe 6b  b4 3b e2 2c 1a 93 59 3b .n..v..k .;.,..Y;
-00000042  1b 97 c2 30 1e c4 98 95  ce 9b c2 45 bd d8 02 7f ...0.... ...E....
-00000052  ce b7 13 ce 14 26 c9 cd  d4 63 1a 5e 69 3b 02 55 .....&.. .c.^i;.U
-00000062  da 0a 86 dc 0d ce fd 89  d8 09 c7 b4 3e f2 00 cb ........ ....>...
-00000072  d4 e2 99 30 f8 ca f7 2b  de 01 ca 7b 99 75 59 88 ...0...+ ...{.uY.
-00000082  02 99 e2 47 71                                   ...Gq
-                                                                              00000000  28 00 b1 81 07 e5 22 65  62 49 a2 33 3b 61 0c 08 (....."e bI.3;a..
-                                                                              00000010  06 45 22 7e d9 7a 1f 6f  de a0 75 56 a8 f6 af 72 .E"~.z.o ..uV...r
-                                                                              00000020  8b 72 af 7b 9b dd c7 8d  91 65                   .r.{.... .e
- */
 
 
 #ifdef WIN32
@@ -74,20 +58,20 @@ void GameInit() {
 		GameModeEnter(GM_LOGO);
 	else
 		GameModeEnter(GM_MAINMENU);
-	//GameModeEnter(GM_SPRPLAYGROUND);
+//	GameModeEnter(GM_SPRPLAYGROUND);
 
 }
 
 
 
 void GLInit() {
-
-    // FIXME gotta fix
+	glClearColor(0., 0., 0., 0.);
+	glClearDepth(10000.);
 
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GEQUAL, .5);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
+//    	glEnable(GL_CULL_FACE);
 	glictGlobals.clippingMode = GLICT_SCISSORTEST;
 
 
@@ -171,16 +155,23 @@ if(AllocConsole())
 	SoundInit(NULL);
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
-	glutInitWindowSize (320, 240);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowSize (640, 480);
 	//glutInitWindowPosition (0, 0);
 
     options.Load();
 
+    fullscreen_retry:
     if (options.fullscreen) {
         glutGameModeString("800x600:32");
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering fullscreen\n");
         glut_WindowHandle = glutEnterGameMode();
+	if (!glut_WindowHandle) {
+		DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_ERROR, "There was an error entering fullscreen. Retrying in windowed mode.\n");
+		options.fullscreen = false;
+		options.Save();
+		goto fullscreen_retry;
+	}
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
     } else {
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Creating window\n");
@@ -189,6 +180,16 @@ if(AllocConsole())
         glutShowWindow();
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
     }
+
+	if (!glut_WindowHandle) {
+		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "There was a problem initializing OpenGL render area. Giving up and exiting.\n");
+		exit(1);
+	}
+
+
+
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
+	skin.Load(options.skin.c_str());
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up GL\n");
 	GLInit();
@@ -200,6 +201,8 @@ if(AllocConsole())
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");
 	GameInit();
 
+	
+	
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up callbacks\n");
 
 	glutDisplayFunc(glut_Display);
@@ -212,9 +215,8 @@ if(AllocConsole())
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
 
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
-	skin.Load(options.skin.c_str());
-
+	
+	
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
 	glutMainLoop();

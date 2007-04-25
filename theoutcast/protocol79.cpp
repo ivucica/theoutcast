@@ -66,11 +66,11 @@ bool Protocol79::CharlistLogin(const char *username, const char *password) {
         ONThreadUnsafe(threadsafe);
         return false;
     }
-
-    Close();
+	printf("Okies, lets decrypt\n");
+//    this->Close();
 
     nm.XTEADecrypt(key);
-
+	printf("Ok, decoded\n");
     logonsuccessful = true;
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
     if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");

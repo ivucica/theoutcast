@@ -22,7 +22,7 @@ GM_Logo::GM_Logo () {
     }
     flythrough.set_on_finish(GM_Logo_OnFinish, this);
     done = false;
-    fadein = 0;
+    fadein = 1.;
     fadeout = 0;
     oldmayanimate = false;
 
@@ -37,13 +37,14 @@ GM_Logo::GM_Logo () {
 GM_Logo::~GM_Logo() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing logo\n");
 	glut_SetMousePointer("DEFAULT");
-    delete logo;
+    if (logo) delete logo;
     SoundSetMusic(NULL);
 }
 void GM_Logo::Render() {
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+//    printf("Clearing\n");
     if (!oldmayanimate && mayanimate) {
         oldmayanimate = true;
         SoundSetMusic("music/logo.mp3");
@@ -54,35 +55,42 @@ void GM_Logo::Render() {
 
     } else {
 
+//	printf("Drawing\n");
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        gluPerspective(45.0, (float)winw/(float)winh, 0.1, 900.0);
+        gluPerspective(45.0, (float)winw/(float)winh, 10, 1000.0);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
 
+//	printf("Setting campos\n");
         glPushMatrix();
         flythrough.set_cam_pos(mayanimate && fps > 2. ? fps : 90000);
 
         static GLfloat lightpos[] = { 1., 1., 1., 0. }; // 0 = directional light, 1 = positional light
+//	printf("Setting lightpos\n");
         glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-        if (!done) logo->Render();
+//	printf("Rendering\n");
+        if (!done) 
+		logo->Render();
         glPopMatrix();
 
+//	printf("Checking doneness\n");
         if (done) GameModeEnter(GM_MAINMENU);
     }
 
 
-    if (fadein || fadeout) {
+    if (false) if (fadein>0 || fadeout>0) {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0.,640.,0.,480.,-400.,400.);
+//	printf("Switching to ortho\n");
+//        glOrtho(0.,640.,0.,480.,-400.,400.);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-
+//	printf("Rendering fade\n");
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);
 		glBegin(GL_QUADS);
@@ -102,14 +110,18 @@ void GM_Logo::Render() {
 		glEnd();
 		glDisable(GL_BLEND);
 		glEnable(GL_ALPHA_TEST);
+
 	}
 
 	if (fps && mayanimate && fadein > 0.) fadein -= 2. / fps;//.5 / fps;
 	if (fadein < 0) fadein = 0.;
 
 	if (fps && mayanimate && fadeout > 0.) fadeout -= 2. / fps;//.5 / fps;
+	//if (mayanimate) printf("fadein %f fadeout %f step %f fps %f\n", fadein, fadeout, 2./fps, fps);
+
 	if (fadeout < 0) {
 
+          //  printf("DONE!!!!!\n");
 	    fadeout = 0.;
 	    OnFinish();
 
@@ -135,6 +147,7 @@ void GM_Logo::KeyPress (unsigned char key, int x, int y) {
     fadeout = 1.;
 
 //    this->OnFinish();
+    printf("Stisnuto\n");
 
 }
 void GM_Logo::ResizeWindow (int w, int h) {
@@ -170,6 +183,7 @@ void GM_Logo::OnFinish() {
 
 
 void GM_Logo_OnFinish (void *arg) {
+    printf("FINISH!\n");
     GM_Logo* logo = (GM_Logo*)arg;
 
     logo->OnFinish();

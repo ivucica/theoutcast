@@ -156,7 +156,7 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 
 
 //	glCullFace(GL_BACK);
-	glEnable (GL_CULL_FACE);
+//	glEnable (GL_CULL_FACE);
     glMatrixMode(GL_MODELVIEW);
 	//glPushMatrix();
 

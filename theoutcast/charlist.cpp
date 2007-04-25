@@ -38,6 +38,7 @@ void CharList_Status(glictMessageBox* mb, const char* txt) {
 }
 
 ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentType menuclass_void) {
+	printf("Login thread active\n");
 	GM_MainMenu* menuclass = (GM_MainMenu*)menuclass_void;
 
 

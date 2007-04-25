@@ -9,7 +9,7 @@ class Skin {
 
         void Load(const char *what);
         void Unload();
-
+	void AssureLoadedness(); 
     private:
         Texture *wintl, *wint, *wintr, *winl, *winc, *winr, *winbl, *winb, *winbr;
         glictSkinner win;

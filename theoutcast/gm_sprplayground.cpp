@@ -23,7 +23,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing SPR playground\n");
 
 
-    SPRLoader("tibia792.spr");
+    SPRLoader("Tibia792.spr");
     ItemsLoad_NoUI(792);
     CreaturesLoad_NoUI(792);
 
@@ -40,7 +40,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // blendframes
-    #if 0
+    #if 1
     delete g;
     g = new ObjSpr(149, 0, 792);
     #endif
@@ -66,7 +66,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // creature, without suit 2 (demon)
-    #if 1
+    #if 0
     delete g;
     g = new ObjSpr(35, 1, 792);
     creaturetest = true;

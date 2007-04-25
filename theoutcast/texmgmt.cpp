@@ -16,14 +16,17 @@
 
 extern version_t glversion;
 
+
+static std::vector<Texture*> textures;
+static int texcount=0;
 #ifndef WIN32
 static int filesize (FILE* f) {
 	int loc = ftell(f);
 	int size = 0;
 
-	fseek(f, SEEK_END, 0);
+	fseek(f, 0, SEEK_END);
 	size = ftell(f);
-	fseek(f, SEEK_SET, loc);
+	fseek(f, loc, SEEK_SET);
 	return size;
 }
 #else
@@ -35,50 +38,100 @@ static int filesize (FILE* f) {
 #endif
 }
 #endif
+
+void TextureFreeSlot();
 Texture::Texture(std::string fname) {
+//	if (texcount > 50) TextureFreeSlot();
+
 	this->fname = fname;
 	this->imgid = 0;
-	this->loaded = false;
+
+	textureid = NULL;
+	Texture* t = this->Find();
+	if (t) {
+		this->textureid = t->textureid;
+		this->pikseli = t->pikseli;
+		this->w = t->w;
+		this->h = t->h;
+		this->loaded = t->loaded;
+		this->usecount = t->usecount;
+		*(this->usecount)++;
+		return;
+	}
+
+	this->loaded = (bool*)malloc(sizeof(bool));
+	*(this->loaded) = false;
+	this->usecount = (int*)malloc(sizeof(int));
+	*(this->usecount) = 1;
+	this->textureid = (GLuint*)malloc(sizeof(GLuint));
+	*(this->textureid) = 0;
+
 	std::string extension = fname.substr(fname.length() - 3, 3);
 
-    pikseli = NULL;
+    	pikseli = NULL;
 
-	textureid = 0;
 
+	//printf("Determining extension: %s\n", extension.c_str());
 	if (extension=="bmp" || extension=="BMP") {
-        pikseli = this->FetchBMPPixels();
+	        pikseli = this->FetchBMPPixels();
 	}
 	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
-        pikseli = this->FetchSPRPixels();
+        	pikseli = this->FetchSPRPixels();
 	}
 	if (pikseli) {
-        this->StorePixels();
+	        this->StorePixels();
 	}
+
+	textures.insert(textures.end(), this);
 }
 Texture::Texture(std::string fname, unsigned short id) {
+//	if (texcount > 50) TextureFreeSlot();
+
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
-	this->loaded = false;
+
+	textureid = NULL;
+    Texture* t = this->Find();
+	if (t) {
+		this->textureid = t->textureid;
+ 		this->pikseli = t->pikseli;
+		this->w = t->w;
+		this->h = t->h;
+		this->loaded = t->loaded;
+		this->usecount = t->usecount;
+		*(this->usecount)++;
+		return;
+	}
+	this->loaded = (bool*)malloc(sizeof(bool));
+	*(this->loaded) = false;
+    this->usecount = (int*)malloc(sizeof(int));
+    *(this->usecount) = 1;
+	this->textureid = (GLuint*)malloc(sizeof(GLuint));
+	*(this->textureid) = 0;
+
+
 	pikseli=NULL;
 	std::string extension = fname.substr(fname.length() - 3, 3);
 
-	textureid = 0;
 
 	if (extension=="bmp" || extension=="BMP") {
-        pikseli = this->FetchBMPPixels();
+	        pikseli = this->FetchBMPPixels();
 	}
 	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
-        pikseli = this->FetchSPRPixels();
+        	pikseli = this->FetchSPRPixels();
 	}
 	if (pikseli) {
-        this->StorePixels();
-	}
+	        this->StorePixels();
+	} else printf("Er, idk about pixels.\n");
+
+	textures.insert(textures.end(), this);
 }
 
 RGBA *Texture::FetchBMPPixels() {
     RGBA *pikseli;
 	FILE *f = fopen(fname.c_str(), "rb");
+printf("Loading bitmap %s\n", fname.c_str());
     if (!f) {
         printf("Error opening bitmap %s.", fname.c_str());
         return NULL;
@@ -90,7 +143,7 @@ RGBA *Texture::FetchBMPPixels() {
     }
     fclose(f);
 
-
+printf("Loaded bitmap %s\n", fname.c_str());
     return pikseli;
 }
 
@@ -125,7 +178,7 @@ RGBA *Texture::FetchSPRPixels() {
         return NULL;
     }
     if (SPRPointers[imgid]>filesize(f)) {
-            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SIZE DOUBLEPLUSUNGOOD\n");
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SIZE DOUBLEPLUSUNGOOD - pic %d, ptr %d\n", imgid, SPRPointers[imgid]);
             //system("pause");
         fclose(f);
         return NULL;
@@ -202,20 +255,48 @@ RGBA *Texture::FetchSPRPixels() {
     return (RGBA*)rgba;
 
 }
-Texture::~Texture() {
-    glDeleteTextures(1, &textureid);
-}
 
+Texture::~Texture() {
+printf("Destroying a texture\n");
+    if (*(usecount)==1) {
+		printf("Unloading texture %d\n", *textureid);
+
+		for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+			if ((*it)->usecount == this->usecount) { // if that's the same texture
+				textures.erase(it);
+				break;
+			}
+		}
+
+    	if (pikseli) free(pikseli);
+		if (loaded) {
+			glDeleteTextures(1, textureid);
+			texcount --;
+			*loaded = false;
+			*textureid = 0;
+		}
+		free(loaded);
+		free(usecount);
+
+    }
+
+}
 void Texture::StorePixels() {
    // glEnable(GL_TEXTURE_2D);
-    glGenTextures(1, &textureid);
-    if (!textureid) {
-        //printf("ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
+   texcount ++;
+   if (texcount > 50) TextureFreeSlot();
+   //printf("Allocating texture number %d\n", texcount);
+   ASSERT(textureid);
+    glGenTextures(1, textureid);
+    if (!(*textureid)) {
+        printf("ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
         //system("pause");
-        return;
+        //return;
+        exit(1);
     }
+//    printf("Great success\n");
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
-    glBindTexture(GL_TEXTURE_2D, textureid);
+    glBindTexture(GL_TEXTURE_2D, *textureid);
 
     bool simpletextures = false; // to fool him until simpletextures is truly implemented
 
@@ -243,33 +324,97 @@ void Texture::StorePixels() {
                     h, GL_RGBA, GL_UNSIGNED_BYTE, pikseli /*pImage->data*/);
 
 
-    free(pikseli);
-    pikseli = NULL;
+//    free(pikseli);
+//    pikseli = NULL;
 
-    loaded = true;
+    *loaded = true;
+
+
 }
 
-void Texture::Bind() {
-	//printf("Binding texture %s\n", fname.c_str());
+bool Texture::UnloadGL() {
+	//printf("Texture::UnloadGL(): %s\n", *loaded ? "texture loaded" : "texture not loaded\n");
+        if (*loaded) {
+            glDeleteTextures(1, textureid);
+            *textureid = 0;
+            texcount --;
+      	//	printf("Unloaded texture\n");
+		*loaded = false;
+		return true;
+	} else {
+		//printf("Texture already unloaded, skipping\n");
+		return false;
+	}
 
-	if (!textureid) {
+}
+
+void Texture::AssureLoadedness() {
+    printf("Checking up on %s\n", fname.c_str());
+    ASSERTFRIENDLY(textureid, "Texture::AssureLoadedness(): I thought we had a texture id malloc()'ed. But it appears not so.");
+
+	if (!(*textureid)) {
 	    if (!pikseli) {
             //printf("WOAH! Dude, texture %s (%d) not boundable!\n", fname.c_str(), imgid);
             //system("pause");
 	    } else {
+	    	printf("Re-storing pixels for %s\n", fname.c_str());
 	        StorePixels();
-	        if (pikseli) {
+	        /*if (pikseli) {
 	            printf("Serious texturing problem, dude!\n");
 	            system("pause");
 	            free(pikseli);
 	            pikseli = NULL;
-	        }
-	        if (!textureid) {
+	        }*/
+		printf("Stored to %d\n", *textureid);
+	        if (!(*textureid)) {
 	            printf("WTF!! TExture sjhit\n");
 	            system("pause");
 	        }
 	    }
 	}
-	glBindTexture(GL_TEXTURE_2D, textureid);
+}
+void Texture::Bind() {
+	AssureLoadedness();
+/*
+	for (std::vector<Texture*>::reverse_iterator it = textures.rbegin(); it != textures.rend() ; it++) {
+		if (*it == this) {
+			//printf("Moving texture %s...\n", (*it)->fname.c_str());
+			textures.erase(it.base());
+			textures.insert(textures.end(), this);
+			break;
+		}
+	}
+*/
+//	glEnable(GL_TEXTURE_2D);
+	//printf("Binding %s\n", fname.c_str());
+	if (*textureid) glBindTexture(GL_TEXTURE_2D, *textureid); else printf("We had a major situation here, soldier.\n");
 }
 
+Texture* Texture::Find() {
+	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+		if ((*it)->fname == this->fname && (*it)->imgid == this->imgid) {
+			return *it;
+		}
+	}
+	return NULL;
+}
+
+void TextureFreeSlot() {
+	// FIXME should track when was the last time texture was used, find the oldest one, etc...
+	if (!textures.size()) {
+		printf("No texture to unload\n");
+		return;
+	}
+	std::vector<Texture*>::iterator it = textures.begin();
+retry:
+	Texture *t = *it;
+//	printf("Proposing to delete %s\n", t->fname.c_str());
+	if (t) {
+//		printf("Unloading a texture... %s\n", t->fname.c_str() );
+		if (t->UnloadGL()) return; else {
+//			printf("Already unloaded, retrying\n");
+			it++;
+			goto retry;
+		}
+	}
+}

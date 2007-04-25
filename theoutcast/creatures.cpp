@@ -15,6 +15,10 @@ void CreatureClear(creature_t* creature) {
 
     creature->loaded = false;
 }
+void CreatureInit(creature_t* creature) {
+    creature->textures = NULL;
+    CreatureClear(creature);
+}
 
 
 static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -60,7 +64,7 @@ void CreaturesLoad() {
     }
     creatures = (creature_t*)malloc(sizeof(creature_t)*(creatures_n+1));
 
-    CreatureClear(creatures); // hurz was bugged for a long time and carries creature 0 in inventory .. so lets be smarter than tibia client and allow creature 0 ... ;)
+    CreatureInit(creatures); // hurz was bugged for a long time and carries creature 0 in inventory .. so lets be smarter than tibia client and allow creature 0 ... ;)
     dbExecPrintf(dbData, CreaturesLoadFunc, 0, NULL, "select * from creatures%d;", protocol->GetProtocolVersion());
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
@@ -87,4 +91,5 @@ void CreaturesUnload() {
         CreatureClear(creatures + i);
     }
     free(creatures);
+    creatures = NULL;
 }

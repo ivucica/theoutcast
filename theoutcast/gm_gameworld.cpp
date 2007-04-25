@@ -23,6 +23,7 @@
 #include "sound.h"
 #include "debugprint.h"
 #include "defines.h" // min and max
+#include "skin.h"
 
 #define VISIBLEW 15 // 14
 #define VISIBLEH 11 // 10
@@ -191,6 +192,7 @@ void GM_Gameworld::Render() {
 	//desktop.RememberTransformations();
 	ONThreadSafe(desktopthreadsafe);
     glEnable(GL_SCISSOR_TEST);
+	skin.AssureLoadedness();
 	desktop.Paint();
 	containerdesktop.Paint();
 	glDisable(GL_SCISSOR_TEST);
@@ -501,6 +503,7 @@ void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictConta
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	skin.AssureLoadedness();
 }
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
@@ -537,6 +540,7 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     glPopMatrix();
 
     glViewport(0,0,glictGlobals.w,glictGlobals.h);
+    skin.AssureLoadedness();
 
 }
 
@@ -687,6 +691,7 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
     glPopMatrix();
 
     glViewport(0,0,glictGlobals.w,glictGlobals.h);
+    skin.AssureLoadedness();
 }
 void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller) {
     //char tmp[256];
@@ -700,5 +705,6 @@ void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller) {
     pos2.z = 0;
 
     GM_Gameworld_ClickExec(&pos2);
+
 
 }

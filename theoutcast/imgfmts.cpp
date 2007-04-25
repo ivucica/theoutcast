@@ -44,7 +44,7 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 	BITMAPINFOHEADER bih;
 	//FILE *fjl;
 	unsigned int palitems = 0;
-	RGBA *pal;
+	RGBA *pal=NULL;
 	unsigned int sz;
 
 /*	fjl = fopen(filename, "rb");

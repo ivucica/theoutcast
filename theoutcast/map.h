@@ -33,6 +33,9 @@ class Map {
 
         unsigned long SetAttackedCreature(unsigned long creatureid);
 
+
+	void FreeUnused(unsigned short minx, unsigned short maxx, unsigned short miny, unsigned short maxy);
+
         bool locked;
     private:
         maptype_t m;

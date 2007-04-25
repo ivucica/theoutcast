@@ -12,7 +12,7 @@ const char* SocketErrorDescription() {
 }
 
 const char* SocketErrorDescription(int err) {
-    return SocketErrorDescription(err);
+	return SocketErrorDescription();
 }
 
 #else

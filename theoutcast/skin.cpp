@@ -51,8 +51,8 @@ Skin::~Skin() {
     Unload();
 }
 void Skin::Load(const char* what) {
-    glictSize s;
-	std::string dirname = "skins/";
+
+    std::string dirname = "skins/";
     dirname += what;
     dirname += "/";
 
@@ -88,17 +88,6 @@ void Skin::Load(const char* what) {
     winb  = new Texture(dirname + "window/b.bmp");
     winbr = new Texture(dirname + "window/br.bmp");
 
-    s.w = wintl->w; s.h = wintl->h; win.SetTL(wintl->textureid, &s);
-    s.w = wint->w; s.h = wint->h; win.SetTop(wint->textureid, &s);
-    s.w = wintr->w; s.h = wintr->h; win.SetTR(wintr->textureid, &s);
-    s.w = winl->w; s.h = winl->h; win.SetLeft(winl->textureid, &s);
-    s.w = winc->w; s.h = winc->h; win.SetCenter(winc->textureid, &s);
-    s.w = winr->w; s.h = winr->h; win.SetRight(winr->textureid, &s);
-    s.w = winbl->w; s.h = winbl->h; win.SetBL(winbl->textureid, &s);
-    s.w = winb->w; s.h = winb->h; win.SetBottom(winb->textureid, &s);
-    s.w = winbr->w; s.h = winbr->h; win.SetBR(winbr->textureid, &s);
-
-    glictGlobals.windowBodySkin = &win;
 
 
 
@@ -113,19 +102,6 @@ void Skin::Load(const char* what) {
     btnb  = new Texture(dirname + "button/b.bmp");
     btnbr = new Texture(dirname + "button/br.bmp");
 
-    s.w = btntl->w; s.h = btntl->h; btn.SetTL(btntl->textureid, &s);
-    s.w = btnt->w; s.h = btnt->h; btn.SetTop(btnt->textureid, &s);
-    s.w = btntr->w; s.h = btntr->h; btn.SetTR(btntr->textureid, &s);
-    s.w = btnl->w; s.h = btnl->h; btn.SetLeft(btnl->textureid, &s);
-    s.w = btnc->w; s.h = btnc->h; btn.SetCenter(btnc->textureid, &s);
-    s.w = btnr->w; s.h = btnr->h; btn.SetRight(btnr->textureid, &s);
-    s.w = btnbl->w; s.h = btnbl->h; btn.SetBL(btnbl->textureid, &s);
-    s.w = btnb->w; s.h = btnb->h; btn.SetBottom(btnb->textureid, &s);
-    s.w = btnbr->w; s.h = btnbr->h; btn.SetBR(btnbr->textureid, &s);
-
-
-    glictGlobals.buttonSkin = &btn;
-
 
 
 
@@ -139,19 +115,6 @@ void Skin::Load(const char* what) {
     bthb  = new Texture(dirname + "buttonhighlight/b.bmp");
     bthbr = new Texture(dirname + "buttonhighlight/br.bmp");
 
-    s.w = bthtl->w; s.h = bthtl->h; bth.SetTL(bthtl->textureid, &s);
-    s.w = btht->w; s.h = btht->h; bth.SetTop(btht->textureid, &s);
-    s.w = bthtr->w; s.h = bthtr->h; bth.SetTR(bthtr->textureid, &s);
-    s.w = bthl->w; s.h = bthl->h; bth.SetLeft(bthl->textureid, &s);
-    s.w = bthc->w; s.h = bthc->h; bth.SetCenter(bthc->textureid, &s);
-    s.w = bthr->w; s.h = bthr->h; bth.SetRight(bthr->textureid, &s);
-    s.w = bthbl->w; s.h = bthbl->h; bth.SetBL(bthbl->textureid, &s);
-    s.w = bthb->w; s.h = bthb->h; bth.SetBottom(bthb->textureid, &s);
-    s.w = bthbr->w; s.h = bthbr->h; bth.SetBR(bthbr->textureid, &s);
-
-
-    glictGlobals.buttonHighlightSkin = &bth;
-
 
     txttl = new Texture(dirname + "textbox/tl.bmp");
     txtt  = new Texture(dirname + "textbox/t.bmp");
@@ -163,20 +126,72 @@ void Skin::Load(const char* what) {
     txtb  = new Texture(dirname + "textbox/b.bmp");
     txtbr = new Texture(dirname + "textbox/br.bmp");
 
-    s.w = txttl->w; s.h = txttl->h; txt.SetTL(txttl->textureid, &s);
-    s.w = txtt->w; s.h = txtt->h; txt.SetTop(txtt->textureid, &s);
-    s.w = txttr->w; s.h = txttr->h; txt.SetTR(txttr->textureid, &s);
-    s.w = txtl->w; s.h = txtl->h; txt.SetLeft(txtl->textureid, &s);
-    s.w = txtc->w; s.h = txtc->h; txt.SetCenter(txtc->textureid, &s);
-    s.w = txtr->w; s.h = txtr->h; txt.SetRight(txtr->textureid, &s);
-    s.w = txtbl->w; s.h = txtbl->h; txt.SetBL(txtbl->textureid, &s);
-    s.w = txtb->w; s.h = txtb->h; txt.SetBottom(txtb->textureid, &s);
-    s.w = txtbr->w; s.h = txtbr->h; txt.SetBR(txtbr->textureid, &s);
+    AssureLoadedness();
+}
+void Skin::AssureLoadedness() {
+
+    glictSize s;
+
+
+    wintl->Bind(); 	s.w = wintl->w; s.h = wintl->h; win.SetTL(*wintl->textureid, &s);
+    wint->Bind();	s.w = wint->w;  s.h = wint->h; 	win.SetTop(*wint->textureid, &s);
+    wintr->Bind();	s.w = wintr->w; s.h = wintr->h; win.SetTR(*wintr->textureid, &s);
+    winl->Bind();	s.w = winl->w;  s.h = winl->h; 	win.SetLeft(*winl->textureid, &s);
+    winc->Bind();	s.w = winc->w;  s.h = winc->h; 	win.SetCenter(*winc->textureid, &s);
+    winr->Bind();	s.w = winr->w;  s.h = winr->h; 	win.SetRight(*winr->textureid, &s);
+    winbl->Bind();	s.w = winbl->w; s.h = winbl->h; win.SetBL(*winbl->textureid, &s);
+    winb->Bind();	s.w = winb->w;  s.h = winb->h; 	win.SetBottom(*winb->textureid, &s);
+    winbr->Bind();	s.w = winbr->w; s.h = winbr->h; win.SetBR(*winbr->textureid, &s);
+
+
+    glictGlobals.windowBodySkin = &win;
+
+
+
+    btntl->Bind(); 	s.w = btntl->w; s.h = btntl->h; btn.SetTL(*btntl->textureid, &s);
+    btnt->Bind();	s.w = btnt->w;  s.h = btnt->h; 	btn.SetTop(*btnt->textureid, &s);
+    btntr->Bind();	s.w = btntr->w; s.h = btntr->h; btn.SetTR(*btntr->textureid, &s);
+    btnl->Bind();	s.w = btnl->w;  s.h = btnl->h; 	btn.SetLeft(*btnl->textureid, &s);
+    btnc->Bind();	s.w = btnc->w;  s.h = btnc->h; 	btn.SetCenter(*btnc->textureid, &s);
+    btnr->Bind();	s.w = btnr->w;  s.h = btnr->h; 	btn.SetRight(*btnr->textureid, &s);
+    btnbl->Bind();	s.w = btnbl->w; s.h = btnbl->h; btn.SetBL(*btnbl->textureid, &s);
+    btnb->Bind();	s.w = btnb->w;  s.h = btnb->h; 	btn.SetBottom(*btnb->textureid, &s);
+    btnbr->Bind();	s.w = btnbr->w; s.h = btnbr->h; btn.SetBR(*btnbr->textureid, &s);
+
+
+    glictGlobals.buttonSkin = &btn;
+
+
+
+    bthtl->Bind(); 	s.w = bthtl->w; s.h = bthtl->h; bth.SetTL(*bthtl->textureid, &s);
+    btht->Bind();	s.w = btht->w;  s.h = btht->h; 	bth.SetTop(*btht->textureid, &s);
+    bthtr->Bind();	s.w = bthtr->w; s.h = bthtr->h; bth.SetTR(*bthtr->textureid, &s);
+    bthl->Bind();	s.w = bthl->w;  s.h = bthl->h; 	bth.SetLeft(*bthl->textureid, &s);
+    bthc->Bind();	s.w = bthc->w;  s.h = bthc->h; 	bth.SetCenter(*bthc->textureid, &s);
+    bthr->Bind();	s.w = bthr->w;  s.h = bthr->h; 	bth.SetRight(*bthr->textureid, &s);
+    bthbl->Bind();	s.w = bthbl->w; s.h = bthbl->h; bth.SetBL(*bthbl->textureid, &s);
+    bthb->Bind();	s.w = bthb->w;  s.h = bthb->h; 	bth.SetBottom(*bthb->textureid, &s);
+    bthbr->Bind();	s.w = bthbr->w; s.h = bthbr->h; bth.SetBR(*bthbr->textureid, &s);
+
+
+    glictGlobals.buttonHighlightSkin = &bth;
+
+
+
+    txttl->Bind(); 	s.w = txttl->w; s.h = txttl->h; txt.SetTL(*txttl->textureid, &s);
+    txtt->Bind();	s.w = txtt->w;  s.h = txtt->h; 	txt.SetTop(*txtt->textureid, &s);
+    txttr->Bind();	s.w = txttr->w; s.h = txttr->h; txt.SetTR(*txttr->textureid, &s);
+    txtl->Bind();	s.w = txtl->w;  s.h = txtl->h; 	txt.SetLeft(*txtl->textureid, &s);
+    txtc->Bind();	s.w = txtc->w;  s.h = txtc->h; 	txt.SetCenter(*txtc->textureid, &s);
+    txtr->Bind();	s.w = txtr->w;  s.h = txtr->h; 	txt.SetRight(*txtr->textureid, &s);
+    txtbl->Bind();	s.w = txtbl->w; s.h = txtbl->h; txt.SetBL(*txtbl->textureid, &s);
+    txtb->Bind();	s.w = txtb->w;  s.h = txtb->h; 	txt.SetBottom(*txtb->textureid, &s);
+    txtbr->Bind();	s.w = txtbr->w; s.h = txtbr->h; txt.SetBR(*txtbr->textureid, &s);
 
 
     glictGlobals.textboxSkin = &txt;
 
-
+	
 }
 void Skin::Unload() {
 
