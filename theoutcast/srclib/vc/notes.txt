@@ -1,0 +1,8 @@
+This folder will not be as up to date as MinGW folder (which is not up to date, anyway).
+
+Note, some duplicate headers from MinGW version will NOT be added in VC's include/.
+GLICT is one of those.
+
+If any other file is missing, please Google it up or compile it yourself and add to repository.
+
+Khaos

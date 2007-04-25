@@ -1,0 +1,12 @@
+THE OUTCAST 0.3.x - GNU/Linux VERSION
+Readme
+(c) 2005-2007 OBJECT Networks
+=============================
+
+Hi,
+here are some addon notes regarding GNU/Linux version.
+
+
+1) Known limitations
+
+* It cannot run under "Debian GNU/Linux March 17th 2007 etch-testing" on Intel 915GM motherboard when Compiz is running.
