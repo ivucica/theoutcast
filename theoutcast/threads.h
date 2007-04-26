@@ -22,7 +22,6 @@
 	//#define ONNewThread(Function, Param) CreateThread(NULL, 0, Function, Param, 0, NULL);
 
 
-	extern ONCriticalSection listenersocketcs;
 #else
 	#if defined(POSIX_THREADS)
 		#undef WIN32
@@ -43,7 +42,7 @@
 		
 		
 	#else
-		#error This requires some kind of threads, either win32 or posix. Please #define WIN32 or POSIX_THREADS.
+		#error This program requires some kind of threads, either win32 or posix. Please #define WIN32 or POSIX_THREADS.
 	#endif
 #endif
 

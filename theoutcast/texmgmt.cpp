@@ -115,7 +115,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 	this->imgid = id;
 
 	textureid = NULL;
-    Texture* t = this->Find();
+	Texture* t = this->Find();
 	if (t) {
 
 		this->textureid = t->textureid;
@@ -286,6 +286,7 @@ RGBA *Texture::FetchSPRPixels() {
 
 Texture::~Texture() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
+    return;
     ONThreadSafe(texturethreadsafe);
     if (*(usecount)==1) {
 		printf("Unloading texture %d\n", *textureid);
@@ -296,10 +297,10 @@ Texture::~Texture() {
 				break;
 			}
 		}
-
+	
     	if (pikseli) free(pikseli);
 		if (loaded) {
-			glDeleteTextures(1, textureid);
+			if (textureid) glDeleteTextures(1, textureid);
 			texcount --;
 			*loaded = false;
 			*textureid = 0;
@@ -314,7 +315,10 @@ Texture::~Texture() {
 void Texture::StorePixels() {
     // glEnable(GL_TEXTURE_2D);
 
-    if (texcount > 400) TextureFreeSlot();
+    if (texcount > 400) {
+        for (int i = 0; i < 50; i++) 
+    	    TextureFreeSlot();
+    }
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Storing texture %s\n", fname.c_str());
 
@@ -381,17 +385,17 @@ void Texture::StorePixels() {
 bool Texture::UnloadGL() {
 
 	printf("Texture::UnloadGL(): %s\n", *loaded ? "texture loaded" : "texture not loaded\n");
-	ONThreadSafe(texturethreadsafe);
+//	ONThreadSafe(texturethreadsafe);
     if (*loaded) {
         glDeleteTextures(1, textureid);
         *textureid = 0;
         texcount --;
         *loaded = false;
-        ONThreadUnsafe(texturethreadsafe);
+//        ONThreadUnsafe(texturethreadsafe);
         return true;
 	} else {
 		//printf("Texture already unloaded, skipping\n");
-		ONThreadUnsafe(texturethreadsafe);
+	//	ONThreadUnsafe(texturethreadsafe);
 		return false;
 	}
 
@@ -425,7 +429,7 @@ void Texture::AssureLoadedness() {
 	}
 }
 void Texture::Bind() {
-    //ONThreadSafe(texturethreadsafe);
+	//ONThreadSafe(texturethreadsafe);
 	AssureLoadedness();
 
 	/*for (std::vector<Texture*>::reverse_iterator it = textures.rbegin()+1; it != textures.rend() ; it++) {
@@ -439,16 +443,16 @@ void Texture::Bind() {
 
 //	glEnable(GL_TEXTURE_2D);
 	//printf("Binding %s\n", fname.c_str());
-	if (*textureid) glBindTexture(GL_TEXTURE_2D, *textureid); else {
+	if (textureid && *textureid && glIsTexture(*textureid)) glBindTexture(GL_TEXTURE_2D, *textureid); else {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "We had a major binding problem with %s\n", fname.c_str());
 	}
 	//ONThreadUnsafe(texturethreadsafe);
 }
 
 Texture* Texture::Find() {
-
+	return NULL;
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
-		if ((*it)->fname == this->fname && (*it)->imgid == this->imgid) {
+		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
 			return *it;
 		}
 	}
