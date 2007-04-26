@@ -117,7 +117,6 @@ Texture::Texture(std::string fname, unsigned short id) {
 	textureid = NULL;
 	Texture* t = this->Find();
 	if (t) {
-
 		this->textureid = t->textureid;
  		this->pikseli = t->pikseli;
 		this->w = t->w;
@@ -154,6 +153,39 @@ Texture::Texture(std::string fname, unsigned short id) {
 
 	textures.insert(textures.end(), this);
 	ONThreadUnsafe(texturethreadsafe);
+}
+
+Texture::Texture(std::string fname, unsigned short id, unsigned short templateid, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
+    ONThreadSafe(texturethreadsafe);
+	int w, h;
+	this->fname = fname;
+	this->imgid = id;
+    this->templateid = templateid;
+
+
+	textureid = NULL;
+	Texture* t = this->Find();
+	if (t) {
+		this->textureid = t->textureid;
+ 		this->pikseli = t->pikseli;
+		this->w = t->w;
+		this->h = t->h;
+		this->loaded = t->loaded;
+		this->usecount = t->usecount;
+		*(this->usecount)++;
+		ONThreadUnsafe(texturethreadsafe);
+		return;
+	}
+
+
+	this->loaded = (bool*)malloc(sizeof(bool));
+	*(this->loaded) = false;
+    this->usecount = (int*)malloc(sizeof(int));
+    *(this->usecount) = 1;
+	this->textureid = (GLuint*)malloc(sizeof(GLuint));
+	*(this->textureid) = 0;
+
 }
 
 RGBA *Texture::FetchBMPPixels() {
@@ -297,7 +329,7 @@ Texture::~Texture() {
 				break;
 			}
 		}
-	
+
     	if (pikseli) free(pikseli);
 		if (loaded) {
 			if (textureid) glDeleteTextures(1, textureid);
@@ -316,7 +348,7 @@ void Texture::StorePixels() {
     // glEnable(GL_TEXTURE_2D);
 
     if (texcount > 400) {
-        for (int i = 0; i < 50; i++) 
+        for (int i = 0; i < 50; i++)
     	    TextureFreeSlot();
     }
 

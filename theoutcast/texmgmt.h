@@ -12,6 +12,7 @@ class Texture {
 	public:
 		Texture (std::string file);
 		Texture(std::string fname, unsigned short id);
+		Texture(std::string fname, unsigned short id, unsigned short templateid, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet);
 		~Texture();
 		void Bind ();
 
