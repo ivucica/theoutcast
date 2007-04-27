@@ -97,7 +97,7 @@ Texture::Texture(std::string fname) {
 	        pikseli = this->FetchBMPPixels();
 	}
 	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
-        	pikseli = this->FetchSPRPixels();
+        	pikseli = this->FetchSPRPixels(imgid);
 	}
 	if (pikseli) {
 	        this->StorePixels();
@@ -145,7 +145,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 	        pikseli = this->FetchBMPPixels();
 	}
 	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
-        	pikseli = this->FetchSPRPixels();
+        	pikseli = this->FetchSPRPixels(imgid);
 	}
 	if (pikseli) {
 	        this->StorePixels();
@@ -157,27 +157,16 @@ Texture::Texture(std::string fname, unsigned short id) {
 
 Texture::Texture(std::string fname, unsigned short id, unsigned short templateid, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING, "Not implemented\n");
+    //return;
+
     ONThreadSafe(texturethreadsafe);
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
-    this->templateid = templateid;
 
 
 	textureid = NULL;
-	Texture* t = this->Find();
-	if (t) {
-		this->textureid = t->textureid;
- 		this->pikseli = t->pikseli;
-		this->w = t->w;
-		this->h = t->h;
-		this->loaded = t->loaded;
-		this->usecount = t->usecount;
-		*(this->usecount)++;
-		ONThreadUnsafe(texturethreadsafe);
-		return;
-	}
-
 
 	this->loaded = (bool*)malloc(sizeof(bool));
 	*(this->loaded) = false;
@@ -186,6 +175,15 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 	this->textureid = (GLuint*)malloc(sizeof(GLuint));
 	*(this->textureid) = 0;
 
+
+
+    pikseli = this->FetchSPRPixels(id);
+    RGBA *templatepikseli = this->FetchSPRPixels(templateid);
+    pikseli = this->ColorizeCreature(pikseli, templatepikseli);
+    free(templatepikseli);
+
+
+    ONThreadSafe(texturethreadsafe);
 }
 
 RGBA *Texture::FetchBMPPixels() {
@@ -207,11 +205,11 @@ RGBA *Texture::FetchBMPPixels() {
     return pikseli;
 }
 
-RGBA *Texture::FetchSPRPixels() {
+RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
 
     //ASSERT(this->imgid != 0);
     //printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
-    ASSERT(this->imgid < SPRCount);
+    ASSERT(imgid < SPRCount);
     ASSERT(SPRPointers);
 
 
@@ -490,6 +488,13 @@ Texture* Texture::Find() {
 	}
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Requested texture twin of mine not found \n");
 	return NULL;
+}
+
+
+RGBA* Texture::ColorizeCreature(RGBA *pixels, RGBA *templatepixels) {
+    // STUB
+    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Texture::ColorizeCreature: Stub\n");
+    return pixels;
 }
 
 void TextureFreeSlot() {

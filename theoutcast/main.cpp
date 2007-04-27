@@ -35,6 +35,8 @@ version_t glversion;
 #define WINFONT
 bool fullscreen = false;
 
+bool sprplayground = false;
+
 // function predeclares
 void GameInit();
 int main(int argc, char** argv);
@@ -54,11 +56,13 @@ void GameInit() {
 		sysfont->SetSizeFunc(WinFontSize);
 	#endif
 
-    if (options.intro)
-		GameModeEnter(GM_LOGO);
-	else
-		GameModeEnter(GM_MAINMENU);
-//	GameModeEnter(GM_SPRPLAYGROUND);
+    if (!sprplayground)
+        if (options.intro)
+            GameModeEnter(GM_LOGO);
+        else
+            GameModeEnter(GM_MAINMENU);
+    else
+        GameModeEnter(GM_SPRPLAYGROUND);
 
 }
 
@@ -147,6 +151,10 @@ if(AllocConsole())
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "THE OUTCAST 0.3\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "===============\n");
 
+
+    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "Reading cmd line arguments\n");
+    // just a quick'n'dirty read of argument on fixed location ... will do it better later... :)
+    if (argc > 1) if (!strcmp(argv[1], "sprplayground")) sprplayground = true;
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up net\n");
 	NetInit();

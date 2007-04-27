@@ -17,7 +17,8 @@ class Texture {
 		void Bind ();
 
 		RGBA *FetchBMPPixels();
-		RGBA *FetchSPRPixels();
+		RGBA *FetchSPRPixels(unsigned int imgid); // FIXME should be unsigned short imgid
+		RGBA *ColorizeCreature(RGBA *pixels, RGBA *templatepixels);
 		void StorePixels();
 
 		Texture* Find(); // finds another texture with its own properties (fname and imgid)

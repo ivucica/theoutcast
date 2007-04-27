@@ -40,7 +40,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // blendframes
-    #if 1
+    #if 0
     delete g;
     g = new ObjSpr(149, 0, 792);
     #endif
@@ -73,7 +73,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // creature, with suit (human)
-    #if 0
+    #if 1
     delete g;
     g = new ObjSpr(128, 1, 792);
     creaturetest = true;
