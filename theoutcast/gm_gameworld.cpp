@@ -33,7 +33,7 @@
 
 
 #ifndef WIN32
-    #define MessageBox(x,y,z,u) 
+    #define MessageBox(x,y,z,u)
 #endif
 extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
@@ -73,6 +73,8 @@ GM_Gameworld::GM_Gameworld() {
         winWorld.SetWidth(370. * VISIBLEWPIXEL/VISIBLEHPIXEL);
         winWorld.SetCaption("World");
         winWorld.SetOnClick(GM_Gameworld_WorldOnClick);
+        winWorld.SetOnMouseDown(GM_Gameworld_WorldOnMouseDown);
+        winWorld.SetOnMouseUp(GM_Gameworld_WorldOnMouseUp);
 
     desktop.AddObject(&winConsole);
         winConsole.SetOnPaint(GM_Gameworld_ConsoleOnPaint);
@@ -550,7 +552,6 @@ void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
 }
 
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
-
     glictSize size;
     position_t pos2;
 
@@ -561,15 +562,49 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
     pos->x /= 32;
     pos->y /= 32;
 
-
     pos2.x = pos->x - (VISIBLEW / 2) + player->GetPosX();
     pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
     pos2.z = player->GetPosZ();
 
 
     GM_Gameworld_ClickExec(&pos2);
-
 }
+
+void GM_Gameworld_WorldOnMouseDown (glictPos* pos, glictContainer* caller) {
+    glictSize size;
+    position_t pos2;
+
+    caller->GetSize(&size);
+    pos->x *= VISIBLEWPIXEL / size.w;
+    pos->y *= VISIBLEHPIXEL / size.h;
+
+    pos->x /= 32;
+    pos->y /= 32;
+
+    pos2.x = pos->x - (VISIBLEW / 2) + player->GetPosX();
+    pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
+    pos2.z = player->GetPosZ();
+
+    printf("%d %d %d\n", pos2.x, pos2.y, pos2.z);
+}
+void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller) {
+    glictSize size;
+    position_t pos2;
+
+    caller->GetSize(&size);
+    pos->x *= VISIBLEWPIXEL / size.w;
+    pos->y *= VISIBLEHPIXEL / size.h;
+
+    pos->x /= 32;
+    pos->y /= 32;
+
+    pos2.x = pos->x - (VISIBLEW / 2) + player->GetPosX();
+    pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
+    pos2.z = player->GetPosZ();
+
+    printf("%d %d %d\n", pos2.x, pos2.y, pos2.z);
+}
+
 void GM_Gameworld_ClickExec(position_t *pos) {
     static int modifiers;
     modifiers = glutGetModifiers();
@@ -611,7 +646,7 @@ void GM_Gameworld_ClickExec(position_t *pos) {
         if (th) {
             unsigned short itemid = th->GetType();
 
-            if (items[itemid].usable || items[itemid].rune ) {
+            if (items[itemid]->usable || items[itemid]->rune ) {
                 // extended usable
                 console.insert("Specify where do you want to use this item", CONLTBLUE);
                 glut_SetMousePointer(new ObjSpr(itemid,0));
@@ -624,12 +659,6 @@ void GM_Gameworld_ClickExec(position_t *pos) {
             }
 
 
-
-            {
-                char tmp[256];
-                sprintf(tmp,"Item %d - Rune : %s, Usable : %s", itemid, (items[itemid].rune ? "yes" : "no"), (items[itemid].usable ? "yes" : "no"));
-                console.insert(tmp, CONBLUE);
-            }
 
 
         } else {
@@ -663,7 +692,6 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
         0,
         ((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots)  / 20. + 0.25,
         1. );
-
 */
 
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);

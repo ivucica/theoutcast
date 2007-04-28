@@ -26,23 +26,23 @@ unsigned short Thing::GetType() {
     return type;
 }
 unsigned short Thing::GetSpeedIndex() {
-    return items[type].speedindex;
+    return items[type]->speedindex;
 }
 bool Thing::IsGround() {
     //printf("Is ground %d: %s\n", type, items[type].ground ? "yes" : "no");
-    return items[type].ground;
+    return items[type]->ground;
 }
 bool Thing::IsStackable() {
-    return items[type].stackable;
+    return items[type]->stackable;
 }
 unsigned char Thing::GetTopIndex() {
-    return items[type].topindex;
+    return items[type]->topindex;
 }
 unsigned char Thing::GetCount() {
-    if (items[type].stackable) return count; else return 1;
+    if (items[type]->stackable) return count; else return 1;
 }
 unsigned char Thing::GetSubType() {
-    if (items[type].splash) return subtype; else return 0;
+    if (items[type]->splash) return subtype; else return 0;
 }
 void Thing::SetCount(unsigned char count) {
     this->count = count;
@@ -50,7 +50,7 @@ void Thing::SetCount(unsigned char count) {
 void Thing::SetSubType(unsigned char subtype) {
     this->subtype = subtype;
 }
-void Thing::SetType(unsigned short type, unsigned short extendedtype) {
+void Thing::SetType(unsigned short type, void *extra) {
     ONThreadSafe(threadsafe);
     this->type = type;
     sprgfx = new ObjSpr(type, 0);
@@ -86,9 +86,9 @@ void Thing::Render() {
 void Thing::Render(position_t *pos) {
     ONThreadSafe(threadsafe);
     if (sprgfx) {
-        if (!(dynamic_cast<Creature*>(this)) && items[type].stackable)
+        if (!(dynamic_cast<Creature*>(this)) && items[type]->stackable)
             sprgfx->Render(count);
-        else if (!(dynamic_cast<Creature*>(this)) && items[type].splash)
+        else if (!(dynamic_cast<Creature*>(this)) && items[type]->splash)
             sprgfx->Render(subtype);
         else
             sprgfx->Render(pos);

@@ -24,7 +24,7 @@ class Thing {
         unsigned short GetSpeed();
 
         // this item info setup
-        virtual void SetType(unsigned short type, unsigned short extendedtype);
+        virtual void SetType(unsigned short type, void *extra);
         virtual void SetSpeed(unsigned short speed);
         void SetCount(unsigned char count);
         void SetSubType(unsigned char subtype);

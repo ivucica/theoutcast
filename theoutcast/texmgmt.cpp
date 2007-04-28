@@ -14,7 +14,7 @@
 #include "sprfmts.h"
 #include "types.h"
 #include "threads.h"
-
+#include "colors.h"
 extern version_t glversion;
 
 
@@ -107,7 +107,7 @@ Texture::Texture(std::string fname) {
 	ONThreadUnsafe(texturethreadsafe);
 }
 Texture::Texture(std::string fname, unsigned short id) {
-//	if (texcount > 50) TextureFreeSlot();
+
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
     ONThreadSafe(texturethreadsafe);
 	int w, h;
@@ -128,14 +128,12 @@ Texture::Texture(std::string fname, unsigned short id) {
 		return;
 	}
 
-
 	this->loaded = (bool*)malloc(sizeof(bool));
 	*(this->loaded) = false;
     this->usecount = (int*)malloc(sizeof(int));
     *(this->usecount) = 1;
 	this->textureid = (GLuint*)malloc(sizeof(GLuint));
 	*(this->textureid) = 0;
-
 
 	pikseli=NULL;
 	std::string extension = fname.substr(fname.length() - 3, 3);
@@ -156,7 +154,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 }
 
 Texture::Texture(std::string fname, unsigned short id, unsigned short templateid, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d/%d]\n", fname.c_str(), id, templateid);
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING, "Not implemented\n");
     //return;
 
@@ -177,13 +175,17 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 
 
 
+    //printf("ID %d TEMPLATE ID %d\n", id, templateid);
+    //system("pause");
     pikseli = this->FetchSPRPixels(id);
-    RGBA *templatepikseli = this->FetchSPRPixels(templateid);
-    pikseli = this->ColorizeCreature(pikseli, templatepikseli);
-    free(templatepikseli);
+    if (id) {
+        RGBA *templatepikseli = this->FetchSPRPixels(templateid);
+        pikseli = this->ColorizeCreature(pikseli, templatepikseli, head, body, legs, feet);
+        free(templatepikseli);
+    }
 
 
-    ONThreadSafe(texturethreadsafe);
+    ONThreadUnsafe(texturethreadsafe);
 }
 
 RGBA *Texture::FetchBMPPixels() {
@@ -316,22 +318,27 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
 
 Texture::~Texture() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
-    return;
     ONThreadSafe(texturethreadsafe);
     if (*(usecount)==1) {
 		printf("Unloading texture %d\n", *textureid);
-
+//        bool success = false;
 		for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
-			if ((*it)->usecount == this->usecount) { // if that's the same texture
+			if ((*it)->usecount == this->usecount && (*it)->fname == this->fname) { // if that's the same texture
 				textures.erase(it);
+//				success = true;
 				break;
 			}
 		}
+//		ASSERTFRIENDLY(success, "Did not find the texture inside texture list");
 
     	if (pikseli) free(pikseli);
 		if (loaded) {
-			if (textureid) glDeleteTextures(1, textureid);
-			texcount --;
+			if (textureid) {
+			    glDeleteTextures(1, textureid);
+                texcount --;
+			} else {
+			    printf("WEIRD! Texture id is 0, altho' I am loaded!?\n");
+            }
 			*loaded = false;
 			*textureid = 0;
 		}
@@ -345,10 +352,10 @@ Texture::~Texture() {
 void Texture::StorePixels() {
     // glEnable(GL_TEXTURE_2D);
 
-    if (texcount > 400) {
+    /*if (texcount > 150) {
         for (int i = 0; i < 50; i++)
     	    TextureFreeSlot();
-    }
+    }*/
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Storing texture %s\n", fname.c_str());
 
@@ -360,7 +367,7 @@ void Texture::StorePixels() {
 
     //ASSERT(*textureid);
     if (!(*textureid)) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
+//        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
 
         //system("pause");
         return;
@@ -414,7 +421,7 @@ void Texture::StorePixels() {
 
 bool Texture::UnloadGL() {
 
-	printf("Texture::UnloadGL(): %s\n", *loaded ? "texture loaded" : "texture not loaded\n");
+//	printf("Texture::UnloadGL(): %s\n", *loaded ? "texture loaded" : "texture not loaded");
 //	ONThreadSafe(texturethreadsafe);
     if (*loaded) {
         glDeleteTextures(1, textureid);
@@ -432,8 +439,11 @@ bool Texture::UnloadGL() {
 }
 
 void Texture::AssureLoadedness() {
-    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking up on %s\n", fname.c_str());
+
+    ASSERTFRIENDLY(this, "Texture::AssureLoadedness(): Failed to find 'this'");
     ASSERTFRIENDLY(textureid, "Texture::AssureLoadedness(): I thought we had a texture id malloc()'ed. But it appears not so.");
+
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking up on %s\n", fname.c_str());
 
 	if (!(*textureid)) {
 	    if (!pikseli) {
@@ -444,6 +454,7 @@ void Texture::AssureLoadedness() {
 	    	ONThreadSafe(texturethreadsafe);
 	        StorePixels();
 	        ONThreadUnsafe(texturethreadsafe);
+
 	        /*if (pikseli) {
 	            printf("Serious texturing problem, dude!\n");
 	            system("pause");
@@ -480,7 +491,6 @@ void Texture::Bind() {
 }
 
 Texture* Texture::Find() {
-	return NULL;
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
 		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
 			return *it;
@@ -491,9 +501,50 @@ Texture* Texture::Find() {
 }
 
 
-RGBA* Texture::ColorizeCreature(RGBA *pixels, RGBA *templatepixels) {
+RGBA* Texture::ColorizeCreature(RGBA *pixels, RGBA *templatepixels, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
     // STUB
-    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Texture::ColorizeCreature: Stub\n");
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Texture::ColorizeCreature: Stub\n");
+    for (int i=0; i < 32; i++) {
+        for (int j = 0; j < 32; j++) if (templatepixels[i * 32 + j].a) {
+            if  (templatepixels[i * 32 + j].r && // Yellow == head
+                 templatepixels[i * 32 + j].g &&
+                !templatepixels[i * 32 + j].b) {
+                    pixels[i * 32 + j].r *= colors[head * 3 + 0] / 255.f;
+                    pixels[i * 32 + j].g *= colors[head * 3 + 1] / 255.f;
+                    pixels[i * 32 + j].b *= colors[head * 3 + 2] / 255.f;
+                }
+
+            if  (templatepixels[i * 32 + j].r && // Red == body
+                !templatepixels[i * 32 + j].g &&
+                !templatepixels[i * 32 + j].b) {
+                    pixels[i * 32 + j].r *= colors[body * 3 + 0] / 255.f;
+                    pixels[i * 32 + j].g *= colors[body * 3 + 1] / 255.f;
+                    pixels[i * 32 + j].b *= colors[body * 3 + 2] / 255.f;
+                }
+
+
+            if (!templatepixels[i * 32 + j].r && // Green == legs
+                 templatepixels[i * 32 + j].g &&
+                !templatepixels[i * 32 + j].b) {
+                    pixels[i * 32 + j].r *= colors[legs * 3 + 0] / 255.f;
+                    pixels[i * 32 + j].g *= colors[legs * 3 + 1] / 255.f;
+                    pixels[i * 32 + j].b *= colors[legs * 3 + 2] / 255.f;
+                }
+
+            if (!templatepixels[i * 32 + j].r && // Blue == feet
+                !templatepixels[i * 32 + j].g &&
+                 templatepixels[i * 32 + j].b) {
+                    pixels[i * 32 + j].r *= colors[feet * 3 + 0] / 255.f;
+                    pixels[i * 32 + j].g *= colors[feet * 3 + 1] / 255.f;
+                    pixels[i * 32 + j].b *= colors[feet * 3 + 2] / 255.f;
+                }
+
+
+
+            //printf("*");
+        } //else printf(" ");
+        //printf("\n");
+    }
     return pixels;
 }
 

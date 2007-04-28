@@ -21,7 +21,7 @@ float Object::AnimationAdvance(float percent) {
     }
 
 
-    animation_percent += percent / animation_framecount[animation_type];
+    animation_percent += percent / (animation_type == 0 ? animation_framelist_stand.size() : animation_framelist_move.size());
     if (isnan(animation_percent) || isinf(animation_percent)) animation_percent = 0;
 
     i=0;
@@ -39,7 +39,7 @@ void Object::AnimationSetValue(float percent) {
     int i ;
     if (isnan(percent)) return;
 
-    animation_percent = percent /animation_framecount[animation_type];
+    animation_percent = percent / (animation_type == 0 ? animation_framelist_stand.size() : animation_framelist_move.size());
 
     i=0;
     while (animation_percent >= 100. && i++<20) {

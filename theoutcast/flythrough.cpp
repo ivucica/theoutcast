@@ -59,6 +59,10 @@ bool flythrough_c::load(std::string filename)
     loaded = true;
 
     set_active_keyframe(0);
+
+    player_current_time = 0;
+    player_current_kf_time = 0;
+
     return true;
 
 }

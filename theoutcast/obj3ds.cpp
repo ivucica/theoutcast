@@ -10,7 +10,7 @@
 #include "obj3ds.h"
 #include "texmgmt.h"
 extern float fps;
-bool uselists = false;
+bool uselists = true;
 /* public functions */
 
 
@@ -190,7 +190,7 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
 //	    printf("Done with triangles\n");
           }
         }
-	
+
         free(normalL);
 	//printf("Freeing\n");
       }

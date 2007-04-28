@@ -1,6 +1,6 @@
 #include <GLICT/fonts.h>
 #include "creature.h"
-
+#include "types.h"
 Creature::Creature() {
     attacked = false;
     hp = 0;
@@ -8,14 +8,15 @@ Creature::Creature() {
 }
 Creature::~Creature() {
 }
-void Creature::SetType(unsigned short outfit, unsigned short extendedtype) {
+void Creature::SetType(unsigned short outfit, void* extra) {
     ONThreadSafe(threadsafe);
-    printf("Creature::SetType to %d %d\n", outfit, extendedtype);
+    creaturelook_t *crl = (creaturelook_t *)extra;
+
     this->type = outfit;
     if (outfit != 0)
-        sprgfx = new ObjSpr(outfit, 1);
+        sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
     else
-        sprgfx = new ObjSpr(extendedtype, 0);
+        sprgfx = new ObjSpr(crl->extendedlook , 0);
     ONThreadUnsafe(threadsafe);
 }
 void Creature::SetCreatureID(unsigned long creatureid) {

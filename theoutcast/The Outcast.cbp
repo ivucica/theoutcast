@@ -11,6 +11,7 @@
 				<Option object_output=".objsdebug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
+				<Option parameters="sprplayground" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />

@@ -9,6 +9,9 @@ class ObjSpr : public Object {
         ObjSpr();
         ObjSpr(unsigned int itemid, unsigned char type);
         ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolversion);
+        ObjSpr(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet);
+        ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet);
+
         ~ObjSpr();
 
         bool Render();
@@ -19,6 +22,8 @@ class ObjSpr : public Object {
         void LoadItem(unsigned int itemid, unsigned int protocolversion);
         void LoadCreature(unsigned int creaturetype);
         void LoadCreature(unsigned int creaturetype, unsigned int protocolversion);
+        void LoadCreature(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet );
+        void LoadCreature(unsigned int creaturetype, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet );
         void SetDirection(direction_t dir);
     private:
         spritelist_t sli; // spritelist

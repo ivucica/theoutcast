@@ -213,9 +213,7 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
 
 Creature *Protocol::GetCreatureByID(NetworkMessage *nm) {
     Creature * cr = gamemap.GetCreature(nm->GetU32(), NULL);
-    if (!cr) {
-        system("pause");
-    }
+    ASSERTFRIENDLY(cr, "Protocol::GetCreatureByID() failed");
     return cr;
 }
 unsigned short Protocol::GetItemTypeID(NetworkMessage *nm) {
@@ -624,7 +622,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             creaturelook_t crl;
             ParseCreatureLook(nm, &crl);
 
-            cr->SetType(crl.type, crl.extendedlook);
+            cr->SetType(crl.type, &crl);
 
             return true;
         }
@@ -1006,7 +1004,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
 
             // stuff can only be set up AFTER the SetType() call ...
             // gotta check why, but we can live with that for now
-            thing->SetType(creaturelook.type, creaturelook.extendedlook);
+            thing->SetType(creaturelook.type, &creaturelook);
             thing->SetDirection((direction_t)dir); // direction
             thing->SetSpeed(speedindex);
             ((Creature*)thing)->SetHP(hp);
@@ -1033,11 +1031,11 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             if (thing)
                 thing->SetType(type, 0);
 
-            if (items[type].stackable || items[type].rune) {
+            if (items[type]->stackable || items[type]->rune) {
                 unsigned char x = nm->GetU8();
                 if (thing) thing->SetCount(x);
             }
-            if (items[type].splash ||  items[type].fluidcontainer) {
+            if (items[type]->splash ||  items[type]->fluidcontainer) {
                 unsigned char x = nm->GetU8();
                 if (thing) thing->SetSubType(x);
             }

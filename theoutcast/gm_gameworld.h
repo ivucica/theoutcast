@@ -52,6 +52,8 @@ class GM_Gameworld : public GameMode {
 };
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller);
+void GM_Gameworld_WorldOnMouseDown (glictPos* pos, glictContainer* caller);
+void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);

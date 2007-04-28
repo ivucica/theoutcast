@@ -30,7 +30,7 @@ typedef struct {
 } spritelist_t;
 
 
-typedef struct {
+struct item_t { // this type of struct declaration is necessary to be able to place stl variables inside struct
     char graphics[50];
     char graphics2d[50];
     bool ground;
@@ -59,20 +59,22 @@ typedef struct {
     unsigned short otid;
 
     void *textures;
-    unsigned char animation_framecount[2];
+    std::vector<int> animation_framelist_stand;
+    std::vector<int> animation_framelist_move;
     spritelist_t sli;
     bool loaded;
-} item_t;
-typedef struct {
+} ;
+struct creature_t {
     char graphics[50];
     char graphics2d[50];
     char spritelist[4096];
 
     void *textures;
-    unsigned char animation_framecount[2];
+    std::vector<int> animation_framelist_stand;
+    std::vector<int> animation_framelist_move;
     spritelist_t sli;
     bool loaded;
-} creature_t;
+} ;
 
 typedef struct {
     unsigned short x, y;

@@ -16,7 +16,7 @@ class Creature : public Thing {
         void CauseAnimOffset(bool individual);
 
         // setting info
-        void SetType(unsigned short outfit, unsigned short extendedlook);
+        void SetType(unsigned short outfit, void* extra);
         void SetCreatureID(unsigned long creatureid);
         void SetName(std::string creaturename);
         void AnimationAdvance(float advance);

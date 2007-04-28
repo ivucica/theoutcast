@@ -60,6 +60,8 @@ glictContainer::glictContainer() {
 
 	this->OnClick = NULL;
 	this->OnPaint = NULL;
+	this->OnMouseDown = NULL;
+	this->OnMouseUp = NULL;
 
 	this->guid = rand();
 
@@ -666,13 +668,24 @@ bool glictContainer::DefaultCastEvent(glictEvents evt, void* wparam, long lparam
 					 ((glictPos*)wparam)->x < this->clipright &&
 					 ((glictPos*)wparam)->y > this->cliptop &&
 					 ((glictPos*)wparam)->y < this->clipbottom ) {
-						//MessageBox(0,"MouseDown",this->GetCaption().c_str(),0);
+
+
+						if (this->OnMouseDown) {
+
+                            glictPos relpos;
+                            relpos.x = ((glictPos*)wparam)->x - this->left - this->containeroffsetx + this->virtualpos.x;
+                            relpos.y = ((glictPos*)wparam)->y - this->top - this->containeroffsety + this->virtualpos.y;
+                            this->OnMouseDown(&relpos, this);
+                        }
+
 						this->Focus(NULL);
 						return true;
 					 }
 				}
 			} else if (evt == GLICT_MOUSEUP) {
 				//printf("Mouse up on %s\n", objtype);
+
+
 				if (abs (((glictPos*)wparam)->x - glictGlobals.lastMousePos.x) < 3 && // upon release verifies the location of mouse, and if nearby then it's a click - cast a click event
 					abs (((glictPos*)wparam)->y - glictGlobals.lastMousePos.y) < 3 ) { // if up to 2 pixels diff
 					//printf("Considering it a click\n");
@@ -685,8 +698,24 @@ bool glictContainer::DefaultCastEvent(glictEvents evt, void* wparam, long lparam
 					//}
 
 				} else {
-					//Considering it dragging. Ignoring!
+					//Considering it dragging. Ignoring it!
 				}
+
+                if (((glictPos*)wparam)->x > this->clipleft &&
+                 ((glictPos*)wparam)->x < this->clipright &&
+                 ((glictPos*)wparam)->y > this->cliptop &&
+                 ((glictPos*)wparam)->y < this->clipbottom ) {
+
+                    if (this->OnMouseUp) {
+                        glictPos relpos;
+                        relpos.x = ((glictPos*)wparam)->x - this->left - this->containeroffsetx + this->virtualpos.x;
+                        relpos.y = ((glictPos*)wparam)->y - this->top - this->containeroffsety + this->virtualpos.y;
+                        this->OnMouseUp(&relpos, this);
+                    }
+                }
+
+
+
 			} else { // not mousedown , not mouseup? mouseclick!
 
 
@@ -793,6 +822,19 @@ bool glictContainer::CastEvent(glictEvents evt, void* wparam, long lparam, void*
   */
 void glictContainer::SetOnClick(void(*f)(glictPos* relmousepos, glictContainer* callerclass)) {
 	this->OnClick = f;
+}
+
+/**
+  * Sets an OnMouseDown function.
+  */
+void glictContainer::SetOnMouseDown(void(*f)(glictPos* relmousepos, glictContainer* callerclass)) {
+	this->OnMouseDown = f;
+}
+/**
+  * Sets an OnMouseUp function.
+  */
+void glictContainer::SetOnMouseUp(void(*f)(glictPos* relmousepos, glictContainer* callerclass)) {
+	this->OnMouseUp = f;
 }
 
 /**

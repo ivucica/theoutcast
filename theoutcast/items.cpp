@@ -5,7 +5,7 @@
 #include "debugprint.h"
 #include "sprfmts.h"
 int items_n;
-item_t *items=NULL;
+item_t **items=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
 void ItemClear(item_t* item) {
@@ -38,7 +38,8 @@ void ItemClear(item_t* item) {
 
     for (int i=0;i<item->sli.numsprites;i++)
         delete ((Texture**)item->textures)[i];
-    free(item->textures);
+    if (item->textures) free(item->textures);
+    item->textures = 0;
     // sli does not really need to be cleared ... it will be rebuilt each time
     // same for animcount
 
@@ -47,6 +48,7 @@ void ItemClear(item_t* item) {
 
 void ItemInit(item_t *item) {
     item->textures = NULL;
+    item->sli.numsprites = 0;
 }
 
 static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -62,66 +64,64 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
         exit(1);
     }
 
-    ItemClear(items + itemid);
+    ItemClear(*(items + itemid));
 
-    items[itemid].loaded = true;
+    items[itemid]->loaded = true;
 
     for (i = 0; i < argc; ++i) {
         if (!strcmp(azColName[i], "ground")) {
             sscanf(argv[i], "%d", &iTmp);
-            if (iTmp) items[itemid].ground = true;
-            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+            if (iTmp) items[itemid]->ground = true;
         }
         if (!strcmp(azColName[i], "topindex")) {
             sscanf(argv[i], "%d", &iTmp);
-            items[itemid].topindex = iTmp;
-            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+            items[itemid]->topindex = iTmp;
         }
 
         if (!strcmp(azColName[i], "splash")) {
             sscanf(argv[i], "%d", &iTmp);
-            if (iTmp) items[itemid].splash = true;
-            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+            if (iTmp) items[itemid]->splash = true;
+
         }
         if (!strcmp(azColName[i], "fluidcontainer")) {
             sscanf(argv[i], "%d", &iTmp);
-            if (iTmp) items[itemid].fluidcontainer = true;
+            if (iTmp) items[itemid]->fluidcontainer = true;
             //if (items[itemid].fluidcontainer) printf("FLUIDCONTAINER ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "stackable")) {
             sscanf(argv[i], "%d", &iTmp);
-            if (iTmp) items[itemid].stackable = true;
+            if (iTmp) items[itemid]->stackable = true;
             //if (items[itemid].stackable) printf("STACKABLE ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "rune")) {
             sscanf(argv[i], "%d", &iTmp);
-            if (iTmp) items[itemid].rune = true;
+            if (iTmp) items[itemid]->rune = true;
             //if (items[itemid].stackable) printf("RUNE ITEM %d\n", itemid);
         }
         if (!strcmp(azColName[i], "usable")) {
             sscanf(argv[i], "%d", &iTmp);
-            items[itemid].usable = iTmp;
+            items[itemid]->usable = iTmp;
             //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
         }
 
         if (!strcmp(azColName[i], "spritelist")) {
-            strcpy(items[itemid].spritelist, argv[i]);
+            strcpy(items[itemid]->spritelist, argv[i]);
         }
         if (!strcmp(azColName[i], "height2d_x")) {
             sscanf(argv[i], "%d", &iTmp);
-            items[itemid].height2d_x = iTmp;
+            items[itemid]->height2d_x = iTmp;
         }
         if (!strcmp(azColName[i], "height2d_y")) {
             sscanf(argv[i], "%d", &iTmp);
-            items[itemid].height2d_y = iTmp;
+            items[itemid]->height2d_y = iTmp;
         }
         if (!strcmp(azColName[i], "speedindex")) {
             sscanf(argv[i], "%d", &iTmp);
-            items[itemid].speedindex = iTmp;
+            items[itemid]->speedindex = iTmp;
         }
         if (!strcmp(azColName[i], "extraproperty")) {
             sscanf(argv[i], "%d", &iTmp);
-            items[itemid].extraproperty = iTmp;
+            items[itemid]->extraproperty = iTmp;
         }
 
     }
@@ -167,9 +167,14 @@ void ItemsLoad() {
         //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
-    items = (item_t*)malloc(sizeof(item_t)*(items_n+1));
 
-    ItemInit(items); // hurz was bugged for a long time and carries item 0 in inventory .. so lets be smarter than tibia client and allow item 0 ... ;)
+    items = (item_t**)malloc(sizeof(item_t*)*(items_n+1));
+
+    for (int i = 0; i < items_n+1; i++) {
+        items[i] = new item_t;
+        ItemInit(items[i]);
+    }
+
     dbExecPrintf(dbData, ItemsLoadFunc, 0, NULL, "select * from items%d;", protocol->GetProtocolVersion());
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
@@ -186,16 +191,21 @@ void ItemsLoad_NoUI(unsigned int protocolversion) {
         //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
-    items = (item_t*)malloc(sizeof(item_t)*(items_n+1));
+    items = (item_t**)malloc(sizeof(item_t*)*(items_n+1));
 
-    ItemClear(items); // hurz was bugged for a long time and carries item 0 in inventory .. so lets be smarter than tibia client and allow item 0 ... ;)
+    for (int i = 0; i < items_n+1; i++) {
+        items[i] = new item_t;
+        ItemInit(items[i]);
+    }
+
     dbExecPrintf(dbData, ItemsLoadFunc, 0, NULL, "select * from items%d;", protocolversion);
 
 }
 
 void ItemsUnload() {
     for (int i=0;i<items_n;i++) {
-        ItemClear(items + i);
+        ItemClear(*(items + i));
+        delete *(items + i);
     }
     free(items);
 }

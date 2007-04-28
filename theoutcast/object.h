@@ -1,6 +1,7 @@
 #ifndef __OBJECT_H
 #define __OBJECT_H
 
+#include <vector>
 typedef enum {
     ANI_STAND = 0,
     ANI_WALK
@@ -20,6 +21,7 @@ class Object {
     protected:
         float animation_percent;
         animation_e animation_type;
-        int animation_framecount[4];
+        std::vector<int> animation_framelist_stand;
+        std::vector<int> animation_framelist_move;
 };
 #endif

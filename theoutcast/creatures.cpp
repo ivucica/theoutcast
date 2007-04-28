@@ -4,7 +4,7 @@
 #include "glutwin.h"
 #include "debugprint.h"
 int creatures_n;
-creature_t *creatures=NULL;
+creature_t **creatures=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
 void CreatureClear(creature_t* creature) {
@@ -13,10 +13,20 @@ void CreatureClear(creature_t* creature) {
     creature->graphics2d[0] = 0;
     creature->spritelist[0] = 0;
 
+
+    if (creature->textures) for (int i=0;i<creature->sli.numsprites;i++)
+        if (((Texture**)creature->textures)[i]) delete ((Texture**)creature->textures)[i];
+    if (creature->textures) free(creature->textures);
+    creature->textures = NULL;
+
     creature->loaded = false;
+
 }
 void CreatureInit(creature_t* creature) {
+
     creature->textures = NULL;
+    creature->sli.numsprites = 0;
+
     CreatureClear(creature);
 }
 
@@ -34,17 +44,21 @@ static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColN
         exit(1);
     }
 
-    CreatureClear(creatures + creatureid);
+    printf("Clearing %d\n", creatureid);
+    CreatureClear(*(creatures + creatureid));
 
-    creatures[creatureid].loaded = true;
+    creatures[creatureid]->loaded = true;
+
+
 
     for (i = 0; i < argc; ++i) {
         if (!strcmp(azColName[i], "spritelist")) {
 
-            strcpy(creatures[creatureid].spritelist, argv[i]);
+            strcpy(creatures[creatureid]->spritelist, argv[i]);
         }
 
     }
+
     return 0;
 }
 static int CreaturesLoadNumFunc(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -62,9 +76,14 @@ void CreaturesLoad() {
         //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
-    creatures = (creature_t*)malloc(sizeof(creature_t)*(creatures_n+1));
+    creatures = (creature_t**)malloc(sizeof(creature_t*)*(creatures_n+1));
 
-    CreatureInit(creatures); // hurz was bugged for a long time and carries creature 0 in inventory .. so lets be smarter than tibia client and allow creature 0 ... ;)
+    for (int i = 0; i < creatures_n+1; i++) {
+
+        creatures[i] = new creature_t;
+        CreatureInit(creatures[i]);
+        printf("Initialized %d\n", i);
+    }
     dbExecPrintf(dbData, CreaturesLoadFunc, 0, NULL, "select * from creatures%d;", protocol->GetProtocolVersion());
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Entering game...");
@@ -79,16 +98,20 @@ void CreaturesLoad_NoUI(unsigned int protocolversion) {
         //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
-    creatures = (creature_t*)malloc(sizeof(creature_t)*(creatures_n+1));
+    creatures = (creature_t**)malloc(sizeof(creature_t*)*(creatures_n+1));
 
-    CreatureClear(creatures); // hurz was bugged for a long time and carries creature 0 in inventory .. so lets be smarter than tibia client and allow creature 0 ... ;)
+    for (int i = 0; i < creatures_n+1; i++) {
+        creatures[i] = new creature_t;
+        CreatureInit(creatures[i]);
+    }
     dbExecPrintf(dbData, CreaturesLoadFunc, 0, NULL, "select * from creatures%d;", protocolversion);
 
 }
 
 void CreaturesUnload() {
     for (int i=0;i<creatures_n;i++) {
-        CreatureClear(creatures + i);
+        CreatureClear(*(creatures + i));
+        delete *(creatures + i);
     }
     free(creatures);
     creatures = NULL;

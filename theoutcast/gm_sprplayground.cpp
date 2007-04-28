@@ -28,10 +28,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     CreaturesLoad_NoUI(792);
 
     offset.x = 0; offset.y = 0;
-    // in case nothing is chosen, dont crash
-    g = new ObjSpr(107, 0, 792);
-    divtest = false;
-    creaturetest = false;
+    g = NULL;
 
     // animated example
     #if 0
@@ -63,6 +60,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #if 0
     delete g;
     g = new ObjSpr(127, 1, 792);
+    creaturetest = true;
     #endif
 
     // creature, without suit 2 (demon)
@@ -72,13 +70,19 @@ GM_SPRPlayground::GM_SPRPlayground() {
     creaturetest = true;
     #endif
 
-    // creature, with suit (human)
+    // creature, with suit (human paladin)
     #if 1
     delete g;
-    g = new ObjSpr(128, 1, 792);
+    g = new ObjSpr(128, 792, 50, 90, 110, 120);
     creaturetest = true;
     #endif
 
+    if (!g) {
+        printf("No test chosen. Aborting.\n");
+        glutHideWindow();
+        system("pause");
+        exit(1);
+    }
 
 }
 
@@ -145,7 +149,7 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
         }
         delete g;
         g = new ObjSpr(counter, 0, 792);
-        if (items[counter].sli.xdiv>1 || items[counter].sli.ydiv>1 ) divtest = true; else divtest = false;
+        if (items[counter]->sli.xdiv>1 || items[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
         glutPostRedisplay();
 
         char tmp[256];

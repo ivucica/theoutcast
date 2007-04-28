@@ -54,6 +54,11 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
 	sockaddr_in sin;
 
+
+    menuclass->charlist.SetCaption("Getting character list...");
+	menuclass->charlist.SetMessage("Creating socket...");
+
+
     protocol->charlistserver = menuclass->txtLoginServer.GetCaption();
     protocol->charlistport = 7171;
 
@@ -63,8 +68,6 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
         protocol->CipSoft(false);
     }
 
-	menuclass->charlist.SetCaption("Getting character list...");
-	menuclass->charlist.SetMessage("Creating socket...");
 
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s==INVALID_SOCKET) {

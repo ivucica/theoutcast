@@ -40,13 +40,35 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     this->direction = NORTH;
 
 }
+
+ObjSpr::ObjSpr(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
+    memset(&sli, 0, sizeof(sli));
+    offsetx = 0;
+    offsety = 0;
+    LoadCreature(creaturetype, head, body, legs, feet);
+    this->itemid = creaturetype;
+    this->type = 1;
+    this->direction = NORTH;
+}
+ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
+    memset(&sli, 0, sizeof(sli));
+    offsetx = 0;
+    offsety = 0;
+    LoadCreature(creaturetype, protocolversion, head, body, legs, feet);
+    this->itemid = creaturetype;
+    this->type = 1;
+    this->direction = NORTH;
+}
+
+
+
 ObjSpr::~ObjSpr() {
 	return;
     if (sli.spriteids)  { // FIXME: if (sli.usagecount == 0) ,,,;
         free(sli.spriteids);
         for (int i = 0 ; i < sli.numsprites; i++) {
             delete(t[i]);
-			
+
         }
         free(t);
     }
@@ -64,7 +86,7 @@ bool ObjSpr::Render(position_t *pos) {
    int activeframe;
     for (int i = 0; i < sli.height; i++)
         for (int j = 0; j < sli.width; j++) {
-            for (int k = 0; k < sli.blendframes; k++) {
+            for (int k = 0; k < (type ? min(1, sli.blendframes) : sli.blendframes); k++) { // if anything except item, there won't be blendframes...
 
                 //if (sli.xdiv>1 && sli.ydiv>1)
                 //    activeframe = currentframe *  sli.width * sli.height * sli.xdiv * sli.ydiv * sli.blendframes + ((i*sli.width + j) * sli.ydiv + pos->y % sli.ydiv) * sli.xdiv + pos->x % sli.xdiv;
@@ -86,7 +108,7 @@ bool ObjSpr::Render(position_t *pos) {
 
                                         ;
                         break;
-                    case 1:
+                    case 1: // creature
                         activeframe =   (((((( // same amount of ('s as of *'s
                                         currentframe)
                                         * sli.ydiv + 0)//pos->y % sli.ydiv)
@@ -131,27 +153,35 @@ void ObjSpr::LoadCreature(unsigned int creatureid) {
 
 }
 void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion) {
+    LoadCreature(creatureid, protocolversion, 20,30,40,50);
+}
+void ObjSpr::LoadCreature(unsigned int creatureid, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet ) {
+    LoadCreature(creatureid, protocol->GetProtocolVersion(), head, body, legs, feet);
+}
+void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet ) {
     char temp[256];
     sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n-1);
-
     ASSERTFRIENDLY(creatureid <= creatures_n-1, temp);
 
-    if (creatures[creatureid].textures) {
-        t = (Texture**)creatures[creatureid].textures;
-        sli = creatures[creatureid].sli;
+    if (creatures[creatureid]->textures) {
+        t = (Texture**)creatures[creatureid]->textures;
+        sli = creatures[creatureid]->sli;
 
         offsetx = 0;
         offsety = 0;
 
-        animation_framecount[0] = creatures[creatureid].animation_framecount[0]; //stand
-        animation_framecount[1] = creatures[creatureid].animation_framecount[0];// walk
+        animation_framelist_stand = creatures[creatureid]->animation_framelist_stand; //stand
+        animation_framelist_move = creatures[creatureid]->animation_framelist_move;// walk
         return;
     }
 
-    ASSERTFRIENDLY(creatures[creatureid].loaded, "creature not loaded");
+    {
+        char tmp[256]; sprintf(tmp, "Creature %d not loaded\n", creatureid);
+        ASSERTFRIENDLY(creatures[creatureid]->loaded, tmp);
+    }
 
-    if (!strlen(creatures[creatureid].spritelist)) return;
-    char *p = creatures[creatureid].spritelist;
+    if (!strlen(creatures[creatureid]->spritelist)) return;
+    char *p = creatures[creatureid]->spritelist;
     sscanf(p, "%hhd", &sli.width); p = strchr(p, ' ')+1;
     sscanf(p, "%hhd", &sli.height); p = strchr(p, ' ')+1;
     sscanf(p, "%hhd", &sli.blendframes); p = strchr(p, ' ')+1;
@@ -171,84 +201,67 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion)
 
     char filename [256];
     FILE *f;
+    //printf("%d\n", creatureid);
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
+    }
 
-
+    for (int i = 0 ; i < sli.numsprites; i++) {
+        if (sli.blendframes > 1) {
+            /*printf("sli.height * sli.width: %d\n", sli.height * sli.width);
+            printf("i: %d\n", i);
+            printf("i / (sli.height * sli.width): %d\n", (i / (sli.height * sli.width)));
+            printf("mod: %d\n", ((i / (sli.height * sli.width)) % 2 ));*/
+            if ((i / (sli.height * sli.width)) % 2 ) {
+                t[i] = NULL;
+                continue;
+            }
+        }
         switch (protocolversion) {
             case 750:
-                sprintf(filename, "Tibia75/%d.bmp", sli.spriteids[i]);
-                f = fopen(filename, "r");
-                if (f) {
-                    fclose(f);
-                    t[i] = new Texture(filename);
-
-                    break;
-                }
-
-                if (!f) {
+                if (sli.blendframes > 1)
+                    t[i] = new Texture("Tibia75.spr", sli.spriteids[i], sli.spriteids[i+sli.height*sli.width], head, body, legs, feet);
+                else
                     t[i] = new Texture("Tibia75.spr", sli.spriteids[i]);
-                }
                 break;
             case 760:
             case 770:
-                sprintf(filename, "Tibia76/%d.bmp", sli.spriteids[i]);
-                f = fopen(filename, "r");
-                if (f) {
-                    fclose(f);
-                    t[i] = new Texture(filename);
-
-                    break;
-                }
-
-                if (!f) {
+                if (sli.blendframes > 1)
+                    t[i] = new Texture("Tibia76.spr", sli.spriteids[i], sli.spriteids[i+sli.height*sli.width], head, body, legs, feet);
+                else
                     t[i] = new Texture("Tibia76.spr", sli.spriteids[i]);
-                }
                 break;
             case 790:
-                sprintf(filename, "Tibia79/%d.bmp", sli.spriteids[i]);
-                f = fopen(filename, "r");
-                if (f) {
-                    fclose(f);
-                    t[i] = new Texture(filename);
-
-                    break;
-                }
-
-                if (!f) {
+                if (sli.blendframes > 1)
+                    t[i] = new Texture("Tibia79.spr", sli.spriteids[i], sli.spriteids[i+sli.height*sli.width], head, body, legs, feet);
+                else
                     t[i] = new Texture("Tibia79.spr", sli.spriteids[i]);
-                }
-
                 break;
-
             case 792:
-                sprintf(filename, "Tibia792/%d.bmp", sli.spriteids[i]);
-                f = fopen(filename, "r");
-                if (f) {
-                    fclose(f);
-                    t[i] = new Texture(filename);
-
-                    break;
-                }
-
-                if (!f) {
+                if (sli.blendframes > 1)
+                    t[i] = new Texture("Tibia792.spr", sli.spriteids[i], sli.spriteids[i+sli.height*sli.width], head, body, legs, feet);
+                else
                     t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
-                }
-
                 break;
 
         }
 
-
     }
 
-    creatures[creatureid].textures = t;
-    creatures[creatureid].sli = sli;
+    if (sli.blendframes > 1) creatures[creatureid]->textures = NULL; else creatures[creatureid]->textures = t;
+    creatures[creatureid]->sli = sli;
     offsetx = 0;
     offsety = 0;
 
-    animation_framecount[0] = creatures[creatureid].animation_framecount[0] = 1; //stand
-    animation_framecount[1] = creatures[creatureid].animation_framecount[1] = sli.animcount; //walk
+
+    animation_framelist_stand.insert(animation_framelist_stand.end(), 0);
+    creatures[creatureid]->animation_framelist_stand.insert(creatures[creatureid]->animation_framelist_stand.end(), 0);
+
+    animation_framelist_move.insert(animation_framelist_move.end(), 1);
+    animation_framelist_move.insert(animation_framelist_move.end(), 2);
+
+    creatures[creatureid]->animation_framelist_move.insert(creatures[creatureid]->animation_framelist_move.end(), 1);
+    creatures[creatureid]->animation_framelist_move.insert(creatures[creatureid]->animation_framelist_move.end(), 2);
 
 }
 void ObjSpr::LoadItem(unsigned int itemid) {
@@ -259,16 +272,15 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
     sprintf(temp, "invalid itemid %d out of %d in ObjSpr::LoadItem", itemid, items_n);
     ASSERTFRIENDLY(!itemid || itemid >= 100 && itemid <= items_n, temp);
 
+    if (items[itemid]->textures) {
+        t = (Texture**)items[itemid]->textures;
+        sli = items[itemid]->sli;
 
-    if (items[itemid].textures) {
-        t = (Texture**)items[itemid].textures;
-        sli = items[itemid].sli;
+        offsetx = items[itemid]->height2d_x * 4;
+        offsety = items[itemid]->height2d_y * 4;
 
-        offsetx = items[itemid].height2d_x * 4;
-        offsety = items[itemid].height2d_y * 4;
-
-        animation_framecount[0] = items[itemid].animation_framecount[0]; //stand
-        animation_framecount[1] = items[itemid].animation_framecount[1];// walk
+        animation_framelist_stand = items[itemid]->animation_framelist_stand; //stand
+        animation_framelist_move = items[itemid]->animation_framelist_move;// walk
         return;
     }
 
@@ -278,14 +290,15 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
         sli.spriteids[0]=0;
         t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
-        items[itemid].textures = t;
+        items[itemid]->textures = t;
         t[0] = new Texture("Tibia76.spr", 0);
         return;
     }
-    ASSERTFRIENDLY(items[itemid].loaded, "itemid not loaded");
+    ASSERTFRIENDLY(items[itemid]->loaded, "Item with the ID that server transmitted is not loaded");
 
-    if (!strlen(items[itemid].spritelist)) return;
-    char *p = items[itemid].spritelist;
+
+    if (!strlen(items[itemid]->spritelist)) return;
+    char *p = items[itemid]->spritelist;
     sscanf(p, "%hhd", &sli.width); p = strchr(p, ' ')+1;
     sscanf(p, "%hhd", &sli.height); p = strchr(p, ' ')+1;
     sscanf(p, "%hhd", &sli.blendframes); p = strchr(p, ' ')+1;
@@ -369,11 +382,18 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         }
 
     }
-    items[itemid].textures = t;
-    items[itemid].sli = sli;
+    items[itemid]->textures = t;
+    items[itemid]->sli = sli;
 
-    animation_framecount[0] = items[itemid].animation_framecount[0] = sli.animcount; //stand
-    animation_framecount[1] = items[itemid].animation_framecount[1] = sli.animcount; //walk
+    for (int i = 0 ; i < sli.animcount; i++) {
+        animation_framelist_stand.insert(animation_framelist_stand.end(), i);
+        items[itemid]->animation_framelist_stand.insert(items[itemid]->animation_framelist_stand.end(), i);
+
+
+        animation_framelist_move.insert(animation_framelist_move.end(), i);
+        items[itemid]->animation_framelist_move.insert(items[itemid]->animation_framelist_move.end(), i);
+
+    }
 
 }
 

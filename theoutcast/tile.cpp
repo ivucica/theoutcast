@@ -209,7 +209,7 @@ void Tile::Render(int layer) {
                 ground->Render(&pos);
             }
 
-            for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (items[(*it)->GetType()].splash) {
+            for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (items[(*it)->GetType()]->splash) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
@@ -251,7 +251,7 @@ void Tile::Render(int layer) {
         }
         case 2: // after creatures
 
-            for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (!items[(*it)->GetType()].splash) {
+            for (it = itemlayers[2].rbegin(); it != itemlayers[2].rend(); it++) if (!items[(*it)->GetType()]->splash) {
                 (*it)->Render(&pos);
                 (*it)->AnimationAdvance(25./fps);
             }
@@ -388,7 +388,7 @@ unsigned char Tile::GetTopLookAt() {
     topusable = 255;
     if (ground) {
 
-        if (items[ground->GetType()].usable) {
+        if (items[ground->GetType()]->usable) {
             topusable = stackpos;
 
         }
@@ -397,7 +397,7 @@ unsigned char Tile::GetTopLookAt() {
 
     for (i = 1; i <=3 ; i++ ) {
         for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
-            if (items[(*it)->GetType()].usable) {
+            if (items[(*it)->GetType()]->usable) {
                 topusable = stackpos;
             }
             stackpos ++;
@@ -409,7 +409,7 @@ unsigned char Tile::GetTopLookAt() {
         return stackpos + creatures.size() - 1;
 
     for (it = itemlayers[0].begin(); it != itemlayers[0].end(); it++) {
-        if (items[(*it)->GetType()].usable) {
+        if (items[(*it)->GetType()]->usable) {
             topusable = stackpos;
         }
         stackpos ++;
@@ -435,7 +435,7 @@ unsigned char Tile::GetTopUsableStackpos() {
 
     if (ground) {
 
-        if (items[ground->GetType()].extraproperty==78) {
+        if (items[ground->GetType()]->extraproperty==78) {
  //           console.insert("Using on ground, extra property is 78", CONRED);
             return 0; // use the ground
         } else {
@@ -453,7 +453,7 @@ unsigned char Tile::GetTopUsableStackpos() {
     topusable = 255;
     if (ground) {
 
-        if (items[ground->GetType()].usable) {
+        if (items[ground->GetType()]->usable) {
             topusable = stackpos;
 
         }
@@ -462,7 +462,7 @@ unsigned char Tile::GetTopUsableStackpos() {
 
     for (i = 1; i <=3 ; i++ ) {
         for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
-            if (items[(*it)->GetType()].usable) {
+            if (items[(*it)->GetType()]->usable) {
                 topusable = stackpos;
             }
             stackpos ++;
@@ -481,7 +481,7 @@ unsigned char Tile::GetTopUsableStackpos() {
     stackpos += creatures.size();
 
     for (it = itemlayers[0].begin(); it != itemlayers[0].end(); it++) {
-        if (items[(*it)->GetType()].usable) {
+        if (items[(*it)->GetType()]->usable) {
             topusable = stackpos;
         }
         stackpos ++;
