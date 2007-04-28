@@ -43,16 +43,16 @@ bool NetworkMessage::Dump(SOCKET s)
     // FIXME it crashes on a memcpy sometimes
     // reverify!!
     unsigned int sizetosend = GetSize();
-    char *tmp = NULL;
-    tmp = (char*)malloc(sizetosend+2);
+    char *tmp;
 
-    if (!tmp) {
+    if (!(tmp = (char*)malloc(sizetosend+2))) 
+	{
         DEBUGPRINT(0, 1, "malloc() failed while sending message");
         return false;
     }
+
     DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", sizetosend, sizetosend);
 
-    //memcpy(tmp, &sizetosend, 2); //memcpy for extremely small predetermined amounts of data is wasteful
 	*(unsigned short*)tmp = (unsigned short)sizetosend;
     memcpy(tmp+2, currentposition, sizetosend);
 
@@ -61,24 +61,10 @@ bool NetworkMessage::Dump(SOCKET s)
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket %x -- %s\n", (int)s, SocketErrorDescription());
 	    return false;
 	}
+
     free(tmp);
 
     return true;
-
-//////////////////////////////
-/*
-	if (send(s, (char*)&sizetosend, 2, 0) != 2) {
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (1) -- %s\n", SocketErrorDescription());
-	    return false;
-	}
-
-	if (send(s, currentposition, sizetosend, 0) != 0) {
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Failed to dump to socket (2) -- %s\n", SocketErrorDescription());
-	    return false;
-	}
-	DEBUGPRINT(3, 0, "Dumping %d bytes to connection (%02x)\n", size, size);
-	return true;
-*/
 }
 
 void NetworkMessage::AddString(const char *str) {
@@ -124,29 +110,12 @@ int NetworkMessage::FillFromBuffer (Buffer *buf) {
 	return 0;
 }
 
-// FIXME this function is so utterly wrong written and full of assumptions that
-// connection is still active that i'm disgousted at it, but at the same time
-// unwilling to rewrite it at the moment. proofing the concept at the moment...
 bool NetworkMessage::FillFromSocket (SOCKET s)
 {
-	//declare all variables at the very start of the respective {} block, it
-	//makes the code much more readable
 	signed int sizereadresult = 0;
 	signed int readsofar = 0;
 	unsigned short sz;
 	char *toadd;
-    
-/*
-	#ifdef WIN32
-	// 0 = blocking, 1 = nonblocking
-	// perhaps move this to initialization of the socket?
-	// would that work? (is the blockability altered by some other winapi?)
-    unsigned long mode = 0;
-	ioctlsocket(s, FIONBIO, &mode);
-
-	//no, it is not altered by any winapi function we use. -- John
-	#endif
-*/
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Expecting size read on netmsg %x.\n", (int)this);
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
@@ -178,16 +147,9 @@ bool NetworkMessage::FillFromSocket (SOCKET s)
         DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", (char)(MIN(sz - readsofar, 0xff)));
         readthisturn = recv(s, toadd + readsofar, MIN(sz-readsofar, MTU), 0); 
 
-		//for (int i=0;i<readthisturn;i++)
-        //    printf("%02x ", (char)(*(toadd+readsofar+i)));
-        //printf("\n");
 
         if (readthisturn > 0)
-		{
 			readsofar += readthisturn;
-			//printf("Now %d, after having read %d\n", readsofar, readthisturn);
-            //if (readthisturn) system("pause");
-        }
 		else if(!readthisturn)
 		{
 			DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Socket %x gracefully closed, nothing we can do about it.\n", (int)s);
@@ -266,8 +228,6 @@ char* NetworkMessage::GetString (char* target, unsigned int maxsize) {
 		this->Trim(strsize);
 		toreturn[usdsize] = 0;
 
-		//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting string: %s\n", toreturn);
-
 		return toreturn;
 	} else {
 		usdsize = MIN(MIN(maxsize-1, strsize), this->GetSize());
@@ -303,7 +263,7 @@ void NetworkMessage::RSABegin() {
 }
 
 void NetworkMessage::RSAEncrypt() {
-#ifdef USEENCRYPTION
+#ifdef USEENCRYPTION 
     int rsablocksize = size - rsaoffset;
     unsigned char msg[128] = {0}; // every rsa data block is 128 bytes in size. if we have less data then rest if simply unused, but rsa algorythm always generates 128 byte blocks and it still needs 128 bytes of space
     // first byte in block must be 0, encryption demands it
@@ -312,13 +272,13 @@ void NetworkMessage::RSAEncrypt() {
 
 
     //char* modulus = "";//paste here the modulus
-    char modulus[310];
+    char *modulus;
     if (protocol->CipSoft()) { // if were logging into one of cip's servers
         //strcpy(modulus, "142996239624163995200701773828988955507954033454661532174705160829347375827760388829672133862046006741453928458538592179906264509724520840657286865659265687630979195970404721891201847792002125535401292779123937207447574596692788513647179235335529307251350570728407373705564708871762033017096809910315212883967"); // 7.7
-        strcpy(modulus, "124710459426827943004376449897985582167801707960697037164044904862948569380850421396904597686953877022394604239428185498284169068581802277612081027966724336319448537811441719076484340922854929273517308661370727105382899118999403808045846444647284499123164879035103627004668521005328367415259939915284902061793"); // 7.72, 7.81, 7.9*
+        modulus = ("124710459426827943004376449897985582167801707960697037164044904862948569380850421396904597686953877022394604239428185498284169068581802277612081027966724336319448537811441719076484340922854929273517308661370727105382899118999403808045846444647284499123164879035103627004668521005328367415259939915284902061793"); // 7.72, 7.81, 7.9*
         DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "ENCODING WITH CIPSOFT\n");
     } else { // it's an ot
-        strcpy(modulus, "109120132967399429278860960508995541528237502902798129123468757937266291492576446330739696001110603907230888610072655818825358503429057592827629436413108566029093628212635953836686562675849720620786279431090218017681061521755056710823876476444260558147179707119674283982419152118103759076030616683978566631413");
+        modulus = ("109120132967399429278860960508995541528237502902798129123468757937266291492576446330739696001110603907230888610072655818825358503429057592827629436413108566029093628212635953836686562675849720620786279431090218017681061521755056710823876476444260558147179707119674283982419152118103759076030616683978566631413");
     }
 
     // after that, run the rsa encoding algorythm over data area of rsa block
