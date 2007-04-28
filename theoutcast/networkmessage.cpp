@@ -23,6 +23,9 @@
 #include "types.h"
 #include "socketstrings.h"
 #include "bsdsockets.h"
+
+#define MTU 1456
+
 #ifndef MAX
 	#define MAX(a,b) (a > b ? a : b)
 #endif
@@ -104,7 +107,8 @@ void NetworkMessage::AddU32(unsigned long u) {
 }
 
 void NetworkMessage::AddItemID(itemid_t id) {
-	this->AddU16(id);
+	/*this->AddU16(id);*/
+	this->Add((char*)&id, 2);
 }
 
 int NetworkMessage::FillFromBuffer (Buffer *buf) {
@@ -172,7 +176,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s)
 	{
 		signed int readthisturn;
         DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", (char)(MIN(sz - readsofar, 0xff)));
-        readthisturn = recv(s, toadd + readsofar, MIN(sz-readsofar, 0xff), 0); 
+        readthisturn = recv(s, toadd + readsofar, MIN(sz-readsofar, MTU), 0); 
 
 		//for (int i=0;i<readthisturn;i++)
         //    printf("%02x ", (char)(*(toadd+readsofar+i)));
