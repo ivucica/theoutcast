@@ -22,6 +22,9 @@ static std::vector<Texture*> textures;
 int texcount=0;
 static ONCriticalSection texturethreadsafe;
 
+#define FIXCOLORS(type){pixels[i * 32 + j].r = (unsigned char)(pixels[i * 32 + j].r * (colors[type * 3 + 0] / 255.f)); \
+                        pixels[i * 32 + j].g = (unsigned char)(pixels[i * 32 + j].g * (colors[type * 3 + 1] / 255.f)); \
+                        pixels[i * 32 + j].b = (unsigned char)(pixels[i * 32 + j].b * (colors[type * 3 + 2] / 255.f));}
 
 
 #ifndef WIN32
@@ -323,7 +326,7 @@ Texture::~Texture() {
 		printf("Unloading texture %d\n", *textureid);
 //        bool success = false;
 		for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
-			if ((*it)->usecount == this->usecount && (*it)->fname == this->fname) { // if that's the same texture
+			if ((*it)->imgid == this->imgid && (*it)->fname == this->fname ) { // if that's the same texture
 				textures.erase(it);
 //				success = true;
 				break;
@@ -332,12 +335,14 @@ Texture::~Texture() {
 //		ASSERTFRIENDLY(success, "Did not find the texture inside texture list");
 
     	if (pikseli) free(pikseli);
-		if (loaded) {
+		if (loaded && *loaded) {
 			if (textureid) {
+			    if (glIsTexture(*textureid)) texcount --; else printf("Cannot unload\n");
 			    glDeleteTextures(1, textureid);
-                texcount --;
+
 			} else {
 			    printf("WEIRD! Texture id is 0, altho' I am loaded!?\n");
+			    ASSERT(textureid);
             }
 			*loaded = false;
 			*textureid = 0;
@@ -423,10 +428,10 @@ bool Texture::UnloadGL() {
 
 //	printf("Texture::UnloadGL(): %s\n", *loaded ? "texture loaded" : "texture not loaded");
 //	ONThreadSafe(texturethreadsafe);
-    if (*loaded) {
+    if (textureid && *loaded) {
+        if (glIsTexture(*textureid)) texcount --; else printf("Cannot unload\n");
         glDeleteTextures(1, textureid);
         *textureid = 0;
-        texcount --;
         *loaded = false;
 //        ONThreadUnsafe(texturethreadsafe);
         return true;
@@ -445,7 +450,7 @@ void Texture::AssureLoadedness() {
 
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Checking up on %s\n", fname.c_str());
 
-	if (!(*textureid)) {
+	if (!(*textureid) || !glIsTexture(*textureid)) {
 	    if (!pikseli) {
             //printf("WOAH! Dude, texture %s (%d) not boundable!\n", fname.c_str(), imgid);
             //system("pause");
@@ -473,6 +478,7 @@ void Texture::Bind() {
 	//ONThreadSafe(texturethreadsafe);
 	AssureLoadedness();
 
+
 	/*for (std::vector<Texture*>::reverse_iterator it = textures.rbegin()+1; it != textures.rend() ; it++) {
 		if (*it == this) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moving texture %s...\n", (*it)->fname.c_str());
@@ -485,18 +491,24 @@ void Texture::Bind() {
 //	glEnable(GL_TEXTURE_2D);
 	//printf("Binding %s\n", fname.c_str());
 	if (textureid && *textureid && glIsTexture(*textureid)) glBindTexture(GL_TEXTURE_2D, *textureid); else {
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "We had a major binding problem with %s\n", fname.c_str());
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "We had a major binding problem with %s - %s %s %s\n", fname.c_str(),
+
+	    textureid ? "yes" : "no",
+	    *textureid ? "yes" : "no",
+	    glIsTexture(*textureid) ? "yes" : "no"
+	    );
 	}
 	//ONThreadUnsafe(texturethreadsafe);
 }
 
 Texture* Texture::Find() {
+    return NULL;
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
 		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
 			return *it;
 		}
 	}
-	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Requested texture twin of mine not found \n");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Requested texture twin of mine not found \n");
 	return NULL;
 }
 
@@ -509,34 +521,26 @@ RGBA* Texture::ColorizeCreature(RGBA *pixels, RGBA *templatepixels, unsigned cha
             if  (templatepixels[i * 32 + j].r && // Yellow == head
                  templatepixels[i * 32 + j].g &&
                 !templatepixels[i * 32 + j].b) {
-                    pixels[i * 32 + j].r *= colors[head * 3 + 0] / 255.f;
-                    pixels[i * 32 + j].g *= colors[head * 3 + 1] / 255.f;
-                    pixels[i * 32 + j].b *= colors[head * 3 + 2] / 255.f;
+                    FIXCOLORS(head)
                 }
 
             if  (templatepixels[i * 32 + j].r && // Red == body
                 !templatepixels[i * 32 + j].g &&
                 !templatepixels[i * 32 + j].b) {
-                    pixels[i * 32 + j].r *= colors[body * 3 + 0] / 255.f;
-                    pixels[i * 32 + j].g *= colors[body * 3 + 1] / 255.f;
-                    pixels[i * 32 + j].b *= colors[body * 3 + 2] / 255.f;
+                    FIXCOLORS(body)
                 }
 
 
             if (!templatepixels[i * 32 + j].r && // Green == legs
                  templatepixels[i * 32 + j].g &&
                 !templatepixels[i * 32 + j].b) {
-                    pixels[i * 32 + j].r *= colors[legs * 3 + 0] / 255.f;
-                    pixels[i * 32 + j].g *= colors[legs * 3 + 1] / 255.f;
-                    pixels[i * 32 + j].b *= colors[legs * 3 + 2] / 255.f;
+                    FIXCOLORS(legs)
                 }
 
             if (!templatepixels[i * 32 + j].r && // Blue == feet
                 !templatepixels[i * 32 + j].g &&
                  templatepixels[i * 32 + j].b) {
-                    pixels[i * 32 + j].r *= colors[feet * 3 + 0] / 255.f;
-                    pixels[i * 32 + j].g *= colors[feet * 3 + 1] / 255.f;
-                    pixels[i * 32 + j].b *= colors[feet * 3 + 2] / 255.f;
+                    FIXCOLORS(feet)
                 }
 
 

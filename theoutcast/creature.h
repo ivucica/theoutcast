@@ -23,6 +23,8 @@ class Creature : public Thing {
         void SetAttacked(bool atk);
         void SetHP(unsigned char hp);
 
+        bool IsApproved();
+        creaturelook_t GetLook() {return creaturelook;}
 
         // obtaining info
         bool IsGround();
@@ -34,6 +36,7 @@ class Creature : public Thing {
         std::string name;
         bool attacked;
         unsigned char hp;
+        creaturelook_t creaturelook;
 };
 
 #endif // __CREATURE_H

@@ -6,7 +6,7 @@
 #include "glutwin.h"
 #include "container.h"
 
-void GM_Gameworld_ClickExec(position_t *pos);
+void GM_Gameworld_ClickExec(position_t *pos, glictEvents evt);
 
 Container::Container(std::string title, unsigned char containerid, unsigned short icon, unsigned char capacity) {
     this->containerid = containerid;
@@ -106,6 +106,8 @@ void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer 
 */
 
 
+    if (clipped->bottom <= clipped->top) return;
+    if (clipped->right <= clipped->left) return;
 
 
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
@@ -139,9 +141,6 @@ void Container_SlotsOnClick(glictPos* pos, glictContainer* caller) {
     containeritemdata_t *c = (containeritemdata_t*)caller->GetCustomData();
 
 
-    char tmp[256];
-    sprintf(tmp, "Clicked on %d", c->elementid );
-    console.insert(tmp, CONYELLOW);
 
 
     int slot = c->elementid;
@@ -151,7 +150,36 @@ void Container_SlotsOnClick(glictPos* pos, glictContainer* caller) {
     pos2.y = c->container->GetContainerID() | 0x40 ;
     pos2.z = slot;
 
-    GM_Gameworld_ClickExec(&pos2);
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSECLICK);
+
+}
+void Container_SlotsOnMouseDown(glictPos* pos, glictContainer* caller) {
+    containeritemdata_t *c = (containeritemdata_t*)caller->GetCustomData();
+
+
+    int slot = c->elementid;
+    position_t pos2;
+
+    pos2.x = 0xFFFF;
+    pos2.y = c->container->GetContainerID() | 0x40 ;
+    pos2.z = slot;
+
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEDOWN);
+
+}
+void Container_SlotsOnMouseUp(glictPos* pos, glictContainer* caller) {
+    containeritemdata_t *c = (containeritemdata_t*)caller->GetCustomData();
+
+
+
+    int slot = c->elementid;
+    position_t pos2;
+
+    pos2.x = 0xFFFF;
+    pos2.y = c->container->GetContainerID() | 0x40 ;
+    pos2.z = slot;
+
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEUP);
 
 }
 

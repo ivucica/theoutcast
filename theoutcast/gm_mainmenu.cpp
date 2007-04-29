@@ -19,6 +19,7 @@
 #include "charlist.h"
 int currentspr;
 
+
 GM_MainMenu::GM_MainMenu() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Entering main menu\n");
 
@@ -42,58 +43,91 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-	desktop.AddObject(&mainmenu);
-	mainmenu.SetWidth(200);
-	mainmenu.SetHeight(232);
+    if (skin.tmmloaded) {
+        desktop.AddObject(&tibia);
+        tibia.SetSkin(&skin.tmm);
+        tibia.SetWidth(118);
+        tibia.SetHeight(170);
+        tibia.SetBGColor(.4,.4,.4,1.);
+        tibia.AddObject(&btnLogIn);
+            btnLogIn.SetWidth(84);
+            btnLogIn.SetHeight(20);
+            btnLogIn.SetCaption("Enter Game");
+            btnLogIn.SetOnClick(GM_MainMenu_LogIn);
+            btnLogIn.SetPos(16,16);
+        tibia.AddObject(&btnOptions);
+            btnOptions.SetWidth(84);
+            btnOptions.SetHeight(20);
+            btnOptions.SetCaption("Options");
+            btnOptions.SetOnClick(GM_MainMenu_Options);
+            btnOptions.SetPos(16,76);
+        tibia.AddObject(&btnAbout);
+            btnAbout.SetWidth(84);
+            btnAbout.SetHeight(20);
+            btnAbout.SetCaption("Info");
+            btnAbout.SetOnClick(GM_MainMenu_About);
+            btnAbout.SetPos(16,106);
+        tibia.AddObject(&btnExit);
+            btnExit.SetWidth(84);
+            btnExit.SetHeight(20);
+            btnExit.SetCaption("Exit Game");
+            btnExit.SetOnClick(GM_MainMenu_Exit);
+            btnExit.SetPos(16,136);
+
+    } else {
+
+        desktop.AddObject(&mainmenu);
+        mainmenu.SetWidth(200);
+        mainmenu.SetHeight(232);
 
 
-	mainmenu.AddObject(&btnLogIn);
-	//mainmenu.AddObject(&btnTutorial);
-	mainmenu.AddObject(&btnOptions);
-	//mainmenu.AddObject(&btnToS);
-	mainmenu.AddObject(&btnAbout);
-	mainmenu.AddObject(&btnExit);
-	mainmenu.SetCaption("Main Menu");
+        mainmenu.AddObject(&btnLogIn);
+        //mainmenu.AddObject(&btnTutorial);
+        mainmenu.AddObject(&btnOptions);
+        //mainmenu.AddObject(&btnToS);
+        mainmenu.AddObject(&btnAbout);
+        mainmenu.AddObject(&btnExit);
+        mainmenu.SetCaption("Main Menu");
 
 
 
-	btnLogIn.SetBGColor(.6,.6,.6,1.);
-	btnLogIn.SetWidth(120);
-	btnLogIn.SetCaption("Log In");
-	btnLogIn.SetOnClick(GM_MainMenu_LogIn);
-	btnLogIn.SetPos(200/2 - 120/2,  32*1 );
+        btnLogIn.SetBGColor(.6,.6,.6,1.);
+        btnLogIn.SetWidth(120);
+        btnLogIn.SetCaption("Log In");
+        btnLogIn.SetOnClick(GM_MainMenu_LogIn);
+        btnLogIn.SetPos(200/2 - 120/2,  32*1 );
 
-	btnTutorial.SetBGColor(.6,.6,.6,1.);
-	btnTutorial.SetWidth(120);
-	btnTutorial.SetCaption("Tutorial");
-	//btnTutorial.SetOnClick(GM_MainMenu_Tutorial);
-	btnTutorial.SetPos(200/2 - 120/2,  32*2 );
+        btnTutorial.SetBGColor(.6,.6,.6,1.);
+        btnTutorial.SetWidth(120);
+        btnTutorial.SetCaption("Tutorial");
+        //btnTutorial.SetOnClick(GM_MainMenu_Tutorial);
+        btnTutorial.SetPos(200/2 - 120/2,  32*2 );
 
-	btnOptions.SetBGColor(.6,.6,.6,1.);
-	btnOptions.SetWidth(120);
-	btnOptions.SetCaption("Options");
-    btnOptions.SetOnClick(GM_MainMenu_Options);
-  //  btnOptions.SetOnClick(GM_MainMenu_NextSprite);
-	btnOptions.SetPos(200/2 - 120/2,  32*3 );
+        btnOptions.SetBGColor(.6,.6,.6,1.);
+        btnOptions.SetWidth(120);
+        btnOptions.SetCaption("Options");
+        btnOptions.SetOnClick(GM_MainMenu_Options);
+      //  btnOptions.SetOnClick(GM_MainMenu_NextSprite);
+        btnOptions.SetPos(200/2 - 120/2,  32*3 );
 
-	btnToS.SetBGColor(.6, .6, .6, 1.);
-	btnToS.SetWidth(120);
-	btnToS.SetCaption("Terms of Service");
-	btnToS.SetOnClick(GM_MainMenu_ToS);
-	btnToS.SetPos(200/2 - 120/2, 232 - 32*3);
+        btnToS.SetBGColor(.6, .6, .6, 1.);
+        btnToS.SetWidth(120);
+        btnToS.SetCaption("Terms of Service");
+        btnToS.SetOnClick(GM_MainMenu_ToS);
+        btnToS.SetPos(200/2 - 120/2, 232 - 32*3);
 
-	btnAbout.SetBGColor(.6, .6, .6, 1.);
-	btnAbout.SetWidth(120);
-	btnAbout.SetCaption("About");
-	btnAbout.SetOnClick(GM_MainMenu_About);
-	btnAbout.SetPos(200/2 - 120/2, 232 - 32*2);
+        btnAbout.SetBGColor(.6, .6, .6, 1.);
+        btnAbout.SetWidth(120);
+        btnAbout.SetCaption("About");
+        btnAbout.SetOnClick(GM_MainMenu_About);
+        btnAbout.SetPos(200/2 - 120/2, 232 - 32*2);
 
-	btnExit.SetBGColor(.6,.6,.6,1.);
-	btnExit.SetWidth(120);
-	btnExit.SetCaption("Exit");
-	btnExit.SetOnClick(GM_MainMenu_Exit);
-	btnExit.SetPos(200/2 - 120/2, 232 - 32);
-
+        btnExit.SetBGColor(.6,.6,.6,1.);
+        btnExit.SetWidth(120);
+        btnExit.SetCaption("Exit");
+        btnExit.SetOnClick(GM_MainMenu_Exit);
+        btnExit.SetPos(200/2 - 120/2, 232 - 32);
+    }
 
 	desktop.AddObject(&login);
 	login.SetWidth(300);
@@ -327,7 +361,7 @@ GM_MainMenu::GM_MainMenu() {
     pnlOptionsSkin.SetPos(0, 100);
     pnlOptionsSkin.SetHeight(16);
     pnlOptionsSkin.SetWidth(100);
-    pnlOptionsSkin.SetCaption("Skin: ");
+    pnlOptionsSkin.SetCaption("Skin: (*)");
     pnlOptionsSkin.SetBGActiveness(false);
 
     options.AddObject(&txtOptionsSkin);
@@ -360,7 +394,11 @@ GM_MainMenu::GM_MainMenu() {
 
 	logo = new Texture("logo.bmp");
 
-	bg = new Texture("bg.bmp");
+
+	if (skin.tmmloaded)
+        bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
+    else
+        bg = new Texture("bg.bmp");
 
 	sine_flag_angle = 0.;
 	bg_move_angle = 0.;
@@ -392,7 +430,7 @@ void GM_MainMenu::Render() {
 
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
-    if (false) {
+    if (true) {
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -406,7 +444,7 @@ void GM_MainMenu::Render() {
         glEnable(GL_TEXTURE_2D);
         bg->Bind();
         glPushMatrix();
-        glTranslatef( sin( bg_move_angle * PI / 180. )*5., 0, 0);
+        if (!skin.tmmloaded) glTranslatef( sin( bg_move_angle * PI / 180. )*5., 0, 0);
         StillEffect(-20, 0, 660., 480., 10, 10, false, true);
         glPopMatrix();
 
@@ -485,20 +523,21 @@ void GM_MainMenu::Render() {
 
 //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
     glEnable(GL_TEXTURE_2D);
+    if (!skin.tmmloaded)  { // painting logo
+        printf("....\n");
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluOrtho2D(0.,640.,0.,480.);
+        glRotatef(180.0, 1.0, 0.0, 0.0);
+        glTranslatef(0,-480.,0.0);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0.,640.,0.,480.);
-    glRotatef(180.0, 1.0, 0.0, 0.0);
-    glTranslatef(0,-480.,0.0);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glAlphaFunc(GL_GEQUAL, 0.99);
-    logo->Bind();
-    StillEffect(200, 0, 425, 100, 2, 2, false, true); // divisions were 40 10
-
+        glAlphaFunc(GL_GEQUAL, 0.99);
+        logo->Bind();
+        StillEffect(200, 0, 425, 100, 2, 2, false, true); // divisions were 40 10
+    }
 
 
 
@@ -557,6 +596,7 @@ void GM_MainMenu::Render() {
 	}
 
 
+    glColor4f(1,1,1,1);
 
 	if (fps && mayanimate) sine_flag_angle += 180. / fps;
 	if (sine_flag_angle > 360.) sine_flag_angle -= 360.;
@@ -575,7 +615,7 @@ void GM_MainMenu::Render() {
         OnFadeout();
 	}
 
-    glColor4f(1,1,1,1);
+
 }
 
 void GM_MainMenu::ResizeWindow() {
@@ -585,6 +625,8 @@ void GM_MainMenu::ResizeWindow() {
     glictGlobals.w = winw;
     glictGlobals.h = winh;
 	glictSize s;
+
+    tibia.SetPos(60, winh - 240);
 
 	mainmenu.SetPos(winw / 2 - 200 / 2, winh / 2 - 200 / 2);
 	about.SetPos(winw / 2 - 500 / 2, winh / 2 - 350 / 2);
@@ -779,6 +821,7 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
 	((GM_MainMenu*)game)->charlist.SetVisible(true);
 	((GM_MainMenu*)game)->charlist.Focus(NULL);
 	((GM_MainMenu*)game)->mainmenu.SetEnabled(false);
+	((GM_MainMenu*)game)->tibia.SetEnabled(false);
 
     ((GM_MainMenu*)game)->charlist.SetCaption("Please wait...");
 	((GM_MainMenu*)game)->charlist.SetMessage("Initializing...");
@@ -808,6 +851,7 @@ void GM_MainMenu_CharList_LogonError(glictPos* pos, glictContainer* caller) {
     ((GM_MainMenu*)game)->charlist.SetVisible(false);
 
     ((GM_MainMenu*)game)->mainmenu.SetEnabled(true);
+    ((GM_MainMenu*)game)->tibia.SetEnabled(true);
 }
 
 void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller) {
@@ -841,6 +885,7 @@ void GM_MainMenu_CharList_Cancel(glictPos* pos, glictContainer* caller) {
     ((GM_MainMenu*)game)->characterlist.SetVisible(false);
 
     ((GM_MainMenu*)game)->mainmenu.SetEnabled(true);
+    ((GM_MainMenu*)game)->tibia.SetEnabled(true);
 }
 
 void GM_MainMenu_AboutOnDismiss(glictPos* pos, glictContainer* caller) {
@@ -858,6 +903,7 @@ void GM_MainMenu_MBOnDismiss(glictPos* pos, glictContainer* caller) {
 
 void GM_MainMenu_Options(glictPos* pos, glictContainer *caller) {
     ((GM_MainMenu*)game)->mainmenu.SetEnabled(false);
+    ((GM_MainMenu*)game)->tibia.SetEnabled(false);
     ((GM_MainMenu*)game)->options.SetVisible(true);
     ((GM_MainMenu*)game)->options.Focus(NULL);
 
@@ -891,8 +937,6 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
     game->Render();
     glutSwapBuffers();
 
-
-
     options.maptrack = ((GM_MainMenu*)game)->btnOptionsMaptrack.GetCaption() == "X";
     options.fullscreen = ((GM_MainMenu*)game)->btnOptionsFullscreen.GetCaption() == "X";
 	options.intro = ((GM_MainMenu*)game)->btnOptionsIntro.GetCaption() == "X";
@@ -901,12 +945,13 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
 	options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
 
 	glut_SetMousePointer("DEFAULT");
-	skin.Load(options.skin.c_str());
+	//skin.Load(options.skin.c_str());
 	((GM_MainMenu*)game)->ResizeWindow();
     options.Save();
 }
 void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller) {
     ((GM_MainMenu*)game)->mainmenu.SetEnabled(true);
+    ((GM_MainMenu*)game)->tibia.SetEnabled(true);
     ((GM_MainMenu*)game)->options.SetVisible(false);
     ((GM_MainMenu*)game)->mainmenu.Focus(NULL);
 }

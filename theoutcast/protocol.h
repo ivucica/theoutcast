@@ -51,6 +51,7 @@ class Protocol {
         virtual void    Attack(unsigned long creatureid);
         virtual void    Use(position_t *pos, unsigned char stackpos);
         virtual void    Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2);
+        virtual void    Move(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2, unsigned char amount);
         virtual void    CloseContainer(unsigned char cid);
 
 

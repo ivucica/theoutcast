@@ -22,6 +22,7 @@ class Thing {
         unsigned char GetCount();
         unsigned char GetSubType();
         unsigned short GetSpeed();
+        virtual creaturelook_t GetLook();
 
         // this item info setup
         virtual void SetType(unsigned short type, void *extra);
@@ -29,6 +30,7 @@ class Thing {
         void SetCount(unsigned char count);
         void SetSubType(unsigned char subtype);
         void SetDirection(direction_t dir);
+        direction_t GetDirection() {return this->direction;}
 
         // others
         virtual void Render();

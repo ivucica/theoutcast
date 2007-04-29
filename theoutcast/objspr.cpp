@@ -84,6 +84,9 @@ bool ObjSpr::Render(position_t *pos) {
     //if (sli.animcount!=1) printf("%f - %d out of %d; %g * %g\n", animation_percent, currentframe, sli.animcount, (animation_percent/100.), (float)sli.animcount);
    // if (itemid == 5022) printf("%s, %d\n",  items[itemid].spritelist, sli.animcount);
    int activeframe;
+
+
+
     for (int i = 0; i < sli.height; i++)
         for (int j = 0; j < sli.width; j++) {
             for (int k = 0; k < (type ? min(1, sli.blendframes) : sli.blendframes); k++) { // if anything except item, there won't be blendframes...
@@ -134,8 +137,7 @@ bool ObjSpr::Render(position_t *pos) {
             }
         }
     //printf("\n");
-
-    glTranslatef(offsetx, offsety, 0);
+    glTranslatef(-offsetx, offsetx, 0);
     glDisable(GL_TEXTURE_2D);
     return true;
 }
@@ -143,8 +145,9 @@ bool ObjSpr::Render(unsigned char stackcount) {
     glEnable(GL_TEXTURE_2D);
     t[min(stackcount,sli.numsprites-1)]->Bind();
 
+    //glTranslatef(-offsetx, -offsety, 0);
     StillEffect(0, 0, 32 , 32 , 2, 2, false, false, true); // divisions were 40 10
-    glTranslatef(offsetx, offsety, 0);
+
     glDisable(GL_TEXTURE_2D);
     return true;
 }
@@ -276,8 +279,8 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         t = (Texture**)items[itemid]->textures;
         sli = items[itemid]->sli;
 
-        offsetx = items[itemid]->height2d_x * 4;
-        offsety = items[itemid]->height2d_y * 4;
+        offsetx = items[itemid]->height2d_x ;
+        offsety = items[itemid]->height2d_y ;
 
         animation_framelist_stand = items[itemid]->animation_framelist_stand; //stand
         animation_framelist_move = items[itemid]->animation_framelist_move;// walk
@@ -394,6 +397,10 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         items[itemid]->animation_framelist_move.insert(items[itemid]->animation_framelist_move.end(), i);
 
     }
+
+        offsetx = items[itemid]->height2d_x ;
+        offsety = items[itemid]->height2d_y ;
+
 
 }
 

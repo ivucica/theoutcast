@@ -48,7 +48,9 @@ class GM_Gameworld : public GameMode {
     friend void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
     friend void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller);
-    friend void GM_Gameworld_ClickExec(position_t *pos);
+    friend void GM_Gameworld_InvSlotsOnMouseDown(glictPos* pos, glictContainer* caller);
+    friend void GM_Gameworld_InvSlotsOnMouseUp(glictPos* pos, glictContainer* caller);
+    friend void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype );
 };
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller);
@@ -58,4 +60,6 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
 void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller);
-void GM_Gameworld_ClickExec(position_t *pos);
+void GM_Gameworld_InvSlotsOnMouseDown(glictPos* pos, glictContainer* caller);
+void GM_Gameworld_InvSlotsOnMouseUp(glictPos* pos, glictContainer* caller);
+void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype );

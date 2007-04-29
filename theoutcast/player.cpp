@@ -1,3 +1,5 @@
+#include "gamemode.h"
+#include "gm_gameworld.h"
 #include "creature.h"
 #include "player.h"
 #include "tile.h"
@@ -51,11 +53,13 @@ void Player::SetPos(position_t *p) {
     pos.x = p->x;
     pos.y = p->y;
     pos.z = p->z;
+    if (gamemode==GM_GAMEWORLD) ((GM_Gameworld*)game)->UpdateStats();
 }
 void Player::SetPos(unsigned short x, unsigned short y, unsigned char z) {
     pos.x = x;
     pos.y = y;
     pos.z = z;
+    if (gamemode==GM_GAMEWORLD) ((GM_Gameworld*)game)->UpdateStats();
 }
 void Player::FindMinZ() { // finds highest place that we may render on
     Tile *t;
@@ -93,12 +97,15 @@ void Player::SetCap(unsigned short cap) {
 }
 void Player::SetExp(unsigned long exp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Exp: %d\n", exp);
+    this->exp = exp;
 }
 void Player::SetLevel(unsigned short lvl) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Level: %d\n", lvl);
+    this->level = lvl;
 }
 void Player::SetLevelPercent(unsigned char lvlpercent) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Level%%: %d\n", lvlpercent);
+    this->levelpercent = lvlpercent;
 }
 void Player::SetMP(unsigned short mp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MP: %d\n", mp);
@@ -110,9 +117,11 @@ void Player::SetMaxMP(unsigned short maxmp) {
 }
 void Player::SetMLevel(unsigned char mlvl) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MLevel: %d\n", mlvl);
+    this->mlevel = mlvl;
 }
 void Player::SetMLevelPercent(unsigned char mlvlpercent) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "MLevel%%: %d\n", mlvlpercent);
+    this->mlevelpercent = mlvlpercent;
 }
 void Player::SetSoulPoints(unsigned char soul) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Soul: %d\n", soul);
@@ -135,6 +144,21 @@ unsigned short Player::GetMP() {
 }
 unsigned short Player::GetMaxMP() {
     return maxmp;
+}
+unsigned long Player::GetExp() {
+    return exp;
+}
+unsigned short Player::GetLevel() {
+    return level;
+}
+unsigned short Player::GetMLevel() {
+    return mlevel;
+}
+unsigned char Player::GetLevelPercent() {
+    return levelpercent;
+}
+unsigned char Player::GetMLevelPercent() {
+    return mlevelpercent;
 }
 
 

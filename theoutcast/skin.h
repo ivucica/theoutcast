@@ -9,7 +9,10 @@ class Skin {
 
         void Load(const char *what);
         void Unload();
-	void AssureLoadedness(); 
+        void AssureLoadedness();
+
+        glictSkinner tmm;
+        bool tmmloaded;
     private:
         Texture *wintl, *wint, *wintr, *winl, *winc, *winr, *winbl, *winb, *winbr;
         glictSkinner win;
@@ -19,6 +22,8 @@ class Skin {
         glictSkinner bth;
         Texture *txttl, *txtt, *txttr, *txtl, *txtc, *txtr, *txtbl, *txtb, *txtbr;
         glictSkinner txt;
+        Texture *tmmtl, *tmmt, *tmmtr, *tmml, *tmmc, *tmmr, *tmmbl, *tmmb, *tmmbr;
+
 
 };
 extern Skin skin;

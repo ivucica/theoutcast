@@ -15,6 +15,7 @@ class Tile {
         void Insert(Thing *obj);
         //void remove(Thing *obj);
         void Remove(unsigned char stackpos);
+        void Remove(Thing *obj);
 
         void Replace(Thing *original, Thing *newobject);
         void Replace(unsigned char stackpos, Thing *newobject);
@@ -30,6 +31,7 @@ class Tile {
 
         void SetPos(position_t *p); // so tile can know its position
         void Render(int layer);
+        void RenderStrayCreatures(position_t *p);
 
         unsigned int GetItemCount();
 
@@ -37,6 +39,9 @@ class Tile {
         void StoreToDatabase();
 
     private:
+
+
+
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;
         Thing *ground;

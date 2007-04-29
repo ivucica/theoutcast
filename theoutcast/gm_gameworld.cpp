@@ -120,6 +120,8 @@ GM_Gameworld::GM_Gameworld() {
             panInvSlots[i].SetWidth(32);
             panInvSlots[i].SetOnPaint(GM_Gameworld_InvSlotsOnPaint);
             panInvSlots[i].SetOnClick(GM_Gameworld_InvSlotsOnClick);
+            panInvSlots[i].SetOnMouseDown(GM_Gameworld_InvSlotsOnMouseDown);
+            panInvSlots[i].SetOnMouseUp(GM_Gameworld_InvSlotsOnMouseUp);
         }
 
 
@@ -319,12 +321,12 @@ void PaintMap() {
 		if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
 		static int offset;
 
-		glMatrixMode(GL_MODELVIEW);
+
 		for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
 			offset = z - player->GetPosZ();
-			for (int layer= 0; layer <= 2; layer++)
+			//for (int layer= 0; layer <= 2; layer++)
 
-				for (int x = -(VISIBLEW/2) - 2; x <= +(VISIBLEW/2) - offset + 2; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+				for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
 					for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
 
 						position_t p;
@@ -342,8 +344,8 @@ void PaintMap() {
 								glColor4f(1., 1., 1., 1.);
 
 							if (t=gamemap.GetTile(&p))
-									//t->Render(0);
-									t->Render(layer);
+									t->Render(0);
+									//t->Render(layer);
 
 
 							glMatrixMode(GL_MODELVIEW);
@@ -356,8 +358,9 @@ void PaintMap() {
 	// keep code in sync with above
 		int z = player->GetPosZ();
 		int layer = 3;
-		for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
-			for (int y = -(VISIBLEH/2) - 1; y <= +(VISIBLEH/2) - offset + 1; y++) { // really visible coordinates: -7, +7 and -5, +5
+
+        for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+            for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
 				position_t p;
 				p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
 
@@ -434,11 +437,21 @@ void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
 }
 
 void GM_Gameworld::UpdateStats() {
-    static char tmp[1024];
+    static char tmp[2048];
     sprintf(tmp,"HP: %d/%d\n"
-                "MP: %d/%d\n",
+                "MP: %d/%d\n"
+                "---------\n"
+                "Exp: %d\n"
+                "Level: %d (%d%%)\n"
+                "Magic: %d (%d%%)\n"
+                "---------\n"
+                "Loc: (%d,%d,%d)\n",
                 player->GetHP(), player->GetMaxHP(),
-                player->GetMP(), player->GetMaxMP());
+                player->GetMP(), player->GetMaxMP(),
+                player->GetExp(),
+                player->GetLevel(), player->GetLevelPercent(),
+                player->GetMLevel(), player->GetMLevelPercent(),
+                player->GetPosX(),player->GetPosY(),player->GetPosZ() );
 
     panStaStats.SetCaption(tmp);
 
@@ -475,6 +488,8 @@ unsigned int GM_Gameworld::GetContainersY() {
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
 
+    if (clipped->bottom <= clipped->top) return;
+    if (clipped->right <= clipped->left) return;
 
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
 //    glClear(GL_COLOR_BUFFER_BIT);
@@ -509,6 +524,8 @@ void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictConta
 }
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
+    if (clipped->bottom <= clipped->top) return;
+    if (clipped->right <= clipped->left) return;
 
 
     glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
@@ -567,7 +584,7 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
     pos2.z = player->GetPosZ();
 
 
-    GM_Gameworld_ClickExec(&pos2);
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSECLICK);
 }
 
 void GM_Gameworld_WorldOnMouseDown (glictPos* pos, glictContainer* caller) {
@@ -585,7 +602,8 @@ void GM_Gameworld_WorldOnMouseDown (glictPos* pos, glictContainer* caller) {
     pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
     pos2.z = player->GetPosZ();
 
-    printf("%d %d %d\n", pos2.x, pos2.y, pos2.z);
+    //printf("%d %d %d\n", pos2.x, pos2.y, pos2.z);
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEDOWN);
 }
 void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller) {
     glictSize size;
@@ -602,34 +620,55 @@ void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller) {
     pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
     pos2.z = player->GetPosZ();
 
-    printf("%d %d %d\n", pos2.x, pos2.y, pos2.z);
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEUP);
 }
 
-void GM_Gameworld_ClickExec(position_t *pos) {
+void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
     static int modifiers;
+    static bool moving=false;
     modifiers = glutGetModifiers();
 
-    if (useex_item2) {
+    //printf("%d %d %d\n", pos->x, pos->y, pos->z);
+    //console.insert(moving ? "moving" : "not moving");
+    //console.insert(((GM_Gameworld*)game)->desktop.EvtTypeDescriptor(evttype));
+
+    if (useex_item2 && (!(
+        pos->x == ((GM_Gameworld*)game)->useex_item1_pos.x &&
+        pos->y == ((GM_Gameworld*)game)->useex_item1_pos.y &&
+        pos->z == ((GM_Gameworld*)game)->useex_item1_pos.z) && evttype == GLICT_MOUSEUP || !moving && evttype == GLICT_MOUSECLICK)
+
+
+    ) {
         useex_item2 = false;
         Tile *t;
         if (pos->x!=0xFFFF) t = gamemap.GetTile(pos);
 
-        protocol->Use(&(((GM_Gameworld*)game)->useex_item1_pos), ((GM_Gameworld*)game)->useex_item1_stackpos, pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
+        if (moving) {
+//            console.insert("SET UP DESTINATION SUCCESSFULLY\n");
+            protocol->Move(&(((GM_Gameworld*)game)->useex_item1_pos), ((GM_Gameworld*)game)->useex_item1_stackpos, pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0, 1);
+        } else {
+            protocol->Use(&(((GM_Gameworld*)game)->useex_item1_pos), ((GM_Gameworld*)game)->useex_item1_stackpos, pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
+        }
+
         glut_SetMousePointer("DEFAULT");
         return;
     }
 
-    if (modifiers & GLUT_ACTIVE_SHIFT)
-        protocol->LookAt(pos);
+    if (modifiers & GLUT_ACTIVE_SHIFT) {
+        //console.insert("SHIFT\n");
+        if (evttype == GLICT_MOUSECLICK) protocol->LookAt(pos);
+    }
     else if (modifiers & GLUT_ACTIVE_ALT) {
         if (pos->x==0xFFFF) return;
         Tile *t = gamemap.GetTile(pos);
+        //console.insert("ALT\n");
 
         if (Creature *c = t->GetCreature())
-            protocol->Attack(c->GetCreatureID());
-    } else if (modifiers & GLUT_ACTIVE_CTRL) {
+            if (evttype == GLICT_MOUSECLICK) protocol->Attack(c->GetCreatureID());
+    } else if ((modifiers & GLUT_ACTIVE_CTRL) || evttype == GLICT_MOUSEDOWN) {
         Tile *t;
         Thing *th;
+        //console.insert("CTRL\n");
         if (pos->x!=0xFFFF) {
             t = gamemap.GetTile(pos);
             th = t->GetStackPos(t->GetTopUsableStackpos());
@@ -646,18 +685,35 @@ void GM_Gameworld_ClickExec(position_t *pos) {
         if (th) {
             unsigned short itemid = th->GetType();
 
-            if (items[itemid]->usable || items[itemid]->rune ) {
-                // extended usable
-                console.insert("Specify where do you want to use this item", CONLTBLUE);
-                glut_SetMousePointer(new ObjSpr(itemid,0));
+
+            if (((items[itemid]->usable || items[itemid]->rune) && evttype == GLICT_MOUSECLICK ) || (evttype == GLICT_MOUSEDOWN && !useex_item2 )) {
+                // extended usable or move
+
+                if (dynamic_cast<Creature*>(th)) {
+                    ObjSpr *s = new ObjSpr(itemid,th->GetLook().head,th->GetLook().body,th->GetLook().legs,th->GetLook().feet );
+                    s->SetDirection(th->GetDirection());
+                    glut_SetMousePointer(s);
+                } else
+                    glut_SetMousePointer(new ObjSpr(itemid,0));
                 ((GM_Gameworld*)game)->useex_item1_pos = *pos;
                 ((GM_Gameworld*)game)->useex_item1_stackpos = pos->x != 0xFFFF ? t->GetTopUsableStackpos() : 0;
-                useex_item2 = true;
-            } else {
+
+                if (!(modifiers & GLUT_ACTIVE_CTRL) && evttype == GLICT_MOUSEDOWN) {
+                    console.insert("Specify where do you want to move this item", CONLTBLUE);
+                    moving  = true;
+                    useex_item2 = true;
+                } else if (modifiers & GLUT_ACTIVE_CTRL && evttype == GLICT_MOUSECLICK) {
+                    console.insert("Specify where do you want to use this item", CONLTBLUE);
+                    useex_item2 = true;
+                }
+
+            } else if (evttype == GLICT_MOUSECLICK) {
                 // simple usable
                 protocol->Use(pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
+                moving = false;
+                glut_SetMousePointer("DEFAULT");
+                useex_item2 = false;
             }
-
 
 
 
@@ -671,11 +727,14 @@ void GM_Gameworld_ClickExec(position_t *pos) {
         }
 
 
-    } else {
+    } else if (evttype == GLICT_MOUSECLICK) {
         char tmp [256];
         sprintf(tmp, "You clicked on location (%d, %d, %d)", pos->x, pos->y, pos->z );
         console.insert(tmp, CONWHITE);
         gamemap.GetTile(pos)->ShowContents();
+        moving = false;
+        glut_SetMousePointer("DEFAULT");
+        useex_item2 = false;
     }
 
 
@@ -694,7 +753,9 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
         1. );
 */
 
-    glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
+    if (clipped->bottom <= clipped->top) return;
+    if (clipped->right <= clipped->left) return;
+    glViewport((int)clipped->left, (int)(glictGlobals.h - clipped->bottom), (int)(clipped->right - clipped->left), (int)(clipped->bottom - clipped->top));
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -718,13 +779,13 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
 		glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    glViewport(0,0,glictGlobals.w,glictGlobals.h);
+    glViewport(0,0,(int)glictGlobals.w,(int)glictGlobals.h);
     skin.AssureLoadedness();
 }
 void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller) {
-    //char tmp[256];
-    //sprintf(tmp, "Clicked on %d", (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots));
-    //console.insert(tmp, CONYELLOW);
+    char tmp[256];
+    sprintf(tmp, "Clicked on %d", (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots));
+    console.insert(tmp, CONYELLOW);
     int slot = (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots) + 1;
     position_t pos2;
 
@@ -732,7 +793,40 @@ void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller) {
     pos2.y = slot;
     pos2.z = 0;
 
-    GM_Gameworld_ClickExec(&pos2);
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSECLICK);
+
+
+}
+
+void GM_Gameworld_InvSlotsOnMouseDown(glictPos* pos, glictContainer* caller) {
+    char tmp[256];
+    sprintf(tmp, "MouseDown on %d", (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots));
+    console.insert(tmp, CONYELLOW);
+    int slot = (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots) + 1;
+    position_t pos2;
+
+    pos2.x = 0xFFFF;
+    pos2.y = slot;
+    pos2.z = 0;
+
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEDOWN);
+
+
+}
+
+
+void GM_Gameworld_InvSlotsOnMouseUp(glictPos* pos, glictContainer* caller) {
+    char tmp[256];
+    sprintf(tmp, "MouseUp on %d", (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots));
+    console.insert(tmp, CONYELLOW);
+    int slot = (glictPanel*)caller - (((GM_Gameworld*)game)->panInvSlots) + 1;
+    position_t pos2;
+
+    pos2.x = 0xFFFF;
+    pos2.y = slot;
+    pos2.z = 0;
+
+    GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEUP);
 
 
 }

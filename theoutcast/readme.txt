@@ -176,11 +176,11 @@ Outcast utilizes the following libraries and wishes to thank their authors:
 Thanks to CIPSoft for making Tibia and creating this wonderful protocol.
 Thanks to crew from #otserv (irc.quakenet.org) and from Tornadia Game Worlds for providing support when I needed it.
 Thanks to my computer science teacher who kindly allowed me NOT to pay attention during her classes and develop The Outcast and study OpenGL, FMOD, OpenAL and who-knows-what-not.
-Thanks to my family for ... erm, relatively good support (from time to time) and for, of course, food :)
+Thanks to my family for support and for, of course, food :)
 Thanks to ZRS for supporting me during last several years in my involvement with computers.
-Thanks to brave from OTservlist.com for providing a special interface to the server list.
 Thanks to OTfans.net staff for opening The Outcast's forum, thus helping spread the news.
 Thanks to BlackDemon for 7.81 dat reading support!
+Thanks to Simone and mips who helped with some chunks of code!
 Thanks to everyone who downloaded the old versions of The Outcast!
 Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles inside out to make OTserv. It's been an unreplaceable tool for local development!
 
@@ -190,6 +190,12 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 Changes since 0.3.9
 * Fixed various GLICT related issues
+* Moving items!
+* Creature colors!
+* Fixed rendering issues (it should render most scenes correctly now)
+* Texture system is kindof more advanced (though a bit more unstable)
+* If skin supports it, the main menu can be "panelized" (when I release a skin supporting it, you'll see what I mean)
+* If a thing in container is scrolled-out-of-screen, then rendering of it won't be attempted (that caused some glitches)
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug

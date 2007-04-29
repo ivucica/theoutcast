@@ -11,7 +11,6 @@
 				<Option object_output=".objsdebug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplayground" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />
@@ -56,7 +55,31 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-Os" />
+					<Add option="-march=pentium-m" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-fexceptions" />
+					<Add option="-DWIN32" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DUSESOUND" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DTFM" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-fexceptions" />
+				</Linker>
+			</Target>
+			<Target title="release_opt">
+				<Option output="The Outcast opt.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objsopt" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=pentium-m" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
 					<Add option="-fexceptions" />
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
@@ -145,6 +168,8 @@
 		<Unit filename="debugprint.cpp" />
 		<Unit filename="debugprint.h" />
 		<Unit filename="defines.h" />
+		<Unit filename="effect.cpp" />
+		<Unit filename="effect.h" />
 		<Unit filename="exchndl2.cxx">
 			<Option target="debug" />
 			<Option target="release" />

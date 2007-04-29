@@ -445,6 +445,8 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             // with an assertion that failed inside tile->insert()
             // player should also be able to continue moving albeit the thing->ApproveMove()
             // is not called so we call approvemove on player, justincase
+            ASSERT(player)
+            ASSERT(player->GetCreature())
             if (!thing) return player->GetCreature()->ApproveMove(), true;
 
             if (dst.y < src.y) thing->SetDirection(NORTH);
@@ -1266,11 +1268,7 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
     Tile *t;
     ONThreadSafe(threadsafe);
 
-
-
     nm.AddU8(0x83);
-
-
 
     // first item
     AddPosition(&nm, pos1);
@@ -1365,6 +1363,78 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
             nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
         }
     }
+
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+void Protocol::Move(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2, unsigned char amount) {
+
+    NetworkMessage nm;
+    Thing *th;
+    Tile *t;
+    ONThreadSafe(threadsafe);
+
+    nm.AddU8(0x78);
+
+    {
+        char tmp [256];
+        sprintf(tmp, "Moving from %d %d %d to %d %d %d\n", pos1->x, pos1->y, pos1->z, pos2->x, pos2->y, pos2->z);
+        console.insert(tmp);
+    }
+
+    // first item
+    AddPosition(&nm, pos1);
+    if (pos1->x != 0xFFFF) {
+        Tile *t = gamemap.GetTile(pos1);
+
+        if (!t) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        Thing *th = t->GetStackPos(stackpos1);
+
+        if (!th) {
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+
+        nm.AddU16(th->GetType() );
+
+        nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+
+    } else {
+        if (!(pos1->y & 0x40)) { // inventory
+            if (!player->inventory[pos1->y - 1]) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+
+            nm.AddU16(player->inventory[pos1->y - 1]->GetType() );
+            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+        } else {
+            Container *c = player->GetContainer(pos1->y & 0x0F);
+            if (!c) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            Thing* t = c->GetItem(pos1->z);
+            if (!t) {
+                ONThreadUnsafe(threadsafe);
+                return;
+            }
+            nm.AddU16(t->GetType());
+            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+        }
+    }
+
+    // second item
+    AddPosition(&nm, pos2);
+
+    nm.AddU8(amount); // Amount of items to move ... temporarily set to 1
+
 
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);

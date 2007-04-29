@@ -10,12 +10,15 @@ Map::~Map() {
     ONDeinitThreadSafe(threadsafe);
 // FIXME destroy every tile and remove it from the std::map
 
-    for (maptype_t::iterator it = m.begin(); it != m.end(); ) {
+    for (maptype_t::iterator it = m.begin(); it != m.end(); it=m.begin()) {
     	if (it->second) {
-		delete it->second;
-	        m.erase(it);
-	}
+            delete it->second;
+            m.erase(it);
+        } else {
+            it++;
+        }
     }
+
 }
 
 Tile* Map::GetTile(position_t *pos) {
@@ -77,7 +80,7 @@ unsigned long Map::SetAttackedCreature(unsigned long creatureid) {
 }
 
 void Map::FreeUnused(unsigned short minx, unsigned short maxx, unsigned short miny, unsigned short maxy) {
-	
+
 	for (maptype_t::iterator it = m.begin(); it != m.end() ; it++) {
 		if (((it->first >> 16) & 0xFFFF)<minx && ((it->first >> 16) & 0xFFFF) > maxx &&
 		    (it->first & 0xFFFF) < miny &&  (it->first & 0xFFFF) > maxy) {

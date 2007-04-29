@@ -31,6 +31,11 @@ class Player {
         unsigned short  GetMaxHP();
         unsigned short  GetMP();
         unsigned short  GetMaxMP();
+        unsigned short  GetLevel();
+        unsigned short  GetMLevel();
+        unsigned char   GetLevelPercent();
+        unsigned char   GetMLevelPercent();
+        unsigned long   GetExp();
 
 
         void            SetHP(unsigned short hp); // hp
@@ -68,11 +73,17 @@ class Player {
         unsigned short  maxhp;
         unsigned short  mp;
         unsigned short  maxmp;
+        unsigned short  level;
+        unsigned short  mlevel;
+        unsigned char   levelpercent;
+        unsigned char   mlevelpercent;
+        unsigned long   exp;
+
 
         ContainerMap containers;
 
     friend void Tile::Render(int layer);
-
+    friend void Tile::RenderStrayCreatures(position_t *p);
 };
 
 extern Player *player;

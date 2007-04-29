@@ -13,6 +13,7 @@ void Creature::SetType(unsigned short outfit, void* extra) {
     creaturelook_t *crl = (creaturelook_t *)extra;
 
     this->type = outfit;
+    this->creaturelook = *crl;
     if (outfit != 0)
         sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
     else
@@ -95,7 +96,9 @@ void Creature::Render(position_t *pos) {
         glColor4f(1.,1.,1.,1.);
         glEnd();
     }
+    glTranslatef(-8,8,0);
     Thing::Render(pos);
+    glTranslatef(8,-8,0);
     if (wasmoving) {
         glPopMatrix();
     }
@@ -114,6 +117,9 @@ void Creature::SetHP(unsigned char hp) {
 }
 unsigned char Creature::GetHP() {
     return hp;
+}
+bool Creature::IsApproved() {
+    return preapproved;
 }
 void Creature::RenderOverlay() {
 	bool wasmoving = false;

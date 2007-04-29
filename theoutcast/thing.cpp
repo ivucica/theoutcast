@@ -3,7 +3,7 @@
 
 #include "creature.h"
 #include "item.h"
-
+#include "types.h"
 
 // FIXME add thread locking in thing and in creature's
 Thing::Thing() {
@@ -120,7 +120,17 @@ void Thing::SetSpeed(unsigned short speed) {
 unsigned short Thing::GetSpeed() {
     return speed;
 }
-
+creaturelook_t Thing::GetLook() {
+    creaturelook_t r;
+    r.head = 0;
+    r.body = 0;
+    r.legs = 0;
+    r.feet = 0;
+    r.extendedlook = 0;
+    r.addons = 0;
+    r.type = 0;
+	return r;
+}
 Thing *ThingCreate(unsigned int type) {
     switch (type) {
         case 0x61:

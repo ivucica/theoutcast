@@ -13,8 +13,8 @@
 #include "creature.h"
 
 
-typedef std::map<unsigned long long, Tile*> maptype_t;
-typedef std::map<unsigned long, Creature*> creaturelist_t;
+#define maptype_t std::map<unsigned long long, Tile*>
+#define creaturelist_t std::map<unsigned long, Creature*>
 
 /*
 typedef __gnu_cxx::hash_map<unsigned long long, Tile*> maptype_t;
