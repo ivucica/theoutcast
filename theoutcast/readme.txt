@@ -196,6 +196,8 @@ Changes since 0.3.9
 * Texture system is kindof more advanced (though a bit more unstable)
 * If skin supports it, the main menu can be "panelized" (when I release a skin supporting it, you'll see what I mean)
 * If a thing in container is scrolled-out-of-screen, then rendering of it won't be attempted (that caused some glitches)
+* Some items with height are rendered properly now
+* Due to instability, changing skins now requires a restart
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug

@@ -430,7 +430,7 @@ void GM_MainMenu::Render() {
 
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
-    if (true) {
+    if (false) {
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();

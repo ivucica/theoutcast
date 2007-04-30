@@ -321,6 +321,7 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
 
 Texture::~Texture() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
+
     ONThreadSafe(texturethreadsafe);
     if (*(usecount)==1) {
 		printf("Unloading texture %d\n", *textureid);
@@ -337,8 +338,12 @@ Texture::~Texture() {
     	if (pikseli) free(pikseli);
 		if (loaded && *loaded) {
 			if (textureid) {
-			    if (glIsTexture(*textureid)) texcount --; else printf("Cannot unload\n");
-			    glDeleteTextures(1, textureid);
+			    if (glIsTexture(*textureid)) {
+			    	texcount --; 
+				glDeleteTextures(1, textureid);
+			    } else 
+			        printf("Cannot unload\n");
+			    //glDeleteTextures(1, textureid);
 
 			} else {
 			    printf("WEIRD! Texture id is 0, altho' I am loaded!?\n");
