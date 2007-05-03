@@ -111,7 +111,7 @@ void Tile::Remove(Thing *obj) {
     itemcount --;
     if (ground) {
         if (ground == obj) {
-            delete ground;
+//            delete ground;
             ground=NULL;
 
             ONThreadUnsafe(threadsafe);
@@ -121,7 +121,7 @@ void Tile::Remove(Thing *obj) {
     for (int i = 3; i >=0 ; i-- ) {
         for (it=itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
             if (*it == obj) {
-                delete *it;
+//                delete *it;
                 itemlayers[i].erase(it);
                 ONThreadUnsafe(threadsafe);
                 return;
@@ -130,7 +130,7 @@ void Tile::Remove(Thing *obj) {
     }
     for (ct=creatures.begin(); ct != creatures.end(); ct++) {
         if (*ct == obj) {
-            delete *ct;
+//            delete *ct;
             creatures.erase(ct);
             ONThreadUnsafe(threadsafe);
             return;
@@ -242,9 +242,11 @@ void Tile::RenderStrayCreatures(position_t *p) {
         if (!grndspeed) grndspeed = 500; // a safe fallback, once again
     }
     for (std::vector<Creature*>::iterator it = this->creatures.begin(); it != this->creatures.end(); it++) {
-        Thing *th = (*it);
-
-        if (Creature * cr = dynamic_cast<Creature*>(th)) {
+        Creature *cr = (*it);
+        if (!cr) {
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "A null item encountered while trying to render stray creatures");
+            continue;
+        } else {
             creaturespeed = cr->GetSpeed();
             creaturespeed = (creaturespeed ? creaturespeed : 220);
 
@@ -260,9 +262,6 @@ void Tile::RenderStrayCreatures(position_t *p) {
             }
             if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
                 cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
-        } else {
-            th->AnimationAdvance(25./fps);
-            th->Render(&pos);
         }
     }
 

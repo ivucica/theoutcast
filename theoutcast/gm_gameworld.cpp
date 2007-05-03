@@ -128,12 +128,12 @@ GM_Gameworld::GM_Gameworld() {
 
     desktop.AddObject(&winStats);
         winStats.SetWidth(120);
-        winStats.SetHeight(150);
+        winStats.SetHeight(220);
         winStats.SetCaption("Stats");
-        winStats.SetPos(410, 200);
+        winStats.SetPos(410, 220);
         winStats.AddObject(&panStaStats);
             panStaStats.SetBGActiveness(false);
-            panStaStats.SetHeight(150);
+            panStaStats.SetHeight(220);
             panStaStats.SetWidth(120);
 
 
@@ -445,13 +445,30 @@ void GM_Gameworld::UpdateStats() {
                 "Level: %d (%d%%)\n"
                 "Magic: %d (%d%%)\n"
                 "---------\n"
+                "Fist: %d (%d%%)\n"
+                "Club: %d (%d%%)\n"
+                "Sword: %d (%d%%)\n"
+                "Axe: %d (%d%%)\n"
+                "Distance: %d (%d%%)\n"
+                "Shielding: %d (%d%%)\n"
+                "Fishing: %d (%d%%)\n"
+                "---------\n"
                 "Loc: (%d,%d,%d)\n",
                 player->GetHP(), player->GetMaxHP(),
                 player->GetMP(), player->GetMaxMP(),
                 player->GetExp(),
                 player->GetLevel(), player->GetLevelPercent(),
                 player->GetMLevel(), player->GetMLevelPercent(),
-                player->GetPosX(),player->GetPosY(),player->GetPosZ() );
+                player->GetSkillLevel(FIST), player->GetSkillPercent(FIST),
+                player->GetSkillLevel(CLUB), player->GetSkillPercent(CLUB),
+                player->GetSkillLevel(SWORD), player->GetSkillPercent(SWORD),
+                player->GetSkillLevel(AXE), player->GetSkillPercent(AXE),
+                player->GetSkillLevel(DISTANCE), player->GetSkillPercent(DISTANCE),
+                player->GetSkillLevel(SHIELDING), player->GetSkillPercent(SHIELDING),
+                player->GetSkillLevel(FISHING), player->GetSkillPercent(FISHING),
+
+                player->GetPosX(),player->GetPosY(),player->GetPosZ()
+                 );
 
     panStaStats.SetCaption(tmp);
 

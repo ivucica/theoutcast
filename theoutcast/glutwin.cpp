@@ -42,11 +42,6 @@ void glut_Display() {
 	frames++;
 //	glut_FPS(0);
 	glutSwapBuffers();
-	{
-	int er;
-	//if ((er = glGetError()) != GL_NO_ERROR) printf("In display %s\n", gluErrorString(er));
-	}
-
 }
 
 void glut_Reshape (int w, int h) {

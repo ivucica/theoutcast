@@ -52,8 +52,14 @@ class Player {
         /* dunno where this was added but it is there in 792 */
         void            SetStamina(unsigned short stamina); // stamina (minutes)
 
+
+        void            SetSkill(skill_t skill, unsigned char level, unsigned char percent);
+        unsigned char   GetSkillLevel(skill_t skill);
+        unsigned char   GetSkillPercent(skill_t skill);
+
         void            SetInventorySlot(unsigned int slot, Thing *item);
         void            RenderInventory(unsigned int slot);
+
 
         void            SetContainer(unsigned char cid, Container *container);
         Container *     GetContainer(unsigned char container);
@@ -81,6 +87,9 @@ class Player {
 
 
         ContainerMap containers;
+        unsigned char playerskills[7];
+        unsigned char playerskillspcnt[7];
+
 
     friend void Tile::Render(int layer);
     friend void Tile::RenderStrayCreatures(position_t *p);

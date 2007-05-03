@@ -191,6 +191,20 @@ void Player::RemoveContainer(unsigned int cid) {
         containers.erase(it);
     }
 }
+
+
+void Player::SetSkill(skill_t skill, unsigned char level, unsigned char percent) {
+    this->playerskillspcnt[skill] = percent;
+    this->playerskills[skill] = level;
+}
+unsigned char Player::GetSkillLevel(skill_t skill) {
+    return this->playerskills[skill];
+}
+unsigned char Player::GetSkillPercent(skill_t skill) {
+    return this->playerskillspcnt[skill];
+}
+
+
 Container *Player::GetContainer(unsigned char container) {
     ContainerMap::iterator it;
     if ((it = containers.find(container))==containers.end()) {

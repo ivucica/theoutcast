@@ -252,10 +252,8 @@ void Protocol::ParseCreatureLook(NetworkMessage *nm, creaturelook_t *crl) {
 }
 
 void Protocol::GetPlayerSkill(NetworkMessage *nm, skill_t skillid) {
-    nm->GetU8(); // level
-    nm->GetU8(); // percent
+    player->SetSkill(skillid, nm->GetU8(), nm->GetU8()); // level, percent
 
-    // store into player
 }
 void Protocol::GetPlayerSkills(NetworkMessage *nm) {
     GetPlayerSkill(nm, FIST);
@@ -788,9 +786,10 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
              else if (player->GetPosZ()>7)
                 ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2, player->GetPosY() - (maxy-1)/2 , player->GetPosZ()-2, &skip);
 
-
-
             player->FindMinZ();
+
+
+
             gamemap.Unlock();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move up\n");
 
@@ -799,19 +798,27 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xBF: {// Floor Down
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move down\n");
             gamemap.Lock();
+
+
             player->SetPos(player->GetPosX()-1, player->GetPosY()-1, player->GetPosZ()+1);
+
 
             //ParseMapDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2, player->GetPosY() - (maxy-1)/2, player->GetPosZ());
             unsigned int skip=0;
             if (player->GetPosZ()==8) {
-                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2, player->GetPosY() - (maxy-1)/2 , player->GetPosZ(), &skip);
-                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2, player->GetPosY() - (maxy-1)/2 , player->GetPosZ()+1, &skip);
+                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosY() - (maxy-1)/2 , player->GetPosZ(), &skip);
+                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosY() - (maxy-1)/2 , player->GetPosZ()+1, &skip);
             }
             if (player->GetPosZ() >= 8)
-                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2, player->GetPosZ() - (maxy-1)/2 , player->GetPosZ()+2, &skip);
+                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosZ() - (maxy-1)/2 , player->GetPosZ()+2, &skip);
 
 
             player->FindMinZ();
+
+
+            //player->SetPos(player->GetPosX()+1, player->GetPosY()+1, player->GetPosZ());
+
+
             gamemap.Unlock();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End move down\n");
 
