@@ -1,3 +1,4 @@
+#include "debugprint.h"
 #include "map.h"
 Map gamemap;
 
@@ -41,15 +42,16 @@ Tile* Map::GetTile(position_t *pos) {
 
 Creature* Map::GetCreature(unsigned long creatureid, Creature *cr) {
     creaturelist_t::iterator it = c.find( creatureid );
+
     if (it==c.end()) {
 
         if (!cr) {
-            printf ("DIRECTED NOT TO FORM NEW CREATURE %d!!!! Arrr...!!\n", creatureid);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY,  DEBUGPRINT_ERROR, "DIRECTED NOT TO FORM NEW CREATURE %d!!!! Arrr...!!\n", creatureid);
             return NULL;
         }
         c[creatureid] = cr;
         (cr)->SetCreatureID(creatureid);
-        printf("FORMING NEW CREATURE!!!!!!\n");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL,  DEBUGPRINT_NORMAL, "FORMING NEW CREATURE!!!!!!\n");
         return cr;
     } else {
         if (cr) delete cr;
@@ -91,3 +93,4 @@ void Map::FreeUnused(unsigned short minx, unsigned short maxx, unsigned short mi
 		    }
 	}
 }
+

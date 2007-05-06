@@ -99,7 +99,7 @@ bool Protocol::GameworldWork() {
 }
 
 void Protocol::Close() {
-    ONThreadSafe(threadsafe);
+    //ONThreadSafe(threadsafe);
     printf("Trying to close socket\n");
     #if defined(WIN32) && !defined(_MSC_VER)
 	shutdown(s, SD_BOTH);
@@ -109,7 +109,7 @@ void Protocol::Close() {
 //    system("pause");
     active = false;
     s = 0;
-    ONThreadUnsafe(threadsafe);
+    //ONThreadUnsafe(threadsafe);
 }
 bool Protocol::ParsePacket(NetworkMessage *nm) {
     unsigned char packetid = nm->GetU8();
@@ -213,7 +213,10 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
 
 Creature *Protocol::GetCreatureByID(NetworkMessage *nm) {
     Creature * cr = gamemap.GetCreature(nm->GetU32(), NULL);
-    ASSERTFRIENDLY(cr, "Protocol::GetCreatureByID() failed");
+    //ASSERTFRIENDLY(cr, "Protocol::GetCreatureByID() failed");
+    if (!cr) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Protocol::GetCreatureByID() failed");
+    }
     return cr;
 }
 unsigned short Protocol::GetItemTypeID(NetworkMessage *nm) {
@@ -303,6 +306,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x28: {// You are dead message
             nm->ShowContents();
             console.insert("You've died, mister. Really really badly died.", CONRED);
+            if (gamemode == GM_GAMEWORLD) ((GM_Gameworld*)game)->MsgBox("You have went through the unfortunate process of dying.\nHopefully, you will be able to restore your experience\npoints and resume playing. If you have a high-level\nfriend, don't forget to contact him or her so that\nyou get avenged.\n\nAnd train so that you're not a n00b.", "You're dead");
             return true;
         }
         case 0x32: // Something Else, Bug Report
@@ -537,20 +541,25 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             return true;
         }
-        case 0x70: // Add Container Item
-            nm->GetU8(); // container id
-            ParseThingDescription(nm);
+        case 0x70: {// Add Container Item
+            Container *c = player->GetContainer(nm->GetU8()); // container id
+            if (c) c->Insert(ParseThingDescription(nm), true);
             return true;
-        case 0x71: // Replace Container Item
-            nm->GetU8(); // container id
-            nm->GetU8(); // slot
-            delete ParseThingDescription(nm);
+        }
+        case 0x71: {// Replace Container Item
+            Container *c = player->GetContainer(nm->GetU8()); // container id
+            if (c) {
+                unsigned char slot = nm->GetU8();
+                c->Replace(slot, ParseThingDescription(nm)); // slot
+            }
 
             return true;
-        case 0x72: // Remove Container Item
-            nm->GetU8(); // container id
-            nm->GetU8(); // slot
+        }
+        case 0x72: {// Remove Container Item
+            Container *c = player->GetContainer(nm->GetU8()); // container id
+            if (c) c->Remove( nm->GetU8() ); // slot
             return true;
+        }
         case 0x78: // Inventory Item
         case 0x79:{// Inventory Empty
             unsigned int slot = nm->GetU8(); // item slot
@@ -615,11 +624,12 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x8C: {// Creature HP
             Creature *c = GetCreatureByID(nm);
-            //if (c)
+            if (c)
                 c->SetHP(nm->GetU8()); // health percent
-            //else
-            //    console.insert("There was a problem adjusting a creature's health.\n", CONRED);
-
+            else {
+                console.insert("There was a problem adjusting a creature's health.\n", CONRED);
+                nm->GetU8();
+            }
             //if (c) printf("Creature %s health adjustment\n", c->GetName().c_str());
 
             return true;
@@ -644,10 +654,11 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             GetCreatureByID(nm);//creature id
             nm->GetU16(); // speed index
             return true;
-        case 0x90: // Creature Skull
-            GetCreatureByID(nm);//creature id
-            nm->GetU8(); // skull type
+        case 0x90: {// Creature Skull
+            Creature *cr = GetCreatureByID(nm);
+            cr->SetSkull((skull_t)nm->GetU8());//creature id, skull type
             return true;
+        }
         case 0x91: // Creature Shield
             GetCreatureByID(nm);//creature id
             nm->GetU8(); // shield type
@@ -1021,7 +1032,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
 
 
             if (protocolversion >= 750) {
-                nm->GetU8(); // skull
+                ((Creature*)thing)->SetSkull((skull_t)nm->GetU8()); // skull
                 nm->GetU8(); // shield
             }
 

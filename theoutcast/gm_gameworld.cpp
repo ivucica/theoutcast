@@ -24,6 +24,7 @@
 #include "debugprint.h"
 #include "defines.h" // min and max
 #include "skin.h"
+#include "types.h"
 
 #define VISIBLEW 15 // 14
 #define VISIBLEH 11 // 10
@@ -40,6 +41,9 @@ extern unsigned int ItemSPRAnimationFrame;
 
 static bool useex_item2;
 void PaintMap();
+
+Texture* texSkull;
+
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
     while (1) { // while we're in gameworld game mode
         if (!protocol->GameworldWork()) break;
@@ -60,12 +64,16 @@ GM_Gameworld::GM_Gameworld() {
 
     ONInitThreadSafe(desktopthreadsafe);
 
-	glIsTexture(1);
+
+
+
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing gameworld\n");
 
     SoundSetMusic("music/game.mp3");
 
-
+    texSkull = new Texture("skull.bmp");
+    chase = STAND;
+    stance = BALANCED;
 
     desktop.AddObject(&winWorld);
         winWorld.SetOnPaint(GM_Gameworld_WorldOnPaint);
@@ -140,23 +148,29 @@ GM_Gameworld::GM_Gameworld() {
             btnStaStance1.SetHeight(15);
             btnStaStance1.SetWidth(15);
             btnStaStance1.SetPos(0,0);
-            btnStaStance1.SetCaption("A");
+            btnStaStance1.SetCaption("O");
+            btnStaStance1.SetCustomData((void*)1);
+            btnStaStance1.SetOnClick( GM_Gameworld_StaStanceOnClick );
         winStats.AddObject(&btnStaStance2);
             btnStaStance2.SetHeight(15);
             btnStaStance2.SetWidth(15);
             btnStaStance2.SetPos(20,0);
-            btnStaStance2.SetCaption("N");
+            btnStaStance2.SetCaption("B");
+            btnStaStance2.SetCustomData((void*)2);
+            btnStaStance2.SetOnClick( GM_Gameworld_StaStanceOnClick );
         winStats.AddObject(&btnStaStance3);
             btnStaStance3.SetHeight(15);
             btnStaStance3.SetWidth(15);
             btnStaStance3.SetPos(40,0);
             btnStaStance3.SetCaption("D");
+            btnStaStance3.SetCustomData((void*)3);
+            btnStaStance3.SetOnClick( GM_Gameworld_StaStanceOnClick );
         winStats.AddObject(&chkStaChase);
             chkStaChase.SetHeight(15);
             chkStaChase.SetWidth(15);
             chkStaChase.SetPos(70,0);
             chkStaChase.SetCaption("X");
-
+            chkStaChase.SetOnClick(GM_Gameworld_StaChaseOnClick);
 
 
 
@@ -177,6 +191,8 @@ GM_Gameworld::~GM_Gameworld() {
     CreaturesUnload();
     SPRUnloader();
 
+    delete texSkull;
+
     ONDeinitThreadSafe(desktopthreadsafe);
 }
 
@@ -186,6 +202,7 @@ void GM_Gameworld::Render() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, 640, 0, 480, -100, 100);
+
 
 
 //    glColor4f(1., 1., 1., 1.);
@@ -504,7 +521,6 @@ void GM_Gameworld::AddContainer(Container *c, unsigned int x, unsigned int y) {
         c->GetWindow()->SetPos(x, y);
     }
     ONThreadUnsafe(desktopthreadsafe);
-
 }
 void GM_Gameworld::RemoveContainer(Container *c) {
     ONThreadSafe(desktopthreadsafe);
@@ -525,6 +541,32 @@ unsigned int GM_Gameworld::GetContainersY() {
     ONThreadUnsafe(desktopthreadsafe);
     return p.y + h;
 }
+void GM_Gameworld::MsgBox (const char* mbox, const char* title) {
+	glictSize s;
+	glictMessageBox *mb;
+
+	ONThreadSafe(desktopthreadsafe);
+
+
+	mb->GetSize(&s);
+
+	mb->SetCaption(title);
+	mb->SetMessage(mbox);
+
+	mb->SetPos(winw / 2 - s.w / 2, winh / 2 - s.h / 2);
+
+	mb->SetOnDismiss(GM_Gameworld_MBOnDismiss);
+
+	desktop.AddObject(mb = new glictMessageBox);
+
+	ONThreadUnsafe(desktopthreadsafe);
+
+}
+void GM_Gameworld_MBOnDismiss(glictPos* pos, glictContainer* caller) {
+	((GM_Gameworld*)game)->desktop.RemoveObject(caller);
+	delete caller;
+}
+
 void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
 
@@ -869,4 +911,33 @@ void GM_Gameworld_InvSlotsOnMouseUp(glictPos* pos, glictContainer* caller) {
     GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEUP);
 
 
+}
+void GM_Gameworld_StaStanceOnClick(glictPos* pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+    gw->btnStaStance1.SetHeight(15);
+    gw->btnStaStance2.SetHeight(15);
+    gw->btnStaStance3.SetHeight(15);
+
+    caller->SetHeight(20);
+
+    int stance = ((int)caller->GetCustomData());
+
+    gw->stance = (stanceaggression_t)stance;
+    protocol->SetStance(gw->stance, gw->chase);
+
+}
+void GM_Gameworld_StaChaseOnClick(glictPos* pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+    bool ov;
+    if (ov = (caller->GetCaption() == "X"))
+        caller->SetCaption("");
+    else
+        caller->SetCaption("X");
+
+    if (ov)
+        gw->chase = STAND;
+    else
+        gw->chase = CHASE;
+
+    protocol->SetStance(gw->stance, gw->chase);
 }

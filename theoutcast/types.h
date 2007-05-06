@@ -166,6 +166,13 @@ typedef enum {
 	FLUID_PURPLE  = 0x07
 } fluidcolors_t;
 
+typedef enum {
+	SKULL_NONE = 0,
+	SKULL_YELLOW = 1,
+	SKULL_GREEN = 2,
+	SKULL_WHITE = 3,
+	SKULL_RED = 4,
+} skull_t;
 
 
 #endif

@@ -8,6 +8,7 @@
 #include "types.h"
 #include "container.h"
 #include "threads.h"
+
 class GM_Gameworld : public GameMode {
     public:
         GM_Gameworld();
@@ -25,6 +26,7 @@ class GM_Gameworld : public GameMode {
         void RemoveContainer(Container *c);
         unsigned int GetContainersX();
         unsigned int GetContainersY();
+        void MsgBox (const char* mbox, const char* title);
     private:
         ObjSpr *g;
         glictContainer desktop, containerdesktop;
@@ -44,7 +46,8 @@ class GM_Gameworld : public GameMode {
 
         position_t useex_item1_pos; unsigned char useex_item1_stackpos;
 
-
+        stancechase_t chase;
+        stanceaggression_t stance;
         ONCriticalSection desktopthreadsafe;
 
     friend void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
@@ -53,6 +56,9 @@ class GM_Gameworld : public GameMode {
     friend void GM_Gameworld_InvSlotsOnMouseDown(glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_InvSlotsOnMouseUp(glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype );
+    friend void GM_Gameworld_StaStanceOnClick(glictPos* pos, glictContainer* caller);
+    friend void GM_Gameworld_StaChaseOnClick(glictPos* pos, glictContainer* caller);
+    friend void GM_Gameworld_MBOnDismiss(glictPos* pos, glictContainer* caller);
 };
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller);
@@ -65,3 +71,6 @@ void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller);
 void GM_Gameworld_InvSlotsOnMouseDown(glictPos* pos, glictContainer* caller);
 void GM_Gameworld_InvSlotsOnMouseUp(glictPos* pos, glictContainer* caller);
 void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype );
+void GM_Gameworld_StaStanceOnClick(glictPos* pos, glictContainer* caller);
+void GM_Gameworld_StaChaseOnClick(glictPos* pos, glictContainer* caller);
+void GM_Gameworld_MBOnDismiss(glictPos* pos, glictContainer* caller);

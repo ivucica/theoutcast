@@ -200,6 +200,8 @@ Changes since 0.3.9
 * Due to instability, changing skins now requires a restart
 * Corrected bugs with moving downstairs
 * Added magic effects
+* Now it renders correct color for splash items
+* Added stance buttons
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug

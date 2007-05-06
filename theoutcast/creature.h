@@ -31,12 +31,15 @@ class Creature : public Thing {
         std::string GetName();
         unsigned long GetCreatureID();
         unsigned char GetHP();
+
+        void SetSkull(skull_t s);
     private:
         unsigned long id;
         std::string name;
         bool attacked;
         unsigned char hp;
         creaturelook_t creaturelook;
+        skull_t skull;
 };
 
 #endif // __CREATURE_H

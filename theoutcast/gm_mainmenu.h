@@ -35,6 +35,8 @@ class GM_MainMenu : public GameMode {
         void GoToGameworld();
 
         void SetLoginStatus(const char *loginstatus);
+
+
 	private:
 		glictContainer desktop;
 		glictPanel tibia;

@@ -81,13 +81,31 @@ void Thing::SetDirection(direction_t dir) {
     ONThreadUnsafe(threadsafe);
 }
 void Thing::Render() {
-    if (sprgfx) sprgfx->Render();
+    if (dynamic_cast<Item*>(this)) {
+        position_t p = {0,0,0};
+        this->Render(&p);
+    } else {
+        if (sprgfx) sprgfx->Render();
+    }
 }
 void Thing::Render(position_t *pos) {
     ONThreadSafe(threadsafe);
     if (sprgfx) {
-        if (!(dynamic_cast<Creature*>(this)) && items[type]->stackable)
-            sprgfx->Render(count);
+        if (!(dynamic_cast<Creature*>(this)) && items[type]->stackable) {
+            // thanks to mips for this algo!
+            if (count <= 4)
+                sprgfx->Render(count-1);
+            else if (count <= 9)
+                sprgfx->Render((unsigned char)4);
+            else if (count <= 24)
+                sprgfx->Render((unsigned char)5);
+            else if (count <= 49)
+                sprgfx->Render((unsigned char)6);
+            else if (count <= 100)
+                sprgfx->Render((unsigned char)7);
+            else
+                sprgfx->Render((unsigned char)0);
+        }
         else if (!(dynamic_cast<Creature*>(this)) && items[type]->splash) {
             switch (protocol->GetProtocolVersion()) {
                 case 792:

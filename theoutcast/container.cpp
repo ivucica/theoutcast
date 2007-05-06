@@ -1,4 +1,5 @@
 #include <GLICT/globals.h>
+#include <GLICT/fonts.h>
 #include "assert.h"
 #include "console.h"// FIXME REMOVE ME
 
@@ -81,9 +82,41 @@ Thing* Container::GetItem(unsigned char pos) {
     if (pos >= contents.size()) return NULL;
     return contents[pos];
 }
+void Container::Insert(Thing *t) {
+    Insert(t, false);
+}
+void Container::Insert(Thing *t, bool begin) {
+    contents.insert((begin ? contents.begin() : contents.end()), t);
 
-void Container::Insert(Thing *t) { // FIXME needs to have a bool as well, so that we can add to both the beginning and the end
-    contents.insert(contents.end(), t);
+    RebuildCounts();
+}
+
+void Container::Remove(unsigned int pos) {
+    std::vector<Thing*>::iterator it = contents.begin();
+    it+=pos;
+    contents.erase(it);
+    delete *it;
+
+    RebuildCounts();
+}
+void Container::Replace(unsigned int pos, Thing *t) {
+    delete contents[pos];
+    contents[pos] = t;
+
+    RebuildCounts();
+}
+
+void Container::RebuildCounts() {
+
+    Thing *t;
+    for (int i = 0 ; i < capacity ; i++ ) {
+        containeritemdata_t *c = (containeritemdata_t*)objects[i]->GetCustomData();
+        if (c->container->GetItem(c->elementid) && (t = c->container->GetItem(c->elementid))->IsStackable()) {
+            char tmp[256];
+            sprintf(tmp, "%dx", t->GetCount());
+            objects[i]->SetCaption(tmp);
+        } else objects[i]->SetCaption("");
+    }
 }
 
 unsigned short Container::GetContainerID() {
@@ -94,9 +127,9 @@ void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer 
 
     containeritemdata_t *c = (containeritemdata_t*)caller->GetCustomData();
 
-    char tmp[256];
-    sprintf(tmp, "%d", c->elementid );
-    caller->SetCaption(tmp);
+    //char tmp[256];
+    //sprintf(tmp, "%d", c->elementid );
+    //caller->SetCaption(tmp);
 
     //printf("%s\n", tmp);
 /*
@@ -125,8 +158,9 @@ void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer 
 		glLoadIdentity();
 
 		//player->RenderInventory((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
-        if (c->container->GetItem(c->elementid))
+        if (c->container->GetItem(c->elementid)) {
             c->container->GetItem(c->elementid)->Render();
+        }
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

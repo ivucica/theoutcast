@@ -12,10 +12,15 @@ class Container {
         ~Container();
 
         void Insert(Thing *t);
+        void Insert(Thing *t, bool begin);
+        void Remove(unsigned int id);
+        void Replace(unsigned int pos, Thing *t);
         Thing* GetItem(unsigned char pos);
 
         glictWindow* GetWindow();
         unsigned short GetContainerID();
+
+        void RebuildCounts();
     private:
         glictWindow window;
         glictPanel panel;

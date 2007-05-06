@@ -1,10 +1,14 @@
 #include <GLICT/fonts.h>
 #include "creature.h"
 #include "types.h"
+#include "texmgmt.h"
+#include "simple_effects.h"
+extern Texture* texSkull;
 Creature::Creature() {
     attacked = false;
     hp = 0;
     name = "unnamed";
+    skull = SKULL_NONE;
 }
 Creature::~Creature() {
 }
@@ -34,6 +38,9 @@ void Creature::SetName(std::string creaturename) {
 }
 std::string Creature::GetName() {
     return this->name;
+}
+void Creature::SetSkull(skull_t s) {
+    this->skull = s;
 }
 bool Creature::AnimationAdvance(float advance) {
     float oldanimationpercent = this->animationpercent;
@@ -112,8 +119,13 @@ void Creature::Render() {
 void Creature::SetAttacked(bool atk) {
     this->attacked = atk;
 }
-
+#include "console.h"
 void Creature::SetHP(unsigned char hp) {
+    {
+        char tmp[255];
+        sprintf(tmp, "Changing health of %s to %d", name.c_str(), hp);
+        console.insert(tmp);
+    }
     this->hp = hp;
 }
 unsigned char Creature::GetHP() {
@@ -132,10 +144,10 @@ void Creature::RenderOverlay() {
     }
     glColor3f(.3, .3, .3);
     glBegin(GL_QUADS);
-    glVertex2f(0, 32+11);
-    glVertex2f( 32 , 32+11);
-    glVertex2f( 32 , 32+16);
-    glVertex2f(0, 32+16);
+    glVertex2f(0 - 8, 32+11 + 8);
+    glVertex2f( 32 - 8, 32+11 + 8);
+    glVertex2f( 32 - 8 , 32+16 + 8);
+    glVertex2f(0 - 8, 32+16 + 8);
     glEnd();
 
     if (hp >= 50.0) {
@@ -144,13 +156,40 @@ void Creature::RenderOverlay() {
         glColor3f(  1., hp / 50. , 0.);
     }
     glBegin(GL_QUADS);
-    glVertex2f(0, 32+11);
-    glVertex2f(hp * 32 / 100, 32+11);
-    glVertex2f(hp * 32 / 100, 32+16);
-    glVertex2f(0, 32+16);
+    glVertex2f(0 - 8, 32+11 + 8);
+    glVertex2f(hp * 32 / 100 - 8, 32+11 + 8);
+    glVertex2f(hp * 32 / 100 - 8, 32+16 + 8);
+    glVertex2f(0 - 8, 32+16 + 8);
     glEnd();
 
-    glictFontRender(GetName().c_str(), "system", 0, 32);
+
+    glictFontRender(GetName().c_str(), "system", -8, 32 + 8);
+
+
+    if (this->skull) {
+        texSkull->Bind();
+        switch (this->skull) {
+            case SKULL_YELLOW:
+                glColor4f(1., 1., 0., 1.);
+                break;
+            case SKULL_GREEN:
+                glColor4f(0., 1., 0., 1.);
+                break;
+            case SKULL_WHITE:
+                glColor4f(1., 1., 1., 1.);
+                break;
+            case SKULL_RED:
+                glColor4f(1., 0., 0., 1.);
+                break;
+            default:
+                glColor4f(.4, .4, .4, 1.);
+                break;
+        }
+        glEnable(GL_TEXTURE_2D);
+        StillEffect(32-8-8, 32, 32-8, 32+8, 10, 10, false, false, true);
+
+        glDisable(GL_TEXTURE_2D);
+    }
 
     glColor4f(1.,1.,1.,1.);
     if (wasmoving) glPopMatrix();
