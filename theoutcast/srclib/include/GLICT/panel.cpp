@@ -44,8 +44,6 @@ glictPanel::glictPanel() {
 
 	sbVertical.SetVisible(false);
 	//sbHorizontal.SetVisible(false);// FIXME horizontal scrollbar widget must be done in order to be implemented here
-
-	skin = NULL;
 }
 glictPanel::~glictPanel() {
 
@@ -102,10 +100,8 @@ void glictPanel::Paint() {
 	    } else {
 	        glictSize s;
 	        s.h = height, s.w = width;
-            glTranslatef(x,y,0);
-	        skin->Paint(&s);
-	        glTranslatef(-x,-y,0);
 
+	        skin->Paint(&s);
 	    }
 	}
 
@@ -182,20 +178,10 @@ bool glictPanel::CastEvent(glictEvents evt, void* wparam, long lparam, void* ret
 				((glictPos*)wparam)->y < this->clipbottom) {
                 //printf("EVENT WITHIN PANEL %s (%s)...!\n", objtype, parent ? parent->objtype : "NULL");
 
-                if (evt == GLICT_MOUSEDOWN && this->OnMouseDown) {
-                        if (this->OnMouseDown) {
-
-                            glictPos relpos;
-                            relpos.x = ((glictPos*)wparam)->x - this->left - this->containeroffsetx + this->virtualpos.x;
-                            relpos.y = ((glictPos*)wparam)->y - this->top - this->containeroffsety + this->virtualpos.y;
-                            this->OnMouseDown(&relpos, this);
-                        }
-
-                }
                 sbVertical.SetPos(sbVertical.GetX(), sbVertical.GetY() + sbVertical.GetValue());
                 if (sbVertical.CastEvent(evt, wparam, lparam, returnvalue)) { // scrollbar related begin
                     sbVertical.SetPos(sbVertical.GetX(), sbVertical.GetY() - sbVertical.GetValue());
-
+                    printf("oi\n");
                     return true;
                 } // scrollbar related end
                 sbVertical.SetPos(sbVertical.GetX(), sbVertical.GetY() - sbVertical.GetValue());
@@ -209,7 +195,6 @@ bool glictPanel::CastEvent(glictEvents evt, void* wparam, long lparam, void* ret
 
 			} else {
 			    //printf("PANEL DID NOT FIND THIS THING. X, Y: %d %d Clip: %d %d %d %d\n", ((glictPos*)wparam)->x, ((glictPos*)wparam)->y, clipleft, clipright, cliptop, clipbottom);
-			    return DefaultCastEvent(evt, wparam, lparam, returnvalue);
 			}
 			//printf("It occured outside the panel, ignored.\n");
 			break;
@@ -263,8 +248,6 @@ void glictPanel::SetVirtualSize(int w, int h) {
   *
   * Sets this panel's skin.
   */
-  #include <stdlib.h>
 void glictPanel::SetSkin(glictSkinner* skin) {
-
     this->skin = skin;
 }
