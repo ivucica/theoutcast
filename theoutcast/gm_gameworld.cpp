@@ -547,7 +547,7 @@ void GM_Gameworld::MsgBox (const char* mbox, const char* title) {
 
 	ONThreadSafe(desktopthreadsafe);
 
-
+	mb = new glictMessageBox;
 	mb->GetSize(&s);
 
 	mb->SetCaption(title);
@@ -557,7 +557,7 @@ void GM_Gameworld::MsgBox (const char* mbox, const char* title) {
 
 	mb->SetOnDismiss(GM_Gameworld_MBOnDismiss);
 
-	desktop.AddObject(mb = new glictMessageBox);
+	desktop.AddObject(mb);
 
 	ONThreadUnsafe(desktopthreadsafe);
 

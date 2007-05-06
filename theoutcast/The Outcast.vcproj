@@ -215,6 +215,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\effect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\effects.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\exchndl2.cxx"
 				>
 			</File>
@@ -414,6 +422,14 @@
 			</File>
 			<File
 				RelativePath=".\defines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\effect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\effects.h"
 				>
 			</File>
 			<File
