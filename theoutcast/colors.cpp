@@ -1,4 +1,6 @@
-// THIS FILE NEEDS TO BE REDONE.
+
+#include "types.h"
+
 // Some colors are not correct.
 // Perhaps autogeneration would be nice?
 
@@ -163,4 +165,18 @@ float consolecolors [] = {
 	.5,.5,1,1,  //CONLTBLUE = 4,
 	0,1,0,1,    //CONGREEN = 5,
     1,1,1,1     //CONWHITE = 6
+};
+
+
+fluidcolors_t fluidcolorlist792 [] = {
+    FLUID_EMPTY,
+    FLUID_BLUE,
+    FLUID_PURPLE,
+    FLUID_BROWN,
+    FLUID_EMPTY,
+    FLUID_RED,
+    FLUID_GREEN,
+    FLUID_EMPTY,
+    FLUID_YELLOW,
+    FLUID_WHITE
 };

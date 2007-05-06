@@ -8,7 +8,9 @@ class Effect : public Thing {
         Effect(Tile *parent);
         ~Effect();
 
-        void AnimationAdvance(float advance);
+        void SetType(unsigned short outfit, void* extra);
+        void Render(position_t *pos);
+        bool AnimationAdvance(float advance);
     private:
         Tile *parent;
 };

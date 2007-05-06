@@ -198,6 +198,8 @@ Changes since 0.3.9
 * If a thing in container is scrolled-out-of-screen, then rendering of it won't be attempted (that caused some glitches)
 * Some items with height are rendered properly now
 * Due to instability, changing skins now requires a restart
+* Corrected bugs with moving downstairs
+* Added magic effects
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug

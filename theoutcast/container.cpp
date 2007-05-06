@@ -47,6 +47,8 @@ Container::Container(std::string title, unsigned char containerid, unsigned shor
         objects[i]->SetCustomData(c);
         objects[i]->SetOnPaint(Container_SlotsOnPaint);
         objects[i]->SetOnClick(Container_SlotsOnClick);
+        objects[i]->SetOnMouseDown(Container_SlotsOnMouseDown);
+        objects[i]->SetOnMouseUp(Container_SlotsOnMouseUp);
 
     }
     unsigned char *cid = (unsigned char *)malloc(4);
@@ -80,13 +82,13 @@ Thing* Container::GetItem(unsigned char pos) {
     return contents[pos];
 }
 
-void Container::Insert(Thing *t) {
+void Container::Insert(Thing *t) { // FIXME needs to have a bool as well, so that we can add to both the beginning and the end
     contents.insert(contents.end(), t);
 }
+
 unsigned short Container::GetContainerID() {
     return containerid;
 }
-
 
 void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
@@ -169,8 +171,6 @@ void Container_SlotsOnMouseDown(glictPos* pos, glictContainer* caller) {
 }
 void Container_SlotsOnMouseUp(glictPos* pos, glictContainer* caller) {
     containeritemdata_t *c = (containeritemdata_t*)caller->GetCustomData();
-
-
 
     int slot = c->elementid;
     position_t pos2;

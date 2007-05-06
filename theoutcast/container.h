@@ -35,6 +35,10 @@ typedef struct {
 } containeritemdata_t;
 
 void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller);
+void Container_SlotsOnMouseDown(glictPos* pos, glictContainer* caller);
+void Container_SlotsOnMouseUp(glictPos* pos, glictContainer* caller);
+
 void Container_SlotsOnClick(glictPos* pos, glictContainer* caller);
+
 void Container_CloseOnClick(glictPos* pos, glictContainer* caller);
 #endif

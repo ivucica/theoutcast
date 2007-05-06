@@ -7,6 +7,8 @@
 #include "gm_sprplayground.h"
 #include "items.h"
 #include "creatures.h"
+#include "effects.h"
+
 #include "objspr.h"
 #include "sprfmts.h"
 #include "debugprint.h"
@@ -19,6 +21,7 @@ static bool divtest;
 static unsigned int counter=100;
 static bool creaturetest;
 static position_t offset;
+static bool splashtest;
 GM_SPRPlayground::GM_SPRPlayground() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing SPR playground\n");
 
@@ -26,9 +29,13 @@ GM_SPRPlayground::GM_SPRPlayground() {
     SPRLoader("Tibia792.spr");
     ItemsLoad_NoUI(792);
     CreaturesLoad_NoUI(792);
+    EffectsLoad_NoUI(792);
 
     offset.x = 0; offset.y = 0;
     g = NULL;
+    creaturetest = false;
+    splashtest = false;
+    divtest = false;
 
     // animated example
     #if 0
@@ -71,11 +78,28 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // creature, with suit (human paladin)
-    #if 1
+    #if 0
     delete g;
     g = new ObjSpr(128, 792, 50, 90, 110, 120);
     creaturetest = true;
     #endif
+
+
+    // splash test
+    #if 0
+    delete g;
+    g = new ObjSpr(2889, 0, 792);
+    splashtest = true;
+    #endif
+
+    // effect
+    #if 1
+    delete g;
+    g = new ObjSpr(2, 2, 792);
+    #endif
+
+    if (splashtest)
+        counter = 0;
 
     if (!g) {
         printf("No test chosen. Aborting.\n");
@@ -124,8 +148,12 @@ void GM_SPRPlayground::Render() {
             }
         }
     } else
-        g->Render(&p);
-    g->AnimationAdvance(25./fps);
+        if (splashtest)
+            g->Render(counter);
+        else
+            g->Render(&p);
+
+    g->AnimationAdvance(400./fps);
     glPopMatrix();
 
     RenderMouseCursor();
@@ -147,9 +175,13 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
                 counter++;
                 break;
         }
-        delete g;
-        g = new ObjSpr(counter, 0, 792);
-        if (items[counter]->sli.xdiv>1 || items[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
+        if (splashtest) {
+            // leave item as is, on next render use the counter for subtype ...
+        } else {
+            delete g;
+            g = new ObjSpr(counter, 0, 792);
+            if (items[counter]->sli.xdiv>1 || items[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
+        }
         glutPostRedisplay();
 
         char tmp[256];

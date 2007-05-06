@@ -35,7 +35,7 @@ void Creature::SetName(std::string creaturename) {
 std::string Creature::GetName() {
     return this->name;
 }
-void Creature::AnimationAdvance(float advance) {
+bool Creature::AnimationAdvance(float advance) {
     float oldanimationpercent = this->animationpercent;
     if (moving && this->animationpercent != 100.) Thing::AnimationAdvance(advance);
     if (this->animationpercent < oldanimationpercent || this->animationpercent == 100)  { // this means that the animation is restarting ...
@@ -46,6 +46,7 @@ void Creature::AnimationAdvance(float advance) {
         else
             this->animationpercent = 100.;
     }
+    return true;
 }
 void Creature::CauseAnimOffset(bool individual) {   // if we're rendering an individual, default is ok
                                                     // if we're rendering the screen, we need to invert

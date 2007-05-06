@@ -7,6 +7,7 @@
 #include "threads.h"
 #include "creature.h"
 #include "item.h"
+#include "effect.h"
 class Tile {
     public:
         Tile();
@@ -44,6 +45,7 @@ class Tile {
 
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;
+        std::vector<Effect*> effects;
         Thing *ground;
         position_t pos;
         ONCriticalSection threadsafe;

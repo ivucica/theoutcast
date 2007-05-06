@@ -144,6 +144,19 @@ char check_tables() {
 				return 0;
             }
 	}
+    sprintf(tablename, "effects%d", datversion);
+	if (!tableexists(tablename)) {
+		printf("Creating table '%s'.\n", tablename);
+		if (dbexecprintf(fo, "create table %s ("
+            "effectid integer primary key," /* creature id, as the server sends it to us */
+            "graphics varchar[50], " /* 3d graphics file */
+			"graphics2d varchar[50], " /* 3d graphics file */
+            "spritelist varchar[4096] " /* spritelist */
+            "); ", NULL, 0, NULL, tablename) != SQLITE_OK) {
+                printf("Table '%s' creation failed\n", tablename);
+				return 0;
+            }
+	}
 
     return 1;
 }
@@ -627,6 +640,11 @@ char entryexists_creatureid(unsigned int itemid) {
 
     if (dbexecprintf(fo, "select * from creatures%d where creatureid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 }
+char entryexists_effectid(unsigned int itemid) {
+    BOOL returner = FALSE;
+
+    if (dbexecprintf(fo, "select * from effects%d where effectid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
+}
 BOOL gettrue () {
     return TRUE ;
 }
@@ -822,6 +840,55 @@ BOOL insertcreature (unsigned short itemid, item_t *i) {
 
 }
 
+BOOL inserteffect (unsigned short itemid, item_t *i) {
+
+    char spritelist[4096];
+    char *spritelistptr;
+    unsigned short j;
+    spritelist_t *sl = i->sl;
+
+    spritelistptr = spritelist + sprintf(spritelist, "%d %d %d %d %d %d %d %d ", (unsigned int)sl->width, (unsigned int)sl->height, (unsigned int)sl->blendframes, (unsigned int)sl->xdiv, (unsigned int)sl->ydiv, (unsigned int)sl->animcount, (unsigned int)sl->unknown, (unsigned int)sl->numsprites);
+
+    for (j = 0; j < sl->numsprites; ++j) {
+        spritelistptr += sprintf(spritelistptr, "%d ", (unsigned int)sl->spriteids[j]);
+    }
+
+    if (!entryexists_effectid(itemid)) {
+
+        if (dbexecprintf(fo, "insert into effects%d ("
+                        "effectid, "
+                        "graphics, "
+                        "graphics2d, "
+                        "spritelist"
+                        ") values (%d, '%q', '%q', '%q');", NULL, NULL, NULL,
+
+                        datversion, /* part of table name */
+
+
+                        itemid,
+                        i->graphics,
+                        i->graphics2d,
+                        spritelist
+                        ) != SQLITE_OK) return FALSE; else return TRUE;
+    } else {
+        if (dbexecprintf(fo, "update effects%d set "
+                        "graphics = '%q', "
+                        "graphics2d = '%q', "
+                        "spritelist = '%q'"
+
+                        " where effectid = '%d';", NULL, 0, NULL,
+                        datversion,
+                        i->graphics,
+                        i->graphics2d,
+                        spritelist,
+
+                        itemid) != SQLITE_OK) return FALSE; else return TRUE;
+
+    }
+
+}
+
+
 
 void show_progress(int currentid, int dat_items) {
 
@@ -920,7 +987,6 @@ int main (int argc, char **argv) {
     printf("READING MONSTERS...\n");
 	currentid = 1;
 	lastpercentage = -100;
-	dbexec(fo, "begin transaction;", NULL, NULL, NULL);
 	while (ftell(fi) < size && currentid <= dat_creatures) {
 	    /*printf("Item %d\n", currentid);*/
         show_progress(currentid, dat_creatures);
@@ -939,6 +1005,30 @@ int main (int argc, char **argv) {
         currentid ++;
 	}
 	printf("End reading creatures at %d\n", ftell(fi));
+
+
+    printf("READING EFFECTS...\n");
+	currentid = 1;
+	lastpercentage = -100;
+	while (ftell(fi) < size && currentid <= dat_effects) {
+	    /*printf("Effect %d\n", currentid);*/
+        show_progress(currentid, dat_effects);
+        if (!dat_readitem(&item)) {
+            printf("Reading effect %d failed.\n", currentid);
+            return 5;
+        }
+        patchitem (currentid, &item);
+        if (!inserteffect(currentid, &item)) {
+            printf("Inserting effect %d failed.\n", currentid);
+            return 6;
+        } else {
+            free(item.sl->spriteids);
+            free(item.sl);
+        }
+        currentid ++;
+	}
+	printf("End reading effects at %d\n", ftell(fi));
+
 	dbexec(fo, "end transaction;", NULL, NULL, NULL);
     fclose(fi);
     printf("DONE\n");

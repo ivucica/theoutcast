@@ -1,4 +1,5 @@
-// REWRITE THIS FILE FROM SCRATCH
+#ifndef __CONSOLE_H
+#define __CONSOLE_H
 
 #include <string>
 #include <vector>
@@ -29,3 +30,5 @@ class Console {
         void clear();
 };
 extern Console console;
+
+#endif

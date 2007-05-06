@@ -320,6 +320,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 if (gamemode==GM_MAINMENU) {
                     ItemsLoad();
                     CreaturesLoad();
+                    EffectsLoad();
                 }
 
                 ParseMapDescription(nm, maxx, maxy, pos.x - (maxx-1)/2, pos.y - (maxy-1)/2, pos.z);
@@ -425,18 +426,23 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             position_t src;
             position_t dst;
 
+
+
             GetPosition(nm, &src);
             stackpos = GetStackpos(nm);
 
             tile = gamemap.GetTile(&src);
             thing = tile->GetStackPos(stackpos);
+            gamemap.Lock();
             tile->Remove(stackpos);
+            gamemap.Unlock();
 
             GetPosition(nm, &dst);
 
             tile = gamemap.GetTile(&dst);
+            gamemap.Lock();
             tile->Insert(thing);
-
+            gamemap.Unlock();
 
             // if we managed to get here although the thing is null
             // that means that the player has chosen to continue although we asked him
@@ -574,9 +580,17 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x83: {// Magic Effect
             position_t pos; // position
-            GetPosition(nm, &pos);
+            Tile *t;
+            Effect *e;
+            unsigned char type;
 
-            nm->GetU8(); // mageffect type
+            GetPosition(nm, &pos);
+            t = gamemap.GetTile(&pos);
+            t->Insert(e = new Effect(t));
+
+            type = nm->GetU8(); // mageffect type
+
+            e->SetType(type, NULL);
             return true;
         }
         case 0x84: // Animated Text

@@ -135,6 +135,29 @@ GM_Gameworld::GM_Gameworld() {
             panStaStats.SetBGActiveness(false);
             panStaStats.SetHeight(220);
             panStaStats.SetWidth(120);
+            panStaStats.SetPos(0, 20);
+       winStats.AddObject(&btnStaStance1);
+            btnStaStance1.SetHeight(15);
+            btnStaStance1.SetWidth(15);
+            btnStaStance1.SetPos(0,0);
+            btnStaStance1.SetCaption("A");
+        winStats.AddObject(&btnStaStance2);
+            btnStaStance2.SetHeight(15);
+            btnStaStance2.SetWidth(15);
+            btnStaStance2.SetPos(20,0);
+            btnStaStance2.SetCaption("N");
+        winStats.AddObject(&btnStaStance3);
+            btnStaStance3.SetHeight(15);
+            btnStaStance3.SetWidth(15);
+            btnStaStance3.SetPos(40,0);
+            btnStaStance3.SetCaption("D");
+        winStats.AddObject(&chkStaChase);
+            chkStaChase.SetHeight(15);
+            chkStaChase.SetWidth(15);
+            chkStaChase.SetPos(70,0);
+            chkStaChase.SetCaption("X");
+
+
 
 
     UpdateStats();

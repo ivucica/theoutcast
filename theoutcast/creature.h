@@ -19,7 +19,7 @@ class Creature : public Thing {
         void SetType(unsigned short outfit, void* extra);
         void SetCreatureID(unsigned long creatureid);
         void SetName(std::string creaturename);
-        void AnimationAdvance(float advance);
+        bool AnimationAdvance(float advance);
         void SetAttacked(bool atk);
         void SetHP(unsigned char hp);
 

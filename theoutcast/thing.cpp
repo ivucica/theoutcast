@@ -4,12 +4,12 @@
 #include "creature.h"
 #include "item.h"
 #include "types.h"
-
+#include "colors.h"
+#include "protocol.h"
 // FIXME add thread locking in thing and in creature's
 Thing::Thing() {
     sprgfx = NULL;
     type = 0;
-    //printf("Forged a new item >D\n");
     this->count = 1;
     this->subtype = 0;
     this->moving = false;
@@ -88,15 +88,23 @@ void Thing::Render(position_t *pos) {
     if (sprgfx) {
         if (!(dynamic_cast<Creature*>(this)) && items[type]->stackable)
             sprgfx->Render(count);
-        else if (!(dynamic_cast<Creature*>(this)) && items[type]->splash)
-            sprgfx->Render(subtype);
+        else if (!(dynamic_cast<Creature*>(this)) && items[type]->splash) {
+            switch (protocol->GetProtocolVersion()) {
+                case 792:
+                    sprgfx->Render( fluidcolorlist792[subtype % 10]);
+                    break;
+                default:
+                    sprgfx->Render(subtype);
+            }
+        }
         else
             sprgfx->Render(pos);
     }
     ONThreadUnsafe(threadsafe);
 }
-void Thing::AnimationAdvance(float advance) {
+bool Thing::AnimationAdvance(float advance) {
     if (sprgfx) animationpercent = sprgfx->AnimationAdvance(advance);
+    return true;
 }
 bool Thing::IsMoving() {
     return moving;

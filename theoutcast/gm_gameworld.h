@@ -39,6 +39,8 @@ class GM_Gameworld : public GameMode {
 
         // winstats
         glictPanel panStaStats;
+        glictButton btnStaStance1, btnStaStance2, btnStaStance3;
+        glictButton chkStaChase;
 
         position_t useex_item1_pos; unsigned char useex_item1_stackpos;
 

@@ -3,6 +3,7 @@
 #ifndef __COLORS_H
 #define __COLORS_H
 
+#include "types.h"
 extern float colors[];
 
 enum consolecolors_t {
@@ -15,7 +16,7 @@ enum consolecolors_t {
 	CONWHITE = 6
 };
 
-
+extern fluidcolors_t fluidcolorlist792[];
 extern float consolecolors[];
 
 #endif

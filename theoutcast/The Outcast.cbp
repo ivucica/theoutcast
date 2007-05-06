@@ -11,10 +11,12 @@
 				<Option object_output=".objsdebug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
+				<Option parameters="sprplaygroundd" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />
 					<Add option="-fexceptions" />
+					<Add option="-O0" />
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
@@ -170,6 +172,8 @@
 		<Unit filename="defines.h" />
 		<Unit filename="effect.cpp" />
 		<Unit filename="effect.h" />
+		<Unit filename="effects.cpp" />
+		<Unit filename="effects.h" />
 		<Unit filename="exchndl2.cxx">
 			<Option target="debug" />
 			<Option target="release" />

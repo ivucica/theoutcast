@@ -2,6 +2,7 @@
 #include "objspr.h"
 #include "items.h"
 #include "creatures.h"
+#include "effects.h"
 #include "types.h"
 #include "simple_effects.h"
 #include "defines.h"
@@ -18,6 +19,8 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolver
         LoadItem(itemid, protocolversion);
     else if (type == 1)
         LoadCreature(itemid, protocolversion);
+    else if (type == 2)
+        LoadEffect(itemid, protocolversion);
     else
         exit(1);
     this->itemid = itemid;
@@ -33,6 +36,8 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
         LoadItem(itemid);
     else if (type == 1)
         LoadCreature(itemid);
+    else if (type == 2)
+        LoadEffect(itemid);
     else
         exit(1);
     this->itemid = itemid;
@@ -122,6 +127,19 @@ bool ObjSpr::Render(position_t *pos) {
 
                                         ;
                         break;
+                    case 2: // effect
+                        activeframe =   (((((( // same amount of ('s as of *'s
+                                        currentframe)
+                                        * sli.ydiv + pos->y % sli.ydiv)
+                                        * sli.xdiv + pos->x % sli.xdiv)
+                                        * sli.blendframes + k)  // k == subblendframes  (stacked sprite)
+                                        * sli.height + i)           // i == subheight       (y coordinate)
+                                        * sli.width + j)        // j == subwidth        (x coordinate)
+
+                                        ;
+                        break;
+                    default:
+                        ASSERTFRIENDLY(false, "Unexpected code path encountered in ObjSpr::Render()");
                 }
 
                 //printf("w %d h %d xdiv %d ydiv %d blendframes %d animcount %d unknown %d\n", sli.width, sli.height, sli.xdiv, sli.ydiv, sli.blendframes, sli.animcount, sli.unknown);
@@ -143,7 +161,8 @@ bool ObjSpr::Render(position_t *pos) {
 }
 bool ObjSpr::Render(unsigned char stackcount) {
     glEnable(GL_TEXTURE_2D);
-    t[min(stackcount,sli.numsprites-1)]->Bind();
+    //t[min(stackcount,sli.numsprites-1)]->Bind();
+    t[stackcount % sli.numsprites]->Bind();
 
     //glTranslatef(-offsetx, -offsety, 0);
     StillEffect(0, 0, 32 , 32 , 2, 2, false, false, true); // divisions were 40 10
@@ -400,6 +419,143 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
 
         offsetx = items[itemid]->height2d_x ;
         offsety = items[itemid]->height2d_y ;
+
+
+}
+
+void ObjSpr::LoadEffect(unsigned int effectid) {
+    LoadEffect(effectid, protocol->GetProtocolVersion());
+}
+void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
+    char temp[256];
+    sprintf(temp, "invalid effectid %d out of %d in ObjSpr::LoadEffect", effectid, effects_n);
+    ASSERTFRIENDLY(effectid <= effects_n, temp);
+
+    if (effects[effectid]->textures) {
+        t = (Texture**)effects[effectid]->textures;
+        sli = effects[effectid]->sli;
+
+        offsetx = 0;//effects[effectid]->height2d_x ;
+        offsety = 0;//effects[effectid]->height2d_y ;
+
+        animation_framelist_stand = effects[effectid]->animation_framelist_stand; //stand
+        animation_framelist_move = effects[effectid]->animation_framelist_move;// walk
+        return;
+    }
+
+    if (!effectid) {
+        sli.width = 1; sli.height = 1; sli.blendframes = 1; sli.xdiv = 1; sli.ydiv = 1; sli.unknown = 1; sli.animcount = 1;
+        sli.numsprites = 1;
+        sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
+        sli.spriteids[0]=0;
+        t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+        effects[effectid]->textures = t;
+        t[0] = new Texture("Tibia76.spr", 0);
+        return;
+    }
+    ASSERTFRIENDLY(effects[effectid]->loaded, "Effect with the ID that server transmitted is not loaded");
+
+
+    if (!strlen(effects[effectid]->spritelist)) return;
+    char *p = effects[effectid]->spritelist;
+    sscanf(p, "%hhd", &sli.width); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.height); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.blendframes); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.xdiv); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.ydiv); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.unknown); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.animcount); p = strchr(p, ' ')+1;
+    sscanf(p, "%hd", &sli.numsprites); p = strchr(p, ' ')+1;
+
+    // now shall we read sprite ids
+    // beware! :D
+    if (sli.spriteids)
+        free(sli.spriteids);
+
+    sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
+    t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+
+    char filename [256];
+    FILE *f;
+    for (int i = 0; i < sli.numsprites; i++) {
+        sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
+
+        switch (protocolversion) {
+            case 750:
+                sprintf(filename, "Tibia75/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia75.spr", sli.spriteids[i]);
+                }
+                break;
+            case 760:
+            case 770:
+                sprintf(filename, "Tibia76/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia76.spr", sli.spriteids[i]);
+                }
+                break;
+            case 790:
+
+                sprintf(filename, "Tibia79/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia79.spr", sli.spriteids[i]);
+                }
+                break;
+            case 792:
+                sprintf(filename, "Tibia792/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
+                }
+        }
+
+    }
+    effects[effectid]->textures = t;
+    effects[effectid]->sli = sli;
+
+    for (int i = 0 ; i < sli.animcount; i++) {
+        animation_framelist_stand.insert(animation_framelist_stand.end(), i);
+        effects[effectid]->animation_framelist_stand.insert(effects[effectid]->animation_framelist_stand.end(), i);
+
+
+        animation_framelist_move.insert(animation_framelist_move.end(), i);
+        effects[effectid]->animation_framelist_move.insert(effects[effectid]->animation_framelist_move.end(), i);
+
+    }
+
+        offsetx = 0;//effects[effectid]->height2d_x ;
+        offsety = 0;//effects[effectid]->height2d_y ;
 
 
 }

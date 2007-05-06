@@ -75,6 +75,17 @@ struct creature_t {
     spritelist_t sli;
     bool loaded;
 } ;
+struct effect_t {
+    char graphics[50];
+    char graphics2d[50];
+    char spritelist[4096];
+
+    void *textures;
+    std::vector<int> animation_framelist_stand;
+    std::vector<int> animation_framelist_move;
+    spritelist_t sli;
+    bool loaded;
+} ;
 
 typedef struct {
     unsigned short x, y;
@@ -142,6 +153,19 @@ typedef struct  {
 typedef struct {
     float r,g,b,a;
 } color_t;
+
+
+typedef enum {
+	FLUID_EMPTY   = 0x00,
+	FLUID_BLUE	  = 0x01,
+	FLUID_RED	  = 0x02,
+	FLUID_BROWN   = 0x03,
+	FLUID_GREEN   = 0x04,
+	FLUID_YELLOW  = 0x05,
+	FLUID_WHITE   = 0x06,
+	FLUID_PURPLE  = 0x07
+} fluidcolors_t;
+
 
 
 #endif

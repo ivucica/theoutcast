@@ -21,6 +21,7 @@ Tile::~Tile() {
 unsigned int Tile::GetItemCount() {
     return this->itemcount;
 }
+#include "console.h"
 void Tile::Insert(Thing *thing) {
     ONThreadSafe(threadsafe);
     ASSERT(thing)
@@ -37,6 +38,9 @@ void Tile::Insert(Thing *thing) {
     } else if (dynamic_cast<Creature*>(thing)) {
         creatures.insert(creatures.begin(), (Creature*)thing);
         this->itemcount ++;
+    } else if (dynamic_cast<Effect*>(thing)) {
+        effects.insert(effects.begin(), (Effect*)thing);
+        console.insert("EFFECT!\n");
     } else {
         itemlayers[thing->GetTopIndex()].insert(itemlayers[thing->GetTopIndex()].begin(), (Item*)thing);
         this->itemcount ++;
@@ -107,6 +111,16 @@ void Tile::Remove(Thing *obj) {
 
     std::vector<Item*>::iterator it;
     std::vector<Creature*>::iterator ct;
+    std::vector<Effect*>::iterator et;
+
+    for (et=effects.begin(); et != effects.end(); et++) {
+        if (*et==obj) {
+            delete *et; // effects are the only thing that is verified to be DELETEable
+            effects.erase(et);
+            ONThreadUnsafe(threadsafe);
+            return;
+        }
+    }
 
     itemcount --;
     if (ground) {
@@ -427,6 +441,14 @@ void Tile::Render(int layer) {
 
 
 
+        for (std::vector<Effect*>::iterator it = this->effects.begin(); it != this->effects.end(); it++) {
+            (*it)->Render(&pos);
+            if (!(*it)->AnimationAdvance(1000./fps)) break;
+        }
+
+
+
+
 
 
 
@@ -472,6 +494,14 @@ void Tile::Empty () {
         ground = NULL;
     }
 
+    for (std::vector<Effect*>::iterator it = effects.begin(); it != effects.end(); ) {
+        if (*it)
+            delete (*it);
+        else
+            printf("@(@@@)@)@)(@)(@@( OMFG There's a NULL effect on a tile!!\n");
+        effects.erase(it);
+    }
+
     for (int i = 3; i >= 0; i--) {
         for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); ) {
             if (*it)
@@ -507,7 +537,7 @@ void Tile::ShowContents() {
     }
     for (int i = 0; i <= 3 ; i++) {
         for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
-            DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Layer %d: %d\n", i, (*it)->GetType());
+            DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Layer %d: %d[%d]\n", i, (*it)->GetType(), (*it)->GetSubType());
         }
     }
 
