@@ -1,4 +1,4 @@
-THE OUTCAST v0.3.9
+THE OUTCAST v0.4
 Readme
 15.4.2007
 
@@ -23,7 +23,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.3.9 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.4 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
 
 This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
 
@@ -202,6 +202,12 @@ Changes since 0.3.9
 * Added magic effects
 * Now it renders correct color for splash items
 * Added stance buttons
+* "Door bug" corrected
+* Implemented "bmp fonts"
+* Corrected implementation of 0x96 for 7.92
+* "Text over head" (not perfect, but works)
+* "Animated text"
+* Partying
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug

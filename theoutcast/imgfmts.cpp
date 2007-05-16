@@ -1,6 +1,3 @@
-
-
-
 #include <stdlib.h>
 #include <GL/glut.h>
 
@@ -51,14 +48,14 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 	if (!fjl)
 		return false;
 */
-	// uèita heder od bitmape
+	// ucita heder od bitmape
 	fread (&bfh, sizeof(BITMAPFILEHEADER), 1, fjl);
 	if (bfh.bfType != 'MB') {		// da li je to zbilja bitmapa
 		//fclose (fjl);
 		return false;
 	}
 
-	// uèita informacije o bitmapi
+	// ucita informacije o bitmapi
 	fread (&bih, sizeof(BITMAPINFOHEADER), 1, fjl);
 
 	// ako je kompresirano, onda returnaj fols...
@@ -67,7 +64,7 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 		return false;
 	}
 
-	// popuni podatke o bitmapi koji æe se poslati juzeru ako ih bude htio
+	// popuni podatke o bitmapi koji ce se poslati juzeru ako ih bude htio
 	bmpData.bmType = 0;
 	bmpData.bmWidth = bih.biWidth;
 	bmpData.bmPlanes = bih.biPlanes;
@@ -75,7 +72,7 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 	bmpData.bmBitsPixel = bih.biBitCount;
 	bmpData.bmBits = NULL;
 
-	// ako je definirana velièina slike, onda od tamo izraèuna šrinu retka, inaèe proba sam
+	// ako je definirana velicina slike, onda od tamo izracuna sirinu retka, inace proba sam
 	if (bih.biSizeImage) {
 		bmpData.bmWidthBytes = bih.biSizeImage / bih.biHeight;
 		sz = bih.biSizeImage;
@@ -87,14 +84,14 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 		sz = bmpData.bmWidthBytes * abs(bmpData.bmHeight);
 	}
 
-	// ako je bitmapa bitna manje od 16 bita, onda uèita paletu
+	// ako je bitmapa bitna manje od 16 bita, onda ucita paletu
 	if (bmpData.bmBitsPixel < 16) {
 		palitems = 1 << bmpData.bmBitsPixel;
 		pal = (RGBA*)malloc(sizeof(RGBA) * palitems);
 		fread(pal, sizeof(RGBA), palitems, fjl);
 	}
 
-	// uèita sliku
+	// ucita sliku
 	fseek (fjl, bfh.bfOffBits, SEEK_SET);
 	bmpData.bmBits = malloc(sz);
 	if (!bmpData.bmBits) {
@@ -109,7 +106,7 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 	for (int y=0; y<bmpData.bmHeight; ++y) {
 		unsigned char *ptr = ((unsigned char *)bmpData.bmBits) + y*bmpData.bmWidthBytes;
 		for (int x=0; x<bmpData.bmWidth; ++x) {
-			unsigned int bits = getbitsfrompos(ptr, x, bmpData.bmBitsPixel);	// izvuèe komad bitstringa
+			unsigned int bits = getbitsfrompos(ptr, x, bmpData.bmBitsPixel);	// izvuce komad bitstringa
 			RGBA *tmp = &(*data)[(bmpData.bmHeight-y-1)*bmpData.bmWidth+x];	// izokrene
 			//RGBA *tmp = &(*data)[(y)*bmpData.bmWidth+x];	// ne izokrene
 
@@ -120,7 +117,7 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 					} else
 					    *(unsigned int *)tmp= (*(unsigned int *)&pal[bits]);
 			} else {
-				// inaèe je boja dobra...
+				// inace je boja dobra...
 				if (invertcolors) {
     				tmp->r =	~GetRValue(bits);
 	    			tmp->g =	~GetGValue(bits);
@@ -142,12 +139,12 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 		}
 	}
 
-	free(bmpData.bmBits);	// bitmapa kao takva više nije potrebna jer imamo arej RGBA-ova
-	if (palitems) free(pal);	// paleta takoðer ne treba
+	free(bmpData.bmBits);	// bitmapa kao takva vise nije potrebna jer imamo arej RGBA-ova
+	if (palitems) free(pal);	// paleta takodjer ne treba
 
-	// skopira bitmapdata ako je moguæe
+	// skopira bitmapdata ako je moguce
 	/*if (bd) {
-		bmpData.bmBits = NULL;		// da ne bi netko malo pametniji išao to iskorištavati, a frijana je memorija...
+		bmpData.bmBits = NULL;		// da ne bi netko malo pametniji isao to iskoristavati, a frijana je memorija...
 		memcpy(bd, &bmpData, sizeof(BITMAP));
 	}*/
 	if (w) {
@@ -172,7 +169,7 @@ bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **
 
 
 #ifdef JPEGSUPPORT
-///////////////////////ÐEJPEGLIB!!
+///////////////////////DzEJPEGLIB!!
 #pragma comment(lib,"jpeglib.lib")
 
 METHODDEF(void) my_error_exit (j_common_ptr cinfo) {

@@ -9,6 +9,18 @@
 #include <GL/glut.h>
 #include "obj3ds.h"
 #include "texmgmt.h"
+#ifdef DEBUGLEVEL_BUILDTIME
+    #include "debugprint.h"
+#else
+    static void DEBUGPRINT(...) {}
+    #define DEBUGPRINT_LEVEL_DEBUGGING 0
+    #define DEBUGPRINT_LEVEL_OBLIGATORY 0
+    #define DEBUGPRINT_LEVEL_JUNK 0
+    #define DEBUGPRINT_LEVEL_USEFUL 0
+    #define DEBUGPRINT_NORMAL 0
+    #define DEBUGPRINT_ERROR 0
+    #define DEBUGPRINT_WARNING 0
+#endif
 extern float fps;
 bool uselists = true;
 /* public functions */
@@ -18,8 +30,10 @@ Obj3ds::Obj3ds() {
 }
 
 Obj3ds::Obj3ds(const char* filename) {
-    printf("OBJ3DS Trying to load %s\n", filename);
-    if (!LoadFile(filename)) printf("Obj3ds NOT loaded\n");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Obj3ds:\tTrying to load %s\n", filename);
+    if (!LoadFile(filename)) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Obj3ds:\tObj3ds NOT loaded\n");
+    }
 }
 
 Obj3ds::~Obj3ds() {
@@ -27,17 +41,17 @@ Obj3ds::~Obj3ds() {
 }
 
 bool Obj3ds::LoadFile(const char* filename) {
-    printf("Obj3ds:\tLoading %s.\n", filename);
+    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Obj3ds:\tLoading %s.\n", filename);
     data3ds = lib3ds_file_load(filename);
     if (!data3ds) {
-        printf("Obj3ds:\tFailed to load %s.\n", filename);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Obj3ds:\tFailed to load %s.\n", filename);
         return false;
     }
     else {
         for (Lib3dsMaterial *mat = data3ds->materials; mat; mat = mat->next) {
             if (mat)
                 if (strlen(mat->texture1_map.name)) {
-                    printf("Loading texture %s\n", mat->texture1_map.name);
+                    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Obj3ds:\tLoading texture %s\n", mat->texture1_map.name);
                     mat->user.p = (void*)(new Texture(mat->texture1_map.name));
                 }
         }
@@ -50,7 +64,7 @@ bool Obj3ds::Render() {
     Lib3dsNode *p;
 //    printf("Rendering\n");
     if (!data3ds) {
-    	printf("Can't render nonexisting object\n");
+    	DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Can't render nonexisting object\n");
         return false;
     }
     //lib3ds_file_eval(data3ds, animation_frame += 25. / fps);

@@ -24,6 +24,10 @@
 					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
 					<Add option="-DUSESOUNDS" />
 					<Add option="-DTFM" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -44,6 +48,10 @@
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -150,6 +158,8 @@
 			<Add library="tfm" />
 		</Linker>
 		<Unit filename="assert.h" />
+		<Unit filename="bmpfont.cpp" />
+		<Unit filename="bmpfont.h" />
 		<Unit filename="bsdsockets.h" />
 		<Unit filename="buffer.cpp" />
 		<Unit filename="buffer.h" />

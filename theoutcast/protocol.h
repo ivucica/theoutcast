@@ -54,7 +54,11 @@ class Protocol {
         virtual void    Move(position_t *pos1, unsigned char stackpos1, position_t *pos2, unsigned char stackpos2, unsigned char amount);
         virtual void    CloseContainer(unsigned char cid);
 
-
+        virtual void    InviteParty(Creature*c);
+        virtual void    JoinParty(Creature *c);
+        virtual void    RevokeInviteParty(Creature *c);
+        virtual void    PassLeadershipParty(Creature *c);
+        virtual void    LeaveParty();
 
         // *parse* are "smarter" abstractions
         // *get* are those that only fetch and return

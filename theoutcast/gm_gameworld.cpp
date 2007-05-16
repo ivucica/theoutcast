@@ -57,7 +57,6 @@ ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgume
     delete protocol;
     protocol = NULL;
 
-
     return 0;
 }
 GM_Gameworld::GM_Gameworld() {
@@ -74,11 +73,15 @@ GM_Gameworld::GM_Gameworld() {
     texSkull = new Texture("skull.bmp");
     chase = STAND;
     stance = BALANCED;
+    invitingparty = false;
+    revokingparty = false;
+    joiningparty = false;
+    passingparty = false;
 
     desktop.AddObject(&winWorld);
         winWorld.SetOnPaint(GM_Gameworld_WorldOnPaint);
         winWorld.SetHeight(370);
-        winWorld.SetWidth(370. * VISIBLEWPIXEL/VISIBLEHPIXEL);
+        winWorld.SetWidth((int)(370. * VISIBLEWPIXEL/VISIBLEHPIXEL));
         winWorld.SetCaption("World");
         winWorld.SetOnClick(GM_Gameworld_WorldOnClick);
         winWorld.SetOnMouseDown(GM_Gameworld_WorldOnMouseDown);
@@ -169,10 +172,38 @@ GM_Gameworld::GM_Gameworld() {
             chkStaChase.SetHeight(15);
             chkStaChase.SetWidth(15);
             chkStaChase.SetPos(70,0);
-            chkStaChase.SetCaption("X");
+            chkStaChase.SetCaption(" ");
             chkStaChase.SetOnClick(GM_Gameworld_StaChaseOnClick);
-
-
+        winStats.AddObject(&btnInviteParty);
+            btnInviteParty.SetWidth(64);
+            btnInviteParty.SetHeight(15);
+            btnInviteParty.SetPos(0,190);
+            btnInviteParty.SetCaption("Invite");
+            btnInviteParty.SetOnClick(GM_Gameworld_StaInviteParty);
+        winStats.AddObject(&btnJoinParty);
+            btnJoinParty.SetWidth(64);
+            btnJoinParty.SetHeight(15);
+            btnJoinParty.SetPos(64,190);
+            btnJoinParty.SetCaption("Join");
+            btnJoinParty.SetOnClick(GM_Gameworld_StaJoinParty);
+        winStats.AddObject(&btnRevokeParty);
+            btnRevokeParty.SetWidth(64);
+            btnRevokeParty.SetHeight(15);
+            btnRevokeParty.SetPos(0,205);
+            btnRevokeParty.SetCaption("Revoke");
+            btnRevokeParty.SetOnClick(GM_Gameworld_StaRevokeParty);
+        winStats.AddObject(&btnLeaveParty);
+            btnLeaveParty.SetWidth(64);
+            btnLeaveParty.SetHeight(15);
+            btnLeaveParty.SetPos(64,205);
+            btnLeaveParty.SetCaption("Leave");
+            btnLeaveParty.SetOnClick(GM_Gameworld_StaLeaveParty);
+        winStats.AddObject(&btnPassParty);
+            btnPassParty.SetWidth(128);
+            btnPassParty.SetHeight(15);
+            btnPassParty.SetPos(0,220);
+            btnPassParty.SetCaption("Pass Leadership");
+            btnPassParty.SetOnClick(GM_Gameworld_StaPassParty);
 
     UpdateStats();
 
@@ -398,33 +429,34 @@ void PaintMap() {
 	// keep code in sync with above
 		int z = player->GetPosZ();
 		int layer = 3;
+        for (int z = 14; z >= min(player->GetPosZ(), (!player->GetMinZ()? 1 : player->GetMinZ()))  ; z--) {
+            offset = z - player->GetPosZ();
+            for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
+                for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
+                    position_t p;
+                    p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
 
-        for (int x = -(VISIBLEW/2) - 1; x <= +(VISIBLEW/2) - offset + 1; x++) { // internally "visible" coordinates: -8, +8 and -6, +6
-            for (int y = -(VISIBLEH/2) - 2; y <= +(VISIBLEH/2) - offset + 2; y++) { // really visible coordinates: -7, +7 and -5, +5
-				position_t p;
-				p.x = player->GetPosX() + x; p.y = player->GetPosY() + y; p.z = z;//player->GetPos()->z;
+                    glPushMatrix();
+                        glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
 
-				glPushMatrix();
-					glTranslatef((x+8 - (player->GetPosZ() - z))*32, (14-(y+6 - (player->GetPosZ() - z)))*32, 0);
+                        Tile *t;
+                        Thing *g;
 
-					Tile *t;
-					Thing *g;
+                        if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
+                            glColor4f(.5,.5,.5,1.);
+                        else
+                            glColor4f(1., 1., 1., 1.);
 
-					if (x+offset < -7 || x+offset > 7 || y+offset < -5 || y+offset > 5)
-						glColor4f(.5,.5,.5,1.);
-					else
-						glColor4f(1., 1., 1., 1.);
-
-					if (t=gamemap.GetTile(&p))
-							//t->Render(0);
-							t->Render(layer);
+                        if (t=gamemap.GetTile(&p))
+                                //t->Render(0);
+                                t->Render(layer);
 
 
-					glMatrixMode(GL_MODELVIEW);
-				glPopMatrix();
-			}
-		}
-
+                        glMatrixMode(GL_MODELVIEW);
+                    glPopMatrix();
+                }
+            }
+        }
 
 
     glPopMatrix();
@@ -437,7 +469,7 @@ void GM_Gameworld::ResizeWindow() {
 	desktop.SetWidth(winw);
 
     winWorld.SetHeight((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0));
-    winWorld.SetWidth((float)((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0)) * VISIBLEWPIXEL/VISIBLEHPIXEL);
+    winWorld.SetWidth((int)((float)((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0)) * VISIBLEWPIXEL/VISIBLEHPIXEL));
     winWorld.SetPos(0, 0);
 
     winConsole.SetWidth(winw-100);
@@ -484,6 +516,7 @@ void GM_Gameworld::UpdateStats() {
                 "Exp: %d\n"
                 "Level: %d (%d%%)\n"
                 "Magic: %d (%d%%)\n"
+                "Cap: %d\n"
                 "---------\n"
                 "Fist: %d (%d%%)\n"
                 "Club: %d (%d%%)\n"
@@ -499,6 +532,7 @@ void GM_Gameworld::UpdateStats() {
                 player->GetExp(),
                 player->GetLevel(), player->GetLevelPercent(),
                 player->GetMLevel(), player->GetMLevelPercent(),
+                player->GetCap(),
                 player->GetSkillLevel(FIST), player->GetSkillPercent(FIST),
                 player->GetSkillLevel(CLUB), player->GetSkillPercent(CLUB),
                 player->GetSkillLevel(SWORD), player->GetSkillPercent(SWORD),
@@ -573,7 +607,7 @@ void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictConta
     if (clipped->bottom <= clipped->top) return;
     if (clipped->right <= clipped->left) return;
 
-    glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
+    glViewport((int)clipped->left, (int)(glictGlobals.h - clipped->bottom), (int)(clipped->right - clipped->left), (int)(clipped->bottom - clipped->top));
 //    glClear(GL_COLOR_BUFFER_BIT);
     float ProjectionMatrix[16];
     glGetFloatv(GL_PROJECTION_MATRIX, ProjectionMatrix);
@@ -598,7 +632,7 @@ void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictConta
 	glTranslatef(0,-winh,0.0);*/
 	glLoadMatrixf(ProjectionMatrix);
 
-    glViewport(0,0,glictGlobals.w,glictGlobals.h);
+    glViewport(0,0,(int)glictGlobals.w,(int)glictGlobals.h);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -610,7 +644,7 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     if (clipped->right <= clipped->left) return;
 
 
-    glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
+    glViewport((int)clipped->left, (int)(glictGlobals.h - clipped->bottom), (int)(clipped->right - clipped->left), (int)(clipped->bottom - clipped->top));
   //  glClearColor(.1, .1, .1, 1.);
 //    glClear(GL_COLOR_BUFFER_BIT);
     //glClearColor(0., 0., 0., 1.);
@@ -640,7 +674,7 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
 		glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    glViewport(0,0,glictGlobals.w,glictGlobals.h);
+    glViewport(0,0,(int)glictGlobals.w,(int)glictGlobals.h);
     skin.AssureLoadedness();
 
 }
@@ -655,8 +689,8 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
     position_t pos2;
 
     caller->GetSize(&size);
-    pos->x *= VISIBLEWPIXEL / size.w;
-    pos->y *= VISIBLEHPIXEL / size.h;
+    pos->x = (int)(pos->x * VISIBLEWPIXEL / size.w);
+    pos->y = (int)(pos->y * VISIBLEHPIXEL / size.h);
 
     pos->x /= 32;
     pos->y /= 32;
@@ -674,8 +708,8 @@ void GM_Gameworld_WorldOnMouseDown (glictPos* pos, glictContainer* caller) {
     position_t pos2;
 
     caller->GetSize(&size);
-    pos->x *= VISIBLEWPIXEL / size.w;
-    pos->y *= VISIBLEHPIXEL / size.h;
+    pos->x = (int)(pos->x * VISIBLEWPIXEL / size.w);
+    pos->y = (int)(pos->y * VISIBLEHPIXEL / size.h);
 
     pos->x /= 32;
     pos->y /= 32;
@@ -692,8 +726,8 @@ void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller) {
     position_t pos2;
 
     caller->GetSize(&size);
-    pos->x *= VISIBLEWPIXEL / size.w;
-    pos->y *= VISIBLEHPIXEL / size.h;
+    pos->x = (int)(pos->x * VISIBLEWPIXEL / size.w);
+    pos->y = (int)(pos->y * VISIBLEHPIXEL / size.h);
 
     pos->x /= 32;
     pos->y /= 32;
@@ -714,11 +748,59 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
     //console.insert(moving ? "moving" : "not moving");
     //console.insert(((GM_Gameworld*)game)->desktop.EvtTypeDescriptor(evttype));
 
-    if (useex_item2 && (!(
-        pos->x == ((GM_Gameworld*)game)->useex_item1_pos.x &&
-        pos->y == ((GM_Gameworld*)game)->useex_item1_pos.y &&
-        pos->z == ((GM_Gameworld*)game)->useex_item1_pos.z) && evttype == GLICT_MOUSEUP || !moving && evttype == GLICT_MOUSECLICK)
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+    Creature *cr;
+    if (gw->invitingparty) {
+        if (evttype == GLICT_MOUSECLICK) {
+            gw->invitingparty = false;
+            gw->passingparty = false;
+            gw->revokingparty = false;
+            gw->joiningparty = false;
+            if (cr = gamemap.GetTile(pos)->GetCreature())
+                protocol->InviteParty(cr);
+        }
+        return;
+    }
+    if (gw->passingparty) {
+        if (evttype == GLICT_MOUSECLICK) {
+            gw->invitingparty = false;
+            gw->passingparty = false;
+            gw->revokingparty = false;
+            gw->joiningparty = false;
+            if (cr = gamemap.GetTile(pos)->GetCreature())
+                protocol->PassLeadershipParty(cr);
+        }
+        return;
+    }
+    if (gw->revokingparty) {
+        if (evttype == GLICT_MOUSECLICK) {
+            gw->invitingparty = false;
+            gw->passingparty = false;
+            gw->revokingparty = false;
+            gw->joiningparty = false;
+            if (cr = gamemap.GetTile(pos)->GetCreature())
+                protocol->RevokeInviteParty(cr);
+        }
+        return;
+    }
+    if (gw->joiningparty) {
+        if (evttype == GLICT_MOUSECLICK) {
+            gw->invitingparty = false;
+            gw->passingparty = false;
+            gw->revokingparty = false;
+            gw->joiningparty = false;
+            if (cr = gamemap.GetTile(pos)->GetCreature())
+                protocol->JoinParty(cr);
+        }
+        return;
+    }
 
+
+    if (useex_item2 && (!(
+        pos->x == gw->useex_item1_pos.x &&
+        pos->y == gw->useex_item1_pos.y &&
+        pos->z == gw->useex_item1_pos.z) &&
+        evttype == GLICT_MOUSEUP || !moving && evttype == GLICT_MOUSECLICK)
 
     ) {
         useex_item2 = false;
@@ -940,4 +1022,36 @@ void GM_Gameworld_StaChaseOnClick(glictPos* pos, glictContainer* caller) {
         gw->chase = CHASE;
 
     protocol->SetStance(gw->stance, gw->chase);
+}
+
+
+void GM_Gameworld_StaInviteParty(glictPos *pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+
+    gw->invitingparty = true;
+    console.insert("Select which player you want to invite to party...", CONLTBLUE);
+}
+void GM_Gameworld_StaLeaveParty(glictPos *pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+
+    protocol->LeaveParty();
+}
+
+void GM_Gameworld_StaRevokeParty(glictPos *pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+
+    gw->revokingparty = true;
+    console.insert("Select whose invitation you want to revoke...", CONLTBLUE);
+}
+void GM_Gameworld_StaJoinParty(glictPos *pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+
+    gw->joiningparty = true;
+    console.insert("Select whose invitation you want to accept...", CONLTBLUE);
+}
+void GM_Gameworld_StaPassParty(glictPos *pos, glictContainer* caller) {
+    GM_Gameworld *gw = (GM_Gameworld*)game;
+
+    gw->passingparty = true;
+    console.insert("Select who do you want to pass leadership to...", CONLTBLUE);
 }

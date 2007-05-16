@@ -10,7 +10,7 @@
 
 
 #include <GL/gl.h>
-#ifdef WIN32
+#if defined(WIN32) && defined(GREMDEY)
     #include <GL/GRemdeyExtensions.h>
     extern PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
 #endif
@@ -82,7 +82,7 @@ void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
 
 
 void DEBUGMARKER (unsigned int size, const char *val) {
-#ifdef WIN32
+#if defined(WIN32) && defined(GREMDEY)
 	if (glStringMarkerGREMEDY) glStringMarkerGREMEDY(size, val);
 #endif
 }

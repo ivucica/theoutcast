@@ -8,6 +8,9 @@
 #include "debugprint.h"
 GameMode* game=NULL;
 gamemode_t gamemode;
+
+ONCriticalSection gmthreadsafe;
+
 GameMode::GameMode() {
 }
 
@@ -31,9 +34,17 @@ void GameMode::KeyPress (unsigned char key, int x, int y) {
 void GameMode::SpecKeyPress (int key, int x, int y) {
 
 }
+void GameModeInit() {
+    ONInitThreadSafe(gmthreadsafe);
+}
+void GameModeDeinit() {
+    ONDeinitThreadSafe(gmthreadsafe);
+}
+
 
 void GameModeEnter(gamemode_t gm) {
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "SWITCHING GAME MODES\n");
+	ONThreadSafe(gmthreadsafe);
 	if (game) {
 		DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "First deleting old one ...\n");
 	    // FIXME is there a way to "virtualise" destructor? meaning, when deleting ptr to parent class, i want to call child's destructor
@@ -68,6 +79,6 @@ void GameModeEnter(gamemode_t gm) {
 	gamemode = gm;
 	mayanimate = false;
 	glutTimerFunc(500, glut_MayAnimateToTrue, 0);
-
+    ONThreadUnsafe(gmthreadsafe);
 }
 

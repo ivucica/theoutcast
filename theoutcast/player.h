@@ -29,6 +29,7 @@ class Player {
 
         unsigned short  GetHP();
         unsigned short  GetMaxHP();
+        unsigned short  GetCap();
         unsigned short  GetMP();
         unsigned short  GetMaxMP();
         unsigned short  GetLevel();
@@ -77,6 +78,7 @@ class Player {
         // stats
         unsigned short  hp;
         unsigned short  maxhp;
+        unsigned short  cap;
         unsigned short  mp;
         unsigned short  maxmp;
         unsigned short  level;

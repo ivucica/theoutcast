@@ -26,7 +26,8 @@ enum gamemode_t {
 };
 
 void GameModeEnter(gamemode_t gamemode);
-
+void GameModeInit();
+void GameModeDeinit();
 extern GameMode* game;
 extern gamemode_t gamemode;
 #endif

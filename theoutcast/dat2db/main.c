@@ -218,11 +218,20 @@ char dat_readitem(item_t *item) {
 
     unsigned short numsprites;
 
+    int givemoreinfo=0;
 
     clear_item(item);
 
     for (option = fgetc(fi); option != 0xFF; option = fgetc(fi)) {
-        /*if (currentid == 101 || currentid == 386) printf("%d Byte %02x\n", currentid, option);*/
+
+#if 0
+        if (currentid == 2177 || currentid == 2178 ) {
+            givemoreinfo = 1;
+            printf("%d Byte %02x\n", currentid, option);
+        } else
+            givemoreinfo = 0;
+#endif
+
         switch (datversion) {
             case 750:
 
@@ -321,8 +330,8 @@ char dat_readitem(item_t *item) {
                         break;
                     case 0x1E: /* ground items */
                         break;
-                    case 0xFF: /* end of section */
-                        printf("Kraj!\n");
+                    case 0xFF: /* end of section?  */
+
                         break;
                     default:
                         printf("unknown byte: %d\n", (unsigned short)option);
@@ -543,6 +552,7 @@ char dat_readitem(item_t *item) {
 
                         tmpchar = fgetc(fi); /* 86 -> openable holes, 77-> can be used to go down, 76 can be used to go up, 82 -> stairs up, 79 switch, */
                         item->extraproperty = tmpchar;
+                        if (givemoreinfo) printf("%d\n", tmpchar);
                         if(tmpchar == 0x58)
                             item->readable = TRUE;
                         fgetc(fi); /* always 4 */

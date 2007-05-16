@@ -94,6 +94,7 @@ void Player::SetMaxHP(unsigned short maxhp) {
 }
 void Player::SetCap(unsigned short cap) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Cap: %d\n", cap);
+    this->cap = cap;
 }
 void Player::SetExp(unsigned long exp) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Exp: %d\n", exp);
@@ -138,6 +139,9 @@ unsigned short Player::GetHP() {
 }
 unsigned short Player::GetMaxHP() {
     return maxhp;
+}
+unsigned short Player::GetCap() {
+    return cap;
 }
 unsigned short Player::GetMP() {
     return mp;

@@ -8,7 +8,7 @@
         #include <gmp.h>
     #endif
     #ifdef TFM
-        #define FP_SIZE 1024
+//        #define FP_SIZE 1024
         extern "C" {
             #include <tfm.h> // tomfastmath ftw
         }
@@ -38,14 +38,14 @@ NetworkMessage::NetworkMessage() {}
 
 NetworkMessage::~NetworkMessage() {}
 
-bool NetworkMessage::Dump(SOCKET s) 
+bool NetworkMessage::Dump(SOCKET s)
 {
     // FIXME it crashes on a memcpy sometimes
     // reverify!!
     unsigned int sizetosend = GetSize();
     char *tmp;
 
-    if (!(tmp = (char*)malloc(sizetosend+2))) 
+    if (!(tmp = (char*)malloc(sizetosend+2)))
 	{
         DEBUGPRINT(0, 1, "malloc() failed while sending message");
         return false;
@@ -120,7 +120,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s)
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Expecting size read on netmsg %x.\n", (int)this);
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
 
-	if (sizereadresult != 2) 
+	if (sizereadresult != 2)
 	{
 		if(sizereadresult == SOCKET_ERROR)
 		{
@@ -145,7 +145,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s)
 	{
 		signed int readthisturn;
         DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Trying to read %d\n", (char)(MIN(sz - readsofar, 0xff)));
-        readthisturn = recv(s, toadd + readsofar, MIN(sz-readsofar, MTU), 0); 
+        readthisturn = recv(s, toadd + readsofar, MIN(sz-readsofar, MTU), 0);
 
 
         if (readthisturn > 0)
@@ -263,7 +263,7 @@ void NetworkMessage::RSABegin() {
 }
 
 void NetworkMessage::RSAEncrypt() {
-#ifdef USEENCRYPTION 
+#ifdef USEENCRYPTION
     int rsablocksize = size - rsaoffset;
     unsigned char msg[128] = {0}; // every rsa data block is 128 bytes in size. if we have less data then rest if simply unused, but rsa algorythm always generates 128 byte blocks and it still needs 128 bytes of space
     // first byte in block must be 0, encryption demands it
@@ -397,7 +397,7 @@ printf("DEKRIPT.\n");
 
   while (n < length)
   {
-	printf("%d < %d\n", n, length);  
+	printf("%d < %d\n", n, length);
     sum = 0xC6EF3720;
     unsigned long v0 = *((unsigned long*)(currentposition+n));
     unsigned long v1 = *((unsigned long*)(currentposition+n+4));

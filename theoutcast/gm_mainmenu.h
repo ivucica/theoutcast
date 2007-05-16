@@ -29,6 +29,8 @@ class GM_MainMenu : public GameMode {
 		void KeyPress (unsigned char key, int x, int y);
 		void MsgBox (const char* mbox, const char* title);
 
+        void RebuildMainMenu();
+
         void CreateCharlist();
         void DestroyCharlist();
 
@@ -101,6 +103,7 @@ class GM_MainMenu : public GameMode {
 	friend void ItemsLoad();
 	friend void CreaturesLoad();
 	friend void EffectsLoad();
+
 };
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_ToS(glictPos* pos, glictContainer* caller);

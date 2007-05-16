@@ -68,7 +68,7 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
 
 
 ObjSpr::~ObjSpr() {
-	return;
+    return;
     if (sli.spriteids)  { // FIXME: if (sli.usagecount == 0) ,,,;
         free(sli.spriteids);
         for (int i = 0 ; i < sli.numsprites; i++) {
@@ -85,7 +85,7 @@ bool ObjSpr::Render() {
 }
 bool ObjSpr::Render(position_t *pos) {
     glEnable(GL_TEXTURE_2D);
-    int currentframe = (animation_percent/100.) * (float)sli.animcount;
+    int currentframe = (int)((animation_percent/100.) * (float)sli.animcount);
     //if (sli.animcount!=1) printf("%f - %d out of %d; %g * %g\n", animation_percent, currentframe, sli.animcount, (animation_percent/100.), (float)sli.animcount);
    // if (itemid == 5022) printf("%s, %d\n",  items[itemid].spritelist, sli.animcount);
    int activeframe;

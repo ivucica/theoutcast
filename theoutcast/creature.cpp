@@ -53,6 +53,7 @@ bool Creature::AnimationAdvance(float advance) {
         else
             this->animationpercent = 100.;
     }
+    //printf("Creature animation advance: %g\n", animationpercent);
     return true;
 }
 void Creature::CauseAnimOffset(bool individual) {   // if we're rendering an individual, default is ok
@@ -121,11 +122,11 @@ void Creature::SetAttacked(bool atk) {
 }
 #include "console.h"
 void Creature::SetHP(unsigned char hp) {
-    {
+/*    {
         char tmp[255];
         sprintf(tmp, "Changing health of %s to %d", name.c_str(), hp);
-        console.insert(tmp);
-    }
+        console.insert(tmp, true);
+    }*/
     this->hp = hp;
 }
 unsigned char Creature::GetHP() {

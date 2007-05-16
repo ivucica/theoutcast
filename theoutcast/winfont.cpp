@@ -1,10 +1,9 @@
 
 #include <windows.h>
 #include <GL/gl.h>
-#include <GL/glu.h> // FIXME remove me! only for gluGetError()
 #include <stdio.h>
 #include "winfont.h"
-#include "debugprint.h"
+//#include "debugprint.h"
 WinFontStruct *WinFontCreate(char* fontname, char style, char size) {
 	HFONT	font;						// Windows Font ID
 	GLuint	base;
@@ -163,8 +162,8 @@ void WinFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 	glTranslatef(x,y,0);
 	glScalef(1.5,1.5,1.);
 	//glCallLists(strlen(txt), GL_UNSIGNED_BYTE, txt);	// Draws The Display List Text
-	DEBUGMARKER(strlen(txt), txt);
-	unsigned int sizesofar = 0.;
+	//DEBUGMARKER(strlen(txt), txt);
+	float sizesofar = 0;
 	float linessofar = 0.;
 	for (unsigned char *t = (unsigned char*)txt; *t; ++t) {
 		switch (*t) {

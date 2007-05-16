@@ -40,7 +40,7 @@ void Tile::Insert(Thing *thing) {
         this->itemcount ++;
     } else if (dynamic_cast<Effect*>(thing)) {
         effects.insert(effects.begin(), (Effect*)thing);
-        console.insert("EFFECT!\n");
+//        console.insert("EFFECT!\n", true);
     } else {
         itemlayers[thing->GetTopIndex()].insert(itemlayers[thing->GetTopIndex()].begin(), (Item*)thing);
         this->itemcount ++;
@@ -83,7 +83,7 @@ void Tile::Remove(unsigned char pos) {
     }
     if (pos < creatures.size()) {
         std::vector<Creature*>::iterator it=creatures.begin();
-        it += pos;
+        it += creatures.size() - pos - 1;
         //delete *it;
         creatures.erase(it);
         ONThreadUnsafe(threadsafe);
@@ -180,7 +180,7 @@ Thing *Tile::GetStackPos(unsigned char pos) {
     }
     if (pos < creatures.size()) {
         ONThreadUnsafe(threadsafe);
-        return creatures[pos];
+        return creatures[creatures.size() - pos - 1];
     }
     pos -= creatures.size();
 
@@ -212,23 +212,40 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
     for (int i = 1; i <=3 ; i++ ) {
 
         if (pos < itemlayers[i].size()) {
-            itemlayers[i][pos] = (Item*)newthing;
-            ONThreadUnsafe(threadsafe);
-            return;
+            delete itemlayers[i][pos];
+            if (newthing->GetTopIndex()==i) {
+                itemlayers[i][pos] = (Item*)newthing;
+                ONThreadUnsafe(threadsafe);
+                return;
+            } else {
+                itemlayers[i].erase(itemlayers[i].begin() + pos);
+                itemcount --;
+                ONThreadUnsafe(threadsafe);
+                this->Insert(newthing);
+                return;
+            }
         }
         pos -= itemlayers[i].size();
     }
     if (pos < creatures.size()) {
-        creatures[pos] = (Creature*)newthing;
+        creatures[creatures.size() - pos - 1] = (Creature*)newthing;
         ONThreadUnsafe(threadsafe);
         return;
     }
     pos -= creatures.size();
 
     if (pos < itemlayers[0].size()) {
-        itemlayers[0][pos] = (Item*)newthing;
-        ONThreadUnsafe(threadsafe);
-        return;
+        if (newthing->GetTopIndex()==0) {
+            itemlayers[0][pos] = (Item*)newthing;
+            ONThreadUnsafe(threadsafe);
+            return;
+        } else {
+            itemlayers[0].erase(itemlayers[0].begin() + pos);
+            itemcount --;
+            ONThreadUnsafe(threadsafe);
+            this->Insert(newthing);
+            return;
+        }
     }
     pos -= itemlayers[0].size();
     printf("Tile::replace(): FAILED\n");
@@ -274,8 +291,9 @@ void Tile::RenderStrayCreatures(position_t *p) {
                 glTranslatef((p->x - pos.x) * 32, -(p->y - pos.y) * 32, 0);
                 //glColor4f(1.,1.,1.,1.);
             }
-            if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+            if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
                 cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+
         }
     }
 
@@ -309,8 +327,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || cr->IsApproved() || cr->GetDirection() == SOUTH || cr->GetDirection() == EAST)
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -328,8 +346,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || cr->IsApproved() || cr->GetDirection() == SOUTH || cr->GetDirection() == EAST)
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -349,8 +367,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || !cr->IsApproved())
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -366,8 +384,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || cr->IsApproved() || cr->GetDirection() == SOUTH || cr->GetDirection() == EAST)
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -385,8 +403,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || cr->IsApproved() || cr->GetDirection() == SOUTH || cr->GetDirection() == EAST)
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -411,8 +429,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || cr->IsApproved() || cr->GetDirection() == SOUTH || cr->GetDirection() == EAST)
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -430,8 +448,8 @@ void Tile::Render(int layer) {
 
                 if (!cr->IsMoving() || cr->IsApproved() || cr->GetDirection() == SOUTH || cr->GetDirection() == EAST)
                     cr->Render(&pos);
-                if (cr->IsMoving() && pos.z != player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                //if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                //    cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
             } else {
                 th->AnimationAdvance(25./fps);
                 th->Render(&pos);
@@ -442,8 +460,8 @@ void Tile::Render(int layer) {
 
 
         for (std::vector<Effect*>::iterator it = this->effects.begin(); it != this->effects.end(); it++) {
-            (*it)->Render(&pos);
-            if (!(*it)->AnimationAdvance(1000./fps)) break;
+            (*it)->Render(&pos, false);
+            if (!(*it)->AnimationAdvance(2000./fps, false)) break;
         }
 
 
@@ -469,15 +487,24 @@ void Tile::Render(int layer) {
          && pos.x > player->pos.x - 8
          && pos.y < player->pos.y + 6
          && pos.y > player->pos.y - 6
-         && creatures.size())
-            for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
-                creaturespeed = (*it)->GetSpeed();
-                creaturespeed = (creaturespeed ? creaturespeed : 220);
+         && creatures.size()) {
+             for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
+                 creaturespeed = (*it)->GetSpeed();
+                 creaturespeed = (creaturespeed ? creaturespeed : 220);
 
-                (*it)->RenderOverlay();
-                if ((*it)->IsMoving() && pos.z == player->pos.z) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
-                    (*it)->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+                 (*it)->RenderOverlay();
+                 if ((*it)->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
+                     (*it)->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
+             }
+         }
+
+
+
+        for (std::vector<Effect*>::iterator it = this->effects.begin(); it != this->effects.end(); it++) {
+            (*it)->Render(&pos, true);
+            if (!(*it)->AnimationAdvance(2000./fps, true)) break;
         }
+
         ONThreadUnsafe(threadsafe);
     }
 

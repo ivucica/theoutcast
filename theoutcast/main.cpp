@@ -18,9 +18,10 @@
 #include "gamemode.h"
 #include "gm_mainmenu.h"
 #include "glutwin.h"
-#include "glutfont.h"
 #include "options.h"
 #include "skin.h"
+#include "glutfont.h"
+#include "bmpfont.h"
 #ifdef WIN32
 	#include "winfont.h"
 #endif
@@ -32,7 +33,7 @@
 #include "types.h"
 version_t glversion;
 
-#define WINFONT
+
 bool fullscreen = false;
 
 bool sprplayground = false;
@@ -45,16 +46,22 @@ int main(int argc, char** argv);
 void GameInit() {
 
 	glictFont* sysfont = glictCreateFont("system");
-	#if !defined(WIN32) || !defined(WINFONT)
+	#if !defined(WIN32) || (!defined(WINFONT) && !defined(BMPFONT))
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);
-	#else
+	#elif defined(BMPFONT)
+        sysfont->SetFontParam(BMPFontCreate("fontbordered.bmp", 8));
+        sysfont->SetRenderFunc(BMPFontDraw);
+        sysfont->SetSizeFunc(BMPFontSize);
+	#else // winfont is defined
 		//sysfont->SetFontParam(WinFontCreate("Arial", WINFONT_BOLD, 7));
 		sysfont->SetFontParam(WinFontCreate("Tahoma", 0 , 7));
 		sysfont->SetRenderFunc(WinFontDraw);
 		sysfont->SetSizeFunc(WinFontSize);
-	#endif
+    #endif
+
+	GameModeInit();
 
     if (!sprplayground)
         if (options.intro)
@@ -148,7 +155,7 @@ if(AllocConsole())
 #endif
 
 
-	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "THE OUTCAST 0.3\n");
+	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "THE OUTCAST 0.4\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "===============\n");
 
 
@@ -220,14 +227,11 @@ if(AllocConsole())
 	glutMouseFunc(glut_Mouse);
 	glutIdleFunc(glut_Idle);
 	glutPassiveMotionFunc(glut_PassiveMouse);
-	glutTimerFunc(1000, glut_FPS, 1000);
-	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
 	glutSpecialFunc(glut_SpecKey);
 	glutKeyboardFunc(glut_Key);
+	glutTimerFunc(1000, glut_FPS, 1000);
+	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
 
-
-
-    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Good to go, proceed\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
 	glutMainLoop();
 

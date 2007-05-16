@@ -92,8 +92,15 @@ GM_SPRPlayground::GM_SPRPlayground() {
     splashtest = true;
     #endif
 
-    // effect
+    // fluid container test
     #if 1
+    delete g;
+    g = new ObjSpr(2524, 0, 792);
+    splashtest = true;
+    #endif
+
+    // effect
+    #if 0
     delete g;
     g = new ObjSpr(2, 2, 792);
     #endif
@@ -108,6 +115,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
         exit(1);
     }
 
+    console.insert(" !\"#$%&'()");
 }
 
 

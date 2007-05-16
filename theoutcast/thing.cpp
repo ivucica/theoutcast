@@ -106,7 +106,7 @@ void Thing::Render(position_t *pos) {
             else
                 sprgfx->Render((unsigned char)0);
         }
-        else if (!(dynamic_cast<Creature*>(this)) && items[type]->splash) {
+        else if (!(dynamic_cast<Creature*>(this)) && (items[type]->splash || items[type]->fluidcontainer)) {
             switch (protocol->GetProtocolVersion()) {
                 case 792:
                     sprgfx->Render( fluidcolorlist792[subtype % 10]);

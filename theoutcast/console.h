@@ -26,6 +26,10 @@ class Console {
         const std::string operator [](int id);
         void insert(std::string txt); // inserts default yellow text
         void insert(std::string txt, consolecolors_t col); // inserts anycolor text
+
+        void insert(std::string txt, bool debug);
+        void insert(std::string txt, consolecolors_t col, bool debug);
+
         void draw(char count);
         void clear();
 };

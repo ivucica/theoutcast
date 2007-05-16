@@ -25,27 +25,35 @@ const std::string Console::operator[](int id) {
 void Console::insert(std::string txt) {
     this->insert(txt, CONWHITE);
 }
+void Console::insert(std::string txt, bool debug) {
+    this->insert(txt, CONWHITE, debug);
+}
 void Console::insert(std::string txt, consolecolors_t col) {
+    this->insert(txt, col, false);
+}
+void Console::insert(std::string txt, consolecolors_t col, bool debug) {
 //    DEBUGPRINT("Inserting new console entry, color %d\n", col);
 
-    consoleentry* x = new consoleentry;
-    x->text = (char*)malloc(strlen(txt.c_str()) + 1);
-    strcpy(x->text, txt.c_str());
-    if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
-    if (x->text[0] == 10) memmove(x->text, x->text+1, strlen(x->text)-1);
-    if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
-    if ((x->text[strlen(x->text)-2]==13 && x->text[strlen(x->text)-1]==10) || (
-         x->text[strlen(x->text)-2]==10 && x->text[strlen(x->text)-1]==13))
-        x->text[strlen(x->text)-2] = 0;
+    if (debug && DEBUGLEVEL_BUILDTIME >= 0 || !debug) {
+        consoleentry* x = new consoleentry;
+        x->text = (char*)malloc(strlen(txt.c_str()) + 1);
+        strcpy(x->text, txt.c_str());
+        if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
+        if (x->text[0] == 10) memmove(x->text, x->text+1, strlen(x->text)-1);
+        if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
+        if ((x->text[strlen(x->text)-2]==13 && x->text[strlen(x->text)-1]==10) || (
+             x->text[strlen(x->text)-2]==10 && x->text[strlen(x->text)-1]==13))
+            x->text[strlen(x->text)-2] = 0;
 
-    if (x->text[strlen(x->text)-1]==13 || x->text[strlen(x->text)-1]==10)
-        x->text[strlen(x->text)-1] = 0;
-    x->color = col;
+        if (x->text[strlen(x->text)-1]==13 || x->text[strlen(x->text)-1]==10)
+            x->text[strlen(x->text)-1] = 0;
+        x->color = col;
 
-    //DEBUGPRINT("Adding %s to console\n", x->text);
-    ONThreadSafe(threadsafe);
-    con.insert(con.begin(), x);
-    ONThreadUnsafe(threadsafe);
+        //DEBUGPRINT("Adding %s to console\n", x->text);
+        ONThreadSafe(threadsafe);
+        con.insert(con.begin(), x);
+        ONThreadUnsafe(threadsafe);
+    }
 }
 void Console::clear() {
     ONThreadSafe(threadsafe);

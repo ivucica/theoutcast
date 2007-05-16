@@ -96,11 +96,11 @@ void GM_Logo::Render() {
 		glEnable(GL_BLEND);
 		glBegin(GL_QUADS);
 		if (fadein) {
-		    SoundSetMusicVolume((1.-fadein) * 128);
+		    SoundSetMusicVolume((int)((1.-fadein) * 128));
 			glColor4f(0,0,0, fadein);
 		}
 		else {
-		    SoundSetMusicVolume((fadeout) * 128);
+		    SoundSetMusicVolume((int)((fadeout) * 128));
 			glColor4f(0,0,0,1. - fadeout);
 		}
 		glVertex2f(0, 0);

@@ -43,11 +43,15 @@ class GM_Gameworld : public GameMode {
         glictPanel panStaStats;
         glictButton btnStaStance1, btnStaStance2, btnStaStance3;
         glictButton chkStaChase;
+        glictButton btnInviteParty, btnLeaveParty, btnJoinParty, btnRevokeParty, btnPassParty;
 
         position_t useex_item1_pos; unsigned char useex_item1_stackpos;
 
         stancechase_t chase;
         stanceaggression_t stance;
+
+        bool invitingparty, joiningparty, revokingparty, passingparty;
+
         ONCriticalSection desktopthreadsafe;
 
     friend void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
@@ -59,6 +63,11 @@ class GM_Gameworld : public GameMode {
     friend void GM_Gameworld_StaStanceOnClick(glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_StaChaseOnClick(glictPos* pos, glictContainer* caller);
     friend void GM_Gameworld_MBOnDismiss(glictPos* pos, glictContainer* caller);
+    friend void GM_Gameworld_StaInviteParty(glictPos *pos, glictContainer* caller);
+    friend void GM_Gameworld_StaLeaveParty(glictPos *pos, glictContainer* caller);
+    friend void GM_Gameworld_StaRevokeParty(glictPos *pos, glictContainer* caller);
+    friend void GM_Gameworld_StaJoinParty(glictPos *pos, glictContainer* caller);
+    friend void GM_Gameworld_StaPassParty(glictPos *pos, glictContainer* caller);
 };
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller);
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller);
@@ -74,3 +83,8 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype );
 void GM_Gameworld_StaStanceOnClick(glictPos* pos, glictContainer* caller);
 void GM_Gameworld_StaChaseOnClick(glictPos* pos, glictContainer* caller);
 void GM_Gameworld_MBOnDismiss(glictPos* pos, glictContainer* caller);
+void GM_Gameworld_StaInviteParty(glictPos *pos, glictContainer* caller);
+void GM_Gameworld_StaLeaveParty(glictPos *pos, glictContainer* caller);
+void GM_Gameworld_StaRevokeParty(glictPos *pos, glictContainer* caller);
+void GM_Gameworld_StaJoinParty(glictPos *pos, glictContainer* caller);
+void GM_Gameworld_StaPassParty(glictPos *pos, glictContainer* caller);

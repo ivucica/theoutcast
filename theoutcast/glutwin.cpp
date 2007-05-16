@@ -10,7 +10,7 @@
 #include "defines.h"
 #include "simple_effects.h"
 #include "options.h"
-
+#include "threads.h"
 
 #ifdef _MSC_VER
     #include <float.h>
@@ -29,15 +29,19 @@ float cursoraniangle=0.;
 int glut_WindowHandle;
 Object *mousepointer_object;
 
-
+extern ONCriticalSection gmthreadsafe;
 //#define FPSMETHOD1
 #define FPSMETHOD2
 //#define FPSMETHOD3
 
 extern int texcount;
 void glut_FPS(int param);
+
+
 void glut_Display() {
+    ONThreadSafe(gmthreadsafe);
 	game->Render();
+	ONThreadUnsafe(gmthreadsafe);
 
 	frames++;
 //	glut_FPS(0);
@@ -51,11 +55,15 @@ void glut_Reshape (int w, int h) {
 	winw = w; winh = h;
 	glictGlobals.w = w; glictGlobals.h = h;
 
+    ONThreadSafe(gmthreadsafe);
 	game->ResizeWindow();
+	ONThreadUnsafe(gmthreadsafe);
 }
 
 void glut_Mouse (int button, int shift, int mousex, int mousey) {
+    ONThreadSafe(gmthreadsafe);
 	game->MouseClick (button, shift, mousex, mousey);
+	ONThreadUnsafe(gmthreadsafe);
 	glutPostRedisplay();
 }
 
@@ -172,11 +180,15 @@ void glut_MayAnimateToTrue (int param) {
 }
 
 void glut_Key(unsigned char key, int x, int y) {
+    ONThreadSafe(gmthreadsafe);
 	game->KeyPress(key, x, y);
+	ONThreadUnsafe(gmthreadsafe);
 }
 
 void glut_SpecKey(int key, int x, int y) {
+    ONThreadSafe(gmthreadsafe);
     game->SpecKeyPress(key, x, y);
+    ONThreadUnsafe(gmthreadsafe);
 }
 
 void RenderMouseCursor() {

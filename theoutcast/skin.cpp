@@ -2,8 +2,11 @@
 #include <GLICT/skinner.h>
 #include "texmgmt.h"
 #include "skin.h"
-#include "colors.h"
 #include "assert.h"
+
+#ifdef OUTCAST_SKINS
+    #include "colors.h"
+#endif
 
 static void Skin_OnBind(glictSkinner* caller, void* t);
 
@@ -73,8 +76,7 @@ void Skin::Load(const char* what) {
 
     Unload();
 
-    //printf("LOADING SKIN\n");
-    //system("pause");
+    printf("Loading colors\n");
     {
         FILE *f = fopen((dirname + "colors.txt").c_str(), "r");
         if (f) {
@@ -84,9 +86,11 @@ void Skin::Load(const char* what) {
             fscanf(f, "%g %g %g %g", &glictGlobals.textboxTextColor.r,  &glictGlobals.textboxTextColor.g,  &glictGlobals.textboxTextColor.b,  &glictGlobals.textboxTextColor.a);
             fscanf(f, "%g %g %g %g", &glictGlobals.windowTitleColor[0], &glictGlobals.windowTitleColor[1], &glictGlobals.windowTitleColor[2], &glictGlobals.windowTitleColor[3]);
 
+            #ifdef OUTCAST_SKINS
             for (int i = 0; i < 7; i++) {
                 fscanf(f, "%g %g %g %g", &consolecolors[i*4], &consolecolors[i*4+1], &consolecolors[i*4+2], &consolecolors[i*4+3]);
             }
+            #endif
 
 
 
@@ -94,6 +98,8 @@ void Skin::Load(const char* what) {
         }
     }
 
+    //return;
+    printf("Loading window\n");
     wintl = new Texture(dirname + "window/tl.bmp");
     wint  = new Texture(dirname + "window/t.bmp");
     wintr = new Texture(dirname + "window/tr.bmp");
@@ -104,12 +110,7 @@ void Skin::Load(const char* what) {
     winb  = new Texture(dirname + "window/b.bmp");
     winbr = new Texture(dirname + "window/br.bmp");
 
-
-
-    //printf("LOADING SKIN\n");
-    //system("pause");
-
-
+    printf("Loading button\n");
     btntl = new Texture(dirname + "button/tl.bmp");
     btnt  = new Texture(dirname + "button/t.bmp");
     btntr = new Texture(dirname + "button/tr.bmp");
@@ -122,7 +123,7 @@ void Skin::Load(const char* what) {
 
 
 
-
+    printf("Loading button highlight\n");
     bthtl = new Texture(dirname + "buttonhighlight/tl.bmp");
     btht  = new Texture(dirname + "buttonhighlight/t.bmp");
     bthtr = new Texture(dirname + "buttonhighlight/tr.bmp");
@@ -133,7 +134,7 @@ void Skin::Load(const char* what) {
     bthb  = new Texture(dirname + "buttonhighlight/b.bmp");
     bthbr = new Texture(dirname + "buttonhighlight/br.bmp");
 
-
+    printf("Loading textbox\n");
     txttl = new Texture(dirname + "textbox/tl.bmp");
     txtt  = new Texture(dirname + "textbox/t.bmp");
     txttr = new Texture(dirname + "textbox/tr.bmp");
@@ -144,11 +145,12 @@ void Skin::Load(const char* what) {
     txtb  = new Texture(dirname + "textbox/b.bmp");
     txtbr = new Texture(dirname + "textbox/br.bmp");
 
-
+    printf("Checking whether to load panelmainmenu\n");
     FILE *f = fopen((dirname + "panelmainmenu/tl.bmp").c_str(), "r");
     if (f) {
         fclose(f);
 
+        printf("Loading panelmainmenu\n");
         tmmloaded = true;
         tmmtl = new Texture(dirname + "panelmainmenu/tl.bmp");
         tmmt  = new Texture(dirname + "panelmainmenu/t.bmp");
@@ -162,6 +164,7 @@ void Skin::Load(const char* what) {
 //        system("pause");
     }
 
+    printf("Assuring loadedness\n");
     AssureLoadedness();
 }
 void Skin::AssureLoadedness() {

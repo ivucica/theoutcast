@@ -1,4 +1,4 @@
- 
+
 #include "protocol.h"
 #include "protocol75.h"
 #include "networkdirect.h"
@@ -11,10 +11,10 @@
 #include "sound.h"
 Protocol75::Protocol75 () {
     protocolversion = 750;
-    // FIXME Put CORRECT fingerprints
-    fingerprints[FINGERPRINT_TIBIADAT] = 0x439D5A33;
-    fingerprints[FINGERPRINT_TIBIASPR] = 0x439852BE;
-    fingerprints[FINGERPRINT_TIBIAPIC] = 0x4450C8D8;
+
+    fingerprints[FINGERPRINT_TIBIADAT] = 0x42F81973;
+    fingerprints[FINGERPRINT_TIBIASPR] = 0x42F81949;
+    fingerprints[FINGERPRINT_TIBIAPIC] = 0x42E68175;
 
     maxx = 18; maxy = 14; maxz = 14;
 }
