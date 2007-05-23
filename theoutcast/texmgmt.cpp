@@ -89,6 +89,7 @@ void TextureDeinit() {
 Texture::Texture(std::string fname) {
 //	if (texcount > 50) TextureFreeSlot();
 
+    printf("%s\n", fname.c_str());
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s\n", fname.c_str());
 
 
@@ -123,7 +124,7 @@ Texture::Texture(std::string fname) {
 
 	std::string extension = fname.substr(fname.length() - 3, 3);
 
-    	pikseli = NULL;
+    pikseli = NULL;
 
 
 	//printf("Determining extension: %s\n", extension.c_str());
@@ -137,7 +138,9 @@ Texture::Texture(std::string fname) {
 	        this->StorePixels();
 	}
 
-	textures.insert(textures.end(), this);
+    this->intexlist = true;
+
+    textures.insert(textures.end(), this);
 	ONThreadUnsafe(texturethreadsafe);
 }
 Texture::Texture(std::string fname, unsigned short id) {
@@ -183,6 +186,8 @@ Texture::Texture(std::string fname, unsigned short id) {
 	        this->StorePixels();
 	}
 
+	this->intexlist = true;
+
 	textures.insert(textures.end(), this);
 	ONThreadUnsafe(texturethreadsafe);
 
@@ -218,6 +223,8 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
         pikseli = this->ColorizeCreature(pikseli, templatepikseli, head, body, legs, feet);
         free(templatepikseli);
     }
+
+    this->intexlist = false;
 
     ONThreadUnsafe(texturethreadsafe);
 
@@ -360,20 +367,28 @@ Texture::~Texture() {
     ONThreadSafe(texturethreadsafe);
 
     //printf("Unload Usecount: %d\n", *(this->usecount));
-    if (*(usecount)==1) {
-		//printf("Unloading texture %d\n", *textureid);
-//        bool success = false;
-		for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
-			if ((*it)->imgid == this->imgid && (*it)->fname == this->fname ) { // if that's the same texture
-				textures.erase(it);
-//				success = true;
-				break;
-			}
-		}
-//		ASSERTFRIENDLY(success, "Did not find the texture inside texture list");
+    if ((*usecount)==1) {
+		printf("Unloading texture %d\n", *textureid);
+        bool success = false;
+		if (intexlist)
+            for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+                if ((*it)->imgid == this->imgid && (*it)->fname == this->fname ) { // if that's the same texture
+                    textures.erase(it);
+                    success = true;
+                    break;
+                }
+            }
+        else // intexlist
+            success = true; // it was never meant to be in texlist, so force success=true
+		ASSERTFRIENDLY(success, "Did not find the texture inside texture list");
 
-    	if (pikseli) free(pikseli);
-		if (loaded && *loaded) {
+    	if (pikseli) {
+    	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "It was allocated, thus, freeing.\n");
+    	    free(pikseli);
+    	} else {
+    	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR, "It was not allocated, not freeing.\n");
+    	}
+		if (loaded && (*loaded)) {
 			if (textureid) {
 			    if (glIsTexture(*textureid)) {
 			    	texcount --;
@@ -381,19 +396,24 @@ Texture::~Texture() {
 			    } else {
 			        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Cannot unload - %d is not a texture\n", *textureid);
 			    }
-
 			} else {
 			    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "WEIRD! Texture id is 0, altho' I am loaded!?\n");
 			    ASSERT(textureid);
             }
-			*loaded = false;
-			*textureid = 0;
+			(*loaded) = false;
+			(*textureid) = 0;
+
+		} else {
+		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Texture was never loaded, not unloading in any way\n");
+		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s %s\n", loaded ? "not null": "NULL!", usecount ? "not null" : "NULL");
 		}
 		free(loaded);
 		free(usecount);
-
+        free(textureid);
+    } else {
+        (*usecount)--;
     }
-    (*usecount)--;
+
     ONThreadUnsafe(texturethreadsafe);
 }
 void Texture::StorePixels() {
@@ -405,6 +425,11 @@ void Texture::StorePixels() {
     }
 */
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Storing texture %s\n", fname.c_str());
+
+    if (!pikseli) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING, "No pixels to store\n");
+        return;
+    }
 
     ASSERT(textureid);
 
@@ -458,7 +483,7 @@ void Texture::StorePixels() {
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Parameters set up, storing image of size %dx%d\n", w, h);
 
 
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w,
+    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, w, // gl_rgba in this line used to be "4"
                     h, GL_RGBA, GL_UNSIGNED_BYTE, pikseli /*pImage->data*/);
 
 //    free(pikseli);
@@ -535,7 +560,9 @@ void Texture::Bind() {
 */
 //	glEnable(GL_TEXTURE_2D);
 	//printf("Binding %s\n", fname.c_str());
-	if (textureid && *textureid && glIsTexture(*textureid)) glBindTexture(GL_TEXTURE_2D, *textureid); else {
+	if (textureid && *textureid && glIsTexture(*textureid))
+        glBindTexture(GL_TEXTURE_2D, *textureid);
+    else {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "We had a binding problem with %s - %s %s %s\n", fname.c_str(),
 
 	    textureid ? "yes" : "no",
@@ -601,7 +628,7 @@ RGBA* Texture::ColorizeCreature(RGBA *pixels, RGBA *templatepixels, unsigned cha
 }
 
 void TextureFreeSlot() {
-	// FIXME should track when was the last time texture was used, find the oldest one, etc...
+	// FIXME  should track when was the last time texture was used, find the oldest one, etc...
 
 	if (!textures.size()) {
 		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "No texture to unload\n");

@@ -15,6 +15,7 @@
 #include "options.h"
 #include "gm_gameworld.h"
 #include "creatures.h"
+#include "effects.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -402,7 +403,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             Tile *tile = gamemap.GetTile(&pos);
             Thing *t;
             t = ParseThingDescription(nm);
-            tile->Insert(t);
+            tile->Insert(t, true);
             gamemap.Unlock();
             return true;
         }
@@ -447,18 +448,22 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             GetPosition(nm, &src);
             stackpos = GetStackpos(nm);
 
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Received stackpos\n");
+
             tile = gamemap.GetTile(&src);
             thing = tile->GetStackPos(stackpos);
             gamemap.Lock();
+
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Locked map\n");
             tile->Remove(stackpos);
-            gamemap.Unlock();
 
             GetPosition(nm, &dst);
 
             tile = gamemap.GetTile(&dst);
-            gamemap.Lock();
-            tile->Insert(thing);
-            gamemap.Unlock();
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Got tile\n");
+            tile->Insert(thing, true);
+
+
 
             // if we managed to get here although the thing is null
             // that means that the player has chosen to continue although we asked him
@@ -477,6 +482,12 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (thing != player->GetCreature() || !thing->IsMoving())
                 thing->StartMoving();
             thing->ApproveMove();
+
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Updated all others\n");
+
+            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Unlocked map\n");
+            gamemap.Unlock();
+
             return true;
         }
         case 0x6E: {// Container Open
@@ -612,7 +623,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             GetPosition(nm, &pos);
             t = gamemap.GetTile(&pos);
-            t->Insert(e = new Effect(t));
+            t->Insert(e = new Effect(t), false);
 
             type = nm->GetU8(); // mageffect type
 
@@ -628,7 +639,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             std::string msg = nm->GetString(); // message
             Effect *e = new Effect(t);
             e->SetText(msg, color, true);
-            t->Insert(e);
+            t->Insert(e, true);
             return true;
         }
         case 0x85: // Distance Shot
@@ -787,7 +798,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 if (msgtype == 0x03) extratext=" yells";
                 std::string s = creaturename + extratext + ": " + message;
                 e->SetText(s, 210, false);
-                t->Insert(e);
+                t->Insert(e, true);
             }
 
             return true;
@@ -1031,7 +1042,7 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
             return;
         } else {
             Thing *obj = ParseThingDescription(nm);
-            t->Insert(obj);
+            t->Insert(obj, false);
         }
     }
 }

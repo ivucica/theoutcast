@@ -2,7 +2,6 @@
 #define __BMPFONT_H
 
 
-#include <windows.h>
 #include <GL/gl.h>
 
 #include "texmgmt.h"

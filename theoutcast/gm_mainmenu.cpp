@@ -654,14 +654,16 @@ void GM_MainMenu::Render() {
 	if (bg_move_angle > 360.) bg_move_angle -= 360.;
 
 	if (fps && mayanimate && fadein > 0.) fadein -= 2. / fps;//.5 / fps;
-	if (fadein < 0) fadein = 0.;
+	if (fadein < 0.) fadein = 0.;
 
-	if (fps && mayanimate && fadeout > 0.) fadeout -= 2. / fps;//.5 / fps;
-	if (fadeout < 0) {
 
-	    fadeout = 0.;
-	    //GameModeEnter(GM_LOADING);
-        OnFadeout();
+	if (fps && mayanimate && fadeout > 0.) {
+		fadeout -= 2. / fps;//.5 / fps;
+		if (fadeout <= 0.) {
+		    fadeout = 0.;
+		    //GameModeEnter(GM_LOADING);
+		    OnFadeout();
+		}
 	}
 
 
@@ -995,7 +997,8 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
 
 	glut_SetMousePointer("DEFAULT");
 
-	/*skin.Load(options.skin.c_str());
+#if 0
+	skin.Load(options.skin.c_str());
 	if (skin.tmmloaded) {
 	    ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->tibia);
 	    ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->mainmenu);
@@ -1009,7 +1012,7 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
         ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->mainmenu);
         ((GM_MainMenu*)game)->RebuildMainMenu();
     }
-    */
+#endif
 
 	((GM_MainMenu*)game)->ResizeWindow();
     options.Save();

@@ -208,6 +208,7 @@ Changes since 0.3.9
 * "Text over head" (not perfect, but works)
 * "Animated text"
 * Partying
+* Updated SQLite with which game is compiled
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug

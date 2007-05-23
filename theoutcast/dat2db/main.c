@@ -936,15 +936,16 @@ int main (int argc, char **argv) {
 	int size;
 	item_t item;
 
-	printf("The Outcast DAT Convertor\n---\n");
+	printf("\nThe Outcast DAT Convertor\n---\n");
 
-	if (argc != 4) {
-		printf("usage: %s tibia.dat outcast.db datversion\n", strrchr(argv[0], '\\'));
+	if (argc != 4 && argc != 5) {
+		printf("usage: %s tibia.dat outcast.db datversion [tibia.opq]\n", strrchr(argv[0], '\\'));
 		printf("\n");
 		printf("Non-empty DB will not be purged, except the items table\n");
 		printf("for specified datversion\n");
 		printf("Outcast-specific data are kept (fields: graphics, graphics2d, height)\n");
 		printf("OTID is also not touched\n");
+		printf("If specified, queries in tibia.opq are executed (opq == outcast patch queries)\n");
 		printf("\n");
 		return 0;
 	}
@@ -1041,6 +1042,38 @@ int main (int argc, char **argv) {
 
 	dbexec(fo, "end transaction;", NULL, NULL, NULL);
     fclose(fi);
-    printf("DONE\n");
+
+    if (argc == 5) {
+        char query[256]={0};
+        int line = 1;
+        printf("\nNow patching with outcast patch queries file...\n");
+        FILE *f = fopen(argv[4], "r");
+        if (!f) {
+            printf("Patch file %s does not exist, aborting\n", argv[4]);
+            goto skip_patch;
+        }
+        lastpercentage = -100;
+        dbexec(fo, "begin transaction;", NULL, NULL, NULL);
+        while (!feof(f)) {
+            fgets(query, 255, f);
+
+            show_progress(ftell(f), filelength(f));
+            if (query[0] != '#' && query[0] != 13 && query[0] != 10) {
+                char *errmsg;
+                dbexec(fo, query, NULL, NULL, &errmsg);
+                if (errmsg && strlen(errmsg)) printf("=> Query error at line %d %s\n", line, errmsg);
+                free(errmsg);
+                line ++;
+            }
+        }
+        dbexec(fo, "end transaction;", NULL, NULL, NULL);
+        fclose(f);
+
+    }
+
+    skip_patch:
+
+    printf("Done.\n\n");
+
 	return 0;
 }

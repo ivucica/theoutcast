@@ -13,7 +13,7 @@ class Tile {
         Tile();
         ~Tile();
 
-        void Insert(Thing *obj);
+        void Insert(Thing *obj, bool begin);
         //void remove(Thing *obj);
         void Remove(unsigned char stackpos);
         void Remove(Thing *obj);

@@ -44,7 +44,8 @@ void GameModeDeinit() {
 
 void GameModeEnter(gamemode_t gm) {
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "SWITCHING GAME MODES\n");
-	ONThreadSafe(gmthreadsafe);
+	//ONThreadSafe(gmthreadsafe);
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Thread safe\n");
 	if (game) {
 		DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "First deleting old one ...\n");
 	    // FIXME is there a way to "virtualise" destructor? meaning, when deleting ptr to parent class, i want to call child's destructor
@@ -79,6 +80,6 @@ void GameModeEnter(gamemode_t gm) {
 	gamemode = gm;
 	mayanimate = false;
 	glutTimerFunc(500, glut_MayAnimateToTrue, 0);
-    ONThreadUnsafe(gmthreadsafe);
+//    ONThreadUnsafe(gmthreadsafe);
 }
 

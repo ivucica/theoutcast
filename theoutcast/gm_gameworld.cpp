@@ -854,7 +854,11 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
                 // extended usable or move
 
                 if (dynamic_cast<Creature*>(th)) {
-                    ObjSpr *s = new ObjSpr(itemid,th->GetLook().head,th->GetLook().body,th->GetLook().legs,th->GetLook().feet );
+                    ObjSpr *s;
+                    if (itemid == 0)
+                        s = new ObjSpr(th->GetLook().extendedlook, 0);
+                    else
+                        s = new ObjSpr(itemid, th->GetLook().head,th->GetLook().body,th->GetLook().legs,th->GetLook().feet );
                     s->SetDirection(th->GetDirection());
                     glut_SetMousePointer(s);
                 } else

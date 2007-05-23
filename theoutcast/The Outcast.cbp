@@ -7,6 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="debug">
+				<Option platforms="Windows;" />
 				<Option output="The Outcast debug.exe" prefix_auto="0" extension_auto="0" />
 				<Option object_output=".objsdebug" />
 				<Option type="0" />
@@ -33,9 +34,23 @@
 					<Add option="-g3" />
 					<Add option="-fexceptions" />
 					<Add option='-Wl,-Map=&quot;The Outcast debug.map&quot;' />
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="GLICT" />
+					<Add library="glut32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="fmod" />
+					<Add library="tfm" />
 				</Linker>
 			</Target>
 			<Target title="release">
+				<Option platforms="Windows;" />
 				<Option output="The Outcast.exe" prefix_auto="0" extension_auto="0" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -57,9 +72,23 @@
 					<Add option="-fexceptions" />
 					<Add option="-g3" />
 					<Add option='-Wl,-Map=&quot;The Outcast.map&quot;' />
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="GLICT" />
+					<Add library="glut32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="fmod" />
+					<Add library="tfm" />
 				</Linker>
 			</Target>
 			<Target title="release_lite">
+				<Option platforms="Windows;" />
 				<Option output="The Outcast lite.exe" prefix_auto="0" extension_auto="0" />
 				<Option object_output=".objslite" />
 				<Option type="0" />
@@ -75,13 +104,28 @@
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
+					<Add option="-DBMPFONT" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-fexceptions" />
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="GLICT" />
+					<Add library="glut32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="fmod" />
+					<Add library="tfm" />
 				</Linker>
 			</Target>
 			<Target title="release_opt">
+				<Option platforms="Windows;" />
 				<Option output="The Outcast opt.exe" prefix_auto="0" extension_auto="0" />
 				<Option object_output=".objsopt" />
 				<Option type="0" />
@@ -97,13 +141,28 @@
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
+					<Add option="-DBMPFONT" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-fexceptions" />
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="glict" />
+					<Add library="glut32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="fmod" />
+					<Add library="tfm" />
 				</Linker>
 			</Target>
 			<Target title="debug_msvc">
+				<Option platforms="Windows;" />
 				<Option output="The Outcast debug msvc.exe" prefix_auto="0" extension_auto="0" />
 				<Option object_output=".objsdebug_msvc" />
 				<Option type="0" />
@@ -136,27 +195,49 @@
 					<Add library="lib3ds-120sd" />
 					<Add library="tommath" />
 					<Add library="sqlite3" />
+					<Add library="3ds" />
+					<Add library="fmod" />
+					<Add library="tfm" />
+				</Linker>
+			</Target>
+			<Target title="debug_unix">
+				<Option platforms="Unix;" />
+				<Option output="outcast" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objsdebug_unix" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="sprplaygroundd" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option="-O0" />
+					<Add option="-DPOSIX_THREADS" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
+					<Add option="-DGMP" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
+				</Compiler>
+				<Linker>
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option='-Wl,-Map=&quot;outcast.map&quot;' />
+					<Add library="GLICT" />
+					<Add library="glut" />
+					<Add library="GL" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="gmp" />
 				</Linker>
 			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="All" targets="debug;release;" />
 		</VirtualTargets>
-		<Linker>
-			<Add library="gdi32" />
-			<Add library="user32" />
-			<Add library="kernel32" />
-			<Add library="glict" />
-			<Add library="glut32" />
-			<Add library="opengl32" />
-			<Add library="glu32" />
-			<Add library="ws2_32" />
-			<Add library="winmm" />
-			<Add library="3ds" />
-			<Add library="sqlite3" />
-			<Add library="fmod" />
-			<Add library="tfm" />
-		</Linker>
 		<Unit filename="assert.h" />
 		<Unit filename="bmpfont.cpp" />
 		<Unit filename="bmpfont.h" />
@@ -262,7 +343,13 @@
 		<Unit filename="tile.h" />
 		<Unit filename="todo.txt" />
 		<Unit filename="types.h" />
-		<Unit filename="winfont.cpp" />
+		<Unit filename="winfont.cpp">
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+		</Unit>
 		<Unit filename="winfont.h" />
 		<Extensions>
 			<code_completion />

@@ -1,5 +1,6 @@
-
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h> // FIXME remove me! only for gluGetError()
 #include <stdio.h>
@@ -31,10 +32,10 @@ static void BMPFontDrawChar(char t, Texture *tex) {
 
     glDisable(GL_CULL_FACE);
     glBegin(GL_QUADS);
-        glTexCoord2f(x,y); glVertex2f(0, 1.);
-        glTexCoord2f(x + 8./512., y); glVertex2f(.7,1.);
-        glTexCoord2f(x + 8./512., y + 10./128.); glVertex2f(.7, 0);
-        glTexCoord2f(x, y + 10./128.); glVertex2f(0, 0);
+        glTexCoord2f(x,y); glVertex2f(0, 1.2);
+        glTexCoord2f(x + 8./512., y); glVertex2f(.7,1.2);
+        glTexCoord2f(x + 8./512., y + 12./128.); glVertex2f(.7, 0);
+        glTexCoord2f(x, y + 12./128.); glVertex2f(0, 0);
     glEnd();
 
     glTranslatef(0.7,0,0);

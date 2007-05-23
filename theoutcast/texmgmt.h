@@ -40,6 +40,8 @@ class Texture {
 
 		int* usecount;
 
+        bool intexlist;
+
 		friend class Skin;
 		friend void TextureFreeSlot();
 };
