@@ -46,7 +46,7 @@ int main(int argc, char** argv);
 void GameInit() {
 
 	glictFont* sysfont = glictCreateFont("system");
-	#if !defined(WIN32) || (!defined(WINFONT) && !defined(BMPFONT))
+	#if (!defined(WINFONT) && !defined(BMPFONT))
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);

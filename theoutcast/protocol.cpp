@@ -88,8 +88,9 @@ bool Protocol::GameworldWork() {
     if (protocolversion >= 770) nm.XTEADecrypt(key);
 
 //    nm.ShowContents();
-
+    gamemap.Lock();
     while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
+    gamemap.Unlock();
 
     if ((signed int)(nm.GetSize())!=0) {
         DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING, "++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++ %d remain\n", nm.GetSize());
@@ -336,75 +337,75 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             }
         case 0x65: // Move Player North
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Move north\n");
-            gamemap.Lock();
+
             player->SetPos(player->GetPosX(), player->GetPosY()-1, player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
-            gamemap.Unlock();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End move north\n");
 
             return true;
         case 0x66: // Move Player East
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Move east\n");
-            gamemap.Lock();
+
             player->SetPos(player->GetPosX()+1, player->GetPosY(), player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x + (maxx+1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
-            gamemap.Unlock();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move east\n");
 
             return true;
         case 0x67: // Move Player South
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move south\n");
-            gamemap.Lock();
+
             player->SetPos(player->GetPosX(), player->GetPosY()+1, player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
             ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y + (maxy+1 )/2, player->GetPos()->z);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
-            gamemap.Unlock();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move south\n");
 
             return true;
         case 0x68: // Move Player West
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move west\n");
-            gamemap.Lock();
+
             player->SetPos(player->GetPosX()-1, player->GetPosY(), player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
             ParseMapDescription(nm, 1, maxy, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
-            gamemap.Unlock();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move west\n");
             return true;
         case 0x69: {// Tile Update
             position_t pos;
-            gamemap.Lock();
+
             GetPosition(nm, &pos);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
             ParseTileDescription(nm, pos.x,pos.y,pos.z);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
-            gamemap.Unlock();
+
             return true;
         }
         case 0x6A: {// Add Item
             position_t pos;
-            gamemap.Lock();
+
             GetPosition(nm, &pos);
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Adding item to %d %d %d\n", pos.x, pos.y, pos.z);
             Tile *tile = gamemap.GetTile(&pos);
             Thing *t;
             t = ParseThingDescription(nm);
-            tile->Insert(t, true);
-            gamemap.Unlock();
+            tile->Insert(t, false);
+
             return true;
         }
         case 0x6B: {// Replace Item
@@ -423,10 +424,12 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             t->Insert(ParseThingDescription(nm));*/
 
             t->Replace(stackpos, ParseThingDescription(nm));
+
             return true;
         }
         case 0x6C: {// Remove Item
             position_t pos;
+
             GetPosition(nm, &pos);
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Removing item from %d %d %d\n", pos.x, pos.y, pos.z);
             unsigned char stackpos = GetStackpos(nm);
@@ -443,16 +446,15 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             position_t src;
             position_t dst;
 
-
-
             GetPosition(nm, &src);
             stackpos = GetStackpos(nm);
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Received stackpos\n");
 
+
+
             tile = gamemap.GetTile(&src);
             thing = tile->GetStackPos(stackpos);
-            gamemap.Lock();
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Locked map\n");
             tile->Remove(stackpos);
@@ -486,7 +488,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Updated all others\n");
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Unlocked map\n");
-            gamemap.Unlock();
+
 
             return true;
         }
@@ -566,7 +568,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         }
         case 0x70: {// Add Container Item
             Container *c = player->GetContainer(nm->GetU8()); // container id
-            if (c) c->Insert(ParseThingDescription(nm), true);
+            if (c) c->Insert(ParseThingDescription(nm), false);
             return true;
         }
         case 0x71: {// Replace Container Item
@@ -623,7 +625,8 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             GetPosition(nm, &pos);
             t = gamemap.GetTile(&pos);
-            t->Insert(e = new Effect(t), false);
+            e = new Effect(t);
+            t->Insert(e, false);
 
             type = nm->GetU8(); // mageffect type
 
@@ -719,13 +722,22 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xA1: // Player Skills
             GetPlayerSkills(nm);
             return true;
-        case 0xA2: // Status Icons
-        //FIXME abstract status icons
-            if (protocolversion < 780) // chech where it turned into 16bit
-                nm->GetU8();
-            else
-                nm->GetU16();
+        case 0xA2: {// Status Icons
+
+            unsigned short icons;
+            unsigned int internalicons=0;
+            if (protocolversion < 780) {// chech where it turned into 16bit, probably where the DROWNING appeared
+                icons = nm->GetU8();
+            } else {
+                icons = nm->GetU16();
+            }
+
+            internalicons = icons; // if icon ids change somewhere, we need to define a function in Protocol7X class that will return internalicons...
+
+            player->SetIcons(internalicons);
+
             return true;
+        }
         case 0xA3: // Cancel Attack
             return true;
         case 0xAA: {// Creature Speak
@@ -782,6 +794,8 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 case 0x0E:
                     concol = CONRED;
                     break;
+                case 0x04:
+                    concol = CONLTBLUE;
             }
 
             std::string message = nm->GetString(); // message
@@ -872,7 +886,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0xBE: {// Floor Up
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move up\n");
-            gamemap.Lock();
+
             player->SetPos(player->GetPosX()+1, player->GetPosY()+1, player->GetPosZ()-1);
 
 
@@ -889,14 +903,14 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
 
-            gamemap.Unlock();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move up\n");
 
             return true;
         }
         case 0xBF: {// Floor Down
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move down\n");
-            gamemap.Lock();
+
 
 
             player->SetPos(player->GetPosX()-1, player->GetPosY()-1, player->GetPosZ()+1);
@@ -916,7 +930,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
 
-            gamemap.Unlock();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End move down\n");
 
             return true;
@@ -1036,13 +1050,13 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
         if (nm->PeekU16() >= 0xFF00) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
             static bool locked;
-            if (locked = gamemap.locked) gamemap.Unlock();
-            t->StoreToDatabase();
-            if (locked) gamemap.Lock();
+            //if (locked = gamemap.locked) gamemap.Unlock();
+            //t->StoreToDatabase();
+            //if (locked) gamemap.Lock();
             return;
         } else {
             Thing *obj = ParseThingDescription(nm);
-            t->Insert(obj, false);
+            t->Insert(obj, true);
         }
     }
 }
@@ -1199,25 +1213,35 @@ void Protocol::Turn(direction_t dir) {
     }
     ONThreadUnsafe(threadsafe);
 }
-
 void Protocol::Speak(speaktype_t sp, const char *message) {
+    Speak(sp, message, NULL, 0);
+}
+void Protocol::Speak(speaktype_t sp, const char *message, unsigned long destination) {
+    Speak(sp, message, NULL, destination);
+}
+void Protocol::Speak(speaktype_t sp, const char *message, const char *destination) {
+    Speak(sp, message, destination, 0);
+}
+void Protocol::Speak(speaktype_t sp, const char *message, const char *deststr, unsigned long destlong) {
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
-    if (!strcmp(message, "/logout")) {
-        nm.AddU8(0x14);
-    } else {
-        nm.AddU8(0x96);
-        switch (sp) {
-            case NORMAL:
-                nm.AddU8(sp);
-                nm.AddString(message);
+    nm.AddU8(0x96);
+    switch (sp) {
+        case NORMAL:
+            nm.AddU8(sp);
+            nm.AddString(message);
 
-                break;
-            default:
-                console.insert("A still-unsupported way of speaking :/", CONRED);
-                ONThreadUnsafe(threadsafe);
-                return;
-        }
+            break;
+        case PRIVATE:
+            nm.AddU8(sp);
+            nm.AddString(deststr);
+            nm.AddString(message);
+            console.insert(std::string(deststr) + "> " + message, CONLTBLUE);
+            break;
+        default:
+            console.insert("A still-unsupported way of speaking :/", CONRED);
+            ONThreadUnsafe(threadsafe);
+            return;
     }
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
@@ -1607,6 +1631,16 @@ void Protocol::LeaveParty() {
     nm.Dump(s);
     ONThreadUnsafe(threadsafe);
 }
+void Protocol::Logout() {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+    nm.AddU8(0x14);
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+
 
 void Protocol::AddPosition(NetworkMessage *nm, position_t *pos) {
     nm->AddU16(pos->x);

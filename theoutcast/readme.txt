@@ -1,9 +1,12 @@
 THE OUTCAST v0.4
 Readme
-15.4.2007
+24.5.2007
+NAPISATI TOCHAN DATUM RELEASA OD 0.4 DOLJE U SEKCIJU HISTORY!!
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
+
+Please look in sections "About this release" and "Change history" if you're already familiar with The Outcast. These two sections contain information on updates.
 ---
 
 CONTENTS
@@ -23,13 +26,11 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.4 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this prerelease.
+Hey folks, this is The Outcast v0.4 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
 
-This version is a total rewrite, meaning that nothing from the old version is inside. It will take a lot of time and patience to get back to all features that were done previously, but it will progress faster. I hope you folks will stick with me. Please, TEST THIS NEW VERSION and tell me what do you think about it! It is also the right time to SUGGEST NEW STUFF and tell what you MOSTLY DISLIKED (except for graphics) in the old The Outcast, so that we can steer it properly this time.
+The 0.4 series is a continuation upon the 0.3 series, which was a rewrite. We're about halfway with the client functionality; after all functionality is implemented, the final stability fixing process will begin.
 
-I'd like to point out that new The Outcast supports multiple protocols in the same executable! This means, when you enter your username and password, you also pick the protocol! There's no more trouble with the Launcher (which, I am sure, has confused a lot of you).
-
-Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 760, 770, 790, 792 -- more upcoming.
+The Outcast supports multiple protocols in the same executable: when you enter your username and password, you also pick the protocol. Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 750, 760, 770, 790, 792 -- more upcoming.
 
 It is NOT allowed to connect to CipSoft servers using alternative clients! If you do connect and CipSoft notices you're not using their client, you may be banned! (Tibia Rules, Section 3d)
 
@@ -40,17 +41,27 @@ It is NOT allowed to connect to CipSoft servers using alternative clients! If yo
 This release is intended to demonstrate current progress on the software development.
 In no way it is a complete working product. There are bugs, and we are in no way responsible for any damage to your data, computer, mind, brain, arms, parents, grandparents, dog, cat, bed, house or anything else in your life, that can happen, including being PKed because you could not fire that rune on time.
 
-This is a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
+This is a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder for version 0.3 was created on December 16th, however it was only preparation for real programming.
 
 1.a) Rant about this version
 
-In this version I've added container support! Hopefully it will satisfy basic hunting needs, because now you can eat ;)
+This version is another major increment in version number while we're still in alpha, but nothing as radical as the 0.3 => 0.4. There's just so many features that are added in this version and that are done now
+
+For this release, I don't know where to start; maybe with the beginning ;)
+
+I've added the creature colors, so everything looks much much more like Tibia! There's also bitmap fonts support, and they're, for this purpose, much clearer than platform fonts, or GLUT fonts.
+
+Then there's this fancy-schmancy thing called "magic" effects. Meaning you'll actually see blood sparkling when you hit the enemy, a poof when you miss him (or, in case of Valkyries, her), or a blue light when you spawn.
+
+Maybe you wanted to party up with your friends, or send them a private message? Now that's possible, too.
+
+There's also this text above heads which I'm sure you'll all like... And best of all, there's tons of small fixes you may or may not notice, but which will make the life easier.
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
 1.b) Rant about the future
 
-Next version should include item moving support.
+No current plans.
 
 ---
 
@@ -64,7 +75,9 @@ I first got around OTserv when a friend showed it to me. I disliked Tibia (and u
 
 In summer and fall 2005 I've studied OpenGL a lot. It's taken up a lot of time, and I've been fascinated with networking for several years back from then, already. Since I've only a bit before that gained experience in programming Win32 in C++ (instead of Visual Basic), I've figured that I could make a program that would make Tibia (a visually extremely primitive game, but with a good structured networking protocol) a bit more modern and playable game. Combining my 3 great interests in computers - programming, networking and 3D - I've decided to make a modern-looking 3D Tibia-compatible client.
 
-On October 24th 2006 I concluded what I was thinking for a few months then: that the old codebase was no longer in state of upgradeability, and I turned to some other things, and in meantime I got enough experience to turn back to The Outcast. I also saw that I was not doing anything productive in OT community and so on December 16th I've decided to write The Outcast from scratch.
+On October 24th 2006 I concluded what I was thinking for a few months then: that the old codebase was no longer in state of upgradeability, and I turned to some other things, and in meantime I got enough experience to turn back to The Outcast. I also saw that I was not doing anything productive in OT community and so on December 16th I've decided to write The Outcast from scratch - this sparked the 0.3 series of The Outcast.
+
+At the end of May 2007, I have released version 0.4 which was just an upgrade from 0.3.9, but here's where the client began to take real shape.
 
 ---
 
@@ -103,14 +116,23 @@ Visit www.otfans.net - The Outcast's forum - for more information.
 
 5. INSTRUCTIONS
 
+This section contains this client's instructions. If you are interested in game mechanics, for most Open Tibia Servers, Tibia Manual will do fine - read it at www.tibia.com
+
 Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" client's folder. Place it into The Outcast's folder and name it "Tibia76.spr".
+Also, please copy the "Tibia.spr" from your "Tibia version 7.5" client's folder. Place it into The Outcast's folder and name it "Tibia75.spr".
 Also, please copy the "Tibia.spr" from your "Tibia version 7.9" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr".
 Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia792.spr".
 If you do not copy one of the above, you won't be able to use that protocol. Other protocols will work as usual.
 
 On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760, 770 or 790. Click OK. Choose one character.
 
-When the map loads, you can walk around with arrow keys. You can chat by clicking in the textbox in console, typing the message and pressing enter. To attack, hold ALT and click on the creature you want to attack. If you want to "look" at a tile, hold SHIFT and click on a tile.
+When the map loads, you can walk around with arrow keys. You can chat by clicking in the textbox in console, typing the message and pressing enter. To attack, hold ALT and click on the creature you want to attack. If you want to "look" at a tile, hold SHIFT and click on a tile.  To use an item, hold CTRL and click on it. To move and item, DRAG it around.
+
+To send a private message, surround the destination name with asterisks ("*"), and then type your message. For example:
+  *Khaotic Woo*hi
+will send a message to player called Khaotic Woo.
+
+The textual
 
 Press ESC to leave the game.
 
@@ -137,6 +159,9 @@ This version is a total rewrite, meaning that nothing from the old version is in
 
 c) It's slowing down strangely sometimes, and lagging!
 It's recommended that you close all applications before running The Outcast (or any game, in general). We have noticed that Mozilla Firefox occasionally runs at over 60% CPU usage for a couple of moments, then for a few seconds no longer uses the processor.
+Google Desktop is also noticed stealing CPU without doing anything in particular.
+Opera browser might steal CPU if you're keeping it open on a Javascript-intensive site (such as Meebo).
+
 Thus, before trying The Outcast, please close all applications, ESPECIALLY MOZILLA FIREFOX.
 
 d) It crashes!
@@ -150,7 +175,6 @@ Please send The Outcast.rpt file to us.
 * Sprite animations are not in sync
 * Logging out of the game and then attempting to log in fails
 * Blendframes sprites are drawn in wrong order
-* Multicolor items are not rendered properly
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -209,6 +233,12 @@ Changes since 0.3.9
 * "Animated text"
 * Partying
 * Updated SQLite with which game is compiled
+* Some item movement bugs expunged
+* Initial GNU/Linux support
+* Icon in Windows
+* Textual status "icons"
+* Animation inside inventory
+* Private messaging
 
 Changes since 0.3.81
 * Fixed UseEx() cursor being flipped bug
@@ -304,10 +334,14 @@ Changes since 0.3
 * Map fetching is here, tons of packets are parsed already
 
 
-Changes since 0.2.6
+Changes since 0.2.7
 * Total rewrite
 
 ======REWRITE======
+Changes since 0.2.6
+* Added 7.92 support
+* This was a source-only release, you won't find it anywhere
+
 Changes since 0.2.5
 * Fixed "fadein names wrong colors" issue
 * Flythrough logon screen... let's say that with noob language: "o.O"

@@ -22,6 +22,7 @@ class Effect : public Thing {
         void Render(position_t *pos, bool rendering_overlay);
         bool AnimationAdvance(float advance, bool rendering_overlay);
         void SetText(std::string &text, unsigned char color, bool animated);
+        bool IsGround();
     private:
         Tile *parent;
         effecttype_t effecttype;

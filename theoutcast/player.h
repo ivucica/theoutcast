@@ -58,10 +58,16 @@ class Player {
         unsigned char   GetSkillLevel(skill_t skill);
         unsigned char   GetSkillPercent(skill_t skill);
 
+
+
+
+        void            SetIcons(unsigned int icons);
+        bool            GetIcon(statusicons_t icon);
+
+
+
         void            SetInventorySlot(unsigned int slot, Thing *item);
         void            RenderInventory(unsigned int slot);
-
-
         void            SetContainer(unsigned char cid, Container *container);
         Container *     GetContainer(unsigned char container);
         void            RemoveContainer(unsigned int cid);
@@ -91,7 +97,7 @@ class Player {
         ContainerMap containers;
         unsigned char playerskills[7];
         unsigned char playerskillspcnt[7];
-
+        unsigned int icons;
 
     friend void Tile::Render(int layer);
     friend void Tile::RenderStrayCreatures(position_t *p);

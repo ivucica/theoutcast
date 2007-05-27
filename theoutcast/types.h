@@ -174,5 +174,16 @@ typedef enum {
 	SKULL_RED = 4,
 } skull_t;
 
+typedef enum {
+	ICON_POISON = 1,
+	ICON_BURN = 2,
+	ICON_ENERGY =  4,
+	ICON_DRUNK = 8,
+	ICON_MANASHIELD = 16,
+	ICON_PARALYZE = 32,
+	ICON_HASTE = 64,
+	ICON_SWORDS = 128,
+	ICON_DROWNING = 256
+} statusicons_t;
 
 #endif

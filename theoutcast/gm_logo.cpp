@@ -78,7 +78,9 @@ void GM_Logo::Render() {
         glPopMatrix();
 
 //	printf("Checking doneness\n");
-        if (done) GameModeEnter(GM_MAINMENU);
+        if (done)
+            GameModeEnter(GM_MAINMENU);
+
     }
 
 
@@ -91,7 +93,7 @@ void GM_Logo::Render() {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 //
-	printf("Rendering fade\n");
+
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);
 		glBegin(GL_QUADS);
@@ -179,6 +181,7 @@ void GM_Logo::ResizeWindow (int w, int h) {
 
 void GM_Logo::OnFinish() {
     done = true;
+
 //    fadeout = 1.;
 }
 
@@ -188,4 +191,5 @@ void GM_Logo_OnFinish (void *arg) {
     GM_Logo* logo = (GM_Logo*)arg;
 
     logo->OnFinish();
+
 }

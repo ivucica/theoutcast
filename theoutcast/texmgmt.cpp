@@ -135,7 +135,7 @@ Texture::Texture(std::string fname) {
         	pikseli = this->FetchSPRPixels(imgid);
 	}
 	if (pikseli) {
-	        this->StorePixels();
+	        //this->StorePixels();
 	}
 
     this->intexlist = true;
@@ -183,7 +183,7 @@ Texture::Texture(std::string fname, unsigned short id) {
         	pikseli = this->FetchSPRPixels(imgid);
 	}
 	if (pikseli) {
-	        this->StorePixels();
+	        //this->StorePixels();
 	}
 
 	this->intexlist = true;
@@ -368,7 +368,7 @@ Texture::~Texture() {
 
     //printf("Unload Usecount: %d\n", *(this->usecount));
     if ((*usecount)==1) {
-		printf("Unloading texture %d\n", *textureid);
+		printf("Unloading texture %d -- %s[%d] ; total textures remaining %d\n", *textureid, this->fname.c_str(), this->imgid, textures.size());
         bool success = false;
 		if (intexlist)
             for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
@@ -380,7 +380,13 @@ Texture::~Texture() {
             }
         else // intexlist
             success = true; // it was never meant to be in texlist, so force success=true
-		ASSERTFRIENDLY(success, "Did not find the texture inside texture list");
+
+		{
+		char tmp[255];
+		sprintf(tmp, "Did not find the texture %s[%d] inside texture list", this->fname.c_str(), this->imgid);
+		ASSERTFRIENDLY(success, tmp);
+
+		}
 
     	if (pikseli) {
     	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "It was allocated, thus, freeing.\n");
@@ -574,9 +580,11 @@ void Texture::Bind() {
 }
 
 Texture* Texture::Find() {
-//    return NULL;
+    return NULL;
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+	    printf("%s %d finding %s %d\n", (*it)->fname.c_str(),  (*it)->imgid, this->fname.c_str(),  this->imgid);
 		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
+
 			return *it;
 		}
 	}

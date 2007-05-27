@@ -43,9 +43,10 @@ class Protocol {
         virtual void    Turn(direction_t dir);
 
         virtual void    SetStance(stanceaggression_t aggression, stancechase_t chase);
-        virtual void    Speak(speaktype_t sp, const char *message);
-        virtual void    Speak(speaktype_t sp, const char *destination, const char *message) {}
-        virtual void    Speak(speaktype_t sp, unsigned long destination, const char *message) {}
+        void            Speak(speaktype_t sp, const char *message);
+        void            Speak(speaktype_t sp, const char *message, const char *destination);
+        void            Speak(speaktype_t sp, const char *message, unsigned long destination);
+        virtual void    Speak(speaktype_t sp, const char *message, const char *deststr, unsigned long destlong);
 
         virtual void    LookAt(position_t *pos);
         virtual void    Attack(unsigned long creatureid);
@@ -59,6 +60,8 @@ class Protocol {
         virtual void    RevokeInviteParty(Creature *c);
         virtual void    PassLeadershipParty(Creature *c);
         virtual void    LeaveParty();
+
+        virtual void    Logout();
 
         // *parse* are "smarter" abstractions
         // *get* are those that only fetch and return

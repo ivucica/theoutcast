@@ -71,6 +71,7 @@ Container::~Container() {
 
     // cid delete
     // delete only once, although it might be used in many places!
+    // (meaning, add UseCount variable)
     free(close.GetCustomData());
 }
 
@@ -94,8 +95,8 @@ void Container::Insert(Thing *t, bool begin) {
 void Container::Remove(unsigned int pos) {
     std::vector<Thing*>::iterator it = contents.begin();
     it+=pos;
-    contents.erase(it);
     delete *it;
+    contents.erase(it);
 
     RebuildCounts();
 }
@@ -160,6 +161,7 @@ void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer 
 		//player->RenderInventory((glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
         if (c->container->GetItem(c->elementid)) {
             c->container->GetItem(c->elementid)->Render();
+            c->container->GetItem(c->elementid)->AnimationAdvance(100./fps);
         }
 
 		glMatrixMode(GL_PROJECTION);

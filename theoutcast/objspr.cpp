@@ -417,8 +417,8 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
 
     }
 
-        offsetx = items[itemid]->height2d_x ;
-        offsety = items[itemid]->height2d_y ;
+    offsetx = items[itemid]->height2d_x ;
+    offsety = items[itemid]->height2d_y ;
 
 
 }
@@ -430,6 +430,10 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
     char temp[256];
     sprintf(temp, "invalid effectid %d out of %d in ObjSpr::LoadEffect", effectid, effects_n);
     ASSERTFRIENDLY(effectid <= effects_n, temp);
+    if (!(effectid <= effects_n)) {// someone pressed ignore
+        // try skipping the loading of this effect
+        return;
+    }
 
     if (effects[effectid]->textures) {
         t = (Texture**)effects[effectid]->textures;

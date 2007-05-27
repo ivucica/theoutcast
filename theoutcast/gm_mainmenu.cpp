@@ -133,7 +133,7 @@ GM_MainMenu::GM_MainMenu() {
     currentspr = 1;
 
     glutSwapBuffers();
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glutSwapBuffers();
 
     city = new Obj3ds("outcastcity.3DS");
@@ -175,9 +175,10 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLogin.SetCaption("Please enter the username, password and \n"
 	                    "server address of the server to connect to.\n"
 	                    "\n"
-	                    "We advise you not to connect to CipSoft's\n"
+	                    "We advise you not to connect to Cipsoft's\n"
 	                    "servers using this client, as this is a \n"
-	                    "breach of Tibia Rules.");
+	                    "breach of Tibia Rules.\n"
+	                    "REMINDER: Did you read the README?");
 	pnlLogin.SetWidth(300);
 	pnlLogin.SetPos(0,0);
 	pnlLogin.SetHeight(92);
@@ -448,6 +449,10 @@ GM_MainMenu::GM_MainMenu() {
 
 	glDisable(GL_DEPTH_TEST);
 
+    glClearColor(0., 0., 0., 0.);
+    glColor4f(1., 1., 1., 1.);
+    glDisable(GL_LIGHTING);
+
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Construction of main menu complete\n");
 }
 
@@ -469,9 +474,10 @@ void GM_MainMenu::Render() {
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
     if (skin.tmmloaded) {
-
-
-
+/*glClearColor(0.,0.,0.,1.);
+glAlphaFunc(GL_GREATER, 0.2);
+glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+*/
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluOrtho2D(0.,640.,0.,480.);

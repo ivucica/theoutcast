@@ -1,0 +1,6 @@
+
+// The Outcast -- resources.rc
+// contains resource specs
+
+GLUT_ICON ICON "icon.ico"
+

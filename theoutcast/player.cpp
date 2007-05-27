@@ -10,6 +10,9 @@
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
 #endif
+
+extern float fps;
+
 Player *player=0; // it says NULL not declared?!
 Player::Player(unsigned long creatureid) {
     this->creatureid = creatureid;
@@ -17,7 +20,7 @@ Player::Player(unsigned long creatureid) {
     for (int i = 0; i < 10; i++) {
         inventory[i] = NULL;
     }
-
+    icons = 0;
 }
 
 Player::~Player() {
@@ -25,7 +28,6 @@ Player::~Player() {
         if (inventory[i]) delete inventory[i];
         inventory[i] = NULL;
     }
-
 }
 
 unsigned long Player::GetCreatureID() {
@@ -174,6 +176,7 @@ void Player::SetInventorySlot(unsigned int slot, Thing *item) {
 void Player::RenderInventory(unsigned int slot) {
     if (!inventory[slot]) return;
     inventory[slot]->Render();
+    inventory[slot]->AnimationAdvance(100./fps);
 }
 
 void Player::SetContainer(unsigned char cid, Container *container) {
@@ -216,4 +219,12 @@ Container *Player::GetContainer(unsigned char container) {
     } else {
         return it->second;
     }
+}
+
+void Player::SetIcons(unsigned int icons) {
+    this->icons = icons;
+}
+
+bool Player::GetIcon(statusicons_t icon) {
+    return icons & icon;
 }

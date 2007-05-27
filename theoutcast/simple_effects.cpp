@@ -104,6 +104,12 @@ void StillEffect(float beginx, // 200
 	//glRotatef(180., 1.0, 0.0, 0.0);
     glTranslatef(0,deltay,0.0);
 
+#if 0
+    glColor4f(1., 1., 1., .4);
+    glEnable(GL_BLEND);
+    glDisable(GL_ALPHA_TEST);
+#endif
+
 	glBegin(GL_QUADS);
 		for (float i=0;i<deltax;i+=increasex) {
 			for (float j=0;j<deltay;j+=increasey) {
@@ -135,6 +141,13 @@ void StillEffect(float beginx, // 200
             }
 		}
 	glEnd();
+
+#if 0
+	glEnable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
+	glColor4f(1.,1.,1.,1.);
+#endif
+
 	glTranslatef(0,-deltay,0.0);
 
 }

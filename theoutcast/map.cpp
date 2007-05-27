@@ -61,12 +61,18 @@ Creature* Map::GetCreature(unsigned long creatureid, Creature *cr) {
 
 
 void Map::Lock() {
+    // it would appear that pthreads do not like same thread locked twice, even with two different mutexes!
+    // someone should verify this
+    #ifdef WIN32
     ONThreadSafe(threadsafe);
     locked = true;
+    #endif
 }
 void Map::Unlock() {
+    #ifdef WIN32
     locked = false;
     ONThreadUnsafe(threadsafe);
+    #endif
 }
 unsigned long Map::SetAttackedCreature(unsigned long creatureid) {
     Creature *c = GetCreature(creatureid, NULL);

@@ -22,7 +22,7 @@
     #define DEBUGPRINT_WARNING 0
 #endif
 extern float fps;
-bool uselists = true;
+bool uselists = false;
 /* public functions */
 
 

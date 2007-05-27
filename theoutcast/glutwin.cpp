@@ -67,16 +67,34 @@ void glut_Mouse (int button, int shift, int mousex, int mousey) {
 	glutPostRedisplay();
 }
 
+#ifndef WIN32
+#include <X11/Xlib.h>
+#endif
 void glut_Idle () {
 	#ifdef WIN32
-	POINT mouse;
-	GetCursorPos(&mouse);
-	POINT offset;
-	GetDCOrgEx(wglGetCurrentDC(), &offset);
-	mouse.x -= offset.x;
-	mouse.y -= offset.y;
-	ptrx = mouse.x;
-	ptry = mouse.y;
+        POINT mouse;
+        GetCursorPos(&mouse);
+        POINT offset;
+        GetDCOrgEx(wglGetCurrentDC(), &offset);
+        mouse.x -= offset.x;
+        mouse.y -= offset.y;
+        ptrx = mouse.x;
+        ptry = mouse.y;
+	#else
+/*
+        //printf("Getting root window.\n");
+        Window root_win = RootWindow(display,SCREEN);
+
+
+        int root_x_return, root_y_return;
+        int win_x_return, win_y_return;
+
+        //printf("Getting mouse position.");
+        bool xqueryResult = XQueryPointer(display, root_win, &root_return, &child_return, &root_x_return, &root_y_return, &win_x_return,
+    &win_y_return, &mask_return);
+
+        printf("%d %d ; %d %d\n", root_x_return, root_y_return, win_x_return, win_y_return);
+*/
 	#endif
 
 	glutPostRedisplay();
@@ -214,6 +232,7 @@ void RenderMouseCursor() {
         glPushMatrix();
 			glTranslatef(ptrx - 16., winh-ptry - 16., 0);
 			mousepointer_object->Render();
+			mousepointer_object->AnimationAdvance(100./fps);
         glPopMatrix();
 
     }

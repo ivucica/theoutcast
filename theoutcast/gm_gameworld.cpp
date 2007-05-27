@@ -139,69 +139,69 @@ GM_Gameworld::GM_Gameworld() {
 
     desktop.AddObject(&winStats);
         winStats.SetWidth(120);
-        winStats.SetHeight(220);
+        winStats.SetHeight(237);
         winStats.SetCaption("Stats");
-        winStats.SetPos(410, 220);
+        winStats.SetPos(410, 240);
         winStats.AddObject(&panStaStats);
             panStaStats.SetBGActiveness(false);
             panStaStats.SetHeight(220);
             panStaStats.SetWidth(120);
             panStaStats.SetPos(0, 20);
        winStats.AddObject(&btnStaStance1);
-            btnStaStance1.SetHeight(15);
-            btnStaStance1.SetWidth(15);
+            btnStaStance1.SetHeight(16);
+            btnStaStance1.SetWidth(16);
             btnStaStance1.SetPos(0,0);
             btnStaStance1.SetCaption("O");
             btnStaStance1.SetCustomData((void*)1);
             btnStaStance1.SetOnClick( GM_Gameworld_StaStanceOnClick );
         winStats.AddObject(&btnStaStance2);
-            btnStaStance2.SetHeight(15);
-            btnStaStance2.SetWidth(15);
+            btnStaStance2.SetHeight(16);
+            btnStaStance2.SetWidth(16);
             btnStaStance2.SetPos(20,0);
             btnStaStance2.SetCaption("B");
             btnStaStance2.SetCustomData((void*)2);
             btnStaStance2.SetOnClick( GM_Gameworld_StaStanceOnClick );
         winStats.AddObject(&btnStaStance3);
-            btnStaStance3.SetHeight(15);
-            btnStaStance3.SetWidth(15);
+            btnStaStance3.SetHeight(16);
+            btnStaStance3.SetWidth(16);
             btnStaStance3.SetPos(40,0);
             btnStaStance3.SetCaption("D");
             btnStaStance3.SetCustomData((void*)3);
             btnStaStance3.SetOnClick( GM_Gameworld_StaStanceOnClick );
         winStats.AddObject(&chkStaChase);
-            chkStaChase.SetHeight(15);
-            chkStaChase.SetWidth(15);
+            chkStaChase.SetHeight(16);
+            chkStaChase.SetWidth(16);
             chkStaChase.SetPos(70,0);
             chkStaChase.SetCaption(" ");
             chkStaChase.SetOnClick(GM_Gameworld_StaChaseOnClick);
         winStats.AddObject(&btnInviteParty);
-            btnInviteParty.SetWidth(64);
-            btnInviteParty.SetHeight(15);
-            btnInviteParty.SetPos(0,190);
+            btnInviteParty.SetWidth(60);
+            btnInviteParty.SetHeight(16);
+            btnInviteParty.SetPos(0,206);
             btnInviteParty.SetCaption("Invite");
             btnInviteParty.SetOnClick(GM_Gameworld_StaInviteParty);
         winStats.AddObject(&btnJoinParty);
-            btnJoinParty.SetWidth(64);
-            btnJoinParty.SetHeight(15);
-            btnJoinParty.SetPos(64,190);
+            btnJoinParty.SetWidth(60);
+            btnJoinParty.SetHeight(16);
+            btnJoinParty.SetPos(60,206);
             btnJoinParty.SetCaption("Join");
             btnJoinParty.SetOnClick(GM_Gameworld_StaJoinParty);
         winStats.AddObject(&btnRevokeParty);
-            btnRevokeParty.SetWidth(64);
-            btnRevokeParty.SetHeight(15);
-            btnRevokeParty.SetPos(0,205);
+            btnRevokeParty.SetWidth(60);
+            btnRevokeParty.SetHeight(16);
+            btnRevokeParty.SetPos(0,222);
             btnRevokeParty.SetCaption("Revoke");
             btnRevokeParty.SetOnClick(GM_Gameworld_StaRevokeParty);
         winStats.AddObject(&btnLeaveParty);
-            btnLeaveParty.SetWidth(64);
-            btnLeaveParty.SetHeight(15);
-            btnLeaveParty.SetPos(64,205);
+            btnLeaveParty.SetWidth(60);
+            btnLeaveParty.SetHeight(16);
+            btnLeaveParty.SetPos(60,222);
             btnLeaveParty.SetCaption("Leave");
             btnLeaveParty.SetOnClick(GM_Gameworld_StaLeaveParty);
         winStats.AddObject(&btnPassParty);
-            btnPassParty.SetWidth(128);
-            btnPassParty.SetHeight(15);
-            btnPassParty.SetPos(0,220);
+            btnPassParty.SetWidth(120);
+            btnPassParty.SetHeight(16);
+            btnPassParty.SetPos(0,222);
             btnPassParty.SetCaption("Pass Leadership");
             btnPassParty.SetOnClick(GM_Gameworld_StaPassParty);
 
@@ -526,7 +526,8 @@ void GM_Gameworld::UpdateStats() {
                 "Shielding: %d (%d%%)\n"
                 "Fishing: %d (%d%%)\n"
                 "---------\n"
-                "Loc: (%d,%d,%d)\n",
+                "Loc: (%d,%d,%d)\n"
+                "%s%s%s%s%s%s%s%s%s\n",
                 player->GetHP(), player->GetMaxHP(),
                 player->GetMP(), player->GetMaxMP(),
                 player->GetExp(),
@@ -541,7 +542,9 @@ void GM_Gameworld::UpdateStats() {
                 player->GetSkillLevel(SHIELDING), player->GetSkillPercent(SHIELDING),
                 player->GetSkillLevel(FISHING), player->GetSkillPercent(FISHING),
 
-                player->GetPosX(),player->GetPosY(),player->GetPosZ()
+                player->GetPosX(),player->GetPosY(),player->GetPosZ(),
+
+                player->GetIcon(ICON_POISON) ? "P" : "", player->GetIcon(ICON_BURN) ? "B" : "", player->GetIcon(ICON_ENERGY) ? "E" : "", player->GetIcon(ICON_DRUNK) ? "D" : "", player->GetIcon(ICON_MANASHIELD) ? "S" : "", player->GetIcon(ICON_PARALYZE) ? "p" : "", player->GetIcon(ICON_HASTE) ? "H" : "", player->GetIcon(ICON_SWORDS) ? "X" : "", player->GetIcon(ICON_DROWNING) ? "d" : ""
                  );
 
     panStaStats.SetCaption(tmp);
@@ -680,8 +683,33 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
 }
 
 void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
-    protocol->Speak(NORMAL, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str() );
-    ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
+    std::string entry = ((GM_Gameworld*)game)->txtConMessage.GetCaption();
+    if (entry[0] == '/') { // it's a command
+        if (entry=="/logout") {
+            protocol->Logout();
+            return;
+        }
+        //console.insert("Only '/logout' command supported so far. Rela", CONRED);
+        //((GM_Gameworld*)game)->txtConMessage.SetCaption("");
+        //return;
+    } else if (entry[0] == '*') {
+
+        char recv[256], *recvend;
+        strcpy(recv, entry.c_str()+1);
+        recvend = strchr(recv, '*');
+        if (recvend) {
+            *recvend = 0;
+            protocol->Speak(PRIVATE, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str()+(recvend-recv)+2, recv );
+            ((GM_Gameworld*)game)->txtConMessage.SetCaption(std::string("*") + recv + "*");
+        }
+
+
+
+
+    } else {
+        protocol->Speak(NORMAL, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str() );
+        ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
+    }
 }
 
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
@@ -756,6 +784,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
+            glut_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->InviteParty(cr);
         }
@@ -767,6 +796,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
+            glut_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->PassLeadershipParty(cr);
         }
@@ -778,6 +808,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
+            glut_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->RevokeInviteParty(cr);
         }
@@ -789,6 +820,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
+            glut_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->JoinParty(cr);
         }
@@ -1034,6 +1066,7 @@ void GM_Gameworld_StaInviteParty(glictPos *pos, glictContainer* caller) {
 
     gw->invitingparty = true;
     console.insert("Select which player you want to invite to party...", CONLTBLUE);
+    glut_SetMousePointer("mousequestion.bmp");
 }
 void GM_Gameworld_StaLeaveParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
@@ -1046,16 +1079,19 @@ void GM_Gameworld_StaRevokeParty(glictPos *pos, glictContainer* caller) {
 
     gw->revokingparty = true;
     console.insert("Select whose invitation you want to revoke...", CONLTBLUE);
+    glut_SetMousePointer("mousequestion.bmp");
 }
 void GM_Gameworld_StaJoinParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->joiningparty = true;
     console.insert("Select whose invitation you want to accept...", CONLTBLUE);
+    glut_SetMousePointer("mousequestion.bmp");
 }
 void GM_Gameworld_StaPassParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->passingparty = true;
     console.insert("Select who do you want to pass leadership to...", CONLTBLUE);
+    glut_SetMousePointer("mousequestion.bmp");
 }
