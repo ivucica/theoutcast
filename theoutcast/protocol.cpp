@@ -13,6 +13,7 @@
 #include "bsdsockets.h"
 #include "database.h"
 #include "options.h"
+#include "gm_mainmenu.h"
 #include "gm_gameworld.h"
 #include "creatures.h"
 #include "effects.h"
@@ -49,7 +50,12 @@ Protocol::~Protocol() {
     }*/
     ONDeinitThreadSafe(threadsafe);
 }
-
+void Protocol::CharlistConnect() {
+    thrCharList = ONNewThread(Thread_CharList, game); //CreateThread(NULL, 0, Thread_CharList, ((GM_MainMenu*)game), 0, &((GM_MainMenu*)game)->thrCharListId);
+}
+void Protocol::GameworldConnect() {
+    thrGWLogon = ONNewThread(Thread_GWLogon, game);
+}
 void Protocol::SetSocket(SOCKET socket) {
     ONThreadSafe(threadsafe);
     s = socket;
@@ -136,6 +142,7 @@ bool Protocol::ParsePacket(NetworkMessage *nm) {
 // so far, fortunately, same for all protocols
 // if not, we can simply override ;)
 bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
+    printf("Charlist packet %02x\n", packetid);
     switch (packetid) {
 
             case 0x0A:
@@ -271,7 +278,6 @@ void Protocol::GetPlayerSkills(NetworkMessage *nm) {
 }
 
 bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
-    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "PACKET %d\n", packetid);
 
     switch (packetid) {
         case 0x0A: // Creature ID
@@ -284,6 +290,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         case 0x14: // Generic login error message
             errormsg = nm->GetString();
+            SoundPlay("sounds/error.wav");
             logonsuccessful = false;
             return false;
         case 0x15: // Messagebox Popup ("for your information")
@@ -1659,6 +1666,9 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
     }
 
     switch (protocolversion) {
+        case 0xFFFF: // singleplayer protocol
+            protocol = new ProtocolSP;
+            return true;
         case 750:
             protocol = new Protocol75;
             return true;

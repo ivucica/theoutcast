@@ -33,10 +33,15 @@ class Protocol {
         virtual bool    ParsePacket (NetworkMessage *nm);
         virtual bool    ParseCharlist (NetworkMessage *nm, unsigned char packetid);
         virtual bool    ParseGameworld(NetworkMessage *nm, unsigned char packetid);
+        virtual void    CharlistConnect();
         virtual bool    CharlistLogin(const char *username, const char *password);
+        virtual void    GameworldConnect();
         virtual bool    GameworldLogin();
         virtual bool    GameworldWork();
         virtual void    Close();
+
+
+
 
         // transmissives
         virtual void    Move(direction_t dir);
@@ -91,7 +96,10 @@ class Protocol {
         virtual void            AddPosition(NetworkMessage *nm, position_t *pos);
 
         // internal stuff
-        unsigned short GetProtocolVersion ();
+        unsigned short          GetProtocolVersion ();
+
+		// threads
+        ONThreadId thrCharList, thrGWLogon;
 
 
         // public variables
@@ -137,6 +145,8 @@ class Protocol {
 #include "protocol79.h"
   #include "protocol792.h"
 #endif
+
+#include "protocolsp.h"
 
 extern Protocol* protocol;
 bool ProtocolSetVersion (unsigned short protocolversion);

@@ -17,14 +17,14 @@
 #include "sound.h"
 #include "bsdsockets.h"
 #include "glutfont.h"
-inline void GWLogon_ReportError(glictMessageBox* mb, const char* txt) {
+void GWLogon_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Error accessing character");
 	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
 }
-inline void GWLogon_ReportSuccess(glictMessageBox* mb, const char* txt) {
+void GWLogon_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Logged on!");
@@ -47,6 +47,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (s==INVALID_SOCKET) {
 		GWLogon_ReportError(&menuclass->charlist, "Failed to create socket. (1)");
+		((GM_MainMenu*)game)->DestroyCharlist();
 		return (ONThreadFuncReturnType)1;
 	}
 
@@ -93,6 +94,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 		sprintf(tmp, "Socket error:\n%s (3)", SocketErrorDescription());
 		GWLogon_ReportError(&menuclass->charlist, tmp);
 
+        ((GM_MainMenu*)game)->DestroyCharlist();
 		return (ONThreadFuncReturnType)3;
 	}
 
@@ -109,6 +111,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
     } else {
         GWLogon_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
+    ((GM_MainMenu*)game)->DestroyCharlist();
 
 
 	return 0;

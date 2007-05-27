@@ -86,6 +86,8 @@ bool Protocol75::GameworldLogin () {
     nm.Clean();
     nm.FillFromSocket(s );
 
+
+
     //nm.ShowContents();
 
     logonsuccessful = true;

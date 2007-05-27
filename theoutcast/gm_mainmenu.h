@@ -18,6 +18,7 @@
 #include "obj3ds.h"
 #include "flythrough.h"
 
+
 class GM_MainMenu : public GameMode {
 	public:
 		GM_MainMenu();
@@ -73,8 +74,7 @@ class GM_MainMenu : public GameMode {
 		bool aboutIsOpen, tosIsOpen;
 
 
-		// threads
-        ONThreadId thrCharList, thrGWLogon;
+        ONCriticalSection threadsafe;
 
         // callbacks
         void (*OnFadeout)();
@@ -100,9 +100,13 @@ class GM_MainMenu : public GameMode {
     friend void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentType menuclass_void);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
+	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList_SP(ONThreadFuncArgumentType menuclass_void);
+	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_SP(ONThreadFuncArgumentType menuclass_void);
 	friend void ItemsLoad();
 	friend void CreaturesLoad();
 	friend void EffectsLoad();
+
+
 
 };
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller);

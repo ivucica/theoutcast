@@ -337,6 +337,8 @@
 		<Unit filename="protocol79.cpp" />
 		<Unit filename="protocol79.h" />
 		<Unit filename="protocol792.h" />
+		<Unit filename="protocolsp.cpp" />
+		<Unit filename="protocolsp.h" />
 		<Unit filename="readme.txt" />
 		<Unit filename="resources.rc">
 			<Option compilerVar="WINDRES" />

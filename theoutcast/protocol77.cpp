@@ -98,6 +98,7 @@ bool Protocol77::GameworldLogin () {
     nm.AddString(this->password);
 
 
+
     nm.RSAEncrypt();
 
     // FIXME inside dump, we should check whether or not socket is still open

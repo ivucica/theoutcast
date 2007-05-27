@@ -17,10 +17,13 @@
 #include "options.h"
 #include "skin.h"
 #include "charlist.h"
+#include "threads.h"
 int currentspr;
 
 
 void GM_MainMenu::RebuildMainMenu() {
+
+
 
     tibia.RemoveObject(&btnLogIn);
     tibia.RemoveObject(&btnTutorial);
@@ -126,6 +129,8 @@ void GM_MainMenu::RebuildMainMenu() {
 
 GM_MainMenu::GM_MainMenu() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Entering main menu\n");
+
+    ONInitThreadSafe(threadsafe);
 
     SoundSetMusic("music/logon.mp3");
 
@@ -462,6 +467,7 @@ GM_MainMenu::~GM_MainMenu() {
 	delete city;
 
 	SoundSetMusic(NULL);
+	ONDeinitThreadSafe(threadsafe);
 }
 
 void GM_MainMenu::Render() {
@@ -615,7 +621,9 @@ glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	//glTranslatef(-winw/2, -winh/2,0);
 	//desktop.RememberTransformations();
 //	skin.AssureLoadedness();
+    ONThreadSafe(threadsafe);
 	desktop.Paint();
+	ONThreadUnsafe(threadsafe);
 	glDisable(GL_SCISSOR_TEST);
 	glPopMatrix();
 
@@ -708,14 +716,17 @@ void GM_MainMenu::ResizeWindow() {
 }
 
 void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
-	if (shift == GLUT_UP) SoundPlay("sounds/mouse.wav");
 
 	glictPos pos;
 	pos.x = mousex;
 	pos.y = mousey;
 	desktop.TransformScreenCoords(&pos);
 	if (shift==GLUT_DOWN) desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
-	if (shift==GLUT_UP) desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
+	if (shift==GLUT_UP) {
+	    if (desktop.CastEvent(GLICT_MOUSEUP, &pos, 0))
+	        SoundPlay("sounds/mouse.wav");
+
+	}
 
 }
 
@@ -772,12 +783,14 @@ void GM_MainMenu::CreateCharlist() {
 	characterlist.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
 }
 void GM_MainMenu::DestroyCharlist() {
+    ONThreadSafe(threadsafe);
     for (int i = 0 ; i < protocol->charlistcount  ; i++) {
         characterlist.RemoveObject(protocol->charlist[i].button);
         delete protocol->charlist[i].button;
     }
     characterlist.RemoveObject(&btnCharlistCancel);
-
+    characterlist.DelayedRemove();
+    ONThreadUnsafe(threadsafe);
 
 }
 
@@ -832,6 +845,10 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
 		return;
 	}
 
+    if (((GM_MainMenu*)game)->txtLoginProtocol.GetCaption() == "SP") {
+        ((GM_MainMenu*)game)->txtLoginProtocol.SetCaption("65535");
+    }
+
     if (!ProtocolSetVersion(atoi(((GM_MainMenu*)game)->txtLoginProtocol.GetCaption().c_str()))) {
         ((GM_MainMenu*)game)->MsgBox("This protocol version is not supported.", "Sorry");
         return;
@@ -882,7 +899,7 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
 
     ((GM_MainMenu*)game)->charlist.SetCaption("Please wait...");
 	((GM_MainMenu*)game)->charlist.SetMessage("Initializing...");
-	((GM_MainMenu*)game)->thrCharList = ONNewThread(Thread_CharList, game); //CreateThread(NULL, 0, Thread_CharList, ((GM_MainMenu*)game), 0, &((GM_MainMenu*)game)->thrCharListId);
+	protocol->CharlistConnect();
 	//((GM_MainMenu*)game)->MsgBox("Loading","oi");
 
 }
@@ -930,7 +947,8 @@ void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller) {
             ((GM_MainMenu*)game)->charlist.SetMessage("Initializing...");
             ((GM_MainMenu*)game)->charlist.SetEnabled(false);
             ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->charlist);
-            ((GM_MainMenu*)game)->thrGWLogon = ONNewThread(Thread_GWLogon, game);
+
+            protocol->GameworldConnect();
             return;
         }
     }
