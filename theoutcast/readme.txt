@@ -517,18 +517,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 97
+* Number of files: 103
 
-* Code only: 68%
-* Code + Comment: 6%
+* Code only: 69%
+* Code + Comment: 5%
 * Comments: 7%
 * Empty: 19%
 
-* Code only: 8093
-* Empty lines: 2276
-* Comment lines: 836
-* Code and comments: 653
-* Total: 11858
+* Code only: 10168
+* Empty lines: 2781
+* Comment lines: 996
+* Code and comments: 690
+* Total: 14635
 
 Count above does not include GLICT.
 ---
