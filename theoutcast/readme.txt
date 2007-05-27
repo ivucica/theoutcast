@@ -1,7 +1,6 @@
 THE OUTCAST v0.4
 Readme
-24.5.2007
-NAPISATI TOCHAN DATUM RELEASA OD 0.4 DOLJE U SEKCIJU HISTORY!!
+27.5.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
@@ -77,7 +76,7 @@ In summer and fall 2005 I've studied OpenGL a lot. It's taken up a lot of time, 
 
 On October 24th 2006 I concluded what I was thinking for a few months then: that the old codebase was no longer in state of upgradeability, and I turned to some other things, and in meantime I got enough experience to turn back to The Outcast. I also saw that I was not doing anything productive in OT community and so on December 16th I've decided to write The Outcast from scratch - this sparked the 0.3 series of The Outcast.
 
-At the end of May 2007, I have released version 0.4 which was just an upgrade from 0.3.9, but here's where the client began to take real shape.
+On May 27th 2007, version 0.4 was released which was just an upgrade from 0.3.9, but here's where the client began to take real shape.
 
 ---
 
