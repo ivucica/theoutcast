@@ -4,6 +4,7 @@
 	<Project>
 		<Option title="The Outcast" />
 		<Option pch_mode="0" />
+		<Option default_target="debug" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="debug">
@@ -29,6 +30,7 @@
 					<Add option="-DDETECT_GLVERSION" />
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -67,6 +69,7 @@
 					<Add option="-DDETECT_GLVERSION" />
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -104,7 +107,11 @@
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -141,7 +148,11 @@
 					<Add option="-DUSESOUND" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -177,6 +188,11 @@
 					<Add option="/DDEBUGCONSOLE" />
 					<Add option="/DDEBUGLEVEL_BUILDTIME=3" />
 					<Add option="/DLTM" />
+					<Add option="/DOUTCAST_SKINS" />
+					<Add option="/DTEXTURE_SPR" />
+					<Add option="/DDETECT_GLVERSION" />
+					<Add option="/DTEXTURE_THREADS" />
+					<Add option="/DBMPFONT" />
 					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 				</Compiler>
 				<Linker>
@@ -195,9 +211,7 @@
 					<Add library="lib3ds-120sd" />
 					<Add library="tommath" />
 					<Add library="sqlite3" />
-					<Add library="3ds" />
 					<Add library="fmod" />
-					<Add library="tfm" />
 				</Linker>
 			</Target>
 			<Target title="debug_unix">
@@ -221,6 +235,7 @@
 					<Add option="-DDETECT_GLVERSION" />
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -236,7 +251,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All" targets="debug;release;" />
+			<Add alias="All" targets="debug;release;release_lite;release_opt;debug_msvc;debug_unix;" />
 		</VirtualTargets>
 		<Unit filename="assert.h" />
 		<Unit filename="bmpfont.cpp" />
@@ -323,6 +338,14 @@
 		<Unit filename="protocol79.h" />
 		<Unit filename="protocol792.h" />
 		<Unit filename="readme.txt" />
+		<Unit filename="resources.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+		</Unit>
 		<Unit filename="simple_effects.cpp" />
 		<Unit filename="simple_effects.h" />
 		<Unit filename="skin.cpp" />
