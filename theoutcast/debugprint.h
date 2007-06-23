@@ -2,7 +2,7 @@
 #include <string>
 
 
-#define DEBUGPRINT DEBUG_LINE = __LINE__; DEBUG_FILE = __FILE__; DEBUGPRINTx
+#define DEBUGPRINT /*DEBUG_LINE = __LINE__; DEBUG_FILE = __FILE__; */DEBUGPRINTx
 // debugprint types
 #define DEBUGPRINT_NORMAL 0
 #define DEBUGPRINT_ERROR 1

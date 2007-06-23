@@ -133,7 +133,7 @@ float colors[] = {
 
     0x24, 0x24, 0x24, // 0x72
 
-    /* TODO (Khaos#1#): BELOW THIS POINT ITS COPY PASTE!! HURRY
+    /* TODO (Khaos#4#): BELOW THIS POINT ITS COPY PASTE!! HURRY
                         AND ADD CORRECT COLORS :) */
 
     0xBF, 0x3F, 0x00, // 0x60

@@ -15,6 +15,7 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolver
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
+    this->t = NULL;
     if (type == 0)
         LoadItem(itemid, protocolversion);
     else if (type == 1)
@@ -27,11 +28,13 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolver
     this->type = type;
     this->direction = NORTH;
 
+
 }
 ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
+    this->t = NULL;
     if (type == 0)
         LoadItem(itemid);
     else if (type == 1)
@@ -44,12 +47,14 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     this->type = type;
     this->direction = NORTH;
 
+
 }
 
 ObjSpr::ObjSpr(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
+    this->t = NULL;
     LoadCreature(creaturetype, head, body, legs, feet);
     this->itemid = creaturetype;
     this->type = 1;
@@ -59,6 +64,7 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
+    this->t = NULL;
     LoadCreature(creaturetype, protocolversion, head, body, legs, feet);
     this->itemid = creaturetype;
     this->type = 1;
@@ -68,15 +74,43 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
 
 
 ObjSpr::~ObjSpr() {
+    // FIXME (Khaos#1#): Crash happens because of this chunk!!
     return;
-    if (sli.spriteids)  { // FIXME: if (sli.usagecount == 0) ,,,;
-        free(sli.spriteids);
-        for (int i = 0 ; i < sli.numsprites; i++) {
-            delete(t[i]);
-
-        }
-        free(t);
+    switch (this->type) {
+        case 0:
+            if (items[itemid]->sli.usecount==1 && sli.spriteids) {
+                for (int i = 0 ; i < sli.numsprites; i++)
+                    delete(t[i]);
+                free(items[itemid]->textures);
+                items[itemid]->textures = NULL;
+                free(sli.spriteids);
+            } else
+                items[itemid]->sli.usecount--;
+            break;
+        case 1:
+            if (creatures[itemid]->sli.usecount==1 && sli.spriteids) {
+                for (int i = 0 ; i < sli.numsprites; i++)
+                    delete(t[i]);
+                free(creatures[itemid]->textures);
+                creatures[itemid]->textures = NULL;
+                free(sli.spriteids);
+            } else
+                creatures[itemid]->sli.usecount--;
+            break;
+        case 2:
+            if (effects[itemid]->sli.usecount==1 && sli.spriteids) {
+                for (int i = 0 ; i < sli.numsprites; i++)
+                    delete(t[i]);
+                free(effects[itemid]->textures);
+                effects[itemid]->textures = NULL;
+                free(sli.spriteids);
+            } else
+                effects[itemid]->sli.usecount--;
+            break;
+        default:
+            ASSERTFRIENDLY(false, "BOO! BOOO!");
     }
+
 }
 bool ObjSpr::Render() {
     position_t p;
@@ -189,6 +223,7 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
         t = (Texture**)creatures[creatureid]->textures;
         sli = creatures[creatureid]->sli;
 
+        creatures[creatureid]->sli.usecount++;
         offsetx = 0;
         offsety = 0;
 
@@ -272,6 +307,7 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
 
     if (sli.blendframes > 1) creatures[creatureid]->textures = NULL; else creatures[creatureid]->textures = t;
     creatures[creatureid]->sli = sli;
+    creatures[creatureid]->sli.usecount++;
     offsetx = 0;
     offsety = 0;
 
@@ -298,6 +334,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         t = (Texture**)items[itemid]->textures;
         sli = items[itemid]->sli;
 
+        items[itemid]->sli.usecount++;
         offsetx = items[itemid]->height2d_x ;
         offsety = items[itemid]->height2d_y ;
 
@@ -406,6 +443,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
     }
     items[itemid]->textures = t;
     items[itemid]->sli = sli;
+    items[itemid]->sli.usecount = 1;
 
     for (int i = 0 ; i < sli.animcount; i++) {
         animation_framelist_stand.insert(animation_framelist_stand.end(), i);
@@ -439,6 +477,7 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
         t = (Texture**)effects[effectid]->textures;
         sli = effects[effectid]->sli;
 
+        effects[itemid]->sli.usecount++;
         offsetx = 0;//effects[effectid]->height2d_x ;
         offsety = 0;//effects[effectid]->height2d_y ;
 
@@ -547,6 +586,7 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
     }
     effects[effectid]->textures = t;
     effects[effectid]->sli = sli;
+    effects[effectid]->sli.usecount = 1;
 
     for (int i = 0 ; i < sli.animcount; i++) {
         animation_framelist_stand.insert(animation_framelist_stand.end(), i);

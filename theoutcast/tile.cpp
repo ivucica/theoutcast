@@ -185,7 +185,7 @@ Thing *Tile::GetStackPos(unsigned char pos) {
     }
     if (pos < creatures.size()) {
         ONThreadUnsafe(threadsafe);
-        return creatures[pos];
+        return creatures[creatures.size() - pos - 1];
     }
     pos -= creatures.size();
 
@@ -220,11 +220,11 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
         if (pos < itemlayers[i].size()) {
             delete itemlayers[i][pos];
             if (newthing->GetTopIndex()==i) {
-                itemlayers[i][itemlayers[i].size() - pos - 1] = (Item*)newthing;
+                itemlayers[i][pos] = (Item*)newthing;
                 ONThreadUnsafe(threadsafe);
                 return;
             } else {
-                itemlayers[i].erase(itemlayers[i].end() - pos - 1);
+                itemlayers[i].erase(itemlayers[i].begin() + pos);
                 itemcount --;
                 ONThreadUnsafe(threadsafe);
                 this->Insert(newthing, true);
@@ -234,7 +234,7 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
         pos -= itemlayers[i].size();
     }
     if (pos < creatures.size()) {
-        creatures[creatures.size() - pos - 1] = (Creature*)newthing;
+        creatures[pos] = (Creature*)newthing;
         ONThreadUnsafe(threadsafe);
         return;
     }
@@ -242,11 +242,11 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
 
     if (pos < itemlayers[0].size()) {
         if (newthing->GetTopIndex()==0) {
-            itemlayers[0][itemlayers[0].size() - pos - 1] = (Item*)newthing;
+            itemlayers[0][pos] = (Item*)newthing;
             ONThreadUnsafe(threadsafe);
             return;
         } else {
-            itemlayers[0].erase(itemlayers[0].end() - pos - 1);
+            itemlayers[0].erase(itemlayers[0].begin() + pos);
             itemcount --;
             ONThreadUnsafe(threadsafe);
             this->Insert(newthing, true);
@@ -272,12 +272,13 @@ void Tile::SetPos(position_t *p) {
 }
 void Tile::RenderStrayCreatures(position_t *p) {
 
-    static unsigned int grndspeed = 500;// a safe default ...
-    static unsigned int creaturespeed = 220; //  a safe default...
+    unsigned int grndspeed = 500;// a safe default ...
+    unsigned int creaturespeed = 220; //  a safe default...
     if (ground) {
         grndspeed = ground->GetSpeedIndex();
         if (!grndspeed) grndspeed = 500; // a safe fallback, once again
     }
+    if (!this)  return;
     for (std::vector<Creature*>::iterator it = this->creatures.begin(); it != this->creatures.end(); it++) {
         Creature *cr = (*it);
         if (!cr) {

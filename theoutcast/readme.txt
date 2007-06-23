@@ -211,6 +211,15 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 
 10. CHANGE HISTORY
 
+Changes since 0.4
+* Fixed the ability to start messages starting with '/'.
+* Fixed sound support in "release" version
+* Truly fixed a bug when "going down" :/
+* Fixed various memory problems
+* "For your information" really pops up
+* Added some "extension" packets which will soon be publicly announced
+* Reenabled skin changing without restarting
+
 Changes since 0.3.9
 * Fixed various GLICT related issues
 * Moving items!

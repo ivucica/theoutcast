@@ -9,7 +9,9 @@ class GM_SPRPlayground : public GameMode {
         GM_SPRPlayground();
         ~GM_SPRPlayground();
 
+
         void Render();
+        void KeyPress(unsigned char key, int x, int y);
         void SpecKeyPress(int key, int x, int y );
     private:
         ObjSpr *g;

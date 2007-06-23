@@ -33,7 +33,6 @@ bool SPRLoader(std::string sprfile) { // loads only spr pointers
         //printf("%d\n", SPRPointers[i]);
         //if (i==2) {printf("%d\n", SPRPointers[i]); system("pause"); }
     }
-    //system("pause");
 
     fclose(fp);
     return true;

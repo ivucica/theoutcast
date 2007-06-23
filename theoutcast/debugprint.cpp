@@ -56,13 +56,15 @@ void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
                 break;
         }
 
-
+/*
         FILE* DEBUGLOG = fopen("debuglog.txt","a");
 		if (DEBUGLOG) {
         	fprintf(DEBUGLOG,tx);
         	fflush(DEBUGLOG);
         	fclose(DEBUGLOG);
 		}
+*/
+
 
 /*
     	char tmp[6000];

@@ -16,6 +16,7 @@
 #include "sound.h"
 #include "bsdsockets.h"
 #include "glutfont.h"
+
 void CharList_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);

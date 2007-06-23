@@ -139,7 +139,7 @@ GM_Gameworld::GM_Gameworld() {
 
     desktop.AddObject(&winStats);
         winStats.SetWidth(120);
-        winStats.SetHeight(237);
+        winStats.SetHeight(250);
         winStats.SetCaption("Stats");
         winStats.SetPos(410, 240);
         winStats.AddObject(&panStaStats);
@@ -201,7 +201,7 @@ GM_Gameworld::GM_Gameworld() {
         winStats.AddObject(&btnPassParty);
             btnPassParty.SetWidth(120);
             btnPassParty.SetHeight(16);
-            btnPassParty.SetPos(0,222);
+            btnPassParty.SetPos(0,238);
             btnPassParty.SetCaption("Pass Leadership");
             btnPassParty.SetOnClick(GM_Gameworld_StaPassParty);
 
@@ -526,7 +526,7 @@ void GM_Gameworld::UpdateStats() {
                 "Shielding: %d (%d%%)\n"
                 "Fishing: %d (%d%%)\n"
                 "---------\n"
-                "Loc: (%d,%d,%d)\n"
+                "(%d,%d,%d)\n"
                 "%s%s%s%s%s%s%s%s%s\n",
                 player->GetHP(), player->GetMaxHP(),
                 player->GetMP(), player->GetMaxMP(),
@@ -552,12 +552,15 @@ void GM_Gameworld::UpdateStats() {
 }
 
 void GM_Gameworld::AddContainer(Container *c, unsigned int x, unsigned int y) {
+    printf("Locking\n");
     ONThreadSafe(desktopthreadsafe);
+    printf("okies\n");
     if (c->GetWindow()) {
         containerdesktop.AddObject(c->GetWindow());
         c->GetWindow()->SetPos(x, y);
     }
     ONThreadUnsafe(desktopthreadsafe);
+    printf("Unlocked\n");
 }
 void GM_Gameworld::RemoveContainer(Container *c) {
     ONThreadSafe(desktopthreadsafe);
@@ -692,7 +695,8 @@ void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
         //console.insert("Only '/logout' command supported so far. Rela", CONRED);
         //((GM_Gameworld*)game)->txtConMessage.SetCaption("");
         //return;
-    } else if (entry[0] == '*') {
+    }
+    if (entry[0] == '*') {
 
         char recv[256], *recvend;
         strcpy(recv, entry.c_str()+1);
@@ -701,15 +705,14 @@ void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
             *recvend = 0;
             protocol->Speak(PRIVATE, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str()+(recvend-recv)+2, recv );
             ((GM_Gameworld*)game)->txtConMessage.SetCaption(std::string("*") + recv + "*");
+            return;
         }
 
 
-
-
-    } else {
-        protocol->Speak(NORMAL, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str() );
-        ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
     }
+    protocol->Speak(NORMAL, ((GM_Gameworld*)game)->txtConMessage.GetCaption().c_str() );
+    ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
+
 }
 
 void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {

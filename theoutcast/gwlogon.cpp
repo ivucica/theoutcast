@@ -66,21 +66,21 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 
 
 	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = protocol->charlist[protocol->charlistselected].ipaddress; //*(ULONG*)(addrs[0]);
-    sin.sin_port = htons(protocol->charlist[protocol->charlistselected].port );
+	sin.sin_addr.s_addr = protocol->charlist[protocol->charlistselected]->ipaddress; //*(ULONG*)(addrs[0]);
+    sin.sin_port = htons(protocol->charlist[protocol->charlistselected]->port );
 
 	{
 	    char ip[256], tmp[256];
 
-	    sprintf(ip, "%d.%d.%d.%d", (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[0],
-	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[1],
-	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[2],
-	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected].ipaddress)[3]);
+	    sprintf(ip, "%d.%d.%d.%d", (int)((unsigned char*)&protocol->charlist[protocol->charlistselected]->ipaddress)[0],
+	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected]->ipaddress)[1],
+	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected]->ipaddress)[2],
+	    (int)((unsigned char*)&protocol->charlist[protocol->charlistselected]->ipaddress)[3]);
         protocol->gameworldserver = ip;
-        protocol->gameworldport = protocol->charlist[protocol->charlistselected].port;
+        protocol->gameworldport = protocol->charlist[protocol->charlistselected]->port;
 
 	    sprintf(tmp, "Connecting to %s:%d...", ip,
-	    (int)protocol->charlist[protocol->charlistselected].port
+	    (int)protocol->charlist[protocol->charlistselected]->port
 	    );
 
 	    GWLogon_Status(&menuclass->charlist, tmp);

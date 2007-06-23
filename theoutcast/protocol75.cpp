@@ -74,7 +74,7 @@ bool Protocol75::GameworldLogin () {
 
     // account number and password
     nm.AddU32(atol(this->username.c_str())); // this does NOT exist before 7.4
-    nm.AddString(this->charlist[this->charlistselected].charactername);
+    nm.AddString(this->charlist[this->charlistselected]->charactername);
     nm.AddString(this->password);
 
 

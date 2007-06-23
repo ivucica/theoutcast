@@ -17,6 +17,8 @@
 #include "gm_gameworld.h"
 #include "creatures.h"
 #include "effects.h"
+#include "charlist.h"
+#include "gwlogon.h"
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -35,11 +37,13 @@ Protocol::Protocol() {
     charlistcount = 0;
     ONInitThreadSafe(threadsafe);
 
+    lastsuccessfulitem = -1;
+
     if (player) {
         delete player;
         player = NULL;
-
     }
+    newgamemode = GM_GAMEWORLD;
 
 }
 Protocol::~Protocol() {
@@ -163,13 +167,14 @@ bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
 
             case 0x64: {
                 charlistcount = nm->GetU8();
-                charlist = (character_t*)malloc(charlistcount * sizeof(character_t));
+                charlist = (character_t**)malloc(charlistcount * sizeof(character_t*));
                 for (int i = 0 ; i < charlistcount ; i++) {
-                    nm->GetString(charlist[i].charactername, 128);
-                    nm->GetString(charlist[i].worldname, 128);
-                    charlist[i].ipaddress = nm->GetU32();
-                    charlist[i].port = nm->GetU16();
-                    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Protocol %d: %s %s %d.%d.%d.%d port %d\n", protocolversion, charlist[i].charactername, charlist[i].worldname, ((unsigned char*)&charlist[i].ipaddress)[0], ((unsigned char*)&charlist[i].ipaddress)[1], ((unsigned char*)&charlist[i].ipaddress)[2], ((unsigned char*)&charlist[i].ipaddress)[3], charlist[i].port);
+                    charlist[i] = new character_t;
+                    nm->GetString(charlist[i]->charactername, 127);
+                    nm->GetString(charlist[i]->worldname, 127);
+                    charlist[i]->ipaddress = nm->GetU32();
+                    charlist[i]->port = nm->GetU16();
+                    DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Protocol %d: %s %s %d.%d.%d.%d port %d\n", protocolversion, charlist[i]->charactername, charlist[i]->worldname, ((unsigned char*)&charlist[i]->ipaddress)[0], ((unsigned char*)&charlist[i]->ipaddress)[1], ((unsigned char*)&charlist[i]->ipaddress)[2], ((unsigned char*)&charlist[i]->ipaddress)[3], charlist[i]->port);
                 }
                 premiumdays = nm->GetU16();
 
@@ -288,14 +293,27 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x0B: // GM Actions
             nm->Trim(32); // unknown
             return true;
+        case 0x0C: {// The Outcast Character Manager Packets
+            unsigned char tocm = nm->GetU8();
+            switch (tocm) {
+                case 0x01: // enter
+                    newgamemode = GM_CHARMGR;
+                    break;
+                default:
+                    Close();
+            }
+            return true;
+        }
         case 0x14: // Generic login error message
             errormsg = nm->GetString();
             SoundPlay("sounds/error.wav");
             logonsuccessful = false;
             return false;
-        case 0x15: // Messagebox Popup ("for your information")
-            nm->GetString(); // message
+        case 0x15: {// Messagebox Popup ("for your information")
+            std::string msg = nm->GetString(); // message
+            if (gamemode == GM_GAMEWORLD) ((GM_Gameworld*)game)->MsgBox(msg.c_str(), "For your information");
             return true;
+        }
         case 0x16: // Too Many Players login error message
             errormsg = nm->GetString();
             {
@@ -340,6 +358,8 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 ParseMapDescription(nm, maxx, maxy, pos.x - (maxx-1)/2, pos.y - (maxy-1)/2, pos.z);
                 if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
                 player->FindMinZ();
+
+                newgamemode = GM_GAMEWORLD;
                 return true;
             }
         case 0x65: // Move Player North
@@ -459,7 +479,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Received stackpos\n");
 
 
-
+            printf("Getting tile %d %d %d\n", src.x, src.y, src.z);
             tile = gamemap.GetTile(&src);
             thing = tile->GetStackPos(stackpos);
 
@@ -470,7 +490,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             tile = gamemap.GetTile(&dst);
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Got tile\n");
-            tile->Insert(thing, true);
+            tile->Insert(thing, false);
 
 
 
@@ -500,11 +520,14 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         }
         case 0x6E: {// Container Open
+            // FIXME (Khaos#1#) Sometimes, when this packet happens the thing hangs -- probably a thread issue
             std::string title;
             unsigned char containerid;
             unsigned short icon;
             unsigned char capacity;
             Container *c;
+
+            printf("Getting container stuff\n");
 
             containerid = nm->GetU8(); // container id
             icon = nm->GetU16(); // container icon
@@ -512,27 +535,34 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             capacity = nm->GetU8(); // capacity
             nm->GetU8(); // hasparent
 
-
+            printf("Getting gameworld stuff...\n");
 
             int x = 10; int y = 10;
 
             if (gamemode==GM_GAMEWORLD) {
                 GM_Gameworld *gw  = dynamic_cast<GM_Gameworld*>(game);
+                printf("Getting x...\n");
                 x = gw->GetContainersX();
+                printf("Getting y...\n");
                 y = gw->GetContainersY() + containerid * 10;
             }
 
-
+            printf("Getting container\n");
             if (Container *tmpc = player->GetContainer(containerid)) {
                 glictPos p;
+                printf("Getting window pos\n");
                 tmpc->GetWindow()->GetPos(&p);
                 x = p.x; y = p.y;
+                printf("Getting container\n");
                 if (gamemode==GM_GAMEWORLD)
                     ((GM_Gameworld*)game)->RemoveContainer(player->GetContainer(containerid));
+                printf("Removing container\n");
                 player->RemoveContainer(containerid);
             }
 
+            printf("Setting container\n");
             player->SetContainer(containerid, c = new Container(title, containerid, icon, capacity));
+            printf("Adding to game\n");
             if (gamemode==GM_GAMEWORLD) // FIXME we need to add delayed addcontainer of some sort
                 ((GM_Gameworld*)game)->AddContainer(c, x, y); // perhaps gameworld should during startup check if there's a container that it has not added to desktop yet
 
@@ -916,7 +946,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         }
         case 0xBF: {// Floor Down
-            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move down\n");
+            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Floor down\n");
 
 
 
@@ -928,9 +958,12 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (player->GetPosZ()==8) {
                 ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosY() - (maxy-1)/2 , player->GetPosZ(), &skip);
                 ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosY() - (maxy-1)/2 , player->GetPosZ()+1, &skip);
+                printf("RECEIVING TWO FLOORS\n");
             }
-            if (player->GetPosZ() >= 8)
-                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosZ() - (maxy-1)/2 , player->GetPosZ()+2, &skip);
+            if (player->GetPosZ() >= 8) {
+                ParseFloorDescription(nm, maxx, maxy, player->GetPosX() - (maxx-1)/2 , player->GetPosY() - (maxy-1)/2 , player->GetPosZ()+2, &skip);
+                printf("RECEIVING ONE FLOOR\n");
+            }
 
 
             player->FindMinZ();
@@ -938,7 +971,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
 
-            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End move down\n");
+            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End floor down\n");
 
             return true;
         }
@@ -1648,6 +1681,32 @@ void Protocol::Logout() {
     ONThreadUnsafe(threadsafe);
 }
 
+
+/////////////////////////extensions!////////////////////////////////
+
+
+void Protocol::OCMCreateCharacter() {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+    nm.AddU8(0x0C); // extension byte
+    nm.AddU8(0x01); // report that we clicked on Create Character
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
+
+
+void Protocol::OCMCharlist() {
+    NetworkMessage nm;
+    ONThreadSafe(threadsafe);
+    nm.AddU8(0x0C); // extension byte
+    nm.AddU8(0x02); // we want to go back to charlist
+    if (protocolversion >= 770)
+        nm.XTEAEncrypt(key);
+    nm.Dump(s);
+    ONThreadUnsafe(threadsafe);
+}
 
 void Protocol::AddPosition(NetworkMessage *nm, position_t *pos) {
     nm->AddU16(pos->x);

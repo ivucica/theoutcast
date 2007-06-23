@@ -2,7 +2,6 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include <GL/glu.h> // FIXME remove me! only for gluGetError()
 #include <stdio.h>
 #include "bmpfont.h"
 #include "debugprint.h"
@@ -22,7 +21,7 @@ void BMPFontDelete(void* fontvoid) {
 static void BMPFontDrawChar(char t, Texture *tex) {
     register float x,y;
 
-
+    //printf("%c", t);
     t -= 32;
     x = (int)(t % 32)*16.;
     y = (int)(t / 32)*16.;
@@ -48,12 +47,13 @@ void BMPFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 
     glEnable(GL_TEXTURE_2D);
     font->Bind();
-    float sizesofar = 0.;
-	float linessofar = 0.;
-	for (unsigned char *t = (unsigned char*)txt; *t; ++t) {
+    volatile register float sizesofar = 0.;
+	volatile register float linessofar = 0.;
+	for (volatile register unsigned char *t = (unsigned char*)txt; *t; ++t) {
 		switch (*t) {
 			default:
 				BMPFontDrawChar(*t, font);
+
 				sizesofar += 0.7;
 				break;
 			case '\n':
@@ -61,11 +61,13 @@ void BMPFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 				glTranslatef(-sizesofar, -1. ,0);
 				linessofar += 1.;
 				sizesofar = 0;
+				//printf("\n");
 				if (*t == '\n' && *(t+1)=='\r' || *t == '\r' && *(t+1)=='\n' ) t++;
                 break;
 
 		}
 	}
+	//printf("\n");
     //glTranslatef(-sizesofar, linessofar ,0);
 
     glTranslatef(-sizesofar, linessofar ,0);
@@ -81,7 +83,7 @@ float BMPFontSize(const char* text, const void* fontvoid) {
 	//Texture* font = (Texture*)fontvoid;
 
 	float length=0.;
-	for (char *t=(char*)text;*t;++t)	// Loop To Find Text Length
+    for (char *t=(char*)text;*t;++t)	// Loop To Find Text Length
 	{
 		length+=.7;		// Increase Length By Each Characters Width
 	}

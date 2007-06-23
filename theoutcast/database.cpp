@@ -1,28 +1,3 @@
-// FIXME crash report #1
-/*Error occured on Thursday, January 18, 2007 at 22:16:56.
-
-C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe caused an Access Violation at location 77c4610f in module C:\WINDOWS\system32\msvcrt.dll Writing to location 0be12000.
-
-Registers:
-eax=810100f8 ebx=00000001 ecx=0971ebe4 edx=00000074 esi=0bdecb38 edi=0be12000
-eip=77c4610f esp=00238020 ebp=00238040 iopl=0         nv up ei pl zr na po nc
-cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246
-
-Call stack:
-77C4610F  C:\WINDOWS\system32\msvcrt.dll:77C4610F  strcat
-00458F85  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00458F85
-00402C58  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00402C58  dbExecPrintf(sqlite3*, char const*, int (*)(void*, int, char**, char**), void*, char**, ...)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/database.cpp:125
-00402A0E  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00402A0E  dbLoadSetting(char const*, char*, int, char const*)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/database.cpp:76
-0040A162  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:0040A162  GM_MainMenu::GM_MainMenu()  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gm_mainmenu.cpp:127
-00403A71  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00403A71  GameModeEnter(gamemode_t)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gamemode.cpp:46
-00404AF0  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00404AF0  GM_Gameworld::KeyPress(unsigned char, int, int)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/gm_gameworld.cpp:37
-0040425A  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:0040425A  glut_Key(unsigned char, int, int)  C:/Documents and Settings/ivucica/My Documents/Development/The Outcast/glutwin.cpp:82
-00426ACA  C:\Documents and Settings\ivucica\My Documents\Development\The Outcast\The Outcast debug.exe:00426ACA  glictPanel::Paint()  C:/Documents and Settings/ivucica/My Documents/Development/[CPP] GLICT/GLICT/panel.cpp:66
-
-APPEARS TO BE RESOLVED?!?!?!?!
-
-*/
-
 
 #ifdef WIN32
 	#include <windows.h>
@@ -43,8 +18,8 @@ sqlite3 *dbData, *dbUser;
 // to turn off free. it appears to be bugged!
 
 
-// TODO: make all functions threadsafe; do a lock at enter of function, and unlock at leave of function
-// TODO: dbSaveSetting and dbLoadSetting must check if dbUser is loaded at all
+// TODO (Khaos#3#): make all functions threadsafe; do a lock at enter of function, and unlock at leave of function
+// TODO (Khaos#3#): dbSaveSetting and dbLoadSetting must check if dbUser is loaded at all
 char* dbLoadSettingReturnValue;
 static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColName);
 void DBInit() {

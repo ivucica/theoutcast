@@ -29,7 +29,7 @@
 #include "database.h"
 #include "sound.h"
 #include "debugprint.h"
-#include "networkmessage.h" // FIXME remove me
+
 #include "types.h"
 version_t glversion;
 
@@ -38,6 +38,9 @@ bool fullscreen = false;
 
 bool sprplayground = false;
 
+glictFont* sysfont = NULL;
+Texture *fonttexture = NULL;
+
 // function predeclares
 void GameInit();
 int main(int argc, char** argv);
@@ -45,13 +48,13 @@ int main(int argc, char** argv);
 
 void GameInit() {
 
-	glictFont* sysfont = glictCreateFont("system");
+	sysfont = glictCreateFont("system");
 	#if (!defined(WINFONT) && !defined(BMPFONT))
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);
 	#elif defined(BMPFONT)
-        sysfont->SetFontParam(BMPFontCreate("fontbordered.bmp", 8));
+        sysfont->SetFontParam(fonttexture = BMPFontCreate("fontbordered.bmp", 8));
         sysfont->SetRenderFunc(BMPFontDraw);
         sysfont->SetSizeFunc(BMPFontSize);
 	#else // winfont is defined
@@ -73,7 +76,11 @@ void GameInit() {
 
 }
 
-
+void GameDeinit() {
+    glictDeleteFont("system");
+    delete fonttexture;
+    GameModeDeinit();
+}
 
 void GLInit() {
 	//glClearColor(0., 0., 0., 0.);
@@ -84,7 +91,6 @@ void GLInit() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //    	glEnable(GL_CULL_FACE);
 	glictGlobals.clippingMode = GLICT_SCISSORTEST;
-
 
  #ifdef WIN32
 	glinstance = LoadLibrary("opengl32.dll");
@@ -138,6 +144,12 @@ void NetInit() {
 }
 
 
+void OnExit(int exitcondition, void* arg) {
+    GameDeinit();
+}
+void AtExit() {
+    OnExit(0, NULL);
+}
 
 int main(int argc, char** argv) {
 
@@ -160,8 +172,18 @@ if(AllocConsole())
 
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "Reading cmd line arguments\n");
-    // just a quick'n'dirty read of argument on fixed location ... will do it better later... :)
-    if (argc > 1) if (!strcmp(argv[1], "sprplayground")) sprplayground = true;
+
+    for (int i=1;i<argc;i++) {
+
+        if (!strcmp(argv[i], "sprplayground")) sprplayground = true;
+
+        #ifndef WIN32
+        // linux only arguments:
+        if (!strcmp(argv[i], "softwarerenderer")) {
+            setenv("LIBGL_ALWAYS_INDIRECT", "1", 1);
+        }
+        #endif
+    }
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up net\n");
 	NetInit();
@@ -169,6 +191,8 @@ if(AllocConsole())
 	DBInit();
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up sound system\n");
 	SoundInit(NULL);
+
+	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up windowing system\n");
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -179,7 +203,7 @@ if(AllocConsole())
 
     fullscreen_retry:
     if (options.fullscreen) {
-        glutGameModeString("800x600:32");
+        glutGameModeString("320x240:32");
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering fullscreen\n");
         glut_WindowHandle = glutEnterGameMode();
 	if (!glut_WindowHandle) {
@@ -207,8 +231,10 @@ if(AllocConsole())
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up GL\n");
 	GLInit();
 
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
-	skin.Load(options.skin.c_str());
+	if (!sprplayground) {
+	    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
+        skin.Load(options.skin.c_str());
+	}
 
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
@@ -231,6 +257,12 @@ if(AllocConsole())
 	glutKeyboardFunc(glut_Key);
 	glutTimerFunc(1000, glut_FPS, 1000);
 	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
+
+    #ifndef WIN32
+        on_exit(OnExit, NULL);
+    #else
+        atexit(AtExit);
+    #endif
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
 	glutMainLoop();

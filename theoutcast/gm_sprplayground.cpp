@@ -18,10 +18,16 @@ extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 
 static bool divtest;
-static unsigned int counter=100;
+static unsigned int counter=167;//102;
 static bool creaturetest;
 static position_t offset;
 static bool splashtest;
+
+#define BIGARRAYSIZE 200
+#define BAMULTI 4
+Texture *bigarray[BIGARRAYSIZE] = {NULL};
+
+
 GM_SPRPlayground::GM_SPRPlayground() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing SPR playground\n");
 
@@ -36,6 +42,20 @@ GM_SPRPlayground::GM_SPRPlayground() {
     creaturetest = false;
     splashtest = false;
     divtest = false;
+
+
+    // default test
+    #if 1
+    delete g;
+    g = new ObjSpr(counter, 0, 792);
+    #endif
+
+
+    // simple test
+    #if 0
+    delete g;
+    g = new ObjSpr(102, 0, 792);
+    #endif
 
     // animated example
     #if 0
@@ -59,7 +79,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     // xdivydiv
     #if 0
     delete g;
-    g = new ObjSpr(107, 0, 792);
+    g = new ObjSpr(100, 0, 792);
     divtest = true;
     #endif
 
@@ -93,7 +113,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // fluid container test
-    #if 1
+    #if 0
     delete g;
     g = new ObjSpr(2524, 0, 792);
     splashtest = true;
@@ -115,7 +135,14 @@ GM_SPRPlayground::GM_SPRPlayground() {
         exit(1);
     }
 
-    console.insert(" !\"#$%&'()");
+    console.insert(" !\"#$%&'()\n", CONLTBLUE);
+    console.insert("SPRPlayground mode");
+    console.insert("Controls:");
+    console.insert(" arrows - change displayed item");
+    console.insert(" B - load many sprites");
+    console.insert(" M - load half many sprites but two times each");
+    console.insert(" U - unload manysprites");
+    console.insert(" esc - exit");
 }
 
 
@@ -167,6 +194,61 @@ void GM_SPRPlayground::Render() {
     RenderMouseCursor();
 }
 
+
+void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
+    printf("%d\n", key);
+    switch (key) {
+        case 27:
+            KeyPress('U', 0, 0);
+            exit(0);
+            break;
+        case 'b':
+        case 'B':
+            if (bigarray[0]) {
+                console.insert("Bigarray already loaded, press U first\n", CONRED);
+                break;
+            }
+            for (int i = 0 ; i < BIGARRAYSIZE; i++) {
+                bigarray[i] = new Texture("Tibia792.spr", i+1);
+                bigarray[i]->Bind();
+            }
+            console.insert("Loaded bigarray (press U to unload)", CONBLUE);
+            break;
+        case 'u':
+        case 'U':
+            if (!bigarray[0]) {
+                console.insert("Bigarray already unloaded, press B or M first\n");
+            }
+            for (int i = 0 ; i < BIGARRAYSIZE; i++) {
+                delete bigarray[i];
+                bigarray[i]=NULL;
+                TextureReportRemaining();
+            }
+            console.insert("Unloaded bigarray", CONBLUE);
+            break;
+        case 'm':
+        case 'M':
+            if (bigarray[0]) {
+                console.insert("Bigarray already loaded, press U first\n", CONRED);
+                break;
+            }
+
+            for (int i = 0; i < BIGARRAYSIZE / BAMULTI; i++) {
+                for (int j = 0 ; j < BAMULTI ; j++) {
+
+                    bigarray[i*BAMULTI+j] = new Texture("Tibia792.spr", i+2);
+                    bigarray[i*BAMULTI+j]->Bind();
+                }
+
+            }
+            console.insert("Loaded multibigarray\n", CONBLUE);
+            break;
+        case 'r':
+        case 'R':
+            TextureReportRemaining();
+            break;
+    }
+}
 void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
     if (!creaturetest) {
         switch (key) {

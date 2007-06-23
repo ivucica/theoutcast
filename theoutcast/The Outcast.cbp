@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="The Outcast" />
+		<Option title="The Outcast (Tibia3d)" />
 		<Option pch_mode="0" />
 		<Option default_target="debug" />
 		<Option compiler="gcc" />
@@ -13,7 +13,6 @@
 				<Option object_output=".objsdebug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />
@@ -62,7 +61,7 @@
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
-					<Add option="-DUSESOUND" />
+					<Add option="-DUSESOUNDS" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
 					<Add option="-DTEXTURE_SPR" />
@@ -104,7 +103,7 @@
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
-					<Add option="-DUSESOUND" />
+					<Add option="-DUSESOUNDS" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
 					<Add option="-DTEXTURE_SPR" />
@@ -141,11 +140,12 @@
 					<Add option="-march=pentium-m" />
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
+					<Add option="-g" />
 					<Add option="-fexceptions" />
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
-					<Add option="-DUSESOUND" />
+					<Add option="-DUSESOUNDS" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
 					<Add option="-DTFM" />
 					<Add option="-DTEXTURE_SPR" />
@@ -153,9 +153,9 @@
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DDEBUGCONSOLE" />
 				</Compiler>
 				<Linker>
-					<Add option="-s" />
 					<Add option="-fexceptions" />
 					<Add library="gdi32" />
 					<Add library="user32" />
@@ -220,7 +220,7 @@
 				<Option object_output=".objsdebug_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd" />
+				<Option parameters="sprplaygroundd softwarerenderer " />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />
@@ -247,6 +247,7 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
+					<Add directory="../glict/" />
 				</Linker>
 			</Target>
 		</Build>
@@ -283,6 +284,7 @@
 		<Unit filename="exchndl2.cxx">
 			<Option target="debug" />
 			<Option target="release" />
+			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 		</Unit>
 		<Unit filename="flythrough.cpp" />
@@ -293,6 +295,8 @@
 		<Unit filename="glutfont.h" />
 		<Unit filename="glutwin.cpp" />
 		<Unit filename="glutwin.h" />
+		<Unit filename="gm_charmgr.cpp" />
+		<Unit filename="gm_charmgr.h" />
 		<Unit filename="gm_gameworld.cpp" />
 		<Unit filename="gm_gameworld.h" />
 		<Unit filename="gm_logo.cpp" />

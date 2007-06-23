@@ -1,7 +1,6 @@
 #include <GLICT/globals.h>
 #include <GLICT/fonts.h>
 #include "assert.h"
-#include "console.h"// FIXME REMOVE ME
 
 #include "protocol.h"
 #include "glutwin.h"
@@ -146,7 +145,7 @@ void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer 
     if (clipped->right <= clipped->left) return;
 
 
-    glViewport(clipped->left, glictGlobals.h - clipped->bottom, clipped->right - clipped->left, clipped->bottom - clipped->top);
+    glViewport((int)clipped->left, (int)(glictGlobals.h - clipped->bottom), (int)(clipped->right - clipped->left), (int)(clipped->bottom - clipped->top));
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -173,7 +172,7 @@ void Container_SlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer 
 		glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    glViewport(0,0,glictGlobals.w,glictGlobals.h);
+    glViewport(0,0,(int)glictGlobals.w,(int)glictGlobals.h);
 }
 void Container_SlotsOnClick(glictPos* pos, glictContainer* caller) {
     containeritemdata_t *c = (containeritemdata_t*)caller->GetCustomData();
@@ -222,10 +221,6 @@ void Container_SlotsOnMouseUp(glictPos* pos, glictContainer* caller) {
 void Container_CloseOnClick(glictPos* pos, glictContainer* caller) {
     unsigned char *c = (unsigned char *)caller->GetCustomData();
 
-
-    char tmp[256];
-    sprintf(tmp, "Demand close %d", *c);
-    console.insert(tmp, CONYELLOW);
 
     protocol->CloseContainer(*c);
 

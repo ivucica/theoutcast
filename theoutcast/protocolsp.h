@@ -12,7 +12,13 @@ class ProtocolSP : public Protocol {
         bool CharlistLogin(const char *username, const char *password);
         void GameworldConnect();
         bool GameworldLogin ();
+        void Close();
 
+        // transmissives
+
+        // transmissives EXTENSIONS (not that it matters for SP :P)
+        void OCMCreateCharacter();
+        void OCMCharlist();
 };
 
 #endif

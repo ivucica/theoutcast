@@ -8,13 +8,13 @@
 // first simple type renames
 typedef		unsigned short int					itemid_t;
 // then some structs
-typedef struct {
+struct character_t {
     char charactername[128];
     char worldname[128];
     unsigned long ipaddress;
     unsigned short port;
     glictButton* button;
-} character_t; // character list element
+} ; // character list element
 
 
 typedef struct {
@@ -27,6 +27,8 @@ typedef struct {
     unsigned char unknown;
     unsigned short numsprites; /* to  remove need to calculate this */
     unsigned short *spriteids;
+
+    unsigned short usecount;
 } spritelist_t;
 
 

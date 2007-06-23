@@ -141,10 +141,30 @@ GM_MainMenu::GM_MainMenu() {
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glutSwapBuffers();
 
-    city = new Obj3ds("outcastcity.3DS");
-    if (!flythrough.load("outcastcity.fly")) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Failed to load flythrough file!\n");
+
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading logo and background\n");
+
+    logo = new Texture("logo.bmp");
+
+
+
+    if (skin.tmmloaded) {
+        bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
+        city = NULL;
+
+        desktop.AddObject(&tibia);
+        RebuildMainMenu();
+    } else {
+        bg = NULL;
+        city = new Obj3ds("outcastcity.3DS");
+        if (!flythrough.load("outcastcity.fly")) {
+            DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_WARNING, "Failed to load flythrough file!\n");
+        }
+
+        desktop.AddObject(&mainmenu);
+        RebuildMainMenu();
     }
+
 
 
 
@@ -159,16 +179,6 @@ GM_MainMenu::GM_MainMenu() {
     mainmenu.SetHeight(232);
     mainmenu.SetCaption("Main Menu");
 
-
-
-    if (skin.tmmloaded) {
-        desktop.AddObject(&tibia);
-        RebuildMainMenu();
-    } else {
-        desktop.AddObject(&mainmenu);
-        RebuildMainMenu();
-
-    }
 
 
 
@@ -218,7 +228,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginServer.SetCaption( tmp );
 
 	login.AddObject(&pnlLoginUsername);
-	pnlLoginUsername.SetCaption("Username:");
+	pnlLoginUsername.SetCaption("Account:");
 	pnlLoginUsername.SetPos(0, 7*15);
 	pnlLoginUsername.SetHeight(14);
 	pnlLoginUsername.SetWidth(70);
@@ -227,6 +237,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginUsername.SetPos(100, 7*15);
 	txtLoginUsername.SetHeight(14);
 	txtLoginUsername.SetWidth(150);
+	txtLoginUsername.SetPassProtectCharacter('*');
 	dbLoadSetting("username", tmp, 256, "111111");
 	txtLoginUsername.SetCaption(tmp);
 
@@ -405,7 +416,7 @@ GM_MainMenu::GM_MainMenu() {
     pnlOptionsSkin.SetPos(0, 100);
     pnlOptionsSkin.SetHeight(16);
     pnlOptionsSkin.SetWidth(100);
-    pnlOptionsSkin.SetCaption("Skin: (*)");
+    pnlOptionsSkin.SetCaption("Skin: ");
     pnlOptionsSkin.SetBGActiveness(false);
 
     options.AddObject(&txtOptionsSkin);
@@ -434,15 +445,6 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading logo and background\n");
-
-	logo = new Texture("logo.bmp");
-
-
-	if (skin.tmmloaded)
-        bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
-    else
-        bg = new Texture("bg.bmp");
 
 	sine_flag_angle = 0.;
 	bg_move_angle = 0.;
@@ -466,8 +468,10 @@ GM_MainMenu::~GM_MainMenu() {
 	delete bg;
 	delete city;
 
+    printf("Unloaded stuff\n");
 	SoundSetMusic(NULL);
 	ONDeinitThreadSafe(threadsafe);
+
 }
 
 void GM_MainMenu::Render() {
@@ -480,10 +484,14 @@ void GM_MainMenu::Render() {
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
     if (skin.tmmloaded) {
-/*glClearColor(0.,0.,0.,1.);
-glAlphaFunc(GL_GREATER, 0.2);
-glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-*/
+
+
+        #ifdef WALLHACK
+        glClearColor(0.,0.,0.,1.);
+        glAlphaFunc(GL_GREATER, 0.2);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        #endif
+
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluOrtho2D(0.,640.,0.,480.);
@@ -757,15 +765,15 @@ void GM_MainMenu::CreateCharlist() {
     characterlist.SetWidth(300);
     characterlist.SetBGColor(.85,.85,.85,1.);
     for (int i = 0 ; i < protocol->charlistcount  ; i++) {
-        characterlist.AddObject(protocol->charlist[i].button = new glictButton);
+        characterlist.AddObject(protocol->charlist[i]->button = new glictButton);
         char tmp[256];
-        sprintf(tmp, "%s (%s)", protocol->charlist[i].charactername, protocol->charlist[i].worldname);
-        protocol->charlist[i].button->SetCaption(tmp);
-        protocol->charlist[i].button->SetWidth(296);
-        protocol->charlist[i].button->SetHeight(16);
-        protocol->charlist[i].button->SetBGColor(.6,.6,.6,1.);
-        protocol->charlist[i].button->SetPos(2, i*18 + 2);
-        protocol->charlist[i].button->SetOnClick(GM_MainMenu_CharList_Character);
+        sprintf(tmp, "%s (%s)", protocol->charlist[i]->charactername, protocol->charlist[i]->worldname);
+        protocol->charlist[i]->button->SetCaption(tmp);
+        protocol->charlist[i]->button->SetWidth(296);
+        protocol->charlist[i]->button->SetHeight(16);
+        protocol->charlist[i]->button->SetBGColor(.6,.6,.6,1.);
+        protocol->charlist[i]->button->SetPos(2, i*18 + 2);
+        protocol->charlist[i]->button->SetOnClick(GM_MainMenu_CharList_Character);
     }
     characterlist.AddObject(&btnCharlistCancel);
     btnCharlistCancel.SetPos(1, protocol->charlistcount * 18 + 6);
@@ -784,12 +792,17 @@ void GM_MainMenu::CreateCharlist() {
 }
 void GM_MainMenu::DestroyCharlist() {
     ONThreadSafe(threadsafe);
+    printf("Destroying charlist\n");
     for (int i = 0 ; i < protocol->charlistcount  ; i++) {
-        characterlist.RemoveObject(protocol->charlist[i].button);
-        delete protocol->charlist[i].button;
+        printf("Destroying %d\n", i);
+        characterlist.RemoveObject(protocol->charlist[i]->button);
+        if (protocol->charlist[i]->button) delete protocol->charlist[i]->button;
+        protocol->charlist[i]->button = NULL;
     }
     characterlist.RemoveObject(&btnCharlistCancel);
     characterlist.DelayedRemove();
+
+    printf("Charlist destroyed\n");
     ONThreadUnsafe(threadsafe);
 
 }
@@ -797,11 +810,16 @@ void GM_MainMenu::DestroyCharlist() {
 void GM_MainMenu::GoToGameworld() {
     ((GM_MainMenu*)game)->OnFadeout = GM_MainMenu_GoToGameworldDo;
     ((GM_MainMenu*)game)->fadeout = 1.;
-
+}
+void GM_MainMenu::GoToCharMgr() {
+    ((GM_MainMenu*)game)->OnFadeout = GM_MainMenu_GoToCharMgrDo;
+    ((GM_MainMenu*)game)->fadeout = 1.;
 }
 void GM_MainMenu_GoToGameworldDo() {
-
 	GameModeEnter(GM_GAMEWORLD);
+}
+void GM_MainMenu_GoToCharMgrDo() {
+	GameModeEnter(GM_CHARMGR);
 }
 
 void GM_MainMenu_LogIn(glictPos* pos, glictContainer* caller) {
@@ -930,7 +948,7 @@ void GM_MainMenu_CharList_LogonError(glictPos* pos, glictContainer* caller) {
 
 void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller) {
     for (int i = 0 ; i < protocol->charlistcount ; i++) {
-        if (caller == protocol->charlist[i].button) {
+        if (caller == protocol->charlist[i]->button) {
             //((GM_MainMenu*)game)->MsgBox(protocol->charlist[i].charactername, protocol->charlist[i].worldname);
             /*char tmp [1024];
             sprintf(tmp, "%s:\n%d.%d.%d.%d\n%d\n\nNothing else is done, move along now... :)", protocol->charlist[i].worldname,
@@ -1009,31 +1027,44 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
 	}
 
     GM_MainMenu_OptionsCancel(pos, caller);
-    game->Render();
-    glutSwapBuffers();
+    /*game->Render();
+    glutSwapBuffers();*/
 
     options.maptrack = ((GM_MainMenu*)game)->btnOptionsMaptrack.GetCaption() == "X";
     options.fullscreen = ((GM_MainMenu*)game)->btnOptionsFullscreen.GetCaption() == "X";
 	options.intro = ((GM_MainMenu*)game)->btnOptionsIntro.GetCaption() == "X";
 	options.os_cursor = ((GM_MainMenu*)game)->btnOptionsOSCursor.GetCaption() == "X";
 
-	options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
-
 	glut_SetMousePointer("DEFAULT");
 
-#if 0
-	skin.Load(options.skin.c_str());
-	if (skin.tmmloaded) {
-	    ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->tibia);
-	    ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->mainmenu);
-	    ((GM_MainMenu*)game)->desktop.DelayedRemove();
-        ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->tibia);
-        ((GM_MainMenu*)game)->RebuildMainMenu();
-    } else {
+    if (options.skin != ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption()) {
+        options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
+
+#if 1
+        skin.Load(options.skin.c_str());
         ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->tibia);
         ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->mainmenu);
         ((GM_MainMenu*)game)->desktop.DelayedRemove();
-        ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->mainmenu);
+
+
+        if (((GM_MainMenu*)game)->city) {
+            delete ((GM_MainMenu*)game)->city;
+            ((GM_MainMenu*)game)->city = NULL;
+        }
+
+        if (((GM_MainMenu*)game)->bg) {
+            delete ((GM_MainMenu*)game)->bg;
+            ((GM_MainMenu*)game)->bg = NULL;
+        }
+
+        if (skin.tmmloaded) {
+            ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->tibia);
+            ((GM_MainMenu*)game)->bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
+        } else {
+            ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->mainmenu);
+            ((GM_MainMenu*)game)->city = new Obj3ds("outcastcity.3ds");
+            ((GM_MainMenu*)game)->flythrough.load("outcastcity.fly");
+        }
         ((GM_MainMenu*)game)->RebuildMainMenu();
     }
 #endif

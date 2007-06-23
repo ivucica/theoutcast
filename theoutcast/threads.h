@@ -34,6 +34,7 @@
 		#define ONEliminateThread(x,y) ONEliminateThreadFunctionalityDoesNotExist(x,y)
 		#define ONInitThreadSafe(Mutex) { \
             pthread_mutexattr_t mutexattr; \
+            pthread_mutexattr_init(&mutexattr); \
             pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE_NP); \
             pthread_mutex_init(&Mutex,&mutexattr); \
             pthread_mutexattr_destroy(&mutexattr); \

@@ -3,6 +3,7 @@
 #include "threads.h"
 #include "sound.h"
 #include "defines.h"
+#include "assert.h"
 void CharList_ReportError(glictMessageBox* mb, const char* txt);
 void CharList_ReportSuccess(glictMessageBox* mb, const char* txt);
 void CharList_Status(glictMessageBox* mb, const char* txt);
@@ -61,11 +62,13 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_SP(ONThreadFuncArgument
     if (protocol->GameworldLogin() ) {
         GWLogon_Status(&menuclass->charlist, "Entering game...");
         //GWLogon_ReportSuccess(&menuclass->charlist, protocol->GetMotd().c_str() );
-        menuclass->GoToGameworld();
+        if (protocol->newgamemode==GM_CHARMGR)
+            menuclass->GoToCharMgr();
+        else
+            menuclass->GoToGameworld();
     } else {
         GWLogon_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
-    ((GM_MainMenu*)game)->DestroyCharlist();
 
 	return 0;
 }
@@ -82,6 +85,8 @@ bool ProtocolSP::CharlistLogin(const char *username, const char *password) {
     ONThreadSafe(threadsafe);
     connectiontype = CHARLIST;
 
+    this->username = username;
+    this->password = password;
 
     FILE *f = fopen((std::string("save/") + username + ".ous").c_str(),"r");
     if (!f) {
@@ -107,19 +112,17 @@ bool ProtocolSP::CharlistLogin(const char *username, const char *password) {
             nm.AddString("You entered incorrect password.");
         } else {
             nm.AddU8(0x14);
-            nm.AddString("7435\nWelcome to Clavicula, a singleplayer mode for The Outcast!\n\nClavicula is an attempt to create a singleplayer game \nsimilar to Tibia. To create a character, choose Create Character \noption from the character list.");
+            nm.AddString("7435\nWelcome to Clavicula, a singleplayer mode for The Outcast!\n\nClavicula is an attempt to create a singleplayer game \nsimilar to Tibia. To create a character, choose Character\nManager option from the character list.");
             nm.AddU8(0x64);
             nm.AddU8(1 + spcount); // one character is CREATE CHARACTER, others are temp count to make dynamic list
-            nm.AddString("Create Character");
+            nm.AddString("Character Manager");
             nm.AddString("Clavicula");
             nm.AddU32(0); // ip address
             nm.AddU16(0); // port
 
-            for (int i =0; i < spcount; i++) {
-                char tmp[255];
-                sprintf(tmp, "Chr %d", i);
-
-                nm.AddString(tmp);
+            char charname[255];
+            while (fscanf(f, "%s", charname)==1)  {
+                nm.AddString(charname);
                 nm.AddString("Clavicula");
                 nm.AddU32(0); // ip address
                 nm.AddU16(0); // port
@@ -148,13 +151,36 @@ bool ProtocolSP::GameworldLogin () {
     ONThreadSafe(threadsafe);
     connectiontype = GAMEWORLD;
 
+    //nm.AddU8(0x14);
+    //nm.AddString(this->charlist[this->charlistselected]->charactername);
+    //spcount ++;
+    if (!strcmp(this->charlist[this->charlistselected]->charactername, "Character Manager")) {
+        nm.AddU8(0x0C); // charmgr...
+        nm.AddU8(0x01); // ...enter
+
+        FILE *f = fopen((std::string("save/") + this->username + ".ous").c_str(), "r");
+        ASSERTFRIENDLY(f, "It appears that savefile has mysteriously disappeared. Exiting");
+        fclose(f);
+
+    }
+    else {
+        nm.AddU8(0x0A); // player's creature id shall be 1
+        nm.AddU32(1);
+
+        nm.AddU8(0x32); // report bugs?
+        nm.AddU8(0);
+        nm.AddU8(0);
+
+        //nm.AddU8(0x64); // player teleport
+        //nm.AddU
+    }
+
 
     ((GM_MainMenu*)game)->DestroyCharlist();
 
 
-    nm.AddU8(0x14);
-    nm.AddString("Asfarg.");
-    spcount ++;
+
+
 
     // by default logon is a success
     logonsuccessful = true;
@@ -166,4 +192,16 @@ bool ProtocolSP::GameworldLogin () {
     ONThreadUnsafe(threadsafe);
     return logonsuccessful;
 
+}
+
+void ProtocolSP::Close() {
+    printf("Internal error\n");
+    system("pause");
+    exit(1);
+}
+void ProtocolSP::OCMCreateCharacter() {
+    ((GM_CharMgr*)game)->ShowCreateCharacter();
+}
+void ProtocolSP::OCMCharlist() {
+    ((GM_CharMgr*)game)->ShowCharList();
 }

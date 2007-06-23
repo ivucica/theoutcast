@@ -11,6 +11,7 @@
 	#endif
 #endif
 #include "gm_mainmenu.h"
+#include "gm_charmgr.h"
 #include "networkmessage.h"
 #include "types.h"
 #include "thing.h"
@@ -68,6 +69,13 @@ class Protocol {
 
         virtual void    Logout();
 
+
+        // transmissives EXTENSIONS
+
+        virtual void    OCMCreateCharacter();
+        virtual void    OCMCharlist();
+
+
         // *parse* are "smarter" abstractions
         // *get* are those that only fetch and return
 
@@ -108,6 +116,7 @@ class Protocol {
         std::string gameworldserver;
         unsigned short gameworldport;
 
+        gamemode_t newgamemode; // to which gamemode shall we be switching?
     protected:
         SOCKET s;
         unsigned short protocolversion;
@@ -116,7 +125,7 @@ class Protocol {
         connectiontype_t connectiontype;
         std::string motd, errormsg;
         unsigned char charlistcount, charlistselected;
-        character_t *charlist;
+        character_t **charlist;
         unsigned int premiumdays;
         bool logonsuccessful;
         std::string username, password;
@@ -130,6 +139,8 @@ class Protocol {
     friend void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller);
     friend void GM_MainMenu::CreateCharlist();
     friend void GM_MainMenu::DestroyCharlist();
+    friend void GM_CharMgr::CreateCharlist();
+    friend void GM_CharMgr::DestroyCharlist();
     friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 
 

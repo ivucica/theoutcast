@@ -74,7 +74,7 @@ void StillEffect(float beginx,	float beginy, float endx, float endy, int divx, i
 void StillEffect(float beginx, float beginy, float endx, float endy, int divx, int divy, bool flipx, bool flipy) {
     StillEffect(beginx, beginy, endx, endy, divx, divy, flipx, flipy, false);
 }
-
+#include <stdio.h>
 void StillEffect(float beginx, // 200
 				float beginy, // 0
 				float endx, // 425
@@ -104,7 +104,7 @@ void StillEffect(float beginx, // 200
 	//glRotatef(180., 1.0, 0.0, 0.0);
     glTranslatef(0,deltay,0.0);
 
-#if 0
+#ifdef WALLHACK
     glColor4f(1., 1., 1., .4);
     glEnable(GL_BLEND);
     glDisable(GL_ALPHA_TEST);
@@ -142,7 +142,7 @@ void StillEffect(float beginx, // 200
 		}
 	glEnd();
 
-#if 0
+#ifdef WALLHACK
 	glEnable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glColor4f(1.,1.,1.,1.);

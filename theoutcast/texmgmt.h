@@ -44,8 +44,10 @@ class Texture {
 
 		friend class Skin;
 		friend void TextureFreeSlot();
+		friend void TextureReportRemaining();
 };
 
 void TextureInit();
 void TextureDeinit();
+void TextureReportRemaining();
 #endif

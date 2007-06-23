@@ -36,6 +36,7 @@ class GM_MainMenu : public GameMode {
         void DestroyCharlist();
 
         void GoToGameworld();
+        void GoToCharMgr();
 
         void SetLoginStatus(const char *loginstatus);
 
@@ -130,6 +131,7 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller);
 void GM_MainMenu_OptionsCancel(glictPos* pos, glictContainer *caller);
 void GM_MainMenu_ExitDo();
 void GM_MainMenu_GoToGameworldDo();
+void GM_MainMenu_GoToCharMgrDo();
 
 
 #endif

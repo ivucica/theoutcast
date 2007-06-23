@@ -67,6 +67,9 @@ Skin::Skin() {
 }
 Skin::~Skin() {
     Unload();
+
+    printf("Remaining textures: \n");
+    TextureReportRemaining();
 }
 void Skin::Load(const char* what) {
 
@@ -241,15 +244,20 @@ void Skin::AssureLoadedness() {
 }
 void Skin::Unload() {
 
+    printf("Unloading window skin...\n");
     if (wintl) delete wintl; wintl = NULL;
     if (wint)  delete wint;  wint  = NULL;
     if (wintr) delete wintr; wintr = NULL;
     if (winl)  delete winl;  winl  = NULL;
+    printf("Center\n");
     if (winc)  delete winc;  winc  = NULL;
+    printf("Right\n");
     if (winr)  delete winr;  winr  = NULL;
     if (winbl) delete winbl; winbl = NULL;
     if (winb)  delete winb;  winb  = NULL;
     if (winbr) delete winbr; winbr = NULL;
+
+
 
     win.SetTL(0, NULL);
     win.SetTop(0, NULL);
@@ -260,6 +268,9 @@ void Skin::Unload() {
     win.SetBL(0, NULL);
     win.SetBottom(0, NULL);
     win.SetBR(0, NULL);
+
+
+    printf("Unloading button skin...\n");
 
     if (btntl) delete btntl; btntl = NULL;
     if (btnt)  delete btnt;  btnt  = NULL;
@@ -284,6 +295,8 @@ void Skin::Unload() {
     glictGlobals.buttonSkin = NULL;
 
 
+    printf("Unloading highlighted button skin...\n");
+
     if (bthtl) delete bthtl; bthtl = NULL;
     if (btht)  delete btht;  btht  = NULL;
     if (bthtr) delete bthtr; bthtr = NULL;
@@ -305,6 +318,8 @@ void Skin::Unload() {
     bth.SetBR(0, NULL);
 
     glictGlobals.buttonHighlightSkin = NULL;
+
+    printf("Unloading textbox skin...\n");
 
     if (txttl) delete txttl; txttl = NULL;
     if (txtt)  delete txtt;  txtt  = NULL;
@@ -328,6 +343,8 @@ void Skin::Unload() {
 
     glictGlobals.textboxSkin = NULL;
 
+    printf("Unloading tibiamainmenu skin...\n");
+
     if (tmmtl) delete tmmtl; tmmtl = NULL;
     if (tmmt)  delete tmmt;  tmmt  = NULL;
     if (tmmtr) delete tmmtr; tmmtr = NULL;
@@ -348,6 +365,10 @@ void Skin::Unload() {
     tmm.SetBottom(0, NULL);
     tmm.SetBR(0, NULL);
     tmmloaded = false;
+
+
+
+    printf("UNLOADED ALL!\n");
 }
 
 static void Skin_OnBind(glictSkinner* caller, void* t) {

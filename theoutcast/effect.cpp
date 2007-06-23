@@ -27,7 +27,7 @@ bool Effect::AnimationAdvance(float advance, bool overlayed) {
             if (overlayed) {
 //                printf("Ani advanced\n");
                 animationpercent += 50./fps;
-                if (animationpercent > 100.) animationpercent = 100.; // FIXME isnan?
+                if (animationpercent > 100.) animationpercent = 100.; // FIXME (Khaos#4#) isnan?
             } else {
 //                printf("Not advancing ani\n");
             }

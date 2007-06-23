@@ -22,7 +22,8 @@
     #define DEBUGPRINT_WARNING 0
 #endif
 extern float fps;
-bool uselists = false;
+// FIXME (Khaos#2#) in case we ever activate MaxTextures in the texmgmt.cpp, we need to turn off uselists or design a workaround, since if the gl textureid gets outdated, the entire displaylist gets invalid. perhaps marking a texture as "volatile" would help?
+bool uselists = true;
 /* public functions */
 
 
@@ -53,6 +54,7 @@ bool Obj3ds::LoadFile(const char* filename) {
                 if (strlen(mat->texture1_map.name)) {
                     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Obj3ds:\tLoading texture %s\n", mat->texture1_map.name);
                     mat->user.p = (void*)(new Texture(mat->texture1_map.name));
+                    ((Texture*)mat->user.p)->Bind();
                 }
         }
         lib3ds_file_eval(data3ds,0);
@@ -115,7 +117,6 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
 
       glMultMatrixf(&node->matrix[0][0]);
       glTranslatef(-d->pivot[0], -d->pivot[1], -d->pivot[2]);
-//      printf("Pivotization %d\n", pushes++);
     }
 
       {

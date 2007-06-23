@@ -18,6 +18,7 @@
     #define isinf _isnan
 #endif
 
+
 int winw=0, winh=0;
 int ptrx=0, ptry=0;
 Texture* mousepointer=NULL;
@@ -67,9 +68,6 @@ void glut_Mouse (int button, int shift, int mousex, int mousey) {
 	glutPostRedisplay();
 }
 
-#ifndef WIN32
-#include <X11/Xlib.h>
-#endif
 void glut_Idle () {
 	#ifdef WIN32
         POINT mouse;
