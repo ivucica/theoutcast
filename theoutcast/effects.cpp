@@ -44,7 +44,7 @@ static int EffectsLoadFunc(void *NotUsed, int argc, char **argv, char **azColNam
         exit(1);
     }
 
-    printf("Clearing %d\n", effectid);
+
     EffectClear(*(effects + effectid));
 
     effects[effectid]->loaded = true;
@@ -82,7 +82,7 @@ void EffectsLoad() {
 
         effects[i] = new effect_t;
         EffectInit(effects[i]);
-        printf("Initialized %d\n", i);
+
     }
     dbExecPrintf(dbData, EffectsLoadFunc, 0, NULL, "select * from effects%d;", protocol->GetProtocolVersion());
 

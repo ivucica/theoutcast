@@ -44,7 +44,7 @@ static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColN
         exit(1);
     }
 
-    printf("Clearing %d\n", creatureid);
+
     CreatureClear(*(creatures + creatureid));
 
     creatures[creatureid]->loaded = true;
@@ -82,7 +82,7 @@ void CreaturesLoad() {
 
         creatures[i] = new creature_t;
         CreatureInit(creatures[i]);
-        printf("Initialized %d\n", i);
+
     }
     dbExecPrintf(dbData, CreaturesLoadFunc, 0, NULL, "select * from creatures%d;", protocol->GetProtocolVersion());
 

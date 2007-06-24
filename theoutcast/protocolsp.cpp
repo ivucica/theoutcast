@@ -12,7 +12,7 @@ void GWLogon_ReportError(glictMessageBox* mb, const char* txt);
 void GWLogon_ReportSuccess(glictMessageBox* mb, const char* txt);
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
-static int spcount=0;
+
 
 ProtocolSP::ProtocolSP() {
     protocolversion = 792; // singleplayer will always load latest supported SPR version
@@ -111,16 +111,23 @@ bool ProtocolSP::CharlistLogin(const char *username, const char *password) {
             nm.AddU8(0x0A);
             nm.AddString("You entered incorrect password.");
         } else {
+            char charname[255];
+
             nm.AddU8(0x14);
             nm.AddString("7435\nWelcome to Clavicula, a singleplayer mode for The Outcast!\n\nClavicula is an attempt to create a singleplayer game \nsimilar to Tibia. To create a character, choose Character\nManager option from the character list.");
             nm.AddU8(0x64);
+
+            int pos = ftell(f);
+            int spcount = 0;
+            while (fscanf(f, "%s", charname)==1) spcount ++;
+            fseek(f, pos, SEEK_SET);
             nm.AddU8(1 + spcount); // one character is CREATE CHARACTER, others are temp count to make dynamic list
             nm.AddString("Character Manager");
             nm.AddString("Clavicula");
             nm.AddU32(0); // ip address
             nm.AddU16(0); // port
 
-            char charname[255];
+
             while (fscanf(f, "%s", charname)==1)  {
                 nm.AddString(charname);
                 nm.AddString("Clavicula");
@@ -171,8 +178,49 @@ bool ProtocolSP::GameworldLogin () {
         nm.AddU8(0);
         nm.AddU8(0);
 
-        //nm.AddU8(0x64); // player teleport
-        //nm.AddU
+        nm.AddU8(0x64); // player teleport
+        nm.AddU16(30);
+        nm.AddU16(30);
+        nm.AddU8(7);
+        int tilesremaining = 18*14*7;
+        for (int i = 0; i < 18; i ++)
+            for (int j = 0; j < 14; j++) {
+                printf("%d\n", tilesremaining);
+                nm.AddU16(102);
+                if (i == 8 && j == 6) {
+                    nm.AddU16(0x0061);
+                    nm.AddU32(0); // remove with this id
+                    nm.AddU32(1); // creatureid -- player is 1
+                    nm.AddString("Newbie");
+                    nm.AddU8(25); // health
+                    nm.AddU8(0); //dir
+                    nm.AddU16(128); // lookid
+                    nm.AddU8(50);
+                    nm.AddU8(60);
+                    nm.AddU8(70);
+                    nm.AddU8(80);
+                    nm.AddU8(0); // addons
+
+                    nm.AddU8(0); // lightlevel
+                    nm.AddU8(0); // lightcolor
+                    nm.AddU16(500); // speed
+                    nm.AddU8(0); // skull
+                    nm.AddU8(0); // shield
+
+
+
+
+                }
+                tilesremaining--;
+                nm.AddU16(0xFF00);
+            }
+        while(tilesremaining) {
+
+            nm.AddU8(tilesremaining > 255 ? 255 : tilesremaining);
+            tilesremaining -= tilesremaining > 255 ? 255 : tilesremaining;
+            printf("%d\n", tilesremaining);
+            nm.AddU8(0xFF);
+        }
     }
 
 

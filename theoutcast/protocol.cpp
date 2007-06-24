@@ -1117,7 +1117,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     int looktype;
     unsigned long creatureid;
     unsigned short extendedlook=0;
-
+    printf("-------------%d----------\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: {// known creature
