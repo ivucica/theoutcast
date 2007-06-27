@@ -195,10 +195,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\container.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\creature.cpp"
 				>
 			</File>
@@ -212,14 +208,6 @@
 			</File>
 			<File
 				RelativePath=".\debugprint.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\effect.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\effects.cpp"
 				>
 			</File>
 			<File
@@ -331,10 +319,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\protocolsp.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\simple_effects.cpp"
 				>
 			</File>
@@ -405,10 +389,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\container.h"
-				>
-			</File>
-			<File
 				RelativePath=".\creature.h"
 				>
 			</File>
@@ -426,14 +406,6 @@
 			</File>
 			<File
 				RelativePath=".\defines.h"
-				>
-			</File>
-			<File
-				RelativePath=".\effect.h"
-				>
-			</File>
-			<File
-				RelativePath=".\effects.h"
 				>
 			</File>
 			<File
@@ -541,10 +513,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\protocolsp.h"
-				>
-			</File>
-			<File
 				RelativePath=".\simple_effects.h"
 				>
 			</File>
@@ -594,10 +562,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
-			<File
-				RelativePath=".\resources.rc"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

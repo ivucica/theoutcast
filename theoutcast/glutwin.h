@@ -11,9 +11,14 @@ void glut_FPS (int param);
 void glut_MayAnimateToTrue(int param);
 void glut_Key(unsigned char key, int x, int y);
 void glut_SpecKey(int key, int x, int y);
-void RenderMouseCursor();
+void glut_Init(int *argc, char**argv);
+void glut_CreateDisplay();
+void glut_MainLoop();
 extern Object *mousepointer_object;
 extern int winw, winh;
 extern float fps;
 extern bool mayanimate;
 extern int glut_WindowHandle;
+
+// FIXME (Khaos#1#) To be moved
+void RenderMouseCursor();

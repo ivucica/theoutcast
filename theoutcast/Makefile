@@ -6,18 +6,22 @@ SOURCES = buffer.cpp charlist.cpp colors.cpp console.cpp creature.cpp creatures.
 
 OBJECTS = buffer.o charlist.o colors.o console.o creature.o creatures.o database.o debugprint.o flythrough.o gamemode.o glutfont.o glutwin.o gm_gameworld.o gm_logo.o gm_mainmenu.o gwlogon.o imgfmts.o item.o items.o main.o map.o networkdirect.o networkmessage.o obj3ds.o object.o objspr.o player.o protocol.o protocol75.o protocol76.o protocol77.o protocol79.o simple_effects.o socketstrings.o sound.o sprfmts.o texmgmt.o thing.o threads.o tile.o skin.o options.o container.o gm_sprplayground.o
 
-CPPFLAGS = -D USEASSERT -D USEENCRYPTION -D GMP -D POSIX_THREADS  -D DEBUGLEVEL_BUILDTIME=3 -I ../glict/ -g3  
+CPPFLAGS = -D USEASSERT -D USEENCRYPTION -D GMP -D POSIX_THREADS  -D DEBUGLEVEL_BUILDTIME=3 -I ../glict/ -g3
 #-fstack-protector -fexceptions -fno-strict-aliasing
 
 CXX = g++
 
 
 theoutcast: ${OBJECTS}
-	${CXX} -o theoutcast -lsqlite3  -lGL  -lglut -lgmp -L../glict/GLICT/  ${OBJECTS} -lGLICT -l3ds 
+	${CXX} -o theoutcast -lsqlite3  -lGL  -lglut -lgmp -L../glict/GLICT/  ${OBJECTS} -lGLICT -l3ds
 	#-fstack-protector -fexceptions -fno-strict-aliasing
-	
+
 all: theoutcast
 clean:
 	rm -f theoutcast ${OBJECTS}
 
 rebuild: clean theoutcast
+
+#codeblocks specifics
+Debug: theoutcast
+cleanDebug: clean

@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="The Outcast (Tibia3d)" />
+		<Option title="The Outcast" />
 		<Option pch_mode="0" />
 		<Option default_target="debug" />
 		<Option compiler="gcc" />
@@ -30,6 +30,7 @@
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -69,6 +70,7 @@
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -111,6 +113,7 @@
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -154,6 +157,7 @@
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DDEBUGCONSOLE" />
+					<Add option="-DUSEGLUT" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -236,6 +240,7 @@
 					<Add option="-DTEXTURE_THREADS" />
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -243,6 +248,43 @@
 					<Add option='-Wl,-Map=&quot;outcast.map&quot;' />
 					<Add library="GLICT" />
 					<Add library="glut" />
+					<Add library="GL" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="gmp" />
+					<Add directory="../glict/" />
+				</Linker>
+			</Target>
+			<Target title="debug_sdl_unix">
+				<Option platforms="Unix;" />
+				<Option output="outcast" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objsdebug_unix" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="sprplaygroundd softwarerenderer " />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option="-O0" />
+					<Add option="-DPOSIX_THREADS" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
+					<Add option="-DGMP" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSESDL" />
+				</Compiler>
+				<Linker>
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option='-Wl,-Map=&quot;outcast.map&quot;' />
+					<Add library="GLICT" />
+					<Add library="SDL" />
 					<Add library="GL" />
 					<Add library="3ds" />
 					<Add library="sqlite3" />
@@ -293,8 +335,22 @@
 		<Unit filename="gamemode.h" />
 		<Unit filename="glutfont.cpp" />
 		<Unit filename="glutfont.h" />
-		<Unit filename="glutwin.cpp" />
-		<Unit filename="glutwin.h" />
+		<Unit filename="glutwin.cpp">
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+			<Option target="debug_unix" />
+		</Unit>
+		<Unit filename="glutwin.h">
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+			<Option target="debug_unix" />
+		</Unit>
 		<Unit filename="gm_charmgr.cpp" />
 		<Unit filename="gm_charmgr.h" />
 		<Unit filename="gm_gameworld.cpp" />
@@ -352,6 +408,12 @@
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 		</Unit>
+		<Unit filename="sdlwin.cpp">
+			<Option target="debug_sdl_unix" />
+		</Unit>
+		<Unit filename="sdlwin.h">
+			<Option target="debug_sdl_unix" />
+		</Unit>
 		<Unit filename="simple_effects.cpp" />
 		<Unit filename="simple_effects.h" />
 		<Unit filename="skin.cpp" />
@@ -372,6 +434,7 @@
 		<Unit filename="tile.h" />
 		<Unit filename="todo.txt" />
 		<Unit filename="types.h" />
+		<Unit filename="windowing.h" />
 		<Unit filename="winfont.cpp">
 			<Option target="debug" />
 			<Option target="release" />

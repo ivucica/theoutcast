@@ -17,7 +17,9 @@
 
 #include "gamemode.h"
 #include "gm_mainmenu.h"
-#include "glutwin.h"
+
+#include "windowing.h"
+
 #include "options.h"
 #include "skin.h"
 #include "glutfont.h"
@@ -194,37 +196,10 @@ if(AllocConsole())
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up windowing system\n");
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (640, 480);
-	//glutInitWindowPosition (0, 0);
-
+    glut_Init(&argc, argv);
     options.Load();
 
-    fullscreen_retry:
-    if (options.fullscreen) {
-        glutGameModeString("320x240:32");
-        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering fullscreen\n");
-        glut_WindowHandle = glutEnterGameMode();
-	if (!glut_WindowHandle) {
-		DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_ERROR, "There was an error entering fullscreen. Retrying in windowed mode.\n");
-		options.fullscreen = false;
-		options.Save();
-		goto fullscreen_retry;
-	}
-        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
-    } else {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Creating window\n");
-        glut_WindowHandle = glutCreateWindow (APPTITLE);
-        glutSetWindow(glut_WindowHandle);
-        glutShowWindow();
-        DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Done\n");
-    }
-
-	if (!glut_WindowHandle) {
-		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "There was a problem initializing OpenGL render area. Giving up and exiting.\n");
-		exit(1);
-	}
+    glut_CreateDisplay();
 
 
 
@@ -246,26 +221,7 @@ if(AllocConsole())
 
 
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up callbacks\n");
-
-	glutDisplayFunc(glut_Display);
-	glutReshapeFunc(glut_Reshape);
-	glutMouseFunc(glut_Mouse);
-	glutIdleFunc(glut_Idle);
-	glutPassiveMotionFunc(glut_PassiveMouse);
-	glutSpecialFunc(glut_SpecKey);
-	glutKeyboardFunc(glut_Key);
-	glutTimerFunc(1000, glut_FPS, 1000);
-	glutTimerFunc(1000, glut_MayAnimateToTrue, 0);
-
-    #ifndef WIN32
-        on_exit(OnExit, NULL);
-    #else
-        atexit(AtExit);
-    #endif
-
-	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Entering mainloop\n");
-	glutMainLoop();
+    glut_MainLoop();
 
 	return 0;
 }
