@@ -12,7 +12,7 @@
 #include "objspr.h"
 #include "sprfmts.h"
 #include "debugprint.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "console.h"
 extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
@@ -130,7 +130,9 @@ GM_SPRPlayground::GM_SPRPlayground() {
 
     if (!g) {
         printf("No test chosen. Aborting.\n");
+        #ifdef USEGLUT
         glutHideWindow();
+        #endif
         system("pause");
         exit(1);
     }
@@ -252,16 +254,16 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
 void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
     if (!creaturetest) {
         switch (key) {
-            case GLUT_KEY_UP:
+            case WIN_KEY_UP:
                 counter+=100;
                 break;
-            case GLUT_KEY_DOWN:
+            case WIN_KEY_DOWN:
                 if (counter>=200) counter-=100;
                 break;
-            case GLUT_KEY_LEFT:
+            case WIN_KEY_LEFT:
                 if (counter-100) counter--;
                 break;
-            case GLUT_KEY_RIGHT:
+            case WIN_KEY_RIGHT:
                 counter++;
                 break;
         }
@@ -272,26 +274,28 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
             g = new ObjSpr(counter, 0, 792);
             if (items[counter]->sli.xdiv>1 || items[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
         }
+        #ifdef USEGLUT
         glutPostRedisplay();
+        #endif
 
         char tmp[256];
         sprintf(tmp, "%d", counter);
         console.insert(tmp, CONORANGE);
     } else {
         switch (key) {
-            case GLUT_KEY_UP:
+            case WIN_KEY_UP:
                 offset.y ++;
                 g->SetDirection(NORTH);
                 break;
-            case GLUT_KEY_DOWN:
+            case WIN_KEY_DOWN:
                 if (offset.y) offset.y --;
                 g->SetDirection(SOUTH);
                 break;
-            case GLUT_KEY_LEFT:
+            case WIN_KEY_LEFT:
                 if (offset.x) offset.x --;
                 g->SetDirection(WEST);
                 break;
-            case GLUT_KEY_RIGHT:
+            case WIN_KEY_RIGHT:
                 offset.x++;
                 g->SetDirection(EAST);
                 break;

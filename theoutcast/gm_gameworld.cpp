@@ -15,7 +15,7 @@
 #include "console.h"
 #include "objspr.h"
 #include "sprfmts.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "player.h"
 #include "map.h"
 #include "threads.h"
@@ -286,32 +286,36 @@ void GM_Gameworld::SpecKeyPress(int key, int x, int y ) {
         GameModeEnter(GM_MAINMENU);
         return;
     }
+    #ifdef USEGLUT
     int modifiers = glutGetModifiers();
+    #else
+    int modifiers = 0;
+    #endif
 
     switch (key) {
         //case GLUT_KEY_F11: // function key
-        case GLUT_KEY_UP:
-            if (modifiers & GLUT_ACTIVE_CTRL)
+        case WIN_KEY_UP:
+            if (modifiers & WIN_ACTIVE_CTRL)
                 protocol->Turn(NORTH);
             else
                 protocol->Move(NORTH);
             break;
-        case GLUT_KEY_DOWN:
-            if (modifiers & GLUT_ACTIVE_CTRL)
+        case WIN_KEY_DOWN:
+            if (modifiers & WIN_ACTIVE_CTRL)
                 protocol->Turn(SOUTH);
             else
                 protocol->Move(SOUTH);
             break;
 
-        case GLUT_KEY_LEFT:
-            if (modifiers & GLUT_ACTIVE_CTRL)
+        case WIN_KEY_LEFT:
+            if (modifiers & WIN_ACTIVE_CTRL)
                 protocol->Turn(WEST);
             else
                 protocol->Move(WEST);
             break;
 
-        case GLUT_KEY_RIGHT:
-            if (modifiers & GLUT_ACTIVE_CTRL)
+        case WIN_KEY_RIGHT:
+            if (modifiers & WIN_ACTIVE_CTRL)
                 protocol->Turn(EAST);
             else
                 protocol->Move(EAST);
@@ -321,16 +325,16 @@ void GM_Gameworld::SpecKeyPress(int key, int x, int y ) {
 
 
         // diagonal moving
-        case GLUT_KEY_END: // 1
+        case WIN_KEY_END: // 1
             protocol->Move(SOUTHWEST);
             break;
-        case GLUT_KEY_PAGE_DOWN: // 3
+        case WIN_KEY_PAGE_DOWN: // 3
             protocol->Move(SOUTHEAST);
             break;
-        case GLUT_KEY_HOME: // 7
+        case WIN_KEY_HOME: // 7
             protocol->Move(NORTHWEST);
             break;
-        case GLUT_KEY_PAGE_UP: // 9
+        case WIN_KEY_PAGE_UP: // 9
             protocol->Move(NORTHEAST);
             break;
         // 5 with numlock off is used to stop moving
@@ -485,23 +489,24 @@ void GM_Gameworld::ResizeWindow() {
 	containerdesktop.SetHeight(winh);
 	containerdesktop.SetWidth(winw);
 
-
+#ifdef USEGLUT
 	glutPostRedisplay();
+#endif
 }
 
 
 
 void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
-	if (shift == GLUT_UP) SoundPlay("sounds/mouse.wav");
+	if (shift == WIN_RELEASE) SoundPlay("sounds/mouse.wav");
 
 	glictPos pos;
 	pos.x = mousex;
 	pos.y = mousey;
 	desktop.TransformScreenCoords(&pos);
-	if (shift==GLUT_DOWN)
+	if (shift==WIN_PRESS)
         if (!containerdesktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0))
             desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
-	if (shift==GLUT_UP) {
+	if (shift==WIN_RELEASE) {
         if (!containerdesktop.CastEvent(GLICT_MOUSEUP, &pos, 0))
             desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
 	}
@@ -771,9 +776,15 @@ void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller) {
 }
 
 void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
+    // This function decides what happens when player clicks on a location.
+    // FIXME (Khaos#1#) Rework from scratch
     static int modifiers;
     static bool moving=false;
+    #ifdef USEGLUT
     modifiers = glutGetModifiers();
+    #else
+    modifiers = 0;
+    #endif
 
     //printf("%d %d %d\n", pos->x, pos->y, pos->z);
     //console.insert(moving ? "moving" : "not moving");
@@ -787,7 +798,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
-            glut_SetMousePointer("DEFAULT");
+            win_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->InviteParty(cr);
         }
@@ -799,7 +810,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
-            glut_SetMousePointer("DEFAULT");
+            win_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->PassLeadershipParty(cr);
         }
@@ -811,7 +822,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
-            glut_SetMousePointer("DEFAULT");
+            win_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->RevokeInviteParty(cr);
         }
@@ -823,7 +834,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             gw->passingparty = false;
             gw->revokingparty = false;
             gw->joiningparty = false;
-            glut_SetMousePointer("DEFAULT");
+            win_SetMousePointer("DEFAULT");
             if (cr = gamemap.GetTile(pos)->GetCreature())
                 protocol->JoinParty(cr);
         }
@@ -849,22 +860,22 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
             protocol->Use(&(((GM_Gameworld*)game)->useex_item1_pos), ((GM_Gameworld*)game)->useex_item1_stackpos, pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
         }
 
-        glut_SetMousePointer("DEFAULT");
+        win_SetMousePointer("DEFAULT");
         return;
     }
 
-    if (modifiers & GLUT_ACTIVE_SHIFT) {
+    if (modifiers & WIN_ACTIVE_SHIFT) {
         //console.insert("SHIFT\n");
         if (evttype == GLICT_MOUSECLICK) protocol->LookAt(pos);
     }
-    else if (modifiers & GLUT_ACTIVE_ALT) {
+    else if (modifiers & WIN_ACTIVE_ALT) {
         if (pos->x==0xFFFF) return;
         Tile *t = gamemap.GetTile(pos);
         //console.insert("ALT\n");
 
         if (Creature *c = t->GetCreature())
             if (evttype == GLICT_MOUSECLICK) protocol->Attack(c->GetCreatureID());
-    } else if ((modifiers & GLUT_ACTIVE_CTRL) || evttype == GLICT_MOUSEDOWN) {
+    } else if ((modifiers & WIN_ACTIVE_CTRL) || evttype == GLICT_MOUSEDOWN) {
         Tile *t;
         Thing *th;
         //console.insert("CTRL\n");
@@ -895,17 +906,17 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
                     else
                         s = new ObjSpr(itemid, th->GetLook().head,th->GetLook().body,th->GetLook().legs,th->GetLook().feet );
                     s->SetDirection(th->GetDirection());
-                    glut_SetMousePointer(s);
+                    win_SetMousePointer(s);
                 } else
-                    glut_SetMousePointer(new ObjSpr(itemid,0));
+                    win_SetMousePointer(new ObjSpr(itemid,0));
                 ((GM_Gameworld*)game)->useex_item1_pos = *pos;
                 ((GM_Gameworld*)game)->useex_item1_stackpos = pos->x != 0xFFFF ? t->GetTopUsableStackpos() : 0;
 
-                if (!(modifiers & GLUT_ACTIVE_CTRL) && evttype == GLICT_MOUSEDOWN) {
+                if (!(modifiers & WIN_ACTIVE_CTRL) && evttype == GLICT_MOUSEDOWN) {
                     console.insert("Specify where do you want to move this item", CONLTBLUE);
                     moving  = true;
                     useex_item2 = true;
-                } else if (modifiers & GLUT_ACTIVE_CTRL && evttype == GLICT_MOUSECLICK) {
+                } else if (modifiers & WIN_ACTIVE_CTRL && evttype == GLICT_MOUSECLICK) {
                     console.insert("Specify where do you want to use this item", CONLTBLUE);
                     useex_item2 = true;
                 }
@@ -914,7 +925,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
                 // simple usable
                 protocol->Use(pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
                 moving = false;
-                glut_SetMousePointer("DEFAULT");
+                win_SetMousePointer("DEFAULT");
                 useex_item2 = false;
             }
 
@@ -936,7 +947,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
         console.insert(tmp, CONWHITE);
         gamemap.GetTile(pos)->ShowContents();
         moving = false;
-        glut_SetMousePointer("DEFAULT");
+        win_SetMousePointer("DEFAULT");
         useex_item2 = false;
     }
 
@@ -1069,7 +1080,7 @@ void GM_Gameworld_StaInviteParty(glictPos *pos, glictContainer* caller) {
 
     gw->invitingparty = true;
     console.insert("Select which player you want to invite to party...", CONLTBLUE);
-    glut_SetMousePointer("mousequestion.bmp");
+    win_SetMousePointer("mousequestion.bmp");
 }
 void GM_Gameworld_StaLeaveParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
@@ -1082,19 +1093,19 @@ void GM_Gameworld_StaRevokeParty(glictPos *pos, glictContainer* caller) {
 
     gw->revokingparty = true;
     console.insert("Select whose invitation you want to revoke...", CONLTBLUE);
-    glut_SetMousePointer("mousequestion.bmp");
+    win_SetMousePointer("mousequestion.bmp");
 }
 void GM_Gameworld_StaJoinParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->joiningparty = true;
     console.insert("Select whose invitation you want to accept...", CONLTBLUE);
-    glut_SetMousePointer("mousequestion.bmp");
+    win_SetMousePointer("mousequestion.bmp");
 }
 void GM_Gameworld_StaPassParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->passingparty = true;
     console.insert("Select who do you want to pass leadership to...", CONLTBLUE);
-    glut_SetMousePointer("mousequestion.bmp");
+    win_SetMousePointer("mousequestion.bmp");
 }

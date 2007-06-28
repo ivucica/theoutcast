@@ -1,5 +1,4 @@
 #include "item.h"
-#include "glutwin.h"
 
 Item::Item() {
 

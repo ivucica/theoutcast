@@ -1,7 +1,7 @@
 #include "database.h"
 #include "protocol.h"
 #include "types.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "debugprint.h"
 int creatures_n;
 creature_t **creatures=NULL;
@@ -39,7 +39,7 @@ static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColN
     }
     sscanf(argv[i], "%d", &creatureid);
     if (creatureid > creatures_n) {
-        glutHideWindow();
+        //glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nCreature ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
@@ -72,7 +72,7 @@ void CreaturesLoad() {
     dbExecPrintf(dbData, CreaturesLoadNumFunc, 0, NULL, "select max(creatureid) from creatures%d;", protocol->GetProtocolVersion());
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d creatures in database for protocol %d\n", creatures_n, protocol->GetProtocolVersion());
     if (!creatures_n) {
-        glutHideWindow();
+        //glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }

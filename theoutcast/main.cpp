@@ -52,9 +52,12 @@ void GameInit() {
 
 	sysfont = glictCreateFont("system");
 	#if (!defined(WINFONT) && !defined(BMPFONT))
+        #ifndef USEGLUT
+        #error If you dont use GLUT, you need to use either WINFONT or BMPFONT
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);
+		#endif
 	#elif defined(BMPFONT)
         sysfont->SetFontParam(fonttexture = BMPFontCreate("fontbordered.bmp", 8));
         sysfont->SetRenderFunc(BMPFontDraw);
@@ -196,10 +199,10 @@ if(AllocConsole())
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up windowing system\n");
 
-    glut_Init(&argc, argv);
+    win_Init(&argc, argv);
     options.Load();
 
-    glut_CreateDisplay();
+    win_CreateDisplay();
 
 
 
@@ -213,7 +216,7 @@ if(AllocConsole())
 
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading mousepointer\n");
-	glut_SetMousePointer("DEFAULT");
+	win_SetMousePointer("DEFAULT");
 
 	// game must be inited LAST.
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Setting up game\n");
@@ -221,7 +224,7 @@ if(AllocConsole())
 
 
 
-    glut_MainLoop();
+    win_MainLoop();
 
 	return 0;
 }

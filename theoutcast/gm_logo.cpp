@@ -5,7 +5,7 @@
 #include <GL/glu.h>
 #include <ctype.h>
 
-#include "glutwin.h"
+#include "windowing.h"
 #include "gm_logo.h"
 #include "flythrough.h"
 #include "sound.h"
@@ -30,13 +30,13 @@ GM_Logo::GM_Logo () {
     glEnable(GL_LIGHT0);
     glEnable(GL_NORMALIZE);
 
-	glut_SetMousePointer(NULL);
+	win_SetMousePointer(NULL);
 
 
 }
 GM_Logo::~GM_Logo() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing logo\n");
-	glut_SetMousePointer("DEFAULT");
+	win_SetMousePointer("DEFAULT");
     if (logo) delete logo;
     SoundSetMusic(NULL);
 }

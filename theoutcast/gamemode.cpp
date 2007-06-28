@@ -5,7 +5,7 @@
 #include "gm_gameworld.h"
 #include "gm_charmgr.h"
 #include "gm_sprplayground.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "debugprint.h"
 GameMode* game=NULL;
 gamemode_t gamemode;
@@ -97,7 +97,7 @@ void GameModeEnter(gamemode_t gm) {
 	game->ResizeWindow();
 	gamemode = gm;
 	mayanimate = false;
-	glutTimerFunc(500, glut_MayAnimateToTrue, 0);
+	win_Timer(500, win_MayAnimateToTrue, 0);
 //    ONThreadUnsafe(gmthreadsafe);
 }
 

@@ -5,6 +5,7 @@
 #endif
 
 #include <GLICT/messagebox.h>
+#include <GLICT/fonts.h>
 #include "gm_mainmenu.h"
 #include "socketstrings.h"
 #include "networkmessage.h"
@@ -21,14 +22,14 @@ void GWLogon_ReportError(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Error accessing character");
-	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
+	mb->SetHeight(64 - (11*3) + glictFontNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonError);
 }
 void GWLogon_ReportSuccess(glictMessageBox* mb, const char* txt) {
 	mb->SetMessage(txt);
 	mb->SetEnabled(true);
 	mb->SetCaption("Logged on!");
-	mb->SetHeight(64 - (11*3) + glutxNumberOfLines(txt)*11 );
+	mb->SetHeight(64 - (11*3) + glictFontNumberOfLines(txt)*11 );
 	mb->SetOnDismiss(GM_MainMenu_CharList_LogonOK);
 }
 

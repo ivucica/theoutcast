@@ -257,8 +257,8 @@
 			</Target>
 			<Target title="debug_sdl_unix">
 				<Option platforms="Unix;" />
-				<Option output="outcast" prefix_auto="0" extension_auto="0" />
-				<Option object_output=".objsdebug_unix" />
+				<Option output="outcastsdl" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objsdebug_sdl_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="sprplaygroundd softwarerenderer " />
@@ -286,6 +286,7 @@
 					<Add library="GLICT" />
 					<Add library="SDL" />
 					<Add library="GL" />
+					<Add library="GLU" />
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
@@ -333,8 +334,22 @@
 		<Unit filename="flythrough.h" />
 		<Unit filename="gamemode.cpp" />
 		<Unit filename="gamemode.h" />
-		<Unit filename="glutfont.cpp" />
-		<Unit filename="glutfont.h" />
+		<Unit filename="glutfont.cpp">
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+			<Option target="debug_unix" />
+		</Unit>
+		<Unit filename="glutfont.h">
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+			<Option target="debug_unix" />
+		</Unit>
 		<Unit filename="glutwin.cpp">
 			<Option target="debug" />
 			<Option target="release" />

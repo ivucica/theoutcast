@@ -1,7 +1,7 @@
 #include "database.h"
 #include "protocol.h"
 #include "types.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "debugprint.h"
 #include "sprfmts.h"
 int items_n;
@@ -59,7 +59,7 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
     }
     sscanf(argv[i], "%d", &itemid);
     if (!itemid || itemid > items_n) {
-        glutHideWindow();
+        //glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nItem ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
@@ -163,7 +163,7 @@ void ItemsLoad() {
     dbExecPrintf(dbData, ItemsLoadNumFunc, 0, NULL, "select max(itemid) from items%d;", protocol->GetProtocolVersion());
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d items in database for protocol %d\n", items_n, protocol->GetProtocolVersion());
     if (!items_n) {
-        glutHideWindow();
+        //glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }

@@ -3,7 +3,7 @@
 #include "assert.h"
 
 #include "protocol.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "container.h"
 
 void GM_Gameworld_ClickExec(position_t *pos, glictEvents evt);

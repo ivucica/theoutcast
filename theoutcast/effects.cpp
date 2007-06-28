@@ -1,7 +1,7 @@
 #include "database.h"
 #include "protocol.h"
 #include "types.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "debugprint.h"
 int effects_n;
 effect_t **effects=NULL;
@@ -39,7 +39,7 @@ static int EffectsLoadFunc(void *NotUsed, int argc, char **argv, char **azColNam
     }
     sscanf(argv[i], "%d", &effectid);
     if (effectid > effects_n) {
-        glutHideWindow();
+        //glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading effects database.\nEffect ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }
@@ -72,7 +72,7 @@ void EffectsLoad() {
     dbExecPrintf(dbData, EffectsLoadNumFunc, 0, NULL, "select max(effectid) from effects%d;", protocol->GetProtocolVersion());
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d effects in database for protocol %d\n", effects_n, protocol->GetProtocolVersion());
     if (!effects_n) {
-        glutHideWindow();
+        //glutHideWindow();
         //MessageBox(HWND_DESKTOP, "There was an error in reading effects database.\nIt appears that current protocol has no effects in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
         exit(1);
     }

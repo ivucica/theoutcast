@@ -86,12 +86,12 @@ void Console::draw(char count) {
 
 
         if ((*it)->text) {
-            p += glutxNumberOfLines((*it)->text);
+            p += glictFontNumberOfLines((*it)->text);
 
             //glPushMatrix();
             glictFontRender(((*it) ->text), "system", 0, p*12 );
             //glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
-            glTranslatef(0, (glutxNumberOfLines((*it)->text)-1)*11. , 0);
+            glTranslatef(0, (glictFontNumberOfLines((*it)->text)-1)*11. , 0);
             //glPopMatrix();
 
 

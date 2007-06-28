@@ -4,7 +4,7 @@
 #include <GLICT/globals.h>
 #include <math.h>
 
-#include "glutwin.h"
+#include "windowing.h"
 #include "gamemode.h"
 #include "texmgmt.h"
 #include "defines.h"

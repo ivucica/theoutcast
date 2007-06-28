@@ -4,7 +4,7 @@
 #include <GLICT/fonts.h>
 #include <math.h>
 #include "texmgmt.h"
-#include "glutwin.h"
+#include "windowing.h"
 #include "gm_mainmenu.h"
 #include "defines.h"
 #include "simple_effects.h"
@@ -137,9 +137,13 @@ GM_MainMenu::GM_MainMenu() {
 //    SPRLoader("tibia76.spr");
     currentspr = 1;
 
-    glutSwapBuffers();
+    #ifdef USEGLUT
+	glutSwapBuffers();
+	#endif
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    glutSwapBuffers();
+    #ifdef USEGLUT
+	glutSwapBuffers();
+	#endif
 
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading logo and background\n");
@@ -720,7 +724,9 @@ void GM_MainMenu::ResizeWindow() {
 	options.GetSize(&s);
 	options.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
 
+    #ifdef USEGLUT
 	glutPostRedisplay();
+	#endif
 }
 
 void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
@@ -729,8 +735,12 @@ void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
 	pos.x = mousex;
 	pos.y = mousey;
 	desktop.TransformScreenCoords(&pos);
-	if (shift==GLUT_DOWN) desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
-	if (shift==GLUT_UP) {
+	if (shift==WIN_PRESS) {
+	    printf("_\n");
+	    desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
+	}
+	if (shift==WIN_RELEASE) {
+	    printf("~\n");
 	    if (desktop.CastEvent(GLICT_MOUSEUP, &pos, 0))
 	        SoundPlay("sounds/mouse.wav");
 
@@ -741,7 +751,9 @@ void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
 void GM_MainMenu::KeyPress (unsigned char key, int x, int y) {
     SoundPlay("sounds/key.wav");
 	desktop.CastEvent(GLICT_KEYPRESS, &key, 0);
+	#ifdef USEGLUT
 	glutPostRedisplay();
+	#endif
 }
 
 void GM_MainMenu::MsgBox (const char* mbox, const char* title) {
@@ -1035,7 +1047,7 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
 	options.intro = ((GM_MainMenu*)game)->btnOptionsIntro.GetCaption() == "X";
 	options.os_cursor = ((GM_MainMenu*)game)->btnOptionsOSCursor.GetCaption() == "X";
 
-	glut_SetMousePointer("DEFAULT");
+	win_SetMousePointer("DEFAULT");
 
     if (options.skin != ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption()) {
         options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
