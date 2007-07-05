@@ -110,7 +110,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
 		const char *er = SocketErrorDescription(wsaerror);
 
-		char tmp[256];
+		char tmp[512];
 		sprintf(tmp, "Socket error:\n%s\n\n%s (3)", er,
              wsaerror == WSAECONNREFUSED ? "This is not a bug in The Outcast. Do not report this.\nWe think that the server is probably not running." : "When reporting a bug, please type in this entire\nmessage as it appears!" );
 		CharList_ReportError(&menuclass->charlist, tmp);

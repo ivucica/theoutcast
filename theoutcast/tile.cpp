@@ -38,7 +38,7 @@ void Tile::Insert(Thing *thing, bool begin) {
         this->itemcount ++;
     } else if (dynamic_cast<Effect*>(thing)) {
         effects.insert(begin ? effects.begin() : effects.end(), (Effect*)thing);
-        console.insert("EFFECT!\n", true);
+//        console.insert("EFFECT!\n", true);
     } else if (thing->IsGround()) {
         if (!ground) this->itemcount ++;
         ground = thing;
@@ -271,7 +271,7 @@ void Tile::SetPos(position_t *p) {
     ONThreadUnsafe(threadsafe);
 }
 void Tile::RenderStrayCreatures(position_t *p) {
-
+    ONThreadSafe(threadsafe);
     unsigned int grndspeed = 500;// a safe default ...
     unsigned int creaturespeed = 220; //  a safe default...
     if (ground) {
@@ -333,7 +333,7 @@ void Tile::RenderStrayCreatures(position_t *p) {
 
         }
     }
-
+    ONThreadUnsafe(threadsafe);
 }
 void Tile::Render(int layer) {
 
@@ -720,7 +720,7 @@ unsigned char Tile::GetTopUsableStackpos() {
         }
     }
 
-    return GetTopLookAt();
+//    return GetTopLookAt();
 
 
 
@@ -728,7 +728,7 @@ unsigned char Tile::GetTopUsableStackpos() {
     topusable = 255;
     if (ground) {
 
-        if (items[ground->GetType()]->usable) {
+        if (items[ground->GetType()]->ladder) {
             topusable = stackpos;
 
         }
@@ -737,7 +737,7 @@ unsigned char Tile::GetTopUsableStackpos() {
 
     for (i = 1; i <=3 ; i++ ) {
         for (it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
-            if (items[(*it)->GetType()]->usable) {
+            if (items[(*it)->GetType()]->ladder) {
                 topusable = stackpos;
             }
             stackpos ++;
@@ -756,7 +756,7 @@ unsigned char Tile::GetTopUsableStackpos() {
     stackpos += creatures.size();
 
     for (it = itemlayers[0].begin(); it != itemlayers[0].end(); it++) {
-        if (items[(*it)->GetType()]->usable) {
+        if (items[(*it)->GetType()]->ladder) {
             topusable = stackpos;
         }
         stackpos ++;

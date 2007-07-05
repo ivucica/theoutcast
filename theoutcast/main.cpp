@@ -54,6 +54,7 @@ void GameInit() {
 	#if (!defined(WINFONT) && !defined(BMPFONT))
         #ifndef USEGLUT
         #error If you dont use GLUT, you need to use either WINFONT or BMPFONT
+		#else	
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);

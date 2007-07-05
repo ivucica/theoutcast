@@ -33,6 +33,8 @@ void ItemClear(item_t* item) {
     item->height = 0.;
     item->height2d_x = 0; item->height2d_y = 0;
     item->minimapcolor = 0;
+    item->extraproperty = 0;
+    item->ladder = false;
     item->spritelist[0] = 0;
     item->otid = 0;
 
@@ -124,6 +126,11 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             items[itemid]->extraproperty = iTmp;
         }
 
+        if (!strcmp(azColName[i], "ladder")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid]->ladder = iTmp;
+            //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
+        }
     }
     return 0;
 }
@@ -150,6 +157,9 @@ void ItemsLoad() {
             break;
         case 792:
             SPRLoader("Tibia792.spr");
+            break;
+        case 800:
+            SPRLoader("Tibia80.spr");
             break;
         default:
             printf("!(Y$*#)QY$()!$(!&#)($\n");

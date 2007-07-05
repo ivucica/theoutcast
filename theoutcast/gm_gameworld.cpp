@@ -933,7 +933,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
 
         } else {
             if (pos->x!=0xFFFF) {
-                char tmp[256];
+                char tmp[512];
                 sprintf(tmp, "There's a bug in GetTopUsableStackpos() routine or the tile is empty. %d/%d", t->GetTopUsableStackpos(), t->GetItemCount() );
 
                 console.insert(tmp, CONRED);

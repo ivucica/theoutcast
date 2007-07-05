@@ -57,6 +57,7 @@ struct item_t { // this type of struct declaration is necessary to be able to pl
     unsigned char height2d_x, height2d_y;
     unsigned short minimapcolor;
     unsigned char extraproperty;
+    bool ladder;
     char spritelist[4096];
     unsigned short otid;
 

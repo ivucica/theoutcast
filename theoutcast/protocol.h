@@ -110,11 +110,13 @@ class Protocol {
         ONThreadId thrCharList, thrGWLogon;
 
 
+
         // public variables
         std::string charlistserver;
         unsigned short charlistport;
         std::string gameworldserver;
         unsigned short gameworldport;
+        std::string username, password;
 
         gamemode_t newgamemode; // to which gamemode shall we be switching?
     protected:
@@ -128,7 +130,6 @@ class Protocol {
         character_t **charlist;
         unsigned int premiumdays;
         bool logonsuccessful;
-        std::string username, password;
         int maxx, maxy, maxz;
         bool active;
         bool cipsoft;
@@ -155,9 +156,12 @@ class Protocol {
 #include "protocol77.h"
 #include "protocol79.h"
   #include "protocol792.h"
+  #include "protocol80.h"
 #endif
 
-#include "protocolsp.h"
+#ifdef INCLUDE_SP
+  #include "protocolsp.h"
+#endif
 
 extern Protocol* protocol;
 bool ProtocolSetVersion (unsigned short protocolversion);

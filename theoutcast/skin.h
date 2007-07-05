@@ -13,6 +13,9 @@ class Skin {
 
         glictSkinner tmm;
         bool tmmloaded;
+        #ifdef OUTCAST_SKINS
+        bool nologo;
+        #endif
     private:
         Texture *wintl, *wint, *wintr, *winl, *winc, *winr, *winbl, *winb, *winbr;
         glictSkinner win;
@@ -23,6 +26,7 @@ class Skin {
         Texture *txttl, *txtt, *txttr, *txtl, *txtc, *txtr, *txtbl, *txtb, *txtbr;
         glictSkinner txt;
         Texture *tmmtl, *tmmt, *tmmtr, *tmml, *tmmc, *tmmr, *tmmbl, *tmmb, *tmmbr;
+
 
 
 };

@@ -51,7 +51,7 @@ Container::Container(std::string title, unsigned char containerid, unsigned shor
         objects[i]->SetOnMouseUp(Container_SlotsOnMouseUp);
 
     }
-    unsigned char *cid = (unsigned char *)malloc(4);
+    unsigned char *cid = (unsigned char *)malloc(5);
     *cid = containerid;
     close.SetWidth(10);
     close.SetHeight(10);
@@ -112,7 +112,7 @@ void Container::RebuildCounts() {
     for (int i = 0 ; i < capacity ; i++ ) {
         containeritemdata_t *c = (containeritemdata_t*)objects[i]->GetCustomData();
         if (c->container->GetItem(c->elementid) && (t = c->container->GetItem(c->elementid))->IsStackable()) {
-            char tmp[256];
+            char tmp[20];
             sprintf(tmp, "%dx", t->GetCount());
             objects[i]->SetCaption(tmp);
         } else objects[i]->SetCaption("");

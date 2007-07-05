@@ -492,9 +492,6 @@ printf("DEKRIPT.\n");
 #include "console.h"
 
 
-// following text msgs fail:
-// aa, aaa, aaaa
-
 void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
 #ifdef USEENCRYPTION
 	unsigned long k[4];
@@ -505,13 +502,14 @@ void NetworkMessage::XTEAEncrypt(unsigned long* m_key) {
     int diff = currentposition - buffer;
     buffer = (char*)realloc(buffer, size+2 + (8 - ((size+2) % 8)));
     currentposition = buffer + diff;
-    memcpy(buffer+2,buffer,size);
+    memmove(buffer+2,buffer,size);
     buffer[0] = (unsigned char)(size);
 	buffer[1] = (unsigned char)(size >> 8);
 	size+=2 + (8 - ((size+2) % 8));
 
 	unsigned long read_pos = 0;
 	unsigned long* buffer2 = (unsigned long*)buffer;
+
 	while(read_pos < size/4){
 		unsigned long v0 = buffer2[read_pos], v1 = buffer2[read_pos + 1];
 		unsigned long delta = 0x61C88647;

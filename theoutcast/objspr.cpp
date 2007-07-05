@@ -75,7 +75,11 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
 
 ObjSpr::~ObjSpr() {
     // FIXME (Khaos#1#): Crash happens because of this chunk!!
+    #if DEBUGLEVEL_BUILDTIME == 0
     return;
+    #endif
+
+
     switch (this->type) {
         case 0:
             if (items[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -178,7 +182,7 @@ bool ObjSpr::Render(position_t *pos) {
 
                 //printf("w %d h %d xdiv %d ydiv %d blendframes %d animcount %d unknown %d\n", sli.width, sli.height, sli.xdiv, sli.ydiv, sli.blendframes, sli.animcount, sli.unknown);
                 {
-                    char tmp[256];
+                    char tmp[512];
                     sprintf(tmp, "Active frame is %d while number of frames is %d. And that is a problem.", activeframe, sli.numsprites);
                     ASSERTFRIENDLY(activeframe < sli.numsprites, tmp )
                     //printf("%s\n", tmp);
@@ -215,7 +219,7 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned char head, unsigned 
     LoadCreature(creatureid, protocol->GetProtocolVersion(), head, body, legs, feet);
 }
 void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet ) {
-    char temp[256];
+    char temp[512];
     sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n-1);
     ASSERTFRIENDLY(creatureid <= creatures_n-1, temp);
 
@@ -256,7 +260,7 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
     sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
     t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
 
-    char filename [256];
+    char filename [512];
     FILE *f;
     //printf("%d\n", creatureid);
     for (int i = 0; i < sli.numsprites; i++) {
@@ -300,6 +304,12 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
                 else
                     t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
                 break;
+            case 800:
+                if (sli.blendframes > 1)
+                    t[i] = new Texture("Tibia80.spr", sli.spriteids[i], sli.spriteids[i+sli.height*sli.width], head, body, legs, feet);
+                else
+                    t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                break;
 
         }
 
@@ -323,10 +333,11 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
 
 }
 void ObjSpr::LoadItem(unsigned int itemid) {
-    LoadItem(itemid, protocol->GetProtocolVersion());
+	ASSERT(protocol)
+	LoadItem(itemid, protocol->GetProtocolVersion());
 }
 void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
-    char temp[256];
+    char temp[512];
     sprintf(temp, "invalid itemid %d out of %d in ObjSpr::LoadItem", itemid, items_n);
     ASSERTFRIENDLY(!itemid || itemid >= 100 && itemid <= items_n, temp);
 
@@ -375,7 +386,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
     sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
     t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
 
-    char filename [256];
+    char filename [512];
     FILE *f;
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
@@ -438,6 +449,22 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
                 if (!f) {
                     t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
                 }
+                break;
+
+            case 800:
+                sprintf(filename, "Tibia80/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                }
+                break;
         }
 
     }
@@ -465,7 +492,7 @@ void ObjSpr::LoadEffect(unsigned int effectid) {
     LoadEffect(effectid, protocol->GetProtocolVersion());
 }
 void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
-    char temp[256];
+    char temp[512];
     sprintf(temp, "invalid effectid %d out of %d in ObjSpr::LoadEffect", effectid, effects_n);
     ASSERTFRIENDLY(effectid <= effects_n, temp);
     if (!(effectid <= effects_n)) {// someone pressed ignore
@@ -518,7 +545,7 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
     sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
     t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
 
-    char filename [256];
+    char filename [512];
     FILE *f;
     for (int i = 0; i < sli.numsprites; i++) {
         sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
@@ -581,6 +608,23 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
                 if (!f) {
                     t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
                 }
+                break;
+
+            case 800:
+                sprintf(filename, "Tibia80/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                }
+                break;
+
         }
 
     }

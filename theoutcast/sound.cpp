@@ -4,7 +4,7 @@
 
 #include <map>
 #include <string>
-#ifdef USESOUNDS
+#if defined(USESOUNDS) && defined(WIN32)
 	#include <fmod/fmod.h>
 #endif
 #include "sound.h"
@@ -14,7 +14,7 @@
 #define MAXSOUNDS 15
 bool soundworks=false;
 
-#ifdef USESOUNDS
+#if defined(USESOUNDS) && defined(WIN32)
 FSOUND_STREAM* soundmusic = NULL;
 
 std::map<std::string, FSOUND_SAMPLE*> soundcache;
@@ -23,7 +23,7 @@ std::map<std::string, FSOUND_SAMPLE*> soundcache;
 bool SoundInit(char *errorbuf) {
 #ifndef USESOUNDS
 	return false;
-#else
+#elif defined(WIN32)
     if (soundworks) {
         printf("Sound system already started\n");
         if (errorbuf) strcpy(errorbuf, "Sound system already started");
@@ -39,13 +39,16 @@ bool SoundInit(char *errorbuf) {
 
     soundworks = true;
     return true;
+#else
+    soundworks = true;
+    return true;
 #endif
 }
 
 bool SoundPlay(const char* filename) {
 #ifndef USESOUNDS
 	return false;
-#else
+#elif defined(WIN32)
     FSOUND_SAMPLE *s=NULL;
     std::map<std::string, FSOUND_SAMPLE*>::iterator it;
 
@@ -67,6 +70,9 @@ bool SoundPlay(const char* filename) {
         FSOUND_SetVolumeAbsolute(FSOUND_FREE, 192);
         FSOUND_PlaySound(FSOUND_FREE, s);
     }
+#else
+    std::string command = std::string("/bin/sh -c \"play ") + filename + " 2> /dev/null\" & ";
+    system(command.c_str());
 #endif
 }
 
@@ -79,7 +85,7 @@ bool SoundSetMusic(const char* filename) {
 
 #ifndef USESOUNDS
 	return false;
-#else
+#elif defined(WIN32)
 
     if (soundmusic) FSOUND_Stream_Close(soundmusic);
     if (!filename) return true;
@@ -90,11 +96,13 @@ bool SoundSetMusic(const char* filename) {
     FSOUND_Stream_SetLoopCount(soundmusic,INF);
     FSOUND_Stream_Play (MUSICCHANNEL,soundmusic);
     return true;
+#else
+    return true;
 #endif
 }
 
 void SoundSetMusicVolume(unsigned char newvalue) {
-#ifdef USESOUNDS
+#if defined(USESOUNDS) && defined(WIN32)
     FSOUND_SetVolumeAbsolute(MUSICCHANNEL, newvalue);
     //printf("Sound set to %d\n", newvalue);
 #endif

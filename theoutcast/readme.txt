@@ -1,11 +1,12 @@
-THE OUTCAST v0.4
+THE OUTCAST v0.4.1
 Readme
-27.5.2007
+3.7.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
 
-Please look in sections "About this release" and "Change history" if you're already familiar with The Outcast. These two sections contain information on updates.
+New? Read "Instructions" for quick setup info. If you're having problems check out "Known problems and bugs" and "Troubleshooting".
+Coming back? Please look in sections "About this release" and "Change history" These two sections contain information on updates.
 ---
 
 CONTENTS
@@ -25,11 +26,11 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.4 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
+Hey folks, this is The Outcast v0.4.1 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
 
 The 0.4 series is a continuation upon the 0.3 series, which was a rewrite. We're about halfway with the client functionality; after all functionality is implemented, the final stability fixing process will begin.
 
-The Outcast supports multiple protocols in the same executable: when you enter your username and password, you also pick the protocol. Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 750, 760, 770, 790, 792 -- more upcoming.
+The Outcast supports multiple protocols in the same executable: when you enter your username and password, you also pick the protocol. Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 750, 760, 770, 790, 792, 800 -- more upcoming.
 
 It is NOT allowed to connect to CipSoft servers using alternative clients! If you do connect and CipSoft notices you're not using their client, you may be banned! (Tibia Rules, Section 3d)
 
@@ -44,17 +45,9 @@ This is a complete rewrite of The Outcast, from scratch, started since (effectiv
 
 1.a) Rant about this version
 
-This version is another major increment in version number while we're still in alpha, but nothing as radical as the 0.3 => 0.4. There's just so many features that are added in this version and that are done now
+Primarily a bugfix release, this version doesn't sport many new features. Many exams were standing in way of adding features, so that should be taken as a (hopefully good) excuse.
 
-For this release, I don't know where to start; maybe with the beginning ;)
-
-I've added the creature colors, so everything looks much much more like Tibia! There's also bitmap fonts support, and they're, for this purpose, much clearer than platform fonts, or GLUT fonts.
-
-Then there's this fancy-schmancy thing called "magic" effects. Meaning you'll actually see blood sparkling when you hit the enemy, a poof when you miss him (or, in case of Valkyries, her), or a blue light when you spawn.
-
-Maybe you wanted to party up with your friends, or send them a private message? Now that's possible, too.
-
-There's also this text above heads which I'm sure you'll all like... And best of all, there's tons of small fixes you may or may not notice, but which will make the life easier.
+To be honest, I mostly did this release because I noticed there was none for a long time, so ... :)
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
@@ -121,7 +114,8 @@ Before playing the game, copy the "Tibia.spr" from your "Tibia version 7.6" clie
 Also, please copy the "Tibia.spr" from your "Tibia version 7.5" client's folder. Place it into The Outcast's folder and name it "Tibia75.spr".
 Also, please copy the "Tibia.spr" from your "Tibia version 7.9" client's folder. Place it into The Outcast's folder and name it "Tibia79.spr".
 Also, please copy the "Tibia.spr" from your "Tibia version 7.92" client's folder. Place it into The Outcast's folder and name it "Tibia792.spr".
-If you do not copy one of the above, you won't be able to use that protocol. Other protocols will work as usual.
+Also, please copy the "Tibia.spr" from your "Tibia version 8.0" client's folder. Place it into The Outcast's folder and name it "Tibia80.spr".
+It is permitted to omit one of the sprite files. However, in such case support for that protocol will not work then.
 
 On the main menu click on Login. Enter the server you want to connect to, the account number and password. Under protocol, enter either 760, 770 or 790. Click OK. Choose one character.
 
@@ -131,7 +125,7 @@ To send a private message, surround the destination name with asterisks ("*"), a
   *Khaotic Woo*hi
 will send a message to player called Khaotic Woo.
 
-The textual
+Under GNU/Linux, The Outcast accepts "softwarerenderer" command line argument. It basically just programatically sets the LIBGL_ALWAYS_INDIRECT variable.
 
 Press ESC to leave the game.
 
@@ -141,7 +135,7 @@ Press ESC to leave the game.
 
 The client given out for free by Cipsoft contains simply too much graphics, and it is too much to expect that one student would ever be able to achieve full compatibility with their software. However, as much compatibility as possible will be attempted, and as much graphics as possible recreated.
 
-Protocols 7.5, 7.6, 7.7, 7.9, 7.92 are currently mostly supported. We plan to add as much protocols as possible.
+Protocols 7.5, 7.6, 7.7, 7.9, 7.92, 8.00 are currently mostly supported. We plan to add as much protocols as possible.
 
 
 ---
@@ -186,7 +180,7 @@ As I upgrade The Outcast with more features including some from old The Outcast,
 
 Credit for the name goes to Ryan Majetich a.k.a. Scotchy.
 
-Outcast utilizes the following libraries and wishes to thank their authors:
+The Outcast utilizes the following libraries and developer(s) wishes to thank their authors:
  JPEG Library
     by Independent JPEG Group
  GLUT
@@ -195,18 +189,21 @@ Outcast utilizes the following libraries and wishes to thank their authors:
     by Tom St Denis
  Dr.MinGW EXCHMDL.DLL
     by MinGW Project
+ SQLite
+    by D. Richard Hipp
 
 Thanks to CIPSoft for making Tibia and creating this wonderful protocol.
-Thanks to crew from #otserv (irc.quakenet.org) and from Tornadia Game Worlds for providing support when I needed it.
+Thanks to crew from #otserv (irc.quakenet.org) for providing support when I needed it.
 Thanks to my computer science teacher who kindly allowed me NOT to pay attention during her classes and develop The Outcast and study OpenGL, FMOD, OpenAL and who-knows-what-not.
 Thanks to my family for support and for, of course, food :)
 Thanks to ZRS for supporting me during last several years in my involvement with computers.
-Thanks to OTfans.net staff for opening The Outcast's forum, thus helping spread the news.
+Thanks to OTfans.net staff for opening The Outcast's forum, thus helping spread the newsk and further helping
 Thanks to BlackDemon for 7.81 dat reading support!
 Thanks to Simone and mips who helped with some chunks of code!
 Thanks to everyone who downloaded the old versions of The Outcast!
 Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles inside out to make OTserv. It's been an unreplaceable tool for local development!
 
+n.b. Great admiration goes to mr. Hipp, author of SQLite, who is very modest and has truly hidden his name from anything SQLite related, and has released it in public domain.
 ---
 
 10. CHANGE HISTORY
@@ -214,10 +211,18 @@ Big thanks to OTserv team who decoded the protocol and hacked Tibia's datafiles 
 Changes since 0.4
 * Fixed the ability to start messages starting with '/'.
 * Fixed sound support in "release" version
-* Truly fixed a bug when "going down" :/
+* Truly fixed a bug when "going downstairs" :/
 * Various memory problem fixes
 * "For your information" really pops up
 * Added some "extension" packets which will soon be publicly announced
+* Reenabled skin changing without restarting
+* Added sound in GNU/Linux version
+* Began adding SDL as window manager
+* Protocol 8.0 support!
+* Added a missing file with "party selection cursor"
+* Added correct logo (with 0.4 symbol instead of 0.3 :P)
+* New intro screen! Featuring some textures I photographed ^^ (Note: to view animated intro, switch to Luna skin!)
+* Skin "default" has been ... beautified a bit :)
 
 Changes since 0.3.9
 * Fixed various GLICT related issues
@@ -527,16 +532,16 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 Current code statistics:
 * Number of files: 103
 
-* Code only: 69%
+* Code only: 70%
 * Code + Comment: 5%
-* Comments: 7%
+* Comments: 6%
 * Empty: 19%
 
-* Code only: 10168
-* Empty lines: 2781
-* Comment lines: 996
-* Code and comments: 690
-* Total: 14635
+* Code only: 11627
+* Empty lines: 3143
+* Comment lines: 1074
+* Code and comments: 755
+* Total: 16599
 
 Count above does not include GLICT.
 ---

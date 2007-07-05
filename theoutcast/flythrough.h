@@ -4,14 +4,14 @@
 #include <string>
 #include <vector>
 
-typedef struct {// version of file format
+typedef struct structflyversion {// version of file format
 	char major, minor;
 	int revision; 
 } flyversion_t;
-typedef struct {
+typedef struct structflyheader {
 	int n; // number of frames
 } flyheader_t;
-typedef struct { // individual keyframe data
+typedef struct structflykf { // individual keyframe data
 	float posx1, posy1, posz1;
 	float rotx1, roty1, rotz1;
 	float length;

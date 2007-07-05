@@ -181,7 +181,7 @@ bool Protocol::ParseCharlist (NetworkMessage *nm, unsigned char packetid) {
                 return true;
             }
             default: {
-                char tmp[256];
+                char tmp[512];
                 DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar charlist packet %02x\n", protocolversion, packetid);
                 sprintf(tmp, "Protocol %d: Unfamiliar charlist packet %02x\n\nIf this is a fully supported protocol, please report this bug!", protocolversion, packetid);
                 this->errormsg = tmp;
@@ -317,7 +317,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x16: // Too Many Players login error message
             errormsg = nm->GetString();
             {
-                char tmp[256];
+                char tmp[255];
                 sprintf(tmp, "\nYou can retry in %d seconds", (unsigned short)nm->GetU8());
                 errormsg = errormsg + tmp;
             }
@@ -659,6 +659,14 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             Tile *t;
             Effect *e;
             unsigned char type;
+            #if 0
+            console.insert("Magic effects disabled\n", CONRED);
+            GetPosition(nm, &pos);
+            nm->GetU8();
+
+            return true;
+            #endif
+
 
             GetPosition(nm, &pos);
             t = gamemap.GetTile(&pos);
@@ -741,7 +749,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU16(); // itemid -- for icon?
             nm->GetU16(); // max length
             nm->GetString();
-            if (protocolversion >= 792) {
+            if (protocolversion >= 792) { //FIXME (Khaos#2#) Check where exactly this was added
                 nm->GetString(); // unknown
                 nm->GetString();
             }
@@ -1011,7 +1019,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 	}
 
     {
-        char tmp[256];
+        char tmp[512];
         DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
         sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is in testing. Report bugs!", protocolversion, packetid);
         this->errormsg = tmp;
@@ -1178,7 +1186,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             break;
         }
         default: {// regular item
-            char tmp[256];
+            char tmp[512];
             sprintf(tmp, "Invalid item received from server: %d. Loaded items: %d. Last successful item: %d", type, items_n, lastsuccessfulitem);
             if (!(type >= 100 && type <= items_n)) {
                 DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, tmp);
@@ -1270,7 +1278,6 @@ void Protocol::Speak(speaktype_t sp, const char *message, const char *deststr, u
         case NORMAL:
             nm.AddU8(sp);
             nm.AddString(message);
-
             break;
         case PRIVATE:
             nm.AddU8(sp);
@@ -1283,8 +1290,13 @@ void Protocol::Speak(speaktype_t sp, const char *message, const char *deststr, u
             ONThreadUnsafe(threadsafe);
             return;
     }
-    if (protocolversion >= 770)
+    nm.ShowContents();
+    if (protocolversion >= 770) {
         nm.XTEAEncrypt(key);
+        //nm.XTEADecrypt(key);
+        //nm.ShowContents();
+        //nm.XTEAEncrypt(key);
+    }
 
     nm.Dump(s);
     ONThreadUnsafe(threadsafe);
@@ -1545,7 +1557,7 @@ void Protocol::Move(position_t *pos1, unsigned char stackpos1, position_t *pos2,
     nm.AddU8(0x78);
 
     {
-        char tmp [256];
+        char tmp [512];
         sprintf(tmp, "Moving from %d %d %d to %d %d %d\n", pos1->x, pos1->y, pos1->z, pos2->x, pos2->y, pos2->z);
         console.insert(tmp);
     }
@@ -1725,9 +1737,11 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
     }
 
     switch (protocolversion) {
+        #ifdef INCLUDE_SP
         case 0xFFFF: // singleplayer protocol
             protocol = new ProtocolSP;
             return true;
+        #endif
         case 750:
             protocol = new Protocol75;
             return true;
@@ -1743,6 +1757,9 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
             return true;
         case 792:
             protocol = new Protocol792;
+            return true;
+        case 800:
+            protocol = new Protocol80;
             return true;
 #endif
         default:

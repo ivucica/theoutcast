@@ -91,7 +91,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentTyp
 
 
 	if (connect(s, (SOCKADDR*)&sin, sizeof(sin))) {
-		char tmp[256];
+		char tmp[512];
 		sprintf(tmp, "Socket error:\n%s (3)", SocketErrorDescription());
 		GWLogon_ReportError(&menuclass->charlist, tmp);
 

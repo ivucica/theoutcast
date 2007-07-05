@@ -127,6 +127,8 @@ GM_SPRPlayground::GM_SPRPlayground() {
 
     if (splashtest)
         counter = 0;
+    if (creaturetest)
+        counter = 1;
 
     if (!g) {
         printf("No test chosen. Aborting.\n");
@@ -190,7 +192,7 @@ void GM_SPRPlayground::Render() {
         else
             g->Render(&p);
 
-    g->AnimationAdvance(400./fps);
+    g->AnimationAdvance(200./fps);
     glPopMatrix();
 
     RenderMouseCursor();
@@ -299,6 +301,34 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
                 offset.x++;
                 g->SetDirection(EAST);
                 break;
+            case WIN_KEY_PAGE_UP: {
+                counter++;
+
+                char tmp[256];
+                sprintf(tmp, "%d", counter);
+                console.insert(tmp, CONORANGE);
+
+                delete g;
+
+
+                g = new ObjSpr(counter, 792, 50, 90, 110, 120);
+                g->SetDirection(SOUTH);
+                break;
+            }
+            case WIN_KEY_PAGE_DOWN: {
+                if (counter==1) return;
+                counter--;
+
+                char tmp[256];
+                sprintf(tmp, "%d", counter);
+                console.insert(tmp, CONORANGE);
+
+                delete g;
+                g = new ObjSpr(counter, 792, 50, 90, 110, 120);
+                g->SetDirection(SOUTH);
+
+                break;
+            }
 
         }
         char tmp[256];

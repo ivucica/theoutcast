@@ -1,7 +1,7 @@
 #include <sqlite3.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <malloc.h>
 
 
 int currentid;
@@ -48,6 +48,7 @@ typedef struct {
     unsigned char height2d_x, height2d_y;
     unsigned short minimapcolor;
     unsigned char extraproperty;
+    BOOL ladder;
 
     char spritelist[4096];
     unsigned short otid;
@@ -67,6 +68,27 @@ int datversion;
 /* header data */
 unsigned short dat_items, dat_creatures, dat_effects, dat_distance;
 
+
+
+#ifndef WIN32
+static int filesize (FILE* f) {
+	int loc = ftell(f);
+	int size = 0;
+
+	fseek(f, 0, SEEK_END);
+	size = ftell(f);
+	fseek(f, loc, SEEK_SET);
+	return size;
+}
+#else
+static int filesize (FILE* f) {
+#ifdef _MSC_VER
+	return _filelength(_fileno(f));
+#else
+	return filelength(fileno(f)) ;
+#endif
+}
+#endif
 
 
 int dbexecprintf(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, char **errmsg, ...) {
@@ -93,7 +115,7 @@ char tableexists(const char *tablename) {
 	return (dbexecprintf(fo, "select * from %s;", NULL, 0, NULL, tablename) == SQLITE_OK);
 }
 char check_tables() {
-    char tablename[10];
+    char tablename[30];
     sprintf(tablename, "items%d", datversion);
 	if (!tableexists(tablename)) {
 		printf("Creating table '%s'.\n", tablename);
@@ -124,6 +146,7 @@ char check_tables() {
 			"height2d_x integer, height2d_y integer, " /* how much does this item alter the height of items above it, in x and y*/
 			"minimapcolor integer," /* what is the color of this item on the minimap */
 			"extraproperty integer," /* additional property, set up with packet 0x1D */
+			"ladder boolean," /* determines if the object are ladders giving them extra priority */
 			"spritelist varchar[4096], " /* spritelist */
 			"otid integer" /* under what id does OTserv store this item */
 			"); ",NULL, 0, NULL, tablename) != SQLITE_OK) {
@@ -205,6 +228,7 @@ void clear_item(item_t* item) {
     item->height2d_x = 0; item->height2d_y = 0;
     item->minimapcolor = 0;
     item->extraproperty = 0;
+    item->ladder = FALSE;
     item->spritelist[0] = 0;
     item->otid = 0;
 
@@ -257,6 +281,7 @@ char dat_readitem(item_t *item) {
                         item->usable = TRUE;
                         break;
                     case 0x06: /* ladder */
+                        item->ladder = TRUE;
                         break;
                     case 0x07: /* writable */
                         item->writable = TRUE;
@@ -370,6 +395,7 @@ char dat_readitem(item_t *item) {
                         item->stackable = TRUE;
                         break;
                     case 0x06: /* ladder OR CORPSE?!?!?! */
+                        item->ladder = TRUE;
                         break;
                     case 0x07: /* usable? */
                         item->usable = TRUE;
@@ -460,6 +486,7 @@ char dat_readitem(item_t *item) {
 
             case 790:
             case 792:
+	    case 800:
                 switch (option) {
                     case 0x00: /* ground */
                         item->ground = TRUE;
@@ -481,6 +508,7 @@ char dat_readitem(item_t *item) {
                         item->stackable = TRUE;
                         break;
                     case 0x06: /* ladder OR CORPSE?!?!*/
+                        item->ladder = TRUE;
                         break;
                     case 0x07: /* usable? */
                         item->usable = TRUE;
@@ -585,7 +613,8 @@ char dat_readitem(item_t *item) {
         case 760:
         case 770:
         case 790:
-        case 792: {
+        case 792:
+	case 800: {
             spritelist_t *sl = (spritelist_t*)malloc(sizeof(spritelist_t));
             if (!sl) {
                 printf("Cannot alloc enough memory for spritelist\n");
@@ -665,10 +694,10 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
     unsigned short j;
     spritelist_t *sl = i->sl;
 
-    spritelistptr = spritelist + sprintf(spritelist, "%d %d %d %d %d %d %d %d ", (unsigned int)sl->width, (unsigned int)sl->height, (unsigned int)sl->blendframes, (unsigned int)sl->xdiv, (unsigned int)sl->ydiv, (unsigned int)sl->animcount, (unsigned int)sl->unknown, (unsigned int)sl->numsprites);
+    spritelistptr = spritelist + sprintf(spritelist, "%d, %d, %d, %d, %d, %d, %d, %d, ", (unsigned int)sl->width, (unsigned int)sl->height, (unsigned int)sl->blendframes, (unsigned int)sl->xdiv, (unsigned int)sl->ydiv, (unsigned int)sl->animcount, (unsigned int)sl->unknown, (unsigned int)sl->numsprites);
 
     for (j = 0; j < sl->numsprites; ++j) {
-        spritelistptr += sprintf(spritelistptr, "%d ", (unsigned int)sl->spriteids[j]);
+        spritelistptr += sprintf(spritelistptr, "%d, ", (unsigned int)sl->spriteids[j]);
     }
 
     if (!entryexists_itemid(itemid)) {
@@ -699,9 +728,10 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height2d_x, height2d_y, "
                         "minimapcolor, "
                         "extraproperty, "
+                        "ladder, "
                         "spritelist, "
                         "otid "
-                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
+                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
 
                         datversion, /* part of table name */
 
@@ -731,6 +761,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
                         i->extraproperty,
+                        i->ladder,
                         spritelist,
                         i->otid
                         ) != SQLITE_OK) return FALSE; else return TRUE;
@@ -760,6 +791,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "height2d_x = '%d', height2d_y = '%d', "
                         "minimapcolor = '%d', "
                         "extraproperty = '%d', "
+                        "ladder = '%d', "
                         "spritelist = '%q', "
                         "otid = '%d' "
 
@@ -790,6 +822,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->height2d_x, i->height2d_y,
                         i->minimapcolor,
                         i->extraproperty,
+                        i->ladder,
                         spritelist,
                         i->otid,
 
@@ -906,6 +939,7 @@ void show_progress(int currentid, int dat_items) {
         printf("%d%%", (currentid * 100) / dat_items == 1 ? 0 : (currentid * 100) / dat_items);
         lastpercentage = (currentid * 100) / dat_items;
         if (lastpercentage == 100) printf("\n"); else printf("...");
+        fflush(stdout);
     }
 
 }
@@ -933,7 +967,7 @@ void patchitem (unsigned int itemid, item_t *item) {
 }
 int main (int argc, char **argv) {
 	int rc;
-	int size;
+	int insize;
 	item_t item;
 
 	printf("\nThe Outcast DAT Convertor\n---\n");
@@ -956,7 +990,7 @@ int main (int argc, char **argv) {
 		return 1;
 	}
 	fseek(fi,0,SEEK_END);
-	size = ftell(fi);
+	insize = ftell(fi);
 	fseek(fi,0,SEEK_SET);
 
 	rc = sqlite3_open(argv[2], &fo);
@@ -976,7 +1010,7 @@ int main (int argc, char **argv) {
 	currentid = 100;
 	lastpercentage = -100;
 	dbexec(fo, "begin transaction;", NULL, NULL, NULL);
-	while (ftell(fi) < size && currentid <= dat_items) {
+	while (ftell(fi) < insize && currentid <= dat_items) {
 	    /*printf("Item %d\n", currentid);*/
         show_progress(currentid, dat_items);
         if (!dat_readitem(&item)) {
@@ -998,7 +1032,7 @@ int main (int argc, char **argv) {
     printf("READING MONSTERS...\n");
 	currentid = 1;
 	lastpercentage = -100;
-	while (ftell(fi) < size && currentid <= dat_creatures) {
+	while (ftell(fi) < insize && currentid <= dat_creatures) {
 	    /*printf("Item %d\n", currentid);*/
         show_progress(currentid, dat_creatures);
         if (!dat_readitem(&item)) {
@@ -1021,7 +1055,7 @@ int main (int argc, char **argv) {
     printf("READING EFFECTS...\n");
 	currentid = 1;
 	lastpercentage = -100;
-	while (ftell(fi) < size && currentid <= dat_effects) {
+	while (ftell(fi) < insize && currentid <= dat_effects) {
 	    /*printf("Effect %d\n", currentid);*/
         show_progress(currentid, dat_effects);
         if (!dat_readitem(&item)) {
@@ -1057,7 +1091,7 @@ int main (int argc, char **argv) {
         while (!feof(f)) {
             fgets(query, 255, f);
 
-            show_progress(ftell(f), filelength(f));
+            show_progress(ftell(f), filesize(f));
             if (query[0] != '#' && query[0] != 13 && query[0] != 10) {
                 char *errmsg;
                 dbexec(fo, query, NULL, NULL, &errmsg);

@@ -28,8 +28,10 @@ ProtocolSP::~ProtocolSP() {
 ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList_SP(ONThreadFuncArgumentType menuclass_void) {
 
 	GM_MainMenu* menuclass = (GM_MainMenu*)menuclass_void;
-
-
+//char tmp[250];
+//printf("$$$$$$$$$$$$$$$\n");
+//fgets(tmp, 50, stdin);
+//printf("((((((((((((\n");
     dbExec(dbUser, "begin transaction;", NULL, 0, NULL);
     dbSaveSetting("protocol", "SP");
     dbSaveSetting("server", menuclass->txtLoginServer.GetCaption().c_str());
@@ -44,7 +46,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList_SP(ONThreadFuncArgumen
     } else {
         CharList_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
-
+  //  fgets(tmp, 50, stdin);
     return 0;
 
 }
@@ -77,7 +79,12 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_SP(ONThreadFuncArgument
 
 
 void ProtocolSP::CharlistConnect() {
+    char tmp[50];
+//    fgets(tmp, 50, stdin);
     thrCharList = ONNewThread(Thread_CharList_SP, game); //CreateThread(NULL, 0, Thread_CharList, ((GM_MainMenu*)game), 0, &((GM_MainMenu*)game)->thrCharListId);
+//    printf("--------\n");
+    fgets(tmp, 50, stdin);
+//    printf("###########\n");
 }
 bool ProtocolSP::CharlistLogin(const char *username, const char *password) {
     NetworkMessage nm;
@@ -243,9 +250,9 @@ bool ProtocolSP::GameworldLogin () {
 }
 
 void ProtocolSP::Close() {
-    printf("Internal error\n");
-    system("pause");
-    exit(1);
+    //printf("Internal error\n");
+    //system("pause");
+    //exit(1);
 }
 void ProtocolSP::OCMCreateCharacter() {
     ((GM_CharMgr*)game)->ShowCreateCharacter();

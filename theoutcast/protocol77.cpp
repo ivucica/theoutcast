@@ -121,7 +121,7 @@ bool Protocol77::GameworldLogin () {
 bool Protocol77::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
     switch (packetid) {
         default: {
-            char tmp[256];
+            char tmp[512];
             printf("Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
             sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is temporarily unsupported while\n7.6 is in development.", protocolversion, packetid);
             this->errormsg = tmp;

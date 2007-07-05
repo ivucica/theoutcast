@@ -31,6 +31,7 @@
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSEGLUT" />
+					<Add option="-DINCLUDE_SP" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -62,8 +63,8 @@
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
-					<Add option="-DUSESOUNDS" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DUSESOUNDS" />
 					<Add option="-DTFM" />
 					<Add option="-DTEXTURE_SPR" />
 					<Add option="-DDETECT_GLVERSION" />
@@ -105,8 +106,8 @@
 					<Add option="-DWIN32" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
-					<Add option="-DUSESOUNDS" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DUSESOUNDS" />
 					<Add option="-DTFM" />
 					<Add option="-DTEXTURE_SPR" />
 					<Add option="-DDETECT_GLVERSION" />
@@ -186,6 +187,11 @@
 				<Compiler>
 					<Add option="/MTd" />
 					<Add option="/Gd" />
+					<Add option="/RTCu" />
+					<Add option="/RTCs" />
+					<Add option="/GA" />
+					<Add option="/GS" />
+					<Add option="/Zc:forScope" />
 					<Add option="/Zi /D_DEBUG" />
 					<Add option="/DWIN32" />
 					<Add option="/DUSEASSERT" />
@@ -197,6 +203,8 @@
 					<Add option="/DDETECT_GLVERSION" />
 					<Add option="/DTEXTURE_THREADS" />
 					<Add option="/DBMPFONT" />
+					<Add option="/DUSEGLUT" />
+					<Add option="/DINCLUDE_SP" />
 					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 				</Compiler>
 				<Linker>
@@ -220,7 +228,7 @@
 			</Target>
 			<Target title="debug_unix">
 				<Option platforms="Unix;" />
-				<Option output="outcast" prefix_auto="0" extension_auto="0" />
+				<Option output="outcastdebug" prefix_auto="0" extension_auto="0" />
 				<Option object_output=".objsdebug_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -241,6 +249,8 @@
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSEGLUT" />
+					<Add option="-DUSESOUNDS" />
+					<Add option="-DINCLUDE_SP" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -278,6 +288,7 @@
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSESDL" />
+					<Add option="-DINCLUDE_SP" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -287,6 +298,45 @@
 					<Add library="SDL" />
 					<Add library="GL" />
 					<Add library="GLU" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="gmp" />
+					<Add directory="../glict/" />
+				</Linker>
+			</Target>
+			<Target title="release_unix">
+				<Option platforms="Unix;" />
+				<Option output="outcast" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objs_unix" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="sprplaygroundd softwarerenderer " />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option="-O0" />
+					<Add option="-DPOSIX_THREADS" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DGMP" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
+					<Add option="-DUSESOUNDS" />
+					<Add option="-DINCLUDE_SP" />
+				</Compiler>
+				<Linker>
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option='-Wl,-Map=&quot;outcast.map&quot;' />
+					<Add library="GLICT" />
+					<Add library="glut" />
+					<Add library="GL" />
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
@@ -341,6 +391,7 @@
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
+			<Option target="release_unix" />
 		</Unit>
 		<Unit filename="glutfont.h">
 			<Option target="debug" />
@@ -349,6 +400,7 @@
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
+			<Option target="release_unix" />
 		</Unit>
 		<Unit filename="glutwin.cpp">
 			<Option target="debug" />
@@ -357,6 +409,7 @@
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
+			<Option target="release_unix" />
 		</Unit>
 		<Unit filename="glutwin.h">
 			<Option target="debug" />
@@ -365,6 +418,7 @@
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
+			<Option target="release_unix" />
 		</Unit>
 		<Unit filename="gm_charmgr.cpp" />
 		<Unit filename="gm_charmgr.h" />
@@ -397,6 +451,9 @@
 		<Unit filename="object.h" />
 		<Unit filename="objspr.cpp" />
 		<Unit filename="objspr.h" />
+		<Unit filename="objspr_new.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="options.cpp" />
 		<Unit filename="options.h" />
 		<Unit filename="player.cpp" />
@@ -412,7 +469,13 @@
 		<Unit filename="protocol79.cpp" />
 		<Unit filename="protocol79.h" />
 		<Unit filename="protocol792.h" />
-		<Unit filename="protocolsp.cpp" />
+		<Unit filename="protocolsp.cpp">
+			<Option target="debug" />
+			<Option target="debug_msvc" />
+			<Option target="debug_unix" />
+			<Option target="debug_sdl_unix" />
+			<Option target="release_unix" />
+		</Unit>
 		<Unit filename="protocolsp.h" />
 		<Unit filename="readme.txt" />
 		<Unit filename="resources.rc">
@@ -457,7 +520,13 @@
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
 		</Unit>
-		<Unit filename="winfont.h" />
+		<Unit filename="winfont.h">
+			<Option target="debug" />
+			<Option target="release" />
+			<Option target="release_lite" />
+			<Option target="release_opt" />
+			<Option target="debug_msvc" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 		</Extensions>

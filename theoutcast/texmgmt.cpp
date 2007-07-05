@@ -50,7 +50,7 @@
 #endif
 
 
-
+volatile static char punobajtova[1024]; // FIXME (Khaos#1#) something overwrites the "textures" memory ... check what!!
 static std::vector<Texture*> textures;
 int texcount=0;
 
@@ -80,6 +80,7 @@ void TextureFreeSlot();
 
 void TextureInit() {
     ONInitThreadSafe(texturethreadsafe);
+    punobajtova[0] = 1;
 }
 void TextureDeinit() {
     ONDeinitThreadSafe(texturethreadsafe);
@@ -161,6 +162,10 @@ Texture::Texture(std::string fname, unsigned short id) {
 		this->h = t->h;
 		this->loaded = t->loaded;
 		this->usecount = t->usecount;
+		if (!this->usecount) {
+		    TextureReportRemaining();
+		}
+		ASSERT(this->usecount);
 		(*this->usecount)++;
 		intexlist = true;
 		printf("doubleload\n");
@@ -169,10 +174,13 @@ Texture::Texture(std::string fname, unsigned short id) {
 	}
 
 	this->loaded = (bool*)malloc(sizeof(bool));
+	ASSERT(loaded);
 	*(this->loaded) = false;
     this->usecount = (int*)malloc(sizeof(int));
+    ASSERT(usecount);
     *(this->usecount) = 1;
 	this->textureid = (GLuint*)malloc(sizeof(textureid));
+	ASSERT(textureid);
 	*(this->textureid) = 0;
 
 	pikseli=NULL;
@@ -233,7 +241,9 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 
 Texture::~Texture() {
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
-
+    #if DEBUGLEVEL_BUILDTIME == 0
+    return;
+    #endif
 
     ONThreadSafe(texturethreadsafe);
 
@@ -262,11 +272,13 @@ Texture::~Texture() {
 		{
 		char tmp[800];
 		sprintf(tmp, "Did not find the texture %s[%d] inside texture list\n", this->fname.c_str(), this->imgid);
+
 		if (!success) {
 		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, tmp);
 		    TextureReportRemaining();
 		}
 		ASSERTFRIENDLY(success, tmp);
+
 
 
 		}
@@ -375,9 +387,10 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
 
     fseek(f, SPRPointers[imgid], SEEK_SET);
 
+    /*printf("%02x ", fgetc(f));
     printf("%02x ", fgetc(f));
-    printf("%02x ", fgetc(f));
-    printf("%02x\n", fgetc(f));// what do these do?
+    printf("%02x\n", fgetc(f));// what do these do?*/
+    fgetc(f); fgetc(f); fgetc(f);
 
     unsigned short size;
     fread(&size, 2, 1, f);
@@ -417,12 +430,13 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
         //printf("%s pixel chunk size: %d\n", transparent ? "Transparent" :  "Solid", pixelchunksize);
         //printf("At position %d, reading until %d\n", ftell(f), initialftell + size - 1 );
         if (transparent) {
-            for (int i = 0; i < pixelchunksize; ++i) {
+        /*    for (int i = 0; i < pixelchunksize; ++i) {
                 rgba[i+destination].r = 0;
                 rgba[i+destination].g = 0;
                 rgba[i+destination].b = 0;
                 rgba[i+destination].a = 0;
             }
+            */ // already 0,0,0,0 ...
         } else {
             for (int i = 0; i < pixelchunksize; ++i) {
                 ASSERT( i + destination < 32 * 32 )
@@ -605,9 +619,12 @@ void Texture::Bind() {
 }
 
 Texture* Texture::Find() {
-    //return NULL;
+    #if DEBUGLEVEL_BUILDTIME == 0
+    return NULL;
+    #endif
+
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
-	    printf("%s %d finding %s %d\n", (*it)->fname.c_str(),  (*it)->imgid, this->fname.c_str(),  this->imgid);
+//	    printf("%s %d finding %s %d\n", (*it)->fname.c_str(),  (*it)->imgid, this->fname.c_str(),  this->imgid);
 		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
 
 			return *it;
@@ -686,6 +703,11 @@ retry:
 
 void TextureReportRemaining() {
     static Texture *t;
+
+    #if DEBUGLEVEL_BUILDTIME == 0
+    return;
+    #endif
+
     for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
         t = (*it);
         DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING,"Remaining %s[%d]=%d x%d", t->fname.c_str(), t->imgid, *(t->textureid), *(t->usecount) );

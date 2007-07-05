@@ -203,7 +203,7 @@ GM_MainMenu::GM_MainMenu() {
 	pnlLogin.SetHeight(92);
 	pnlLogin.SetBGActiveness(false);
 
-    char tmp[256];
+    char tmp[512];
 
 	login.AddObject(&pnlLoginProtocol);
 	pnlLoginProtocol.SetCaption("Protocol:");
@@ -215,7 +215,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginProtocol.SetPos(100, 5*15);
 	txtLoginProtocol.SetHeight(14);
 	txtLoginProtocol.SetWidth(150);
-	dbLoadSetting("protocol", tmp, 256, "760");
+	dbLoadSetting("protocol", tmp, 510, "760");
     txtLoginProtocol.SetCaption(tmp);
 
 	login.AddObject(&pnlLoginServer);
@@ -228,7 +228,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginServer.SetPos(100, 6*15);
 	txtLoginServer.SetHeight(14);
 	txtLoginServer.SetWidth(150);
-	dbLoadSetting("server", tmp, 256, "localhost");
+	dbLoadSetting("server", tmp, 510, "localhost");
 	txtLoginServer.SetCaption( tmp );
 
 	login.AddObject(&pnlLoginUsername);
@@ -242,7 +242,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginUsername.SetHeight(14);
 	txtLoginUsername.SetWidth(150);
 	txtLoginUsername.SetPassProtectCharacter('*');
-	dbLoadSetting("username", tmp, 256, "111111");
+	dbLoadSetting("username", tmp, 510, "111111");
 	txtLoginUsername.SetCaption(tmp);
 
 	login.AddObject(&pnlLoginPassword);
@@ -256,7 +256,7 @@ GM_MainMenu::GM_MainMenu() {
 	txtLoginPassword.SetHeight(14);
 	txtLoginPassword.SetWidth(150);
 	txtLoginPassword.SetPassProtectCharacter('*');
-	dbLoadSetting("password", tmp, 256, "tibia");
+	dbLoadSetting("password", tmp, 510, "tibia");
 	txtLoginPassword.SetCaption(tmp);
 
 	login.AddObject(&btnLoginLogin);
@@ -288,7 +288,7 @@ GM_MainMenu::GM_MainMenu() {
 	about.SetCaption("About");
 	//about.SetBGColor(.5,.5,.5,1.);
 	about.SetOnDismiss(&GM_MainMenu_AboutOnDismiss);
-	char abouttext[8192];
+	char abouttext[20000];
 	char extensions[20000];
 	strcpy(extensions, (char*)glGetString(GL_EXTENSIONS));
 	int lenext = strlen(extensions);
@@ -323,7 +323,7 @@ GM_MainMenu::GM_MainMenu() {
 
 		i = j+1;
 	}
-	sprintf(abouttext, "%s 0.4\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
+	sprintf(abouttext, "%s 0.4.1\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
 	about.SetMessage(abouttext);
 //    about.SetMessage("oi");
 	about.SetHeight(390);
@@ -596,7 +596,7 @@ void GM_MainMenu::Render() {
 
 //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
     glEnable(GL_TEXTURE_2D);
-    if (!skin.tmmloaded)  { // painting logo
+    if (!skin.nologo)  { // painting logo
 //        printf("....\n");
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -905,6 +905,11 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
             strcpy(sprfilename, "Tibia792.spr");
             strcpy(protocolstr, "7.92");
             break;
+        case 800:
+            strcpy(sprfilename, "Tibia80.spr");
+            strcpy(protocolstr, "8.0");
+            break;
+
         default:
             strcpy(sprfilename, "ERROR");
             strcpy(protocolstr, "<<INTERNAL ERROR>>");
@@ -912,7 +917,7 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
     }
     if (strlen(sprfilename)) f = fopen(sprfilename, "rb");
     if (!f ) {
-        char sprerr[256];
+        char sprerr[512];
         sprintf(sprerr, "For this protocol,\nyou must copy Tibia.spr from Tibia\n%s client's folder to The\nOutcast's folder and rename it into \n%s.", protocolstr, sprfilename);
         ((GM_MainMenu*)game)->MsgBox(sprerr, "Sorry");
         return;
@@ -1026,7 +1031,7 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
 	// first, do some argument check
 
 	{// skin
-		char tmp[256];
+		char tmp[512];
 		sprintf(tmp, "skins/%s/window/tl.bmp", ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption().c_str());
 		FILE *f = fopen(tmp,"r");
 		if (!f) {

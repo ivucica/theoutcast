@@ -1,5 +1,5 @@
-THE OUTCAST 0.3.x - GNU/Linux VERSION
-Readme for 0.4.0_prerelease
+THE OUTCAST 0.4 - GNU/Linux VERSION
+Readme for 0.4.1
 (c) 2005-2007 OBJECT Networks
 =============================
 
@@ -12,7 +12,19 @@ $ tar xvvfz outcast*
 $ cd outcast<PRESS TAB>
 $ ./outcast
 
-2) Known limitations
+2) Requirements
+
+Built with Debian GNU/Linux testing.
+
+You will need the following libraries:
+* FreeGLUT
+* Lib3DS
+* SQLite3
+* GMP
+
+To make sound work, you will also need set of programs called "SoX - Swiss army knife of sound processing"; more specifically, a program called "play" which will accept one argument - the file name to be played. This program is included in SoX.
+
+3) Known limitations
 
 * It cannot run under "Debian GNU/Linux March 17th 2007 etch-testing" on Intel 915GM motherboard when Compiz is running.
 * While dragging, cursor position is not read properly so you can't see where the cursor exactly is.

@@ -3,7 +3,7 @@
 #include "texmgmt.h"
 #include "skin.h"
 #include "assert.h"
-
+#include "defines.h" // for fileexists
 #ifdef OUTCAST_SKINS
     #include "colors.h"
 #endif
@@ -64,6 +64,7 @@ Skin::Skin() {
     tmmbr = NULL;
 
     tmmloaded = false;
+    nologo = false;
 }
 Skin::~Skin() {
     Unload();
@@ -93,6 +94,9 @@ void Skin::Load(const char* what) {
             for (int i = 0; i < 7; i++) {
                 fscanf(f, "%g %g %g %g", &consolecolors[i*4], &consolecolors[i*4+1], &consolecolors[i*4+2], &consolecolors[i*4+3]);
             }
+            nologo = fileexists((dirname + "nologo.txt").c_str());
+
+
             #endif
 
 
@@ -366,7 +370,7 @@ void Skin::Unload() {
     tmm.SetBR(0, NULL);
     tmmloaded = false;
 
-
+    nologo = false;
 
     printf("UNLOADED ALL!\n");
 }

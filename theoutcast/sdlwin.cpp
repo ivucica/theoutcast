@@ -1,3 +1,4 @@
+#ifdef USESDL
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
@@ -334,3 +335,5 @@ void RenderMouseCursor() {
 
 
 }
+
+#endif
