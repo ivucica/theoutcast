@@ -8,7 +8,7 @@
 class GameMode {
 	public:
 		GameMode();
-		~GameMode();
+		virtual ~GameMode();
 
 		virtual void Render();
 		virtual void ResizeWindow();

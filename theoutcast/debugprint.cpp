@@ -15,6 +15,10 @@
     extern PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
 #endif
 
+#ifndef DEBUGLEVEL_BUILDTIME
+    #warning You should define DEBUGLEVEL_BUILDTIME in compiler options.
+    #define DEBUGLEVEL_BUILDTIME 0
+#endif
 char debuglevel=DEBUGLEVEL_BUILDTIME;
 
 std::string DEBUG_FILE; int DEBUG_LINE;

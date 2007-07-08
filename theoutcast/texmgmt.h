@@ -17,6 +17,7 @@ class Texture {
 		void Bind ();
 
 		RGBA *FetchBMPPixels();
+		RGBA *FetchPNGPixels();
 		RGBA *FetchSPRPixels(unsigned int imgid); // FIXME should be unsigned short imgid
 		RGBA* ColorizeCreature(RGBA *pixels, RGBA *templatepixels, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet);
 		void StorePixels();

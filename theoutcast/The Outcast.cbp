@@ -310,7 +310,7 @@
 				<Option object_output=".objs_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd softwarerenderer " />
+				<Option parameters="sprplaygroundd softwarerendererr" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />

@@ -135,6 +135,9 @@ Texture::Texture(std::string fname) {
 	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
         	pikseli = this->FetchSPRPixels(imgid);
 	}
+	if (extension=="png" || extension=="PNG") {
+	        pikseli = this->FetchPNGPixels();
+	}
 	if (pikseli) {
 	        //this->StorePixels();
 	}
@@ -192,6 +195,9 @@ Texture::Texture(std::string fname, unsigned short id) {
 	}
 	if (extension=="spr" || extension=="SPR") { // quasi-filetype to allow loading of SPR file format which we think of as a kind of "archive" with tons of pictures
         	pikseli = this->FetchSPRPixels(imgid);
+	}
+	if (extension=="png" || extension=="PNG") {
+	        pikseli = this->FetchPNGPixels();
 	}
 	if (pikseli) {
 	        //this->StorePixels();
@@ -345,6 +351,27 @@ RGBA *Texture::FetchBMPPixels() {
     //printf("Loaded bitmap %s\n", fname.c_str());
     return pikseli;
 }
+
+
+RGBA *Texture::FetchPNGPixels() {
+    RGBA *pikseli;
+	FILE *f = fopen(fname.c_str(), "rb");
+
+    if (!f) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Error opening png %s.", fname.c_str());
+        return NULL;
+    }
+    if (!LoadPNGFromFile2RGBA(f, (unsigned int*)&w, (unsigned int*)&h, &pikseli)) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Error loading png %s.\n", fname.c_str());
+        fclose(f);
+        return NULL;
+    }
+    fclose(f);
+
+    //printf("Loaded bitmap %s\n", fname.c_str());
+    return pikseli;
+}
+
 
 RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
     #ifndef TEXTURE_SPR
@@ -590,7 +617,7 @@ void Texture::AssureLoadedness() {
 	}
 }
 void Texture::Bind() {
-	//ONThreadSafe(texturethreadsafe);
+	ONThreadSafe(texturethreadsafe);
 	AssureLoadedness();
 
 /*
@@ -615,7 +642,7 @@ void Texture::Bind() {
 	    glIsTexture(*textureid) ? "yes" : "no"
 	    );
 	}
-	//ONThreadUnsafe(texturethreadsafe);
+	ONThreadUnsafe(texturethreadsafe);
 }
 
 Texture* Texture::Find() {

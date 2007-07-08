@@ -15,8 +15,13 @@ void EffectClear(effect_t* effect) {
 
 
     if (effect->textures) for (int i=0;i<effect->sli.numsprites;i++)
-        if (((Texture**)effect->textures)[i]) delete ((Texture**)effect->textures)[i];
+        if (effect->textures) {
+            delete ((Texture**)effect->textures)[i];
+        } else {
+            printf("effect->textures is NULL!\n");
+        }
     if (effect->textures) free(effect->textures);
+    effect->sli.numsprites = 0;
     effect->textures = NULL;
 
     effect->loaded = false;

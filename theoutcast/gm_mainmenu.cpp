@@ -148,7 +148,7 @@ GM_MainMenu::GM_MainMenu() {
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading logo and background\n");
 
-    logo = new Texture("logo.bmp");
+    logo = new Texture("logo.png");
 
 
 

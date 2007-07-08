@@ -39,8 +39,13 @@ void ItemClear(item_t* item) {
     item->otid = 0;
 
     for (int i=0;i<item->sli.numsprites;i++)
-        delete ((Texture**)item->textures)[i];
+        if (item->textures) {
+            delete ((Texture**)item->textures)[i];
+        } else {
+            printf("item->textures is NULL!\n");
+        }
     if (item->textures) free(item->textures);
+    item->sli.numsprites = 0;
     item->textures = 0;
     // sli does not really need to be cleared ... it will be rebuilt each time
     // same for animcount
@@ -51,6 +56,7 @@ void ItemClear(item_t* item) {
 void ItemInit(item_t *item) {
     item->textures = NULL;
     item->sli.numsprites = 0;
+    ItemClear(item);
 }
 
 static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -214,6 +220,7 @@ void ItemsLoad_NoUI(unsigned int protocolversion) {
 
 void ItemsUnload() {
     for (int i=0;i<items_n;i++) {
+        printf("%d\n", i);
         ItemClear(*(items + i));
         delete *(items + i);
     }

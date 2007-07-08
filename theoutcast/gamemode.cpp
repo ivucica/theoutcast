@@ -1,4 +1,5 @@
 #include <string>
+#include <GL/glut.h>
 #include "gamemode.h"
 #include "gm_mainmenu.h"
 #include "gm_logo.h"
@@ -7,6 +8,7 @@
 #include "gm_sprplayground.h"
 #include "windowing.h"
 #include "debugprint.h"
+#include "threads.h"
 GameMode* game=NULL;
 gamemode_t gamemode;
 

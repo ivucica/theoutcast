@@ -45,6 +45,8 @@ Texture *fonttexture = NULL;
 
 // function predeclares
 void GameInit();
+void ObjSprInit();
+void ObjSprDeinit();
 int main(int argc, char** argv);
 
 
@@ -54,7 +56,7 @@ void GameInit() {
 	#if (!defined(WINFONT) && !defined(BMPFONT))
         #ifndef USEGLUT
         #error If you dont use GLUT, you need to use either WINFONT or BMPFONT
-		#else	
+		#else
 		sysfont->SetFontParam(GLUT_STROKE_MONO_ROMAN);
 		sysfont->SetRenderFunc(glutxStrokeString);
 		sysfont->SetSizeFunc(glutxStrokeSize);
@@ -70,6 +72,8 @@ void GameInit() {
 		sysfont->SetSizeFunc(WinFontSize);
     #endif
 
+
+    ObjSprInit();
 	GameModeInit();
 
     if (!sprplayground)
@@ -83,6 +87,7 @@ void GameInit() {
 }
 
 void GameDeinit() {
+    ObjSprDeinit();
     glictDeleteFont("system");
     delete fonttexture;
     GameModeDeinit();

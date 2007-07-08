@@ -15,8 +15,13 @@ void CreatureClear(creature_t* creature) {
 
 
     if (creature->textures) for (int i=0;i<creature->sli.numsprites;i++)
-        if (((Texture**)creature->textures)[i]) delete ((Texture**)creature->textures)[i];
+        if (creature->textures) {
+            delete ((Texture**)creature->textures)[i];
+        } else {
+            printf("creature->textures is NULL!\n");
+        }
     if (creature->textures) free(creature->textures);
+    creature->sli.numsprites = 0;
     creature->textures = NULL;
 
     creature->loaded = false;

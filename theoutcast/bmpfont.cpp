@@ -4,7 +4,7 @@
 #include <GL/gl.h>
 #include <stdio.h>
 #include "bmpfont.h"
-#include "debugprint.h"
+
 Texture *BMPFontCreate(char* fontname, char size) {
     Texture *t = new Texture(fontname);
 

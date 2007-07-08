@@ -16,7 +16,7 @@
 #include <stdio.h>
 inline bool fileexists(const char* filename) {
     FILE *f;
-    if (f = fopen(filename, "r")) {
+    if ((f = fopen(filename, "r"))) {
         fclose(f);
         return true;
     } else

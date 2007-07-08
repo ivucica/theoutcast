@@ -8,23 +8,27 @@
 #include "assert.h"
 #include "database.h"
 #include "defines.h"
-
+#include "threads.h"
 sqlite3 *dbData, *dbUser;
 
 
 
 // when running in debug mode with gdb, do:
-#define free
+//#define free
 // to turn off free. it appears to be bugged!
 
 
-// TODO (Khaos#3#): make all functions threadsafe; do a lock at enter of function, and unlock at leave of function
+// DONE (Khaos#3#): make all functions threadsafe; do a lock at enter of function, and unlock at leave of function
 // TODO (Khaos#3#): dbSaveSetting and dbLoadSetting must check if dbUser is loaded at all
 char* dbLoadSettingReturnValue;
 static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColName);
+
+ONCriticalSection dbthreadsafe;
+
 void DBInit() {
     int rc;
 
+    ONInitThreadSafe(dbthreadsafe);
     if (dbUser) {
         sqlite3_close(dbUser);
         dbUser=NULL;
@@ -111,7 +115,8 @@ void dbSaveSetting(const char* settingname, const char* value) {
 
 bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const char *defaultval) {
     dbLoadSettingReturnValue = NULL;
-    if (dbExecPrintf(dbUser, dbLoadSettingFunc, 0, NULL, "select `value` from settings where `field` = '%q';", settingname) == SQLITE_OK) { // Crash report #1
+    if (dbExecPrintf(dbUser, dbLoadSettingFunc, 0, NULL, "select `value` from settings where `field` = '%q';", settingname) == SQLITE_OK) {
+        ONThreadSafe(dbthreadsafe);
         if (dbLoadSettingReturnValue) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Returned value %s\n", dbLoadSettingReturnValue);
             memcpy(valuetarget, dbLoadSettingReturnValue, min(maxlen, strlen(dbLoadSettingReturnValue)));
@@ -119,17 +124,19 @@ bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const
 
             free(dbLoadSettingReturnValue);
             dbLoadSettingReturnValue = NULL;
+            ONThreadUnsafe(dbthreadsafe);
             return true;
         } else {
             if (defaultval) {
                 memcpy(valuetarget, defaultval, min(maxlen, strlen(defaultval)));
                 valuetarget[min(maxlen, strlen(defaultval))] = 0;
                 DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Returned default value %s\n", defaultval);
-
+                ONThreadUnsafe(dbthreadsafe);
                 return true;
             }
             else {
                 valuetarget[0] = 0;
+                ONThreadUnsafe(dbthreadsafe);
                 return false;
             }
         }
@@ -137,8 +144,12 @@ bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const
 
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_ERROR, "SQLite cannot load a setting!\n\nError: %s\n", sqlite3_errmsg(dbUser));
         valuetarget[0] = 0;
+        ONThreadUnsafe(dbthreadsafe);
         return false;
     }
+
+    ASSERTFRIENDLY(false, "Unexpected codeflow");
+    ONThreadUnsafe(dbthreadsafe);
 }
 static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColName) {
     dbLoadSettingReturnValue = (char*)malloc(strlen(argv[0])+2);
@@ -160,7 +171,7 @@ int dbExecPrintf(
   char **errmsg,                   /* Error msg written here */
   const char *sql,                 /* SQL to be executed */
   ...) {
-
+    ONThreadSafe(dbthreadsafe);
 	va_list vl;
 	va_start(vl, sql);
 
@@ -179,7 +190,7 @@ int dbExecPrintf(
     }
     sqlite3_free(z);
 
-
+    ONThreadUnsafe(dbthreadsafe);
 	return rc;
 }
 

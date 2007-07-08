@@ -83,7 +83,7 @@ void ProtocolSP::CharlistConnect() {
 //    fgets(tmp, 50, stdin);
     thrCharList = ONNewThread(Thread_CharList_SP, game); //CreateThread(NULL, 0, Thread_CharList, ((GM_MainMenu*)game), 0, &((GM_MainMenu*)game)->thrCharListId);
 //    printf("--------\n");
-    fgets(tmp, 50, stdin);
+//    fgets(tmp, 50, stdin);
 //    printf("###########\n");
 }
 bool ProtocolSP::CharlistLogin(const char *username, const char *password) {

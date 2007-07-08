@@ -8,11 +8,10 @@
 #include "gamemode.h"
 #include "texmgmt.h"
 #include "defines.h"
-#include "simple_effects.h"
 #include "options.h"
 #include "threads.h"
 #include "debugprint.h"
-
+#include "simple_effects.h"
 #ifdef _MSC_VER
     #include <float.h>
     #define isnan _isnan

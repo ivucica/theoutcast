@@ -7,11 +7,22 @@
 #include "simple_effects.h"
 #include "defines.h"
 #include "protocol.h"//remove me and replace the switch(protocol->GetPRotcoolVersion) with something that'll return the spr filename
+
+ONCriticalSection objsprthreadsafe;
+#define ONThreadSafe
+#define ONThreadUnsafe
+void ObjSprInit() {
+    ONInitThreadSafe(objsprthreadsafe);
+}
+void ObjSprDeinit() {
+    ONDeinitThreadSafe(objsprthreadsafe);
+}
 ObjSpr::ObjSpr() {
     memset(&sli, 0, sizeof(sli));
     direction = NORTH;
 }
 ObjSpr::ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolversion) { // no network version
+    ONThreadSafe(objsprthreadsafe);
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
@@ -27,10 +38,11 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolver
     this->itemid = itemid;
     this->type = type;
     this->direction = NORTH;
-
+    ONThreadUnsafe(objsprthreadsafe);
 
 }
 ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
+    ONThreadSafe(objsprthreadsafe);
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
@@ -47,10 +59,11 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     this->type = type;
     this->direction = NORTH;
 
-
+    ONThreadUnsafe(objsprthreadsafe);
 }
 
 ObjSpr::ObjSpr(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
+    ONThreadSafe(objsprthreadsafe);
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
@@ -61,6 +74,7 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned char head, unsigned char body
     this->direction = NORTH;
 }
 ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
+    ONThreadSafe(objsprthreadsafe);
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
@@ -69,6 +83,7 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
     this->itemid = creaturetype;
     this->type = 1;
     this->direction = NORTH;
+    ONThreadUnsafe(objsprthreadsafe);
 }
 
 
@@ -79,7 +94,7 @@ ObjSpr::~ObjSpr() {
     return;
     #endif
 
-
+    ONThreadSafe(objsprthreadsafe);
     switch (this->type) {
         case 0:
             if (items[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -88,8 +103,8 @@ ObjSpr::~ObjSpr() {
                 free(items[itemid]->textures);
                 items[itemid]->textures = NULL;
                 free(sli.spriteids);
-            } else
-                items[itemid]->sli.usecount--;
+            }
+            items[itemid]->sli.usecount--;
             break;
         case 1:
             if (creatures[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -98,8 +113,8 @@ ObjSpr::~ObjSpr() {
                 free(creatures[itemid]->textures);
                 creatures[itemid]->textures = NULL;
                 free(sli.spriteids);
-            } else
-                creatures[itemid]->sli.usecount--;
+            }
+            creatures[itemid]->sli.usecount--;
             break;
         case 2:
             if (effects[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -108,13 +123,13 @@ ObjSpr::~ObjSpr() {
                 free(effects[itemid]->textures);
                 effects[itemid]->textures = NULL;
                 free(sli.spriteids);
-            } else
-                effects[itemid]->sli.usecount--;
+            }
+            effects[itemid]->sli.usecount--;
             break;
         default:
             ASSERTFRIENDLY(false, "BOO! BOOO!");
     }
-
+    ONThreadUnsafe(objsprthreadsafe);
 }
 bool ObjSpr::Render() {
     position_t p;
@@ -123,10 +138,11 @@ bool ObjSpr::Render() {
 }
 bool ObjSpr::Render(position_t *pos) {
     glEnable(GL_TEXTURE_2D);
+    ONThreadSafe(objsprthreadsafe);
     int currentframe = (int)((animation_percent/100.) * (float)sli.animcount);
     //if (sli.animcount!=1) printf("%f - %d out of %d; %g * %g\n", animation_percent, currentframe, sli.animcount, (animation_percent/100.), (float)sli.animcount);
-   // if (itemid == 5022) printf("%s, %d\n",  items[itemid].spritelist, sli.animcount);
-   int activeframe;
+    // if (itemid == 5022) printf("%s, %d\n",  items[itemid].spritelist, sli.animcount);
+    int activeframe;
 
 
 
@@ -195,6 +211,7 @@ bool ObjSpr::Render(position_t *pos) {
     //printf("\n");
     glTranslatef(-offsetx, offsetx, 0);
     glDisable(GL_TEXTURE_2D);
+    ONThreadUnsafe(objsprthreadsafe);
     return true;
 }
 bool ObjSpr::Render(unsigned char stackcount) {
@@ -649,5 +666,7 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
 }
 
 void ObjSpr::SetDirection(direction_t dir) {
+    ONThreadSafe(objsprthreadsafe);
     direction = dir;
+    ONThreadUnsafe(objsprthreadsafe);
 }

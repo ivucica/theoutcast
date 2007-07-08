@@ -6,16 +6,38 @@
 
 
 #include <stdlib.h>
-#ifdef JPEGSUPPORT
-#include <jpeglib.h>
+#ifndef PNGSUPPORT
+    // png.h already includes setjmp.h and forbids us to include it again
+    #include <setjmp.h>
+#else
+    // this will provide setjmp.h in case we use png
+    #include <png.h>
 #endif
-#include <setjmp.h>
+
+
+
+typedef struct {
+   unsigned char r,g,b,a;
+} RGBA;
+
+
+typedef struct {
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+} T_RGB;
+
+typedef T_RGB * RGBArray;
+
+
+
+//////////////////////////////////// BMP STUFF /////////////////////////////////////////////////
 
 #if defined(WIN32)
-#include <windows.h>
+    #include <windows.h>
 #endif
 
-#ifndef BI_RGB // is windows.h included
+#ifndef BI_RGB // if windows.h is not included
 
 
 
@@ -61,53 +83,31 @@ typedef struct tagBITMAPINFOHEADER{ // bmih
 #define GetGValue(rgb)      ((unsigned char)(((unsigned short)(rgb)) >> 8))
 #define GetBValue(rgb)      ((unsigned char)((rgb)>>16))
 
-
-
 #pragma pack(pop)
 
 #endif
 
-typedef struct {
-   unsigned char r,g,b,a;
-} RGBA;
-
-
-typedef struct {
-	unsigned char red;
-	unsigned char green;
-	unsigned char blue;
-} T_RGB;
-
-typedef T_RGB * RGBArray;
-
-#ifdef JPEGSUPPORT
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;	/* "public" fields */
-
-  jmp_buf setjmp_buffer;	/* for return to caller */
-};
-
-typedef struct my_error_mgr * my_error_ptr;
-#endif
 
 bool LoadBitmapFromFile2RGBA(FILE* fjl, /*BITMAP *bd, */ int* w, int* h, RGBA **data);
+
+
 #ifdef JPEGSUPPORT
-bool LoadJPEGFromFile2RGBA(FILE* fjl, unsigned int *width, unsigned int *height, RGBA **data);
+    #include <jpeglib.h>
+    struct my_error_mgr {
+      struct jpeg_error_mgr pub;	/* "public" fields */
+      jmp_buf setjmp_buffer;	/* for return to caller */
+    };
+    typedef struct my_error_mgr * my_error_ptr;
+
+    bool LoadJPEGFromFile2RGBA(FILE* fjl, unsigned int *width, unsigned int *height, RGBA **data);
 #endif
 
 
-typedef struct {
-    unsigned int size;
-    unsigned char* dump;
-    unsigned int internal;
-} Sprite;
-#include <map>
-typedef std::map<unsigned long, Sprite*> SpriteMap;
-typedef SpriteMap::iterator SpriteIterator;
-extern SpriteMap sprites;
-extern bool sprLoaded;
+#ifdef PNGSUPPORT
+    #include <png.h>
+    bool LoadPNGFromFile2RGBA(FILE* fjl, unsigned int *width, unsigned int *height, RGBA **data);
+#endif
 
-bool LoadSprites(const char *filename);
 
 #endif
 
