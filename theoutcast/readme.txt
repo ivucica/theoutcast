@@ -183,6 +183,8 @@ Credit for the name goes to Ryan Majetich a.k.a. Scotchy.
 The Outcast utilizes the following libraries and developer(s) wishes to thank their authors:
  JPEG Library
     by Independent JPEG Group
+ FMOD
+    by Firelight Industries
  GLUT
     by Mark Kilgard
  Tom's Fast Math
@@ -191,6 +193,10 @@ The Outcast utilizes the following libraries and developer(s) wishes to thank th
     by MinGW Project
  SQLite
     by D. Richard Hipp
+ PNG Library
+    by libpng team
+ PNG Loader Library for OpenGL (glpng)
+    by Ben Wyatt
 
 Thanks to CIPSoft for making Tibia and creating this wonderful protocol.
 Thanks to crew from #otserv (irc.quakenet.org) for providing support when I needed it.
@@ -207,6 +213,9 @@ n.b. Great admiration goes to mr. Hipp, author of SQLite, who is very modest and
 ---
 
 10. CHANGE HISTORY
+
+Changes since 0.4.1
+* Added 32-bit PNG support (beware -- no other color depth for PNG is supported!)
 
 Changes since 0.4
 * Fixed the ability to start messages starting with '/'.

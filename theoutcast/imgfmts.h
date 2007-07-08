@@ -12,6 +12,7 @@
 #else
     // this will provide setjmp.h in case we use png
     #include <png.h>
+    #include <GL/glpng.h>
 #endif
 
 

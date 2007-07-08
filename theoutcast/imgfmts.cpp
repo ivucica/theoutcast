@@ -7,6 +7,7 @@
 #include <memory.h>
 //#include <setjmp.h>
 #include <GL/glu.h>
+
 #include "imgfmts.h"
 
 bool invertcolors = false; //default value in client
@@ -445,6 +446,44 @@ bool LoadJPEGFromFile2RGBA(FILE* fjl, unsigned int *width, unsigned int *height,
 
 
 bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *pheight, RGBA **data) {
+
+    pngRawInfo pri;
+    int success;
+    success = pngLoadRawF(infile, &pri);
+    if (!success) return false;
+
+    *pwidth = pri.Width;
+    *pheight = pri.Height;
+
+    if (pri.Depth == 32) {
+        *data = (RGBA*)pri.Data;
+    } else if (pri.Depth == 24) {
+
+        *data = (RGBA*)malloc(*pheight * *pwidth * sizeof(RGBA));
+        for (unsigned int y=0;y<*pheight;++y) {
+            RGBA *trgba = &((*data)[y* *pheight]);
+            T_RGB *trgb = (T_RGB*)(&pri.Data[(y)* *pwidth]);
+            for (unsigned int x=0;x< *pwidth;++x) {
+                if (invertcolors) {
+                    trgba[x].r = ~trgb[x].red;
+                    trgba[x].g = ~trgb[x].green;
+                    trgba[x].b = ~trgb[x].blue;
+                    trgba[x].a = 255;
+                } else {
+                    trgba[x].r = trgb[x].red;
+                    trgba[x].g = trgb[x].green;
+                    trgba[x].b = trgb[x].blue;
+                    trgba[x].a = 255;
+                }
+            }
+        }
+        free(pri.Data);
+
+    }
+
+
+    return true;
+
     // source: http://www.oreillynet.com/pub/a/mac/2005/10/14/texture-maps.html?page=2
     // author: Michael Norton (with adaptations by ivucica)
 
