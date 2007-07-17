@@ -38,7 +38,7 @@ void CreatureInit(creature_t* creature) {
 
 static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColName) {
     int creatureid;
-    int i, iTmp;
+    int i; //, iTmp; // FIXME unused, remove me
     for (i = 0; i < argc; ++i) {
         if (!strcmp(azColName[i], "creatureid")) break;
     }

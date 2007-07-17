@@ -51,6 +51,7 @@ void Thing::SetSubType(unsigned char subtype) {
     this->subtype = subtype;
 }
 void Thing::SetType(unsigned short type, void *extra) {
+	printf("Thing::SetType() -- %d\n", type);
     ONThreadSafe(threadsafe);
     this->type = type;
     sprgfx = new ObjSpr(type, 0);
@@ -75,6 +76,8 @@ void Thing::SetDirection(direction_t dir) {
             case SOUTHEAST:
                 sprgfx->SetDirection(SOUTH);
                 break;
+            default:
+                break;
 
         }
     }
@@ -89,7 +92,9 @@ void Thing::Render() {
     }
 }
 void Thing::Render(position_t *pos) {
+
     ONThreadSafe(threadsafe);
+
     if (sprgfx) {
         if (!(dynamic_cast<Creature*>(this)) && items[type]->stackable) {
             // thanks to mips for this algo!

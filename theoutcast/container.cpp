@@ -62,7 +62,7 @@ Container::Container(std::string title, unsigned char containerid, unsigned shor
     window.AddObject(&close);
 }
 Container::~Container() {
-    for (int i = 0 ; i < capacity; i++) {
+    for (unsigned int i = 0 ; i < capacity; i++) {
         free(objects[i]->GetCustomData());
         delete objects[i];
     }
@@ -109,7 +109,7 @@ void Container::Replace(unsigned int pos, Thing *t) {
 void Container::RebuildCounts() {
 
     Thing *t;
-    for (int i = 0 ; i < capacity ; i++ ) {
+    for (unsigned int i = 0 ; i < capacity ; i++ ) {
         containeritemdata_t *c = (containeritemdata_t*)objects[i]->GetCustomData();
         if (c->container->GetItem(c->elementid) && (t = c->container->GetItem(c->elementid))->IsStackable()) {
             char tmp[20];

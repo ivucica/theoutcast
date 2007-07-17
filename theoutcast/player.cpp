@@ -37,7 +37,7 @@ Creature *Player::GetCreature() {
     return gamemap.GetCreature(creatureid, NULL);
 }
 void Player::GetPos(position_t *p) {
-    p = &pos;
+    *p = pos;
 }
 position_t *Player::GetPos() {
     return &pos;

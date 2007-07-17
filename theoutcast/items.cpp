@@ -220,7 +220,6 @@ void ItemsLoad_NoUI(unsigned int protocolversion) {
 
 void ItemsUnload() {
     for (int i=0;i<items_n;i++) {
-        printf("%d\n", i);
         ItemClear(*(items + i));
         delete *(items + i);
     }

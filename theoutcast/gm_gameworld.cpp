@@ -70,7 +70,9 @@ GM_Gameworld::GM_Gameworld() {
 
     SoundSetMusic("music/game.mp3");
 
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Loading skull image\n");
     texSkull = new Texture("skull.bmp");
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Setting up other stuff\n");
     chase = STAND;
     stance = BALANCED;
     invitingparty = false;
@@ -372,6 +374,7 @@ void GM_Gameworld::KeyPress (unsigned char key, int x, int y) {
 void PaintMap() {
     gamemap.Lock();
 
+	//ASSERTFRIENDLY(TextureIntegrityTest(), "PaintMap(): Texture integrity check failed");
     glMatrixMode(GL_MODELVIEW);
 
     glPushMatrix();
@@ -780,6 +783,9 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
     // FIXME (Khaos#1#) Rework from scratch
     static int modifiers;
     static bool moving=false;
+
+    if (!protocol)  return;
+
     #ifdef USEGLUT
     modifiers = glutGetModifiers();
     #else

@@ -50,7 +50,7 @@
 #endif
 
 
-volatile static char punobajtova[1024]; // FIXME (Khaos#1#) something overwrites the "textures" memory ... check what!!
+
 static std::vector<Texture*> textures;
 int texcount=0;
 
@@ -80,12 +80,20 @@ void TextureFreeSlot();
 
 void TextureInit() {
     ONInitThreadSafe(texturethreadsafe);
-    punobajtova[0] = 1;
+//    punobajtova[0] = 1;
 }
 void TextureDeinit() {
     ONDeinitThreadSafe(texturethreadsafe);
 }
 
+int Texture::GetChecksum() {
+	int cs=0;
+	for (unsigned int i=0; i<fname.size();i++) {
+		cs+=fname[i];
+	}
+	cs += imgid;
+	return cs;
+}
 
 Texture::Texture(std::string fname) {
 //	if (texcount > 50) TextureFreeSlot();
@@ -95,9 +103,10 @@ Texture::Texture(std::string fname) {
 
     ONThreadSafe(texturethreadsafe);
 
+	TextureIntegrityTest();
 	this->fname = fname;
 	this->imgid = 0;
-
+	checksum = GetChecksum();
 	textureid = NULL;
 	Texture* t = this->Find();
 
@@ -154,8 +163,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
-
-
+	checksum = GetChecksum();
 	textureid = NULL;
 	Texture* t = id ? this->Find() : NULL;
 	if (t) {
@@ -219,8 +227,7 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
-
-
+	checksum = GetChecksum();
 	textureid = NULL;
 
 	this->loaded = (bool*)malloc(sizeof(bool));
@@ -250,7 +257,7 @@ Texture::~Texture() {
     #if DEBUGLEVEL_BUILDTIME == 0
     return;
     #endif
-
+	//return;
     ONThreadSafe(texturethreadsafe);
 
     printf("Unload Usecount: %d\n", *(this->usecount));
@@ -306,6 +313,7 @@ Texture::~Texture() {
                     printf("Deleted!\n");
 			    } else {
 			        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Cannot unload - %d is not a texture\n", *textureid);
+			        //system("sleep 2");
 			    }
 			} else {
 			    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "WEIRD! Texture id is NULL or *(texture id) is 0, altho' I am loaded!?\n");
@@ -316,8 +324,10 @@ Texture::~Texture() {
 			(*this->textureid) = 0;
 
 		} else {
-		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Texture was never loaded, not unloading in any way");
-		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "%s %s", loaded ? "not null": "NULL!", usecount ? "not null" : "NULL");
+			// this is perfectly acceptable if object was created and then removed before fade was completed
+		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "Texture was never loaded, not unloading in any way");
+		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "%s %s", loaded ? "not null": "NULL!", usecount ? "not null" : "NULL");
+		    //system("sleep 2");
 		}
 		printf("Freeing state tracking variables\n");
 		free(loaded);
@@ -329,7 +339,9 @@ Texture::~Texture() {
     }
 
     printf("Unloaded well\n");
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity check failed");
     ONThreadUnsafe(texturethreadsafe);
+
 }
 
 
@@ -354,6 +366,9 @@ RGBA *Texture::FetchBMPPixels() {
 
 
 RGBA *Texture::FetchPNGPixels() {
+    #ifndef PNGSUPPORT
+    return NULL;
+    #else
     RGBA *pikseli;
 	FILE *f = fopen(fname.c_str(), "rb");
 
@@ -370,6 +385,7 @@ RGBA *Texture::FetchPNGPixels() {
 
     //printf("Loaded bitmap %s\n", fname.c_str());
     return pikseli;
+    #endif
 }
 
 
@@ -383,10 +399,14 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
     ASSERT(SPRPointers);
 
 
-    if (imgid == 0) {
+    if (imgid == 0)
+	{
         RGBA *rgba = (RGBA*)malloc(32*32*4);
         memset(rgba, 0, 32*32*4);
         w=32; h=32;
+
+
+
 
         return rgba;
 
@@ -586,9 +606,11 @@ bool Texture::UnloadGL() {
 void Texture::AssureLoadedness() {
     {
     ASSERTFRIENDLY(this, "Texture::AssureLoadedness(): Failed to find 'this'");
-    char asd[251];
-    sprintf(asd, "Texture::AssureLoadedness(): I thought we had a texture id malloc()'ed. But it appears not so.\n%s %d", fname.c_str(), imgid);
-    ASSERTFRIENDLY(textureid, asd);
+    char tmp[512];
+    sprintf(tmp, "Texture::AssureLoadedness(): I thought we had a texture id malloc()'ed. But it appears not so.\n%s %d", fname.c_str(), imgid);
+    ASSERTFRIENDLY(textureid, tmp);
+	sprintf(tmp, "Texture::AssureLoadedness(): Texture checksum failed\n%s %d", fname.c_str(), imgid);
+	ASSERTFRIENDLY(checksum == GetChecksum(), tmp);
     }
 
     if (!textureid) return;
@@ -653,7 +675,7 @@ Texture* Texture::Find() {
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
 //	    printf("%s %d finding %s %d\n", (*it)->fname.c_str(),  (*it)->imgid, this->fname.c_str(),  this->imgid);
 		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
-
+			printf("*******************************Found duplicate\n");
 			return *it;
 		}
 	}
@@ -734,9 +756,28 @@ void TextureReportRemaining() {
     #if DEBUGLEVEL_BUILDTIME == 0
     return;
     #endif
-
+	ONThreadSafe(texturethreadsafe);
     for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
         t = (*it);
         DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING,"Remaining %s[%d]=%d x%d", t->fname.c_str(), t->imgid, *(t->textureid), *(t->usecount) );
     }
+    ONThreadUnsafe(texturethreadsafe);
+}
+
+bool TextureIntegrityTest_internal (std::string s) {
+	//printf("TextureIntegrityTest(%s)\n", s.c_str());
+	Texture*t;
+	ONThreadSafe(texturethreadsafe);
+	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+		t=(*it);
+		//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"%s is testing ", s.c_str());
+		//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"%s[%d]=%d x%d\n", t->fname.c_str(), t->imgid, *(t->textureid), *(t->usecount) );
+		if (t->checksum != t->GetChecksum()) {
+			//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR ,"TEXTURE INTEGRITY CHECK FAILED!!!!!! Calculated checksum is %d and stored checksum is %d\n" , t->GetChecksum(), t->checksum);
+			ONThreadUnsafe(texturethreadsafe);
+			return false;
+		}
+	}
+	ONThreadUnsafe(texturethreadsafe);
+	return true;
 }

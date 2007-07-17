@@ -195,8 +195,6 @@ The Outcast utilizes the following libraries and developer(s) wishes to thank th
     by D. Richard Hipp
  PNG Library
     by libpng team
- PNG Loader Library for OpenGL (glpng)
-    by Ben Wyatt
 
 Thanks to CIPSoft for making Tibia and creating this wonderful protocol.
 Thanks to crew from #otserv (irc.quakenet.org) for providing support when I needed it.

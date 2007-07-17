@@ -11,7 +11,7 @@ typedef enum {
 class Object {
     public:
         Object();
-        ~Object() {}
+        virtual ~Object() {}
 
         virtual bool Render() {return true;}
         virtual float AnimationAdvance(float percent);

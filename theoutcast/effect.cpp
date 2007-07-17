@@ -41,8 +41,10 @@ bool Effect::AnimationAdvance(float advance, bool overlayed) {
     return true;
 }
 
-void Effect::SetType(unsigned short outfit, void* extra) {
-    sprgfx = new ObjSpr(outfit, 2);
+void Effect::SetType(unsigned short type, void* extra) {
+	printf("Creating new sprite for effect type %d\n", type);
+    sprgfx = new ObjSpr(type, 2);
+    printf("Created\n");
     this->effecttype = MAGICEFFECT;
 }
 void Effect::SetText(std::string &text, unsigned char color, bool animated) {
@@ -67,12 +69,16 @@ void Effect::Render(position_t *pos, bool overlayed) {
             break;
         case TEXT:
             glColor4f(textcolor.r, textcolor.g, textcolor.b, textcolor.a);
-            if (overlayed) glictFontRender(text.c_str(), "system", 16 - glictFontSize(text.c_str(), "system")/2., 64);
+            glRotatef(180,1,0,0);
+            if (overlayed) glictFontRender(text.c_str(), "system", 16 - glictFontSize(text.c_str(), "system")/2., -64);
+            glRotatef(180,1,0,0);
             glColor4f(1., 1., 1., 1.);
             break;
         case ANIMATEDTEXT:
             glColor4f(textcolor.r, textcolor.g, textcolor.b, textcolor.a);
-            if (overlayed) glictFontRender(text.c_str(), "system", 0, 64+animationpercent/3.);
+            glRotatef(180,1,0,0);
+            if (overlayed) glictFontRender(text.c_str(), "system", 0, -64-animationpercent/3.);
+            glRotatef(180,1,0,0);
             glColor4f(1., 1., 1., 1.);
             break;
         default:

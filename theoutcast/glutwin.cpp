@@ -31,6 +31,7 @@ int glut_WindowHandle;
 Object *mousepointer_object;
 
 extern ONCriticalSection gmthreadsafe;
+
 //#define FPSMETHOD1
 #define FPSMETHOD2
 //#define FPSMETHOD3
@@ -106,6 +107,7 @@ void glut_PassiveMouse (int mousex, int mousey) {
 	ptry = mousey;
 }
 void glut_SetMousePointer(std::string texturefile) {
+	ONThreadSafe(gmthreadsafe);
     if (mousepointer_object) {
         delete mousepointer_object;
         mousepointer_object = NULL;
@@ -124,13 +126,18 @@ void glut_SetMousePointer(std::string texturefile) {
 		glutSetCursor(GLUT_CURSOR_NONE);
 		mousepointer = new Texture(texturefile);
 	}
+	ONThreadUnsafe(gmthreadsafe);
 }
 void glut_SetMousePointer(Object *obj) {
+	ONThreadSafe(gmthreadsafe);
 	if (mousepointer_object) {
 	    delete mousepointer_object;
 	}
 	mousepointer_object = obj;
+	#ifdef WIN32
 	glutSetCursor(GLUT_CURSOR_NONE);
+	#endif
+	ONThreadUnsafe(gmthreadsafe);
 }
 
 void glut_FPS (int param) {
@@ -255,7 +262,8 @@ void glut_Init(int *argc, char**argv) {
     glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize (640, 480);
-	//glutInitWindowPosition (0, 0);
+
+	glutInitWindowPosition (200, 100); //FIXME remove this
 
 }
 

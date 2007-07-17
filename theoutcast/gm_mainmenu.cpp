@@ -148,7 +148,7 @@ GM_MainMenu::GM_MainMenu() {
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading logo and background\n");
 
-    logo = new Texture("logo.png");
+    logo = new Texture("logo.bmp");
 
 
 
@@ -466,14 +466,24 @@ GM_MainMenu::GM_MainMenu() {
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Construction of main menu complete\n");
 }
-
+#include "assert.h"
 GM_MainMenu::~GM_MainMenu() {
+	//printf("Test 1\n");
+	//ASSERTFRIENDLY(TextureIntegrityTest(), "GM_MainMenu::~GM_MainMenu(): Texture integrity test 1 failed");
 	delete logo;
+	//printf("Test 2\n");
+	//ASSERTFRIENDLY(TextureIntegrityTest(), "GM_MainMenu::~GM_MainMenu(): Texture integrity test 2 failed");
 	delete bg;
+	//printf("Test 3\n");
+	//ASSERTFRIENDLY(TextureIntegrityTest(), "GM_MainMenu::~GM_MainMenu(): Texture integrity test 3 failed");
 	delete city;
+	//printf("Test 4\n");
+	//ASSERTFRIENDLY(TextureIntegrityTest(), "GM_MainMenu::~GM_MainMenu(): Texture integrity test 4 failed");
 
     printf("Unloaded stuff\n");
 	SoundSetMusic(NULL);
+	//printf("Test 5\n");
+	//ASSERTFRIENDLY(TextureIntegrityTest(), "GM_MainMenu::~GM_MainMenu(): Texture integrity test 5 failed");
 	ONDeinitThreadSafe(threadsafe);
 
 }
@@ -773,9 +783,23 @@ void GM_MainMenu::MsgBox (const char* mbox, const char* title) {
 }
 
 void GM_MainMenu::CreateCharlist() {
-    characterlist.SetHeight(18 * (protocol->charlistcount+1) + 6 + 2);
+    int additionalbuttons = 0;
+    if (protocol->CanCreateCharacter()) additionalbuttons++;
+
+    characterlist.SetHeight(18 * (protocol->charlistcount+1 + additionalbuttons) + 6 + 2);
     characterlist.SetWidth(300);
     characterlist.SetBGColor(.85,.85,.85,1.);
+
+    if (protocol->CanCreateCharacter()) {
+        characterlist.AddObject(&btnCharlistCharMgr);
+        btnCharlistCharMgr.SetCaption("Character Manager");
+        btnCharlistCharMgr.SetWidth(296);
+        btnCharlistCharMgr.SetHeight(16);
+        btnCharlistCharMgr.SetBGColor(.6,.6,.6,1.);
+        btnCharlistCharMgr.SetPos(2, 2);
+        btnCharlistCharMgr.SetOnClick(GM_MainMenu_CharList_CharMgr );
+    }
+
     for (int i = 0 ; i < protocol->charlistcount  ; i++) {
         characterlist.AddObject(protocol->charlist[i]->button = new glictButton);
         char tmp[256];
@@ -784,7 +808,7 @@ void GM_MainMenu::CreateCharlist() {
         protocol->charlist[i]->button->SetWidth(296);
         protocol->charlist[i]->button->SetHeight(16);
         protocol->charlist[i]->button->SetBGColor(.6,.6,.6,1.);
-        protocol->charlist[i]->button->SetPos(2, i*18 + 2);
+        protocol->charlist[i]->button->SetPos(2, (i+additionalbuttons)*18 + 2);
         protocol->charlist[i]->button->SetOnClick(GM_MainMenu_CharList_Character);
     }
     characterlist.AddObject(&btnCharlistCancel);
@@ -802,6 +826,7 @@ void GM_MainMenu::CreateCharlist() {
 	characterlist.GetSize(&s);
 	characterlist.SetPos(winw / 2 - s.w / 2, winh/2 - s.h / 2);
 }
+
 void GM_MainMenu::DestroyCharlist() {
     ONThreadSafe(threadsafe);
     printf("Destroying charlist\n");
@@ -810,6 +835,7 @@ void GM_MainMenu::DestroyCharlist() {
         characterlist.RemoveObject(protocol->charlist[i]->button);
         if (protocol->charlist[i]->button) delete protocol->charlist[i]->button;
         protocol->charlist[i]->button = NULL;
+        ASSERTFRIENDLY(TextureIntegrityTest(), "GM_MainMenu::DestroyCharlist(): Texture integrity test failed");
     }
     characterlist.RemoveObject(&btnCharlistCancel);
     characterlist.DelayedRemove();
@@ -876,7 +902,10 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
 	}
 
     if (((GM_MainMenu*)game)->txtLoginProtocol.GetCaption() == "SP") {
-        ((GM_MainMenu*)game)->txtLoginProtocol.SetCaption("65535");
+        ((GM_MainMenu*)game)->txtLoginProtocol.SetCaption("65535"); // 0xFFFF
+    }
+    if (((GM_MainMenu*)game)->txtLoginProtocol.GetCaption() == "ME0") {
+        ((GM_MainMenu*)game)->txtLoginProtocol.SetCaption("65280"); // 0xFF00
     }
 
     if (!ProtocolSetVersion(atoi(((GM_MainMenu*)game)->txtLoginProtocol.GetCaption().c_str()))) {
@@ -909,19 +938,29 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
             strcpy(sprfilename, "Tibia80.spr");
             strcpy(protocolstr, "8.0");
             break;
-
+        #ifdef INCLUDEME
+        case ME0PROTOCOLVERSION:
+            strcpy(sprfilename, "NONE");
+            break;
+        #endif
         default:
             strcpy(sprfilename, "ERROR");
             strcpy(protocolstr, "<<INTERNAL ERROR>>");
 
     }
-    if (strlen(sprfilename)) f = fopen(sprfilename, "rb");
-    if (!f ) {
-        char sprerr[512];
-        sprintf(sprerr, "For this protocol,\nyou must copy Tibia.spr from Tibia\n%s client's folder to The\nOutcast's folder and rename it into \n%s.", protocolstr, sprfilename);
-        ((GM_MainMenu*)game)->MsgBox(sprerr, "Sorry");
-        return;
-    } else fclose(f);
+    if (strlen(sprfilename)) {
+        f = fopen(sprfilename, "rb");
+        if (!f ) {
+            if (strcmp(sprfilename, "NONE")) {
+                char sprerr[512];
+                sprintf(sprerr, "For this protocol,\nyou must copy Tibia.spr from Tibia\n%s client's folder to The\nOutcast's folder and rename it into \n%s.", protocolstr, sprfilename);
+                ((GM_MainMenu*)game)->MsgBox(sprerr, "Sorry");
+                return;
+            }
+        } else fclose(f);
+    } else {
+        ((GM_MainMenu*)game)->MsgBox("The protocol you've tried to use is \nvery very unsupported, and we have no idea how you \nreached this chunk of code. \n\nBe sure to report this bug.", "Sorry");
+    }
 
     ((GM_MainMenu*)game)->ResizeWindow();
 	((GM_MainMenu*)game)->login.SetVisible(false);
@@ -963,6 +1002,9 @@ void GM_MainMenu_CharList_LogonError(glictPos* pos, glictContainer* caller) {
     ((GM_MainMenu*)game)->tibia.SetEnabled(true);
 }
 
+void GM_MainMenu_CharList_CharMgr(glictPos* pos, glictContainer* caller) {
+    ((GM_MainMenu*)game)->GoToCharMgr();
+}
 void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller) {
     for (int i = 0 ; i < protocol->charlistcount ; i++) {
         if (caller == protocol->charlist[i]->button) {

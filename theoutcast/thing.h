@@ -7,7 +7,7 @@
 class Thing {
     public:
         Thing();
-        ~Thing();
+        virtual ~Thing();
 
 
         // stock item info retrieval

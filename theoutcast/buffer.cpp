@@ -58,9 +58,9 @@ void Buffer::_Flush() {
 	currentposition = buffer;
     size -= a;
 }
-void Buffer::Add(const char* src, unsigned int buflen) {
 
-	if (buflen==-1) return;
+void Buffer::Add(const char* src, unsigned int buflen) {
+	if ((unsigned int)buflen==-1) return;
 	ONThreadSafe(cs);
     _Flush();
     unsigned int offset = (unsigned int)(currentposition - buffer);

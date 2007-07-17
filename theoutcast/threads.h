@@ -28,9 +28,11 @@
 
 		#include <pthread.h>
 		// -lpthread
+
+		#include <stdio.h> // FIXME Remove me!!!
 		typedef pthread_mutex_t ONCriticalSection;
-		#define ONThreadSafe(Mutex) pthread_mutex_lock(&Mutex)
-		#define ONThreadUnsafe(Mutex) pthread_mutex_unlock(&Mutex)
+		#define ONThreadSafe(Mutex) pthread_mutex_lock(&Mutex);
+		#define ONThreadUnsafe(Mutex) pthread_mutex_unlock(&Mutex);
 		#define ONEliminateThread(x,y) ONEliminateThreadFunctionalityDoesNotExist(x,y)
 		#define ONInitThreadSafe(Mutex) { \
             pthread_mutexattr_t mutexattr; \

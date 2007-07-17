@@ -28,11 +28,13 @@ class Creature : public Thing {
 
         // obtaining info
         bool IsGround();
+        bool IsStackable();
         std::string GetName();
         unsigned long GetCreatureID();
         unsigned char GetHP();
 
         void SetSkull(skull_t s);
+
     private:
         unsigned long id;
         std::string name;

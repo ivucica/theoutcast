@@ -283,7 +283,22 @@ void Protocol::GetPlayerSkills(NetworkMessage *nm) {
 }
 
 bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
+	if (effects_n) {
+	position_t pos;
+	player->GetPos(&pos);
+	pos.x += 3; pos.y -= 3;
+	Tile *t = gamemap.GetTile(&pos);
+	gamemap.Lock();
 
+	Effect* e = new Effect(t);
+	e->SetType(2, NULL);
+	t->Insert(e, false);
+	gamemap.Unlock();
+	char tmp[50];
+	sprintf(tmp, "Packet, showing on %d %d %d", pos.x, pos.y, pos.z);
+	console.insert(tmp);
+	}
+	printf("Added 'ping' effect\n");
     switch (packetid) {
         case 0x0A: // Creature ID
 
@@ -484,7 +499,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             thing = tile->GetStackPos(stackpos);
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Locked map\n");
-            tile->Remove(stackpos);
+            tile->Remove(stackpos, true);
 
             GetPosition(nm, &dst);
 
@@ -667,15 +682,30 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
             #endif
 
-
+			printf("Getting position\n");
             GetPosition(nm, &pos);
+            printf("Getting tile\n");
             t = gamemap.GetTile(&pos);
+            type = nm->GetU8(); // mageffect type
+            printf("Effect type: %d\n", type);
+
+            gamemap.Lock();
+
+            printf("Creating effect\n" );
             e = new Effect(t);
+            printf("Setting type\n");
+            e->SetType(type, NULL);
+
+            printf("Inserting effect\n");
             t->Insert(e, false);
 
-            type = nm->GetU8(); // mageffect type
 
-            e->SetType(type, NULL);
+            printf("Set it up, unlocking and finishing processing of mageff\n");
+            gamemap.Unlock();
+			printf("Unlocked\n");
+
+
+
             return true;
         }
         case 0x84: {// Animated Text
@@ -1053,6 +1083,7 @@ void Protocol::ParseMapDescription (NetworkMessage *nm, int w, int h, int destx,
     for (int z = startz; z != endz + stepz; z+=stepz) {
         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Getting floor %d\n", z);
         ParseFloorDescription(nm, w, h, destx, desty, z, &skip);
+        ASSERTFRIENDLY(TextureIntegrityTest(), "Protocol::ParseMapDescription(): Texture integrity test failed");
     }
 
 }
@@ -1132,18 +1163,18 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             if (type == 0x0061) { // new creature
                 nm->GetU32(); // remove creature with this id
                 creatureid = nm->GetU32(); // new creature's id
-                creature = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
-                thing = creature;
+                /*creature = */gamemap.GetCreature(creatureid, creature);
+                /*thing = creature;*/
                 creature->SetName(nm->GetString()); // name string
                 DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Got creature %s\n", creature->GetName().c_str());
             }
             if (type == 0x0062) {
                 creatureid = nm->GetU32(); // known creature's id
-                creature = gamemap.GetCreature(creatureid, dynamic_cast<Creature*>(thing));
-                thing = creature;
+                /*creature = */gamemap.GetCreature(creatureid, creature);
+                /*thing = creature;*/
             }
             ASSERT(thing)
-
+			ASSERT(creature)
 
 
             unsigned char hp = nm->GetU8(); // health percent
@@ -1164,15 +1195,17 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
 
 
             if (protocolversion >= 750) {
-                ((Creature*)thing)->SetSkull((skull_t)nm->GetU8()); // skull
+                (creature)->SetSkull((skull_t)nm->GetU8()); // skull
                 nm->GetU8(); // shield
             }
 
+			printf("Now setting creature up\n");
             // stuff can only be set up AFTER the SetType() call ...
             // gotta check why, but we can live with that for now
-            thing->SetType(creaturelook.type, &creaturelook);
-            thing->SetDirection((direction_t)dir); // direction
-            thing->SetSpeed(speedindex);
+
+            creature->SetType(creaturelook.type, &creaturelook);
+            creature->SetDirection((direction_t)dir); // direction
+            creature->SetSpeed(speedindex);
             ((Creature*)thing)->SetHP(hp);
             break;
         }
@@ -1695,7 +1728,9 @@ void Protocol::Logout() {
 
 
 /////////////////////////extensions!////////////////////////////////
-
+bool Protocol::CanCreateCharacter() { // by default, a protocol CAN'T create character. if a protocol will be able to do so, it'll have its own code for determining it...
+    return false;
+}
 
 void Protocol::OCMCreateCharacter() {
     NetworkMessage nm;
@@ -1742,6 +1777,12 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
             protocol = new ProtocolSP;
             return true;
         #endif
+        #ifdef INCLUDE_ME
+        case 0xFF00: // microedition protocol 0
+            protocol = new ProtocolME0;
+            return true;
+        #endif
+
         case 750:
             protocol = new Protocol75;
             return true;

@@ -176,6 +176,7 @@ bool ProtocolSP::GameworldLogin () {
         ASSERTFRIENDLY(f, "It appears that savefile has mysteriously disappeared. Exiting");
         fclose(f);
 
+
     }
     else {
         nm.AddU8(0x0A); // player's creature id shall be 1

@@ -447,7 +447,7 @@ bool LoadJPEGFromFile2RGBA(FILE* fjl, unsigned int *width, unsigned int *height,
 
 bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *pheight, RGBA **data) {
 
-    pngRawInfo pri;
+/*    pngRawInfo pri;
     int success;
     success = pngLoadRawF(infile, &pri);
     if (!success) return false;
@@ -457,32 +457,14 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
 
     if (pri.Depth == 32) {
         *data = (RGBA*)pri.Data;
-    } else if (pri.Depth == 24) {
-
-        *data = (RGBA*)malloc(*pheight * *pwidth * sizeof(RGBA));
-        for (unsigned int y=0;y<*pheight;++y) {
-            RGBA *trgba = &((*data)[y* *pheight]);
-            T_RGB *trgb = (T_RGB*)(&pri.Data[(y)* *pwidth]);
-            for (unsigned int x=0;x< *pwidth;++x) {
-                if (invertcolors) {
-                    trgba[x].r = ~trgb[x].red;
-                    trgba[x].g = ~trgb[x].green;
-                    trgba[x].b = ~trgb[x].blue;
-                    trgba[x].a = 255;
-                } else {
-                    trgba[x].r = trgb[x].red;
-                    trgba[x].g = trgb[x].green;
-                    trgba[x].b = trgb[x].blue;
-                    trgba[x].a = 255;
-                }
-            }
-        }
-        free(pri.Data);
-
-    }
+        return true;
+    } else fseek(infile, 0, SEEK_SET); else {
+        printf("PNG Depth unsupported - %d\n", pri.Depth);
+        return false;
+    }*/
 
 
-    return true;
+
 
     // source: http://www.oreillynet.com/pub/a/mac/2005/10/14/texture-maps.html?page=2
     // author: Michael Norton (with adaptations by ivucica)
@@ -516,7 +498,8 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
    fread(sig, 1, 8, infile);
 
    if (!png_check_sig((unsigned char *) sig, 8)) {
-      fclose(infile);
+       printf("Not a PNG file\n");
+      //fclose(infile);
       return false;//0;
    }
 
@@ -525,12 +508,14 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
     */
    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
    if (!png_ptr) {
+       printf("Couldnt prep PNG struc\n");
       //fclose(infile);
       return false;//4;    /* out of memory */
    }
 
    info_ptr = png_create_info_struct(png_ptr);
    if (!info_ptr) {
+       printf("Couldnt read PNG struc\n");
       png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
       //fclose(infile);
       return false;//4;    /* out of memory */
@@ -542,6 +527,7 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
    * then check whether the PNG file had a bKGD chunk
    */
    if (setjmp(png_jmpbuf(png_ptr))) {
+       printf("Couldnt handle PNG errs\n");
       png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
       //fclose(infile);
       return false;//0;
@@ -580,7 +566,7 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
 
    /* Set up some transforms. */
    if (color_type & PNG_COLOR_MASK_ALPHA) {
-      png_set_strip_alpha(png_ptr);
+      //png_set_strip_alpha(png_ptr);
    }
    if (bit_depth > 8) {
       png_set_strip_16(png_ptr);
@@ -592,6 +578,9 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
    if (color_type == PNG_COLOR_TYPE_PALETTE) {
       png_set_palette_to_rgb(png_ptr);
    }
+
+    if (bit_depth < 8)
+        png_set_packing(png_ptr);
 
    /* Update the png info struct.*/
    png_read_update_info(png_ptr, info_ptr);
@@ -633,27 +622,32 @@ bool LoadPNGFromFile2RGBA(FILE *infile, unsigned int *pwidth, unsigned int *phei
    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
    //fclose(infile);
 
-    //*data = (RGBA*)image_data;
-    *data = (RGBA*)malloc(width * height * sizeof(RGBA));
-	for (unsigned int y=0;y<height;++y) {
-		RGBA *trgba = &((*data)[y*width]);
-		T_RGB *trgb = (T_RGB*)(&image_data[(y)*width]);
-		for (unsigned int x=0;x<width;++x) {
-		    if (invertcolors) {
-		        trgba[x].r = ~trgb[x].red;
-			    trgba[x].g = ~trgb[x].green;
-			    trgba[x].b = ~trgb[x].blue;
-			    trgba[x].a = 255;
-			} else {
-		        trgba[x].r = trgb[x].red;
-			    trgba[x].g = trgb[x].green;
-			    trgba[x].b = trgb[x].blue;
-			    trgba[x].a = 255;
-			}
-		}
-	}
-	free(image_data);
+    //
+    if (!(color_type & PNG_COLOR_MASK_ALPHA)) {
+        *data = (RGBA*)malloc(width * height * sizeof(RGBA));
+        for (unsigned int y=0;y<height;++y) {
+            for (unsigned int x=0;x<width;++x) {
+                (*data) [(y * width + x) ].r = image_data[((height - y - 1) * width + x) * 3];
+                (*data) [(y * width + x) ].g = image_data[((height - y - 1) * width + x) * 3 + 1];
+                (*data) [(y * width + x) ].b = image_data[((height - y - 1) * width + x) * 3 + 2];
+                (*data) [(y * width + x) ].a = 255;
 
+            }
+        }
+        free(image_data);
+    } else {
+        *data = (RGBA*)malloc(width * height * sizeof(RGBA));
+
+        for (unsigned int y=0;y<height;++y) {
+            for (unsigned int x=0;x<width;++x) {
+                (*data) [(y * width + x) ].r = image_data[((height - y - 1) * width + x) * 4];
+                (*data) [(y * width + x) ].g = image_data[((height - y - 1) * width + x) * 4 + 1];
+                (*data) [(y * width + x) ].b = image_data[((height - y - 1) * width + x) * 4 + 2];
+                (*data) [(y * width + x) ].a = image_data[((height - y - 1) * width + x) * 4 + 3];
+            }
+        }
+        free(image_data);
+    }
 
 
     return true;

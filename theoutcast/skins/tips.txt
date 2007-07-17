@@ -28,10 +28,22 @@ Top, left, center, right, and bottom are repeated to fill the area they need to 
 
 Tip #1
 
-COMPLICATED: Do not be conservative on dimensions of the repeated portions! In case they are too small, they will be repeated too often and framerate will drop more than if you'd simply give a big original file. So, it might be a better idea to tile it yourself, and then feed it to GLICT. 
 SIMPLE: Don't make 'top' 8x8, make it 64x8. Don't make 'center' 3x3, make it 64x64.
+COMPLICATED: Do not be conservative on dimensions of the repeated portions! In case they are too small, they will be repeated too often and framerate will drop more than if you'd simply give a big original file. So, it might be a better idea to tile it yourself, and then feed it to GLICT. 
+
 
 Tip #2
 
+SIMPLE: Don't make 'top' image 8x8, make it 8x1, don't make 'left' image 8x8, make it 1x8.
 COMPLICATED: Keep the textbox borders small, preferably 1 or 2 on the shorter part.
-SIMPLE: Don't make 'top' 8x8, make it 8x1, don't make 'left' 8x8, make it 1x8.
+
+Tip #3
+
+SIMPLE: Keep top, topleft and topright of same height. Same for bottom. Keep left, topleft and bottomleft of same width. Same for right.
+COMPLICATED: It's just meant to be that way: some images simply aren't planned to be of different sizes. Besides, it doesn't make much sense either; if you really want to do that, certainly the image editor you're using offers some sort of blending capabilities for images. Even the Most Simplest Picture And Image, Newbie's Tool (read capitals, please) includes this.
+
+Tip #4
+
+SIMPLE: Make height and width of your images divisable by 2.
+COMPLICATED: GLICT puts text in the center of your skinned object. So what happens when your center is odd and not even, if it's not divisable by two? Then it tries to put it between some pixels. Computers don't really like that and OpenGL will probably screw things up - the text will, at least on some computers, get blurred in case bitmap font is used.  And the "simple" summary is actually wrong: the thing is that the total height and width of your skin have to be divisable by two. So sum up topheight and bottomheight, and they have to be divisable by two. (Other is on game designer.) Window is an exception to the rule, you should keep topheight really divisable by two since top is the same as titlebar.
+

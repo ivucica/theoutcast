@@ -38,7 +38,7 @@ void EffectInit(effect_t* effect) {
 
 static int EffectsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName) {
     int effectid;
-    int i, iTmp;
+    int i;//, iTmp; // FIXME unused, remove me
     for (i = 0; i < argc; ++i) {
         if (!strcmp(azColName[i], "effectid")) break;
     }

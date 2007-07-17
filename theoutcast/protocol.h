@@ -20,7 +20,7 @@
 class Protocol {
     public:
         Protocol();
-        ~Protocol();
+        virtual ~Protocol();
         void SetSocket(SOCKET socket);
         std::string GetMotd() {return motd;}
         std::string GetError() {return errormsg;}
@@ -69,6 +69,9 @@ class Protocol {
 
         virtual void    Logout();
 
+
+        // protocol properties
+        virtual bool    CanCreateCharacter();
 
         // transmissives EXTENSIONS
 
@@ -161,6 +164,9 @@ class Protocol {
 
 #ifdef INCLUDE_SP
   #include "protocolsp.h"
+#endif
+#ifdef INCLUDE_ME
+  #include "protocolme0.h"
 #endif
 
 extern Protocol* protocol;

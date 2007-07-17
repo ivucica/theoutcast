@@ -9,8 +9,8 @@
 #include "protocol.h"//remove me and replace the switch(protocol->GetPRotcoolVersion) with something that'll return the spr filename
 
 ONCriticalSection objsprthreadsafe;
-#define ONThreadSafe
-#define ONThreadUnsafe
+//#define ONThreadSafe
+//#define ONThreadUnsafe
 void ObjSprInit() {
     ONInitThreadSafe(objsprthreadsafe);
 }
@@ -46,7 +46,9 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
+    printf("1\n");
     this->t = NULL;
+    printf("2\n");
     if (type == 0)
         LoadItem(itemid);
     else if (type == 1)
@@ -55,6 +57,7 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
         LoadEffect(itemid);
     else
         exit(1);
+	printf("3\n");
     this->itemid = itemid;
     this->type = type;
     this->direction = NORTH;
@@ -72,6 +75,7 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned char head, unsigned char body
     this->itemid = creaturetype;
     this->type = 1;
     this->direction = NORTH;
+    ONThreadUnsafe(objsprthreadsafe);
 }
 ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
     ONThreadSafe(objsprthreadsafe);
@@ -95,6 +99,8 @@ ObjSpr::~ObjSpr() {
     #endif
 
     ONThreadSafe(objsprthreadsafe);
+    printf("%d\n", itemid);
+    //system("sleep 1");
     switch (this->type) {
         case 0:
             if (items[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -107,14 +113,15 @@ ObjSpr::~ObjSpr() {
             items[itemid]->sli.usecount--;
             break;
         case 1:
-            if (creatures[itemid]->sli.usecount==1 && sli.spriteids) {
+			// creatures are NOT cached
+            //if (creatures[itemid]->sli.usecount==1 && sli.spriteids) {
                 for (int i = 0 ; i < sli.numsprites; i++)
                     delete(t[i]);
-                free(creatures[itemid]->textures);
-                creatures[itemid]->textures = NULL;
+                //free(creatures[itemid]->textures);
+                //creatures[itemid]->textures = NULL;
                 free(sli.spriteids);
-            }
-            creatures[itemid]->sli.usecount--;
+            //}
+            //creatures[itemid]->sli.usecount--;*/
             break;
         case 2:
             if (effects[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -128,15 +135,17 @@ ObjSpr::~ObjSpr() {
             break;
         default:
             ASSERTFRIENDLY(false, "BOO! BOOO!");
+
     }
     ONThreadUnsafe(objsprthreadsafe);
 }
 bool ObjSpr::Render() {
-    position_t p;
-    p.x = 0; p.y = 0; p.z = 0;
+    position_t p = {0};
+
     return Render(&p);
 }
 bool ObjSpr::Render(position_t *pos) {
+	if (!itemid) return false;
     glEnable(GL_TEXTURE_2D);
     ONThreadSafe(objsprthreadsafe);
     int currentframe = (int)((animation_percent/100.) * (float)sli.animcount);
@@ -144,8 +153,11 @@ bool ObjSpr::Render(position_t *pos) {
     // if (itemid == 5022) printf("%s, %d\n",  items[itemid].spritelist, sli.animcount);
     int activeframe;
 
-
-
+/*	{
+	char  tmp[512];
+	sprintf(tmp, "Object %d with no sprites? Very strange!\n", itemid);
+	ASSERTFRIENDLY(sli.numsprites || !itemid, tmp);
+	}*/
     for (int i = 0; i < sli.height; i++)
         for (int j = 0; j < sli.width; j++) {
             for (int k = 0; k < (type ? min(1, sli.blendframes) : sli.blendframes); k++) { // if anything except item, there won't be blendframes...
@@ -180,6 +192,7 @@ bool ObjSpr::Render(position_t *pos) {
                                         * sli.width + j)        // j == subwidth        (x coordinate)
 
                                         ;
+                                        printf("%d %d\n", i, j);
                         break;
                     case 2: // effect
                         activeframe =   (((((( // same amount of ('s as of *'s
@@ -202,6 +215,7 @@ bool ObjSpr::Render(position_t *pos) {
                     sprintf(tmp, "Active frame is %d while number of frames is %d. And that is a problem.", activeframe, sli.numsprites);
                     ASSERTFRIENDLY(activeframe < sli.numsprites, tmp )
                     //printf("%s\n", tmp);
+                    if (activeframe >= sli.numsprites) activeframe = 0;
                 }
                 if (activeframe < sli.numsprites) t[activeframe]->Bind();
 
@@ -240,9 +254,14 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
     sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n-1);
     ASSERTFRIENDLY(creatureid <= creatures_n-1, temp);
 
-    if (creatures[creatureid]->textures) {
+
+	// Since creatures can have different outfits, we must not cache them this naively
+    /*if (creatures[creatureid]->textures) {
         t = (Texture**)creatures[creatureid]->textures;
         sli = creatures[creatureid]->sli;
+
+		printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", sli.width, sli.height, sli.blendframes, sli.xdiv, sli.ydiv, sli.unknown, sli.animcount, sli.numsprites, sli.usecount );
+        printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", effects[effectid]->sli.width, effects[effectid]->sli.height, effects[effectid]->sli.blendframes, effects[effectid]->sli.xdiv, effects[effectid]->sli.ydiv, effects[effectid]->sli.unknown, effects[effectid]->sli.animcount, effects[effectid]->sli.numsprites, effects[effectid]->sli.usecount );
 
         creatures[creatureid]->sli.usecount++;
         offsetx = 0;
@@ -251,8 +270,8 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
         animation_framelist_stand = creatures[creatureid]->animation_framelist_stand; //stand
         animation_framelist_move = creatures[creatureid]->animation_framelist_move;// walk
         return;
-    }
-
+    }*/
+	printf("Forming creature %d\n", creatureid);
     {
         char tmp[256]; sprintf(tmp, "Creature %d not loaded\n", creatureid);
         ASSERTFRIENDLY(creatures[creatureid]->loaded, tmp);
@@ -286,10 +305,6 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
 
     for (int i = 0 ; i < sli.numsprites; i++) {
         if (sli.blendframes > 1) {
-            /*printf("sli.height * sli.width: %d\n", sli.height * sli.width);
-            printf("i: %d\n", i);
-            printf("i / (sli.height * sli.width): %d\n", (i / (sli.height * sli.width)));
-            printf("mod: %d\n", ((i / (sli.height * sli.width)) % 2 ));*/
             if ((i / (sli.height * sli.width)) % 2 ) {
                 t[i] = NULL;
                 continue;
@@ -348,9 +363,11 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
     creatures[creatureid]->animation_framelist_move.insert(creatures[creatureid]->animation_framelist_move.end(), 1);
     creatures[creatureid]->animation_framelist_move.insert(creatures[creatureid]->animation_framelist_move.end(), 2);
 
+	this->itemid = creatureid;
+
 }
 void ObjSpr::LoadItem(unsigned int itemid) {
-	ASSERT(protocol)
+	ASSERTFRIENDLY(protocol, "ObjSpr::LoadItem(): No protocol loaded, and it must be loaded for this function to work. It's possible that author actually wanted to use 'offline' version of this function here.")
 	LoadItem(itemid, protocol->GetProtocolVersion());
 }
 void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
@@ -378,7 +395,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
         sli.spriteids[0]=0;
         t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
         items[itemid]->textures = t;
-        t[0] = new Texture("Tibia76.spr", 0);
+        t[0] = new Texture("anything.spr", 0);
         return;
     }
     ASSERTFRIENDLY(items[itemid]->loaded, "Item with the ID that server transmitted is not loaded");
@@ -506,6 +523,7 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
 }
 
 void ObjSpr::LoadEffect(unsigned int effectid) {
+	printf("loading effect...\n");
     LoadEffect(effectid, protocol->GetProtocolVersion());
 }
 void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
@@ -516,21 +534,37 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
         // try skipping the loading of this effect
         return;
     }
-
+    printf("Loading effectid %d out of %d in ObjSpr::LoadEffect\n", effectid, effects_n);
+#if 1
+	printf("Checking if it's already loaded\n");
     if (effects[effectid]->textures) {
+    	printf("It's already there!\n");
         t = (Texture**)effects[effectid]->textures;
+        printf("1\n");
         sli = effects[effectid]->sli;
+        printf("2\n");
 
-        effects[itemid]->sli.usecount++;
+        printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", sli.width, sli.height, sli.blendframes, sli.xdiv, sli.ydiv, sli.unknown, sli.animcount, sli.numsprites, sli.usecount );
+        printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", effects[effectid]->sli.width, effects[effectid]->sli.height, effects[effectid]->sli.blendframes, effects[effectid]->sli.xdiv, effects[effectid]->sli.ydiv, effects[effectid]->sli.unknown, effects[effectid]->sli.animcount, effects[effectid]->sli.numsprites, effects[effectid]->sli.usecount );
+
+        effects[effectid]->sli.usecount++;
+        printf("3\n");
         offsetx = 0;//effects[effectid]->height2d_x ;
+        printf("4\n");
         offsety = 0;//effects[effectid]->height2d_y ;
+        printf("5\n");
 
         animation_framelist_stand = effects[effectid]->animation_framelist_stand; //stand
+        printf("#\n");
         animation_framelist_move = effects[effectid]->animation_framelist_move;// walk
+
+        printf("Finished\n");
         return;
     }
+	printf("Nope, creating new one\n");
+#endif
 
-    if (!effectid) {
+    /*if (!effectid) {
         sli.width = 1; sli.height = 1; sli.blendframes = 1; sli.xdiv = 1; sli.ydiv = 1; sli.unknown = 1; sli.animcount = 1;
         sli.numsprites = 1;
         sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
@@ -539,7 +573,8 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
         effects[effectid]->textures = t;
         t[0] = new Texture("Tibia76.spr", 0);
         return;
-    }
+    }*/
+    ASSERTFRIENDLY(effectid, "Invalid effectid -- it shouldn't be zero");
     ASSERTFRIENDLY(effects[effectid]->loaded, "Effect with the ID that server transmitted is not loaded");
 
 
@@ -661,7 +696,7 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
 
         offsetx = 0;//effects[effectid]->height2d_x ;
         offsety = 0;//effects[effectid]->height2d_y ;
-
+	this->itemid = effectid;
 
 }
 

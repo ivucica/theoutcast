@@ -26,7 +26,7 @@ static bool splashtest;
 #define BIGARRAYSIZE 200
 #define BAMULTI 4
 Texture *bigarray[BIGARRAYSIZE] = {NULL};
-
+ObjSpr *objbigarray[BIGARRAYSIZE] = {NULL};
 
 GM_SPRPlayground::GM_SPRPlayground() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing SPR playground\n");
@@ -246,6 +246,34 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
 
             }
             console.insert("Loaded multibigarray\n", CONBLUE);
+            break;
+		case 'o':
+		case 'O':
+			if (objbigarray[0]) {
+				console.insert("Object bigarray already loaded, press P first\n", CONRED);
+				break;
+			}
+
+
+            for (int i = 0; i < BIGARRAYSIZE; i++) {
+				printf("Loading objbigarray -- %d\n", i);
+				objbigarray[i] = new ObjSpr(i+100, 0, 792);
+				objbigarray[i]->Render();
+            }
+            console.insert("Loaded object bigarray\n", CONBLUE);
+            break;
+
+        case 'p':
+        case 'P':
+            if (!bigarray[0]) {
+                console.insert("Object bigarray already unloaded, press O first\n");
+            }
+            for (int i = 0 ; i < BIGARRAYSIZE; i++) {
+                delete objbigarray[i];
+                objbigarray[i]=NULL;
+                TextureReportRemaining();
+            }
+            console.insert("Unloaded object bigarray", CONBLUE);
             break;
         case 'r':
         case 'R':

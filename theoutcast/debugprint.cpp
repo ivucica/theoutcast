@@ -59,7 +59,7 @@ void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
                 #endif
                 break;
         }
-
+		fflush(stdout);
 /*
         FILE* DEBUGLOG = fopen("debuglog.txt","a");
 		if (DEBUGLOG) {

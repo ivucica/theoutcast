@@ -14,9 +14,14 @@ class Tile {
         ~Tile();
 
         void Insert(Thing *obj, bool begin);
+        void Insert(Item *obj, bool begin);
+        void Insert(Creature *obj, bool begin);
+        void Insert(Effect *obj, bool begin);
         //void remove(Thing *obj);
-        void Remove(unsigned char stackpos);
-        void Remove(Thing *obj);
+        void Remove(unsigned char stackpos) {Remove(stackpos, false);}
+        void Remove(Thing *obj) {Remove(obj, false);}
+        void Remove(unsigned char stackpos, bool moving);
+        void Remove(Thing *obj, bool moving);
 
         void Replace(Thing *original, Thing *newobject);
         void Replace(unsigned char stackpos, Thing *newobject);

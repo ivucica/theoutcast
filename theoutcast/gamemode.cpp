@@ -52,11 +52,12 @@ void GameModeDeinit() {
 
 }
 
-
+#include "assert.h"
 void GameModeEnter(gamemode_t gm) {
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "SWITCHING GAME MODES\n");
 	//ONThreadSafe(gmthreadsafe);
 	DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Thread safe\n");
+	ASSERTFRIENDLY(TextureIntegrityTest(), "GameModeEnter(): Texture integrity test 1 failed");
 	if (game) {
 		DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "First deleting old one ...\n");
 	    // FIXME (Khaos#1#) is there a way to "virtualise" destructor? meaning, when deleting ptr to parent class, i want to call child's destructor
@@ -67,7 +68,7 @@ void GameModeEnter(gamemode_t gm) {
 		if (dynamic_cast<GM_SPRPlayground*>(game)) delete (GM_SPRPlayground*)game; else
 		delete game;
 	}
-
+	ASSERTFRIENDLY(TextureIntegrityTest(), "GameModeEnter(): Texture integrity test 2 failed");
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Forming new gamemode\n");
 
 	switch (gm) {
@@ -95,11 +96,12 @@ void GameModeEnter(gamemode_t gm) {
 			//MessageBox(0, "Invalid gamemode\n", 0, 0);
 			exit(1);
 	}
-
+	ASSERTFRIENDLY(TextureIntegrityTest(), "GameModeEnter(): Texture integrity test 3 failed");
 	game->ResizeWindow();
 	gamemode = gm;
 	mayanimate = false;
 	win_Timer(500, win_MayAnimateToTrue, 0);
+	ASSERTFRIENDLY(TextureIntegrityTest(), "GameModeEnter(): Texture integrity test 4 failed");
 //    ONThreadUnsafe(gmthreadsafe);
 }
 

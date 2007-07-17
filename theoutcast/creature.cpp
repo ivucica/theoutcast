@@ -14,14 +14,18 @@ Creature::~Creature() {
 }
 void Creature::SetType(unsigned short outfit, void* extra) {
     ONThreadSafe(threadsafe);
+    printf("SEtting creature type\n");
     creaturelook_t *crl = (creaturelook_t *)extra;
 
     this->type = outfit;
     this->creaturelook = *crl;
+    printf("Creating sprite\n");
     if (outfit != 0)
         sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
-    else
+    else {
+    	printf("Extended look\n");
         sprgfx = new ObjSpr(crl->extendedlook , 0);
+    }
     ONThreadUnsafe(threadsafe);
 }
 void Creature::SetCreatureID(unsigned long creatureid) {
@@ -85,6 +89,12 @@ void Creature::CauseAnimOffset(bool individual) {   // if we're rendering an ind
         case SOUTHEAST:
             glTranslatef(((preapproved ? 0 : -32) + 32.*animationpercent/100.) * (individual ? 1. : -1), ((preapproved ? 0 : 32.) - 32.*animationpercent/100.) * (individual ? 1. : -1), 0);
             break;
+		case STOP:
+			// standing
+			break;
+		default:
+			// nothing
+			break;
     }
 }
 void Creature::Render(position_t *pos) {
@@ -195,4 +205,7 @@ void Creature::RenderOverlay() {
     glColor4f(1.,1.,1.,1.);
     if (wasmoving) glPopMatrix();
 
+}
+bool Creature::IsStackable()  {
+	return false;
 }

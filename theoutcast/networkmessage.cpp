@@ -119,6 +119,7 @@ bool NetworkMessage::FillFromSocket (SOCKET s)
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Expecting size read on netmsg %x.\n", (int)this);
 	sizereadresult = recv(s, (char*)&sz, 2, 0);
+	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Read %x bytes.\n", sizereadresult);
 
 	if (sizereadresult != 2)
 	{

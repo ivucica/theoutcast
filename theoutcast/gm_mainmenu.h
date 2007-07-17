@@ -57,7 +57,7 @@ class GM_MainMenu : public GameMode {
 		glictMessageBox about, tos;
 
 		glictWindow characterlist;
-		glictButton btnCharlistCancel;
+		glictButton btnCharlistCharMgr, btnCharlistCancel;
 
 		glictWindow options;
 		glictPanel pnlOptionsMaptrack, pnlOptionsFullscreen, pnlOptionsIntro, pnlOptionsOSCursor; // checkboxes here only, please
@@ -103,6 +103,8 @@ class GM_MainMenu : public GameMode {
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList_SP(ONThreadFuncArgumentType menuclass_void);
 	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_SP(ONThreadFuncArgumentType menuclass_void);
+	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList_ME0(ONThreadFuncArgumentType menuclass_void);
+	friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_ME0(ONThreadFuncArgumentType menuclass_void);
 	friend void ItemsLoad();
 	friend void CreaturesLoad();
 	friend void EffectsLoad();
@@ -117,6 +119,7 @@ void GM_MainMenu_Exit(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_CreatingAccount(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_CharList_LogonOK(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_CharList_LogonError(glictPos* pos, glictContainer* caller);
+void GM_MainMenu_CharList_CharMgr(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_CharList_Character(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_CharList_Cancel(glictPos* pos, glictContainer* caller);
 void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller);

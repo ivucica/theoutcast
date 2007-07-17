@@ -31,12 +31,14 @@ void Console::insert(std::string txt, bool debug) {
 void Console::insert(std::string txt, consolecolors_t col) {
     this->insert(txt, col, false);
 }
+#include "assert.h" // remove me -- just for texture integrity test
+#include "texmgmt.h" // remove me - just for texture integrity test
 void Console::insert(std::string txt, consolecolors_t col, bool debug) {
 //    DEBUGPRINT("Inserting new console entry, color %d\n", col);
 
     if (debug && DEBUGLEVEL_BUILDTIME >= 0 || !debug) {
         consoleentry* x = new consoleentry;
-        x->text = (char*)malloc(strlen(txt.c_str()) + 1);
+        x->text = (char*)malloc(txt.size() + 1);
         strcpy(x->text, txt.c_str());
         if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
         if (x->text[0] == 10) memmove(x->text, x->text+1, strlen(x->text)-1);
@@ -53,6 +55,7 @@ void Console::insert(std::string txt, consolecolors_t col, bool debug) {
         ONThreadSafe(threadsafe);
         con.insert(con.begin(), x);
         ONThreadUnsafe(threadsafe);
+        ASSERTFRIENDLY(TextureIntegrityTest(), "Console::insert(): Texture integrity test failed");
     }
 }
 void Console::clear() {
@@ -67,7 +70,7 @@ void Console::clear() {
 }
 void Console::draw(char count) {
     consolecontainer::iterator it;
-    int p=0;
+    int p=1;
 
     float oldcolor[4];
     glGetFloatv(GL_CURRENT_COLOR, oldcolor);
@@ -89,9 +92,15 @@ void Console::draw(char count) {
             p += glictFontNumberOfLines((*it)->text);
 
             //glPushMatrix();
-            glictFontRender(((*it) ->text), "system", 0, p*12 );
+            glDisable(GL_SCISSOR_TEST);
+            glDisable(GL_CULL_FACE );
+            glRotatef(180,1,0,0);
+            glictFontRender(((*it) ->text), "system", 0, -p*12 );
             //glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
-            glTranslatef(0, (glictFontNumberOfLines((*it)->text)-1)*11. , 0);
+            glRotatef(180,1,0,0);
+            glEnable(GL_SCISSOR_TEST);
+			glEnable(GL_CULL_FACE );
+
             //glPopMatrix();
 
 

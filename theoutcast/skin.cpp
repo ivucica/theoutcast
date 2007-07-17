@@ -88,7 +88,7 @@ void Skin::Load(const char* what) {
             fscanf(f, "%g %g %g %g", &glictGlobals.buttonHighlightTextColor.r, &glictGlobals.buttonHighlightTextColor.g, &glictGlobals.buttonHighlightTextColor.b, &glictGlobals.buttonHighlightTextColor.a);
             fscanf(f, "%g %g %g %g", &glictGlobals.panelTextColor.r,  &glictGlobals.panelTextColor.g,  &glictGlobals.panelTextColor.b,  &glictGlobals.panelTextColor.a);
             fscanf(f, "%g %g %g %g", &glictGlobals.textboxTextColor.r,  &glictGlobals.textboxTextColor.g,  &glictGlobals.textboxTextColor.b,  &glictGlobals.textboxTextColor.a);
-            fscanf(f, "%g %g %g %g", &glictGlobals.windowTitleColor[0], &glictGlobals.windowTitleColor[1], &glictGlobals.windowTitleColor[2], &glictGlobals.windowTitleColor[3]);
+            fscanf(f, "%g %g %g %g", &glictGlobals.windowTitleColor.r, &glictGlobals.windowTitleColor.g, &glictGlobals.windowTitleColor.b, &glictGlobals.windowTitleColor.a);
 
             #ifdef OUTCAST_SKINS
             for (int i = 0; i < 7; i++) {

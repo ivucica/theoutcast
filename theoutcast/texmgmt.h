@@ -7,6 +7,7 @@
 
 #include "imgfmts.h"
 
+
 class Skin;
 class Texture {
 	public:
@@ -27,6 +28,7 @@ class Texture {
 
 		void AssureLoadedness();
 
+		int GetChecksum();
 		bool *loaded;
 	private:
 
@@ -43,12 +45,17 @@ class Texture {
 
         bool intexlist;
 
+        int checksum;
+
 		friend class Skin;
 		friend void TextureFreeSlot();
 		friend void TextureReportRemaining();
+		friend bool TextureIntegrityTest_internal (std::string);
 };
 
 void TextureInit();
 void TextureDeinit();
 void TextureReportRemaining();
+bool TextureIntegrityTest_internal (std::string);
+#define TextureIntegrityTest() TextureIntegrityTest_internal(__PRETTY_FUNCTION__)
 #endif

@@ -22,37 +22,77 @@ unsigned int Tile::GetItemCount() {
     return this->itemcount;
 }
 #include "console.h"
-void Tile::Insert(Thing *thing, bool begin) {
-    #ifdef WIN32
+void Tile::Insert(Creature *thing, bool begin) {
     ONThreadSafe(threadsafe);
-    #endif
-    ASSERT(thing)
+    ASSERTFRIENDLY(thing, "Creature provided is null!")
     if (!thing) {
-        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Tile::insert - thing provided is NULL!!!!");
-        //system("pause");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Tile::insert - creature provided is NULL!!!!");
         ONThreadUnsafe(threadsafe);
         return;
     }
-    if (dynamic_cast<Creature*>(thing)) {
-        creatures.insert(begin ? creatures.begin() : creatures.end(), (Creature*)thing);
-        this->itemcount ++;
-    } else if (dynamic_cast<Effect*>(thing)) {
-        effects.insert(begin ? effects.begin() : effects.end(), (Effect*)thing);
-//        console.insert("EFFECT!\n", true);
-    } else if (thing->IsGround()) {
+
+	creatures.insert(begin ? creatures.begin() : creatures.end(), thing);
+	this->itemcount ++;
+	ONThreadUnsafe(threadsafe);
+}
+
+void Tile::Insert(Item *thing, bool begin) {
+    ONThreadSafe(threadsafe);
+    ASSERTFRIENDLY(thing, "Item provided is null!")
+    if (!thing) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Tile::insert - item provided is NULL!!!!");
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
+
+	if (thing->IsGround()) {
         if (!ground) this->itemcount ++;
         ground = thing;
     } else {
         itemlayers[thing->GetTopIndex()].insert(begin ? itemlayers[thing->GetTopIndex()].begin() : itemlayers[thing->GetTopIndex()].end(), (Item*)thing);
         this->itemcount ++;
     }
-
-    #ifdef WIN32
-    ONThreadUnsafe(threadsafe);
-    #endif
+	ONThreadUnsafe(threadsafe);
 }
 
-void Tile::Remove(unsigned char pos) {
+void Tile::Insert(Effect *thing, bool begin) {
+    ONThreadSafe(threadsafe);
+    ASSERTFRIENDLY(thing, "Effect provided is null!")
+    if (!thing) {
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_ERROR, "Tile::insert - effect provided is NULL!!!!");
+        ONThreadUnsafe(threadsafe);
+        return;
+    }
+
+	effects.insert(begin ? effects.begin() : effects.end(), (Effect*)thing);
+	ONThreadUnsafe(threadsafe);
+}
+
+
+void Tile::Insert(Thing *thing, bool begin) {
+
+	ASSERTFRIENDLY(thing, "Thing provided is null!")
+	printf("---inserting %p---\n", thing);
+	printf("---testing for creature---\n");
+
+    if (dynamic_cast<Creature*>(thing)) {
+    	printf("+++ack+++\n");
+		Insert(dynamic_cast<Creature*>(thing), begin);
+		return;
+    }
+    printf("---testing for effect---\n");
+    if (dynamic_cast<Effect*>(thing)) {
+    	printf("+++ack+++\n");
+    	Insert(dynamic_cast<Effect*>(thing), begin);
+    	return;
+    }
+	printf("---surely it's item?---\n");
+	Insert(dynamic_cast<Item*>(thing), begin);
+	printf("+++ack+++\n");
+
+}
+
+void Tile::Remove(unsigned char pos, bool moving) {
     ONThreadSafe(threadsafe);
 
     ASSERT(pos < itemcount)
@@ -65,7 +105,7 @@ void Tile::Remove(unsigned char pos) {
     itemcount --;
     if (ground) {
         if (pos==0) {
-            //delete ground; // we're allowed to delete ONLY if we're not >>moving<<
+            if (!moving) delete ground;
             ground=NULL;
 
             ONThreadUnsafe(threadsafe);
@@ -77,7 +117,7 @@ void Tile::Remove(unsigned char pos) {
         if (pos < itemlayers[i].size()) {
             std::vector<Item*>::iterator it=itemlayers[i].end();
             it -= pos+1;
-            //delete *it;
+            if (!moving) delete *it;
             itemlayers[i].erase(it);
             ONThreadUnsafe(threadsafe);
             return;
@@ -87,7 +127,7 @@ void Tile::Remove(unsigned char pos) {
     if (pos < creatures.size()) {
         std::vector<Creature*>::iterator it=creatures.end();
         it -= pos+1;
-        //delete *it;
+        if (!moving) delete *it;
         creatures.erase(it);
         ONThreadUnsafe(threadsafe);
         return;
@@ -96,7 +136,7 @@ void Tile::Remove(unsigned char pos) {
     if (pos < itemlayers[0].size()) {
         std::vector<Item*>::iterator it=itemlayers[0].end();
         it -= pos+1;
-        //delete *it;
+        if (!moving) delete *it;
         itemlayers[0].erase(it);
 
     ONThreadUnsafe(threadsafe);
@@ -109,7 +149,7 @@ void Tile::Remove(unsigned char pos) {
 }
 
 
-void Tile::Remove(Thing *obj) {
+void Tile::Remove(Thing *obj, bool moving) {
     ONThreadSafe(threadsafe);
 
     std::vector<Item*>::iterator it;
@@ -128,7 +168,7 @@ void Tile::Remove(Thing *obj) {
     itemcount --;
     if (ground) {
         if (ground == obj) {
-//            delete ground;
+            if (!moving) delete ground;
             ground=NULL;
 
             ONThreadUnsafe(threadsafe);
@@ -138,7 +178,7 @@ void Tile::Remove(Thing *obj) {
     for (int i = 3; i >=0 ; i-- ) {
         for (it=itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
             if (*it == obj) {
-//                delete *it;
+                if (!moving) delete *it;
                 itemlayers[i].erase(it);
                 ONThreadUnsafe(threadsafe);
                 return;
@@ -147,7 +187,7 @@ void Tile::Remove(Thing *obj) {
     }
     for (ct=creatures.begin(); ct != creatures.end(); ct++) {
         if (*ct == obj) {
-//            delete *ct;
+            if (!moving) delete *ct;
             creatures.erase(ct);
             ONThreadUnsafe(threadsafe);
             return;
@@ -309,6 +349,8 @@ void Tile::RenderStrayCreatures(position_t *p) {
                     case SOUTH:
                         printf("south\n");
                         break;
+					default:
+						printf("some other direction!\n");
                 }
 
                 printf("p->x compared to pos.x is ");
@@ -327,6 +369,7 @@ void Tile::RenderStrayCreatures(position_t *p) {
                 cr->Render(p);
                 glTranslatef((p->x - pos.x) * 32, -(p->y - pos.y) * 32, 0);
                 //glColor4f(1.,1.,1.,1.);
+                printf("Creature rendered ok\n");
             }
 //            if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
                 //cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
