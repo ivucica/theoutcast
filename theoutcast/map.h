@@ -25,23 +25,27 @@ class Map {
         Map();
         ~Map();
 
-        Tile* GetTile(position_t *pos);
+        Tile* GetTile(const position_t *pos);
         Creature* GetCreature(unsigned long creatureid, Creature *cr);
+		void SetMaxVisibles(int mx, int my, char mz) {
+			maxx = mx; maxy = my; maxz = mz;
+		}
 
         void Lock();
         void Unlock();
 
         unsigned long SetAttackedCreature(unsigned long creatureid);
+		bool IsVisible(const position_t &pos);
 
-
-	void FreeUnused(unsigned short minx, unsigned short maxx, unsigned short miny, unsigned short maxy);
+		void FreeUnused(unsigned short minx, unsigned short maxx, unsigned short miny, unsigned short maxy);
 
         bool locked;
     private:
         maptype_t m;
         creaturelist_t c;
         ONCriticalSection threadsafe;
-        Creature *attackedcreature;
+		Creature *attackedcreature;
+		int maxx, maxy, maxz;
 
 };
 

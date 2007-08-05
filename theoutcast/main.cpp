@@ -185,9 +185,9 @@ if(AllocConsole())
     DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "Reading cmd line arguments\n");
 
     for (int i=1;i<argc;i++) {
-
-        if (!strcmp(argv[i], "sprplayground")) sprplayground = true;
-
+        if (!strcmp(argv[i], "sprplayground")) {
+        	sprplayground = true;
+        }
         #ifndef WIN32
         // linux only arguments:
         if (!strcmp(argv[i], "softwarerenderer")) {

@@ -9,7 +9,7 @@ class Item : public Thing {
         ~Item();
 
         void Render();
-        void Render(position_t *pos);
+        void Render(const position_t *pos);
     private:
 
 };

@@ -2,7 +2,7 @@
 #include <string>
 #include "effect.h"
 #include "tile.h"
-
+extern bool dontloadspr;
 extern  float fps;
 Effect::Effect(Tile *parent) {
     this->parent = parent;
@@ -34,6 +34,8 @@ bool Effect::AnimationAdvance(float advance, bool overlayed) {
         }
     }
     if (this->animationpercent < oldanimationpercent || this->animationpercent == 100)  { // this means that the animation is restarting ...
+    	// TODO (Khaos#1#) here it is a potentially dangerous act... we must see if it's valid and non-breaking to remove effect here
+
         parent->Remove(this);
 //        printf("REMOVING!!!!!!!!!\n");
         return false;
@@ -43,7 +45,7 @@ bool Effect::AnimationAdvance(float advance, bool overlayed) {
 
 void Effect::SetType(unsigned short type, void* extra) {
 	printf("Creating new sprite for effect type %d\n", type);
-    sprgfx = new ObjSpr(type, 2);
+    if (!dontloadspr) sprgfx = new ObjSpr(type, 2);
     printf("Created\n");
     this->effecttype = MAGICEFFECT;
 }
@@ -62,7 +64,7 @@ void Effect::SetText(std::string &text, unsigned char color, bool animated) {
 
 }
 
-void Effect::Render(position_t *pos, bool overlayed) {
+void Effect::Render(const position_t *pos, bool overlayed) {
     switch (effecttype) {
         case MAGICEFFECT:
             if (!overlayed) Thing::Render();

@@ -9,7 +9,7 @@ class Creature : public Thing {
         Creature();
         ~Creature();
 
-        void Render(position_t *pos);
+        void Render(const position_t *pos);
         void Render();
         void RenderOverlay();
 
@@ -35,6 +35,8 @@ class Creature : public Thing {
 
         void SetSkull(skull_t s);
 
+
+		creaturelook_t GetCreatureLook();
     private:
         unsigned long id;
         std::string name;

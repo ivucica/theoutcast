@@ -62,7 +62,8 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
     protocol->charlistserver = menuclass->txtLoginServer.GetCaption();
     protocol->charlistport = 7171;
 
-    if (!strcmp(menuclass->txtLoginServer.GetCaption().c_str(), "server.tibia.com")) {
+    if (!strcmp(menuclass->txtLoginServer.GetCaption().c_str(), "server.tibia.com") ||
+        !strcmp(menuclass->txtLoginServer.GetCaption().c_str(), "login01.tibia.com") ) {
         protocol->CipSoft(true);
     } else {
         protocol->CipSoft(false);

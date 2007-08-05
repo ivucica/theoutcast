@@ -72,23 +72,23 @@ void Tile::Insert(Effect *thing, bool begin) {
 void Tile::Insert(Thing *thing, bool begin) {
 
 	ASSERTFRIENDLY(thing, "Thing provided is null!")
-	printf("---inserting %p---\n", thing);
-	printf("---testing for creature---\n");
+	/*printf("---inserting %p---\n", thing);
+	printf("---testing for creature---\n");*/
 
     if (dynamic_cast<Creature*>(thing)) {
-    	printf("+++ack+++\n");
+    	//printf("+++ack+++\n");
 		Insert(dynamic_cast<Creature*>(thing), begin);
 		return;
     }
-    printf("---testing for effect---\n");
+    //printf("---testing for effect---\n");
     if (dynamic_cast<Effect*>(thing)) {
-    	printf("+++ack+++\n");
+//    	printf("+++ack+++\n");
     	Insert(dynamic_cast<Effect*>(thing), begin);
     	return;
     }
-	printf("---surely it's item?---\n");
+//	printf("---surely it's item?---\n");
 	Insert(dynamic_cast<Item*>(thing), begin);
-	printf("+++ack+++\n");
+//	printf("+++ack+++\n");
 
 }
 
@@ -102,11 +102,14 @@ void Tile::Remove(unsigned char pos, bool moving) {
         ONThreadUnsafe(threadsafe);
         return;
     }
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
     itemcount --;
     if (ground) {
         if (pos==0) {
             if (!moving) delete ground;
             ground=NULL;
+
+            ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
 
             ONThreadUnsafe(threadsafe);
             return;
@@ -119,6 +122,8 @@ void Tile::Remove(unsigned char pos, bool moving) {
             it -= pos+1;
             if (!moving) delete *it;
             itemlayers[i].erase(it);
+
+            ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
             ONThreadUnsafe(threadsafe);
             return;
         }
@@ -127,8 +132,12 @@ void Tile::Remove(unsigned char pos, bool moving) {
     if (pos < creatures.size()) {
         std::vector<Creature*>::iterator it=creatures.end();
         it -= pos+1;
-        if (!moving) delete *it;
+
+        //if (!moving) delete *it; // NEVER delete creatures since they're also kept in gamemap
+        if (!moving && *it == player->GetCreature()) player->Die();
         creatures.erase(it);
+
+        ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
         ONThreadUnsafe(threadsafe);
         return;
     }
@@ -139,12 +148,14 @@ void Tile::Remove(unsigned char pos, bool moving) {
         if (!moving) delete *it;
         itemlayers[0].erase(it);
 
-    ONThreadUnsafe(threadsafe);
+		ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
+		ONThreadUnsafe(threadsafe);
         return;
     }
     pos -= itemlayers[0].size();
     printf("Tile::remove(unsigned char pos): FAILED\n");
     itemcount ++;
+
     ONThreadUnsafe(threadsafe);
 }
 
@@ -187,7 +198,7 @@ void Tile::Remove(Thing *obj, bool moving) {
     }
     for (ct=creatures.begin(); ct != creatures.end(); ct++) {
         if (*ct == obj) {
-            if (!moving) delete *ct;
+            //if (!moving) delete *ct; // NEVER delete creatures since they're also kept in gamemap
             creatures.erase(ct);
             ONThreadUnsafe(threadsafe);
             return;
@@ -303,14 +314,14 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
 
 
 
-void Tile::SetPos(position_t *p) {
+void Tile::SetPos(const position_t *p) {
     ONThreadSafe(threadsafe);
     pos.x = p->x;
     pos.y = p->y;
     pos.z = p->z;
     ONThreadUnsafe(threadsafe);
 }
-void Tile::RenderStrayCreatures(position_t *p) {
+void Tile::RenderStrayCreatures(const position_t *p) {
     ONThreadSafe(threadsafe);
     unsigned int grndspeed = 500;// a safe default ...
     unsigned int creaturespeed = 220; //  a safe default...
@@ -331,11 +342,11 @@ void Tile::RenderStrayCreatures(position_t *p) {
             if (cr->IsMoving() &&
                 ((p->x > pos.x && p->y == pos.y && cr->GetDirection() == WEST) ||
                  (p->y > pos.y && p->x == pos.x && cr->GetDirection() == NORTH) ||
-                 (p->y < pos.y && p->x == pos.x && cr->GetDirection() == SOUTH) ||
+                 (p->y <= pos.y && p->x == pos.x && cr->GetDirection() == SOUTH) ||
                  (p->x > pos.x && p->y == pos.y && cr->GetDirection() == EAST))
             ) {
 
-                printf("Direction is ");
+/*                printf("Direction is ");
                 switch(cr->GetDirection()) {
                     case NORTH:
                         printf("north\n");
@@ -362,14 +373,14 @@ void Tile::RenderStrayCreatures(position_t *p) {
                 if (p->y > pos.y) printf("greater\n");
                 if (p->y == pos.y) printf("equal\n");
                 if (p->y < pos.y) printf("smaller\n");
-
+*/
 
                 //glColor4f(1., 0, 0, 1.);
                 glTranslatef(-(p->x - pos.x) * 32, (p->y - pos.y) * 32, 0);
                 cr->Render(p);
                 glTranslatef((p->x - pos.x) * 32, -(p->y - pos.y) * 32, 0);
                 //glColor4f(1.,1.,1.,1.);
-                printf("Creature rendered ok\n");
+                //printf("Creature rendered ok\n");
             }
 //            if (cr->IsMoving()) // maybe the below function call should be changed into MoveAdvance() which would be passed only the grndspeed?
                 //cr->AnimationAdvance( (100. * creaturespeed / grndspeed) / fps);
@@ -557,7 +568,6 @@ void Tile::Render(int layer) {
 
 
 
-
         ONThreadUnsafe(threadsafe);
 
     }
@@ -570,10 +580,10 @@ void Tile::Render(int layer) {
             if (!grndspeed) grndspeed = 500; // a safe fallback, once again
         }
 
-        if (pos.x < player->pos.x + 8
-         && pos.x > player->pos.x - 8
-         && pos.y < player->pos.y + 6
-         && pos.y > player->pos.y - 6
+        if (pos.x < player->pos.x + 8 + 1
+         && pos.x > player->pos.x - 8 - 1
+         && pos.y < player->pos.y + 6 + 1
+         && pos.y > player->pos.y - 6 - 1
          && pos.z == player->pos.z
          && creatures.size()) {
              for (std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++) {
@@ -656,6 +666,9 @@ void Tile::ShowContents() {
         }
     }
 
+    for (std::vector<Creature*>::iterator ct=creatures.begin(); ct != creatures.end(); ct++) {
+		DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Creature: %s\n", (*ct)->GetName().c_str());
+    }
 }
 void Tile::StoreToDatabase() {
     static std::string *serv;

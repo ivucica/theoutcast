@@ -90,13 +90,24 @@ struct effect_t {
     bool loaded;
 } ;
 
-typedef struct {
+typedef struct position_s {
+	position_s() {
+	}
+	position_s(unsigned short x, unsigned short y, unsigned char z) {
+		this->x = x; this->y = y; this->z = z;
+	}
     unsigned short x, y;
     unsigned char z;
 } position_t;
 
-typedef struct {
-    unsigned short type;
+typedef struct creaturelook_s {
+	creaturelook_s() {}
+	creaturelook_s(unsigned short t, unsigned short h, unsigned short b, unsigned short l, unsigned short f, unsigned short a, unsigned short e) {
+		type = t; head = h; body = b; legs = l; feet = f; addons = a; extendedlook = e;
+	}
+
+
+	unsigned short type;
     unsigned short head;
     unsigned short body;
     unsigned short legs;

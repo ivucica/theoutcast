@@ -45,10 +45,12 @@ void PaintMap();
 Texture* texSkull;
 
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
-    while (1) { // while we're in gameworld game mode
+	printf("GM_Gameworld_Thread\n");
+    while (1) { // while we're in gameworld game mode // FIXME -- it doesnt check for that
         if (!protocol->GameworldWork()) break;
         //if (!(gamemode == GM_GAMEWORLD)) break;
     }
+    printf("Interruption\n");
     protocol->Close();
     if (gamemode == GM_GAMEWORLD)
         console.insert("Connection interrupted.");
@@ -220,13 +222,16 @@ GM_Gameworld::GM_Gameworld() {
 
 GM_Gameworld::~GM_Gameworld() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing gameworld\n");
+    gamemap.Lock();
     ItemsUnload();
     CreaturesUnload();
     SPRUnloader();
 
     delete texSkull;
 
+	gamemap.Unlock();
     ONDeinitThreadSafe(desktopthreadsafe);
+
 }
 
 void GM_Gameworld::Render() {
@@ -395,8 +400,8 @@ void PaintMap() {
 		// save recalc time
 
 		ASSERTFRIENDLY(player, "It is possible that server did not send us information about player's creatureID. This is strange.\nAt present stage, it also might be caused by an unpredicted bug.\nThis happens quite often, and a cure for this bug will be sought after.");
-		ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")
-		if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
+		/*		ASSERTFRIENDLY(player->GetCreature(), "Server did not place player on the map at any time. This is strange.\nIf this happened when you died, please inform the development team -- we overlooked this ;)")*/
+		if (player->GetCreature()) if (player->GetCreature()->IsMoving()) player->GetCreature()->CauseAnimOffset(false);
 		static int offset;
 
 
@@ -454,7 +459,7 @@ void PaintMap() {
                         else
                             glColor4f(1., 1., 1., 1.);
 
-                        if (t=gamemap.GetTile(&p))
+                        if ((t=gamemap.GetTile(&p)))
                                 //t->Render(0);
                                 t->Render(layer);
 
@@ -521,7 +526,7 @@ void GM_Gameworld::UpdateStats() {
     sprintf(tmp,"HP: %d/%d\n"
                 "MP: %d/%d\n"
                 "---------\n"
-                "Exp: %d\n"
+                "Exp: %lu\n"
                 "Level: %d (%d%%)\n"
                 "Magic: %d (%d%%)\n"
                 "Cap: %d\n"
@@ -583,7 +588,7 @@ unsigned int GM_Gameworld::GetContainersX() {
 }
 unsigned int GM_Gameworld::GetContainersY() {
     ONThreadSafe(desktopthreadsafe);
-    glictPos p; unsigned int h;
+    glictPos p; float h;
     panStaStats.GetPos(&p);
     h = panStaStats.GetHeight();
     ONThreadUnsafe(desktopthreadsafe);
@@ -602,6 +607,9 @@ void GM_Gameworld::MsgBox (const char* mbox, const char* title) {
 	mb->SetMessage(mbox);
 
 	mb->SetPos(winw / 2 - s.w / 2, winh / 2 - s.h / 2);
+
+	mb->SetWidth(glictFontSize(mbox, "system"));
+	mb->SetHeight(glictFontNumberOfLines(mbox) * 12 + 30);
 
 	mb->SetOnDismiss(GM_Gameworld_MBOnDismiss);
 
@@ -737,7 +745,6 @@ void GM_Gameworld_WorldOnClick (glictPos* pos, glictContainer* caller) {
     pos2.x = pos->x - (VISIBLEW / 2) + player->GetPosX();
     pos2.y = pos->y - (VISIBLEH / 2) + player->GetPosY();
     pos2.z = player->GetPosZ();
-
 
     GM_Gameworld_ClickExec(&pos2, GLICT_MOUSECLICK);
 }
@@ -949,9 +956,10 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
 
     } else if (evttype == GLICT_MOUSECLICK) {
         char tmp [256];
-        sprintf(tmp, "You clicked on location (%d, %d, %d)", pos->x, pos->y, pos->z );
+        sprintf(tmp, "You clicked on location (%d, %d, %d) which is %s", pos->x, pos->y, pos->z, gamemap.IsVisible(*pos) ? "visible" : "not visible" );
         console.insert(tmp, CONWHITE);
         gamemap.GetTile(pos)->ShowContents();
+
         moving = false;
         win_SetMousePointer("DEFAULT");
         useex_item2 = false;

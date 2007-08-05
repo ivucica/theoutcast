@@ -19,6 +19,24 @@
 #include "effects.h"
 #include "charlist.h"
 #include "gwlogon.h"
+
+
+#include "protocol75.h"
+#include "protocol76.h"
+#ifdef USEENCRYPTION
+#include "protocol77.h"
+#include "protocol79.h"
+  #include "protocol792.h"
+  #include "protocol80.h"
+#endif
+
+#ifdef INCLUDE_SP
+  #include "protocolsp.h"
+#endif
+#ifdef INCLUDE_ME
+  #include "protocolme0.h"
+#endif
+
 Protocol* protocol;
 
 Protocol::Protocol() {
@@ -81,7 +99,7 @@ bool Protocol::GameworldLogin() {
 
     return false;
 }
-
+int lastpreviouspacket = 0; // FIXME remove me
 bool Protocol::GameworldWork() {
     NetworkMessage nm;
 
@@ -99,7 +117,14 @@ bool Protocol::GameworldWork() {
 
 //    nm.ShowContents();
     gamemap.Lock();
-    while ((signed int)(nm.GetSize())>0 && ParsePacket(&nm));
+    while ((signed int)(nm.GetSize())>0 ) {
+    	int currentpacket = nm.PeekU8();
+    	if (ParsePacket(&nm)) lastpreviouspacket = currentpacket; else {
+    		ASSERT(false);
+    		break;
+    	}
+
+    }
     gamemap.Unlock();
 
     if ((signed int)(nm.GetSize())!=0) {
@@ -206,7 +231,7 @@ void Protocol::GetPlayerStats(NetworkMessage *nm) {
 // 7.6 version
 // for more check out old outcast :/
 
-
+	ASSERTFRIENDLY(player, "Player is null, yet he shouldn't be null.\n");
     player->SetHP(nm->GetU16()); // hp
     player->SetMaxHP(nm->GetU16()); // max hp
     player->SetCap(nm->GetU16()); // cap
@@ -283,22 +308,27 @@ void Protocol::GetPlayerSkills(NetworkMessage *nm) {
 }
 
 bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
-	if (effects_n) {
-	position_t pos;
-	player->GetPos(&pos);
-	pos.x += 3; pos.y -= 3;
-	Tile *t = gamemap.GetTile(&pos);
-	gamemap.Lock();
+	#if 0
+	if (effects_n && player) {
 
-	Effect* e = new Effect(t);
-	e->SetType(2, NULL);
-	t->Insert(e, false);
-	gamemap.Unlock();
-	char tmp[50];
-	sprintf(tmp, "Packet, showing on %d %d %d", pos.x, pos.y, pos.z);
-	console.insert(tmp);
+		position_t pos;
+		player->GetPos(&pos);
+		pos.x += 3; pos.y -= 3;
+
+		char tmp[50];
+		sprintf(tmp, "Packet, showing on %d %d %d", pos.x, pos.y, pos.z);
+		console.insert(tmp);
+
+		Tile *t = gamemap.GetTile(&pos);
+		gamemap.Lock();
+
+		Effect* e = new Effect(t);
+		e->SetType(2, NULL);
+		t->Insert(e, false);
+		gamemap.Unlock();
 	}
 	printf("Added 'ping' effect\n");
+	#endif
     switch (packetid) {
         case 0x0A: // Creature ID
 
@@ -380,12 +410,14 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x65: // Move Player North
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Move north\n");
 
+
             player->SetPos(player->GetPosX(), player->GetPosY()-1, player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
-            ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            ParseMapDescription(nm, maxx, 1, player->GetPosX() - (maxx-1)/2, player->GetPosY() - (maxy - 1)/2, player->GetPosZ());
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
+
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End move north\n");
 
@@ -393,10 +425,11 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x66: // Move Player East
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Move east\n");
 
+
             player->SetPos(player->GetPosX()+1, player->GetPosY(), player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
-            ParseMapDescription(nm, 1, maxy, player->GetPos()->x + (maxx+1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            ParseMapDescription(nm, 1, maxy, player->GetPosX() + (maxx+1)/2, player->GetPosY() - (maxy - 1)/2, player->GetPosZ());
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
 
@@ -409,7 +442,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             player->SetPos(player->GetPosX(), player->GetPosY()+1, player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
-            ParseMapDescription(nm, maxx, 1, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y + (maxy+1 )/2, player->GetPos()->z);
+            ParseMapDescription(nm, maxx, 1, player->GetPosX() - (maxx-1)/2, player->GetPosY() + (maxy+1 )/2, player->GetPosZ());
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
 
@@ -419,12 +452,14 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x68: // Move Player West
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move west\n");
 
+
             player->SetPos(player->GetPosX()-1, player->GetPosY(), player->GetPosZ());
 
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
-            ParseMapDescription(nm, 1, maxy, player->GetPos()->x - (maxx-1)/2, player->GetPos()->y - (maxy - 1)/2, player->GetPos()->z);
+            ParseMapDescription(nm, 1, maxy, player->GetPosX() - (maxx-1)/2, player->GetPosY() - (maxy - 1)/2, player->GetPosZ());
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
+
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move west\n");
             return true;
@@ -433,7 +468,16 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             GetPosition(nm, &pos);
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
-            ParseTileDescription(nm, pos.x,pos.y,pos.z);
+            if (nm->PeekU16()>0xFF00) {
+            	// skip this tile == clear this tile
+            	Tile *t = gamemap.GetTile(&pos);
+            	t->Empty();
+            	nm->GetU16();
+            	DEBUGPRINT(DEBUGPRINT_WARNING, DEBUGPRINT_LEVEL_DEBUGGING, "CLEARTILE.\n");
+            } else {
+				ParseTileDescription(nm, pos.x,pos.y,pos.z);
+				nm->GetU16();
+            }
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
 
             return true;
@@ -441,12 +485,14 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0x6A: {// Add Item
             position_t pos;
 
+
             GetPosition(nm, &pos);
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Adding item to %d %d %d\n", pos.x, pos.y, pos.z);
             Tile *tile = gamemap.GetTile(&pos);
             Thing *t;
             t = ParseThingDescription(nm);
             tile->Insert(t, false);
+
 
             return true;
         }
@@ -488,6 +534,8 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             position_t src;
             position_t dst;
 
+
+			DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Locked map\n");
             GetPosition(nm, &src);
             stackpos = GetStackpos(nm);
 
@@ -498,7 +546,6 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             tile = gamemap.GetTile(&src);
             thing = tile->GetStackPos(stackpos);
 
-            DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Locked map\n");
             tile->Remove(stackpos, true);
 
             GetPosition(nm, &dst);
@@ -515,8 +562,15 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             // player should also be able to continue moving albeit the thing->ApproveMove()
             // is not called so we call approvemove on player, justincase
             ASSERT(player)
-            ASSERT(player->GetCreature())
-            if (!thing) return player->GetCreature()->ApproveMove(), true;
+
+            if (player->GetCreature()) {
+				if (!thing)
+					return player->GetCreature()->ApproveMove(), true;
+            }
+			else {
+				console.insert("Couldn't approve player's move, because player has no creature.", CONRED );
+				return true;
+			}
 
             if (dst.y < src.y) thing->SetDirection(NORTH);
             if (dst.y > src.y) thing->SetDirection(SOUTH);
@@ -674,8 +728,8 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             Tile *t;
             Effect *e;
             unsigned char type;
-            #if 0
-            console.insert("Magic effects disabled\n", CONRED);
+            #ifndef USEEFFECTS
+            console.insert("Effects disabled\n", CONRED);
             GetPosition(nm, &pos);
             nm->GetU8();
 
@@ -689,7 +743,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             type = nm->GetU8(); // mageffect type
             printf("Effect type: %d\n", type);
 
-            gamemap.Lock();
+
 
             printf("Creating effect\n" );
             e = new Effect(t);
@@ -701,7 +755,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
             printf("Set it up, unlocking and finishing processing of mageff\n");
-            gamemap.Unlock();
+
 			printf("Unlocked\n");
 
 
@@ -709,6 +763,17 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         }
         case 0x84: {// Animated Text
+        	#ifndef USEEFFECTS
+        	position_t pos; // position
+            GetPosition(nm, &pos);
+
+        	nm->GetU8(); // color
+
+        	std::string msg = "Animated text: ";
+        	msg += nm->GetString(); // message
+        	console.insert(msg, CONBLUE);
+        	return true;
+        	#else
             position_t pos; // position
             GetPosition(nm, &pos);
             Tile *t = gamemap.GetTile(&pos);
@@ -719,8 +784,9 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             e->SetText(msg, color, true);
             t->Insert(e, true);
             return true;
+            #endif
         }
-        case 0x85: // Distance Shot
+        case 0x85: {// Distance Shot
             position_t src; // position
             GetPosition(nm, &src);
 
@@ -729,6 +795,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             nm->GetU8(); // type of shot
             return true;
+        }
         case 0x86: // Creature Square
             nm->GetU32(); // around which creature
             nm->GetU8(); // square color
@@ -816,7 +883,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xA3: // Cancel Attack
             return true;
         case 0xAA: {// Creature Speak
-            position_t pos = {0,0,0};
+            position_t pos(0,0,0);
             consolecolors_t concol;
             if (protocolversion > 760) {// i presume?
                 nm->GetU32(); // OT says always 0, perhaps it is NOT!
@@ -877,7 +944,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             console.insert(creaturename + ": " + message, concol);
 
-
+			#ifdef USEEFFECTS
             if (pos.x && pos.y && pos.z) {
                 Tile *t = gamemap.GetTile(&pos);
                 Effect *e = new Effect(t);
@@ -889,6 +956,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                 e->SetText(s, 210, false);
                 t->Insert(e, true);
             }
+            #endif
 
             return true;
         }
@@ -955,9 +1023,13 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             return true;
         }
         case 0xB5: // Cancel Walk
-            player->GetCreature()->SetDirection((direction_t)nm->GetU8()); // direction
-            player->GetCreature()->CancelMoving();
-            SoundPlay("sounds/bleep.wav");
+			if (player->GetCreature()) {
+				player->GetCreature()->SetDirection((direction_t)nm->GetU8()); // direction
+				player->GetCreature()->CancelMoving();
+				SoundPlay("sounds/bleep.wav");
+			} else {
+				nm->GetU8();
+			}
             return true;
         case 0xBE: {// Floor Up
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Move up\n");
@@ -978,7 +1050,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
 
-
+			player->GetCreature()->ApproveMove();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move up\n");
 
             return true;
@@ -1008,7 +1080,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
 
-
+			player->GetCreature()->ApproveMove();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End floor down\n");
 
             return true;
@@ -1050,7 +1122,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
     {
         char tmp[512];
-        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar gameworld packet %02x\n", protocolversion, packetid);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR,"Protocol %d: unfamiliar gameworld packet %02x\nLast previous packet is %02x", protocolversion, packetid, lastpreviouspacket);
         sprintf(tmp, "Protocol %d: Unfamiliar gameworld packet %02x\nThis protocol is in testing. Report bugs!", protocolversion, packetid);
         this->errormsg = tmp;
         console.insert(tmp, CONRED);
@@ -1058,6 +1130,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         nm->ShowContents();
         this->Close();
         logonsuccessful = false;
+
         return false;
     }
 }
@@ -1105,7 +1178,7 @@ void Protocol::ParseFloorDescription(NetworkMessage *nm, int w, int h, int destx
                         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
                     } else {
                         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Taking in\n");
-                        ParseTileDescription(nm, x + player->GetPos()->z - destz, y + player->GetPos()->z - destz, destz);
+                        ParseTileDescription(nm, x + player->GetPosZ() - destz, y + player->GetPosZ() - destz, destz);
                         *skip = (nm->GetU16() & 0xFF);
                         //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Skipping %d tiles\n", *skip);
                     }
@@ -1156,22 +1229,27 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
     int looktype;
     unsigned long creatureid;
     unsigned short extendedlook=0;
-    printf("-------------%d----------\n", type);
+//    printf("-------------%d----------\n", type);
     switch (type) {
         case 0x0061: // new creature
         case 0x0062: {// known creature
             if (type == 0x0061) { // new creature
+            	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "New creature \n");
                 nm->GetU32(); // remove creature with this id
                 creatureid = nm->GetU32(); // new creature's id
-                /*creature = */gamemap.GetCreature(creatureid, creature);
+                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Creature id %d\n", creatureid);
+                creature = gamemap.GetCreature(creatureid, creature);
                 /*thing = creature;*/
+                ASSERTFRIENDLY(creature, "gamemap.GetCreature() has DELETED creature\n");
                 creature->SetName(nm->GetString()); // name string
-                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Got creature %s\n", creature->GetName().c_str());
+                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Got new creature %s\n", creature->GetName().c_str());
             }
             if (type == 0x0062) {
+            	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Old creature \n");
                 creatureid = nm->GetU32(); // known creature's id
-                /*creature = */gamemap.GetCreature(creatureid, creature);
+                creature = gamemap.GetCreature(creatureid, creature);
                 /*thing = creature;*/
+                DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Got old creature %s\n", creature->GetName().c_str());
             }
             ASSERT(thing)
 			ASSERT(creature)
@@ -1206,7 +1284,8 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             creature->SetType(creaturelook.type, &creaturelook);
             creature->SetDirection((direction_t)dir); // direction
             creature->SetSpeed(speedindex);
-            ((Creature*)thing)->SetHP(hp);
+            creature->SetHP(hp);
+            thing= creature;
             break;
         }
         case 0x0063: {// creature that has only direction altered
@@ -1241,7 +1320,7 @@ Thing* Protocol::ParseThingDescription(NetworkMessage *nm) {
             lastsuccessfulitem = type;
         }
     }
-
+	ASSERTFRIENDLY(thing, "the end result that is to be returned is actually null! why? how?");
     return thing;
 }
 
@@ -1266,17 +1345,33 @@ void Protocol::Move(direction_t dir) {
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moving\n");
+    if (!player) {
+    	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "There is no player, we're not moving after all\n");
+    	ONThreadUnsafe(threadsafe);
+    	return;
+    }
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Step 1\n");
+    if (!player->GetCreature()) {
+    	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "There is no player creature, we're not moving after all\n");
+    	ONThreadUnsafe(threadsafe);
+    	return;
+    }
+    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Step 2\n");
     if (!player->GetCreature()->IsMoving()) {
         nm.AddU8(0x65 + dir);
         if (protocolversion >= 770)
             nm.XTEAEncrypt(key);
         nm.Dump(s);
+        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moved\n");
+        gamemap.Lock();
         if (dir != STOP) {
             player->GetCreature()->StartMoving();
             player->GetCreature()->SetDirection(dir);
         }
         else
             player->GetCreature()->CancelMoving();
+		gamemap.Unlock();
+		DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Locally moved\n");
     }
     ONThreadUnsafe(threadsafe);
 }
@@ -1285,12 +1380,25 @@ void Protocol::Turn(direction_t dir) {
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Turning\n");
+    if (!player) {
+    	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "There is no player, we're not turning after all\n");
+    	ONThreadUnsafe(threadsafe);
+    	return;
+    }
+
+    if (!player->GetCreature()) {
+    	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "There is no player creature, we're not turning after all\n");
+    	ONThreadUnsafe(threadsafe);
+    	return;
+    }
     if (!player->GetCreature()->IsMoving()) {
         nm.AddU8(0x6F + dir);
         if (protocolversion >= 770)
             nm.XTEAEncrypt(key);
         nm.Dump(s);
+        gamemap.Lock();
         player->GetCreature()->SetDirection(dir);
+        gamemap.Unlock();
     }
     ONThreadUnsafe(threadsafe);
 }
@@ -1755,7 +1863,7 @@ void Protocol::OCMCharlist() {
     ONThreadUnsafe(threadsafe);
 }
 
-void Protocol::AddPosition(NetworkMessage *nm, position_t *pos) {
+void Protocol::AddPosition(NetworkMessage *nm, const position_t *pos) {
     nm->AddU16(pos->x);
     nm->AddU16(pos->y);
     nm->AddU8(pos->z);

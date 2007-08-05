@@ -173,7 +173,7 @@ void GM_SPRPlayground::Render() {
     glPushMatrix();
     glTranslatef(216, 216, 0);
 
-    position_t p = {0,0,0};
+    position_t p(0,0,0);
 
     if (divtest) {
         for (int i = 0; i < 4; i++) {

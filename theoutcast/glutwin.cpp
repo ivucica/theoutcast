@@ -261,7 +261,8 @@ void glut_Init(int *argc, char**argv) {
 
     glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize (640, 480);
+	//glutInitWindowSize (640, 480);
+	glutInitWindowSize (1024, 700);
 
 	glutInitWindowPosition (200, 100); //FIXME remove this
 

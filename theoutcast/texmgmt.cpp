@@ -98,12 +98,12 @@ int Texture::GetChecksum() {
 Texture::Texture(std::string fname) {
 //	if (texcount > 50) TextureFreeSlot();
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s\n", fname.c_str());
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s\n", fname.c_str());
 
 
     ONThreadSafe(texturethreadsafe);
 
-	TextureIntegrityTest();
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
 	this->fname = fname;
 	this->imgid = 0;
 	checksum = GetChecksum();
@@ -154,12 +154,14 @@ Texture::Texture(std::string fname) {
     this->intexlist = true;
 
     textures.insert(textures.end(), this);
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
 	ONThreadUnsafe(texturethreadsafe);
 }
 Texture::Texture(std::string fname, unsigned short id) {
 
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d]\n", fname.c_str(), id);
     ONThreadSafe(texturethreadsafe);
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
 	int w, h;
 	this->fname = fname;
 	this->imgid = id;
@@ -214,12 +216,13 @@ Texture::Texture(std::string fname, unsigned short id) {
 	this->intexlist = true;
 
 	textures.insert(textures.end(), this);
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
 	ONThreadUnsafe(texturethreadsafe);
 
 }
 
 Texture::Texture(std::string fname, unsigned short id, unsigned short templateid, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet) {
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d/%d]\n", fname.c_str(), id, templateid);
+    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Loading %s[%d/%d]\n", fname.c_str(), id, templateid);
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING, "Not implemented\n");
     //return;
 
@@ -246,7 +249,7 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
     }
 
     this->intexlist = false;
-
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
     ONThreadUnsafe(texturethreadsafe);
 
 }
@@ -254,12 +257,12 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 
 Texture::~Texture() {
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
-    #if DEBUGLEVEL_BUILDTIME == 0
-    return;
-    #endif
+//    #if DEBUGLEVEL_BUILDTIME == 0
+    //return;
+//    #endif
 	//return;
     ONThreadSafe(texturethreadsafe);
-
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
     printf("Unload Usecount: %d\n", *(this->usecount));
     if ((*usecount)==1) {
 		DEBUGPRINT( DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Unloading texture %d -- %s[%d] ; total textures remaining %d\n", *textureid, this->fname.c_str(), this->imgid, textures.size());
@@ -319,7 +322,7 @@ Texture::~Texture() {
 			    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "WEIRD! Texture id is NULL or *(texture id) is 0, altho' I am loaded!?\n");
 			    ASSERT(this->textureid && (*this->textureid));
             }
-            printf("Unloaded well\n");
+            printf("Unloaded well _1_\n");
 			(*loaded) = false;
 			(*this->textureid) = 0;
 
@@ -338,7 +341,7 @@ Texture::~Texture() {
         (*usecount)--;
     }
 
-    printf("Unloaded well\n");
+    printf("Unloaded well _2_\n");
     ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity check failed");
     ONThreadUnsafe(texturethreadsafe);
 
@@ -399,14 +402,21 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
     ASSERT(SPRPointers);
 
 
+#if 0
+{
+        RGBA *rgba = (RGBA*)malloc(32*32*4);
+        memset(rgba, imgid, 32*32*4);
+        w=32; h=32;
+
+        return rgba;
+}
+#endif
+
     if (imgid == 0)
 	{
         RGBA *rgba = (RGBA*)malloc(32*32*4);
         memset(rgba, 0, 32*32*4);
         w=32; h=32;
-
-
-
 
         return rgba;
 
@@ -441,7 +451,7 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
 
     unsigned short size;
     fread(&size, 2, 1, f);
-    printf("%d\n", size);
+    //printf("%d\n", size);
 
     if (!size) {
 
@@ -668,14 +678,14 @@ void Texture::Bind() {
 }
 
 Texture* Texture::Find() {
-    #if DEBUGLEVEL_BUILDTIME == 0
-    return NULL;
-    #endif
+    //#if DEBUGLEVEL_BUILDTIME == 0
+    //return NULL;
+    //#endif
 
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
 //	    printf("%s %d finding %s %d\n", (*it)->fname.c_str(),  (*it)->imgid, this->fname.c_str(),  this->imgid);
 		if (*it) if ((*it)->imgid == this->imgid && (*it)->fname == this->fname) {
-			printf("*******************************Found duplicate\n");
+			printf("*******************************Found duplicate (%s[%d])**********************\n", fname.c_str(), imgid);
 			return *it;
 		}
 	}
@@ -753,9 +763,9 @@ retry:
 void TextureReportRemaining() {
     static Texture *t;
 
-    #if DEBUGLEVEL_BUILDTIME == 0
-    return;
-    #endif
+//    #if DEBUGLEVEL_BUILDTIME == 0
+//    return;
+//    #endif
 	ONThreadSafe(texturethreadsafe);
     for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
         t = (*it);

@@ -34,14 +34,19 @@ unsigned long Player::GetCreatureID() {
     return creatureid;
 }
 Creature *Player::GetCreature() {
+	if (!creatureid) {
+		DEBUGPRINT(DEBUGPRINT_WARNING, DEBUGPRINT_LEVEL_DEBUGGING, "If it crashed below this, the cause is surely that player has no assigned creature\n");
+		return NULL;
+	}
     return gamemap.GetCreature(creatureid, NULL);
 }
 void Player::GetPos(position_t *p) {
     *p = pos;
 }
-position_t *Player::GetPos() {
-    return &pos;
+position_t& Player::GetPos() {
+    return pos;
 }
+
 unsigned short Player::GetPosX() {
     return pos.x;
 }
@@ -227,4 +232,7 @@ void Player::SetIcons(unsigned int icons) {
 
 bool Player::GetIcon(statusicons_t icon) {
     return icons & icon;
+}
+void Player::Die(){
+	this->creatureid = 0;
 }

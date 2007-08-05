@@ -12,7 +12,7 @@ void Item::Render() {
 //    sprgfx->AnimationSetValue(animation_percent);
 }
 
-void Item::Render(position_t *pos) {
+void Item::Render(const position_t *pos) {
     Thing::Render(pos);
     moving = false;
 //    sprgfx->AnimationSetValue(animation_percent);

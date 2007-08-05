@@ -232,7 +232,7 @@
 				<Option object_output=".objsdebug_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd softwarerenderer " />
+				<Option parameters="sprplaygroundd softwarerendererr" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -473,9 +473,6 @@
 		<Unit filename="protocol79.cpp" />
 		<Unit filename="protocol79.h" />
 		<Unit filename="protocol792.h" />
-		<Unit filename="protocolme0.*">
-			<Option target="debug_unix" />
-		</Unit>
 		<Unit filename="protocolme0.cpp">
 			<Option target="debug_unix" />
 		</Unit>
@@ -513,6 +510,8 @@
 		<Unit filename="socketstrings.h" />
 		<Unit filename="sound.cpp" />
 		<Unit filename="sound.h" />
+		<Unit filename="spcreature.cpp" />
+		<Unit filename="spcreature.h" />
 		<Unit filename="sprfmts.cpp" />
 		<Unit filename="sprfmts.h" />
 		<Unit filename="texmgmt.cpp" />

@@ -18,7 +18,7 @@ class Player {
         unsigned long   GetCreatureID();
         Creature*       GetCreature();
         void            GetPos(position_t *p);
-        position_t*     GetPos();
+        position_t&     GetPos();
         unsigned short  GetPosX(); unsigned short GetPosY(); unsigned char GetPosZ();
         void            SetPos(position_t *p);
         void            SetPos(unsigned short x, unsigned short y, unsigned char z);
@@ -72,6 +72,9 @@ class Player {
         Container *     GetContainer(unsigned char container);
         void            RemoveContainer(unsigned int cid);
         unsigned char   GetFreeContainer();
+
+
+        void            Die();
 // public variables
         Thing*          inventory[10];
 
@@ -100,7 +103,7 @@ class Player {
         unsigned int icons;
 
     friend void Tile::Render(int layer);
-    friend void Tile::RenderStrayCreatures(position_t *p);
+    friend void Tile::RenderStrayCreatures(const position_t *p);
 };
 
 extern Player *player;

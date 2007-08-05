@@ -104,7 +104,7 @@ class Protocol {
 
 
         // transmited abstractions
-        virtual void            AddPosition(NetworkMessage *nm, position_t *pos);
+        virtual void            AddPosition(NetworkMessage *nm, const position_t *pos);
 
         // internal stuff
         unsigned short          GetProtocolVersion ();
@@ -146,6 +146,7 @@ class Protocol {
     friend void GM_CharMgr::CreateCharlist();
     friend void GM_CharMgr::DestroyCharlist();
     friend ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon(ONThreadFuncArgumentType menuclass_void);
+    friend class Map;
 
 
 
@@ -153,21 +154,21 @@ class Protocol {
 
 // now include all protocols
 // subvariants should be "tabbed"
-#include "protocol75.h"
-#include "protocol76.h"
+class Protocol75;
+class Protocol76;
 #ifdef USEENCRYPTION
-#include "protocol77.h"
-#include "protocol79.h"
-  #include "protocol792.h"
-  #include "protocol80.h"
+	class Protocol77;
+	class Protocol79;
+	class Protocol792;
+	class Protocol80;
 #endif
-
 #ifdef INCLUDE_SP
-  #include "protocolsp.h"
+	class ProtocolSP;
 #endif
 #ifdef INCLUDE_ME
-  #include "protocolme0.h"
+	class ProtocolME0;
 #endif
+
 
 extern Protocol* protocol;
 bool ProtocolSetVersion (unsigned short protocolversion);

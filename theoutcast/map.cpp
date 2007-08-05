@@ -1,5 +1,7 @@
 #include "debugprint.h"
 #include "map.h"
+#include "player.h"
+#include "protocol.h"
 Map gamemap;
 
 Map::Map() {
@@ -22,7 +24,7 @@ Map::~Map() {
 
 }
 
-Tile* Map::GetTile(position_t *pos) {
+Tile* Map::GetTile(const position_t *pos) {
     // check if this is well generated with, idk, %08x ? :D
 
     unsigned long long tileid;
@@ -54,7 +56,11 @@ Creature* Map::GetCreature(unsigned long creatureid, Creature *cr) {
         DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL,  DEBUGPRINT_NORMAL, "FORMING NEW CREATURE!!!!!!\n");
         return cr;
     } else {
-        if (cr) delete cr;
+    	//DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL,  DEBUGPRINT_NORMAL, "RETURNING OLD CREATURE!!!!!!\n");
+        if (cr) {
+        	printf("Map::GetCreature: Found old creature and there's new one supplied - Destroying new creature!!\n");
+        	delete cr;
+        }
         return it->second;
     }
 }
@@ -98,5 +104,12 @@ void Map::FreeUnused(unsigned short minx, unsigned short maxx, unsigned short mi
 			it--;
 		    }
 	}
+}
+
+bool Map::IsVisible(const position_t &pos) {
+	// FIXME (Khaos#1#) This does not take into account if tile is on different Z level.
+	bool visible = 	(pos.x > player->GetPosX() - protocol->maxx/2 ) && (pos.x < player->GetPosX() + protocol->maxx/2 + 1) &&
+					(pos.y > player->GetPosY() - protocol->maxy/2 ) && (pos.y < player->GetPosY() + protocol->maxy/2 + 1);
+	return visible;
 }
 

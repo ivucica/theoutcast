@@ -6,6 +6,7 @@
 #include "types.h"
 #include "colors.h"
 #include "protocol.h"
+bool dontloadspr = false;
 // FIXME add thread locking in thing and in creature's
 Thing::Thing() {
     sprgfx = NULL;
@@ -51,18 +52,22 @@ void Thing::SetSubType(unsigned char subtype) {
     this->subtype = subtype;
 }
 void Thing::SetType(unsigned short type, void *extra) {
-	printf("Thing::SetType() -- %d\n", type);
+	//printf("Thing::SetType() -- %d\n", type);
     ONThreadSafe(threadsafe);
     this->type = type;
-    sprgfx = new ObjSpr(type, 0);
+    if (!dontloadspr) sprgfx = new ObjSpr(type, 0);
     ONThreadUnsafe(threadsafe);
 }
 void Thing::SetDirection(direction_t dir) {
     ONThreadSafe(threadsafe);
     this->direction = dir;
-    if (dir < STOP)
+    if (!sprgfx) {
+    	ONThreadUnsafe(threadsafe);
+    	return;
+    }
+    if (dir < STOP) {
         sprgfx->SetDirection(dir);
-    else {
+    } else {
         switch (dir) {
             case NORTHWEST:
                 sprgfx->SetDirection(WEST);
@@ -85,13 +90,13 @@ void Thing::SetDirection(direction_t dir) {
 }
 void Thing::Render() {
     if (dynamic_cast<Item*>(this)) {
-        position_t p = {0,0,0};
+        position_t p (0,0,0);
         this->Render(&p);
     } else {
         if (sprgfx) sprgfx->Render();
     }
 }
-void Thing::Render(position_t *pos) {
+void Thing::Render(const position_t *pos) {
 
     ONThreadSafe(threadsafe);
 

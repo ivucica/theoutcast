@@ -34,7 +34,7 @@ class Thing {
 
         // others
         virtual void Render();
-        virtual void Render(position_t *pos);
+        virtual void Render(const position_t *pos);
         virtual bool AnimationAdvance(float percent); // returns if object still exists after this animation advance (useful for effects)
 
 

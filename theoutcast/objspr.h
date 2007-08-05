@@ -15,7 +15,7 @@ class ObjSpr : public Object {
         ~ObjSpr();
 
         bool Render();
-        bool Render(position_t *pos);
+        bool Render(const position_t *pos);
         bool Render(unsigned char stackcount);
 
         void LoadItem(unsigned int itemid);
@@ -34,6 +34,7 @@ class ObjSpr : public Object {
         unsigned char offsetx, offsety;
         unsigned int type; // item, creature, ...
         direction_t direction;
+        friend class Creature;
 
 };
 

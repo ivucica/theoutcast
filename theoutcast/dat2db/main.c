@@ -1,10 +1,12 @@
 #include <sqlite3.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #include <string.h>
 #include <malloc.h>
 
-
-int currentid;
+#include "importotb.h"
+#include "importotxml.h"
 
 /* defines */
 #define BOOL char
@@ -52,6 +54,7 @@ typedef struct {
 
     char spritelist[4096];
     unsigned short otid;
+    char otname[255];
     spritelist_t *sl;
 } item_t;
 
@@ -62,12 +65,21 @@ sqlite3 *fo;
 /* ui stuff */
 char lastpercentage;
 
+char **mainargv;
+int mainargc;
+
+
 /* options */
 int datversion;
+BOOL reverse_spr_lookup;
+BOOL no_dat;
+BOOL import_otb, import_otxml;
 
-/* header data */
+/* header and file info */
 unsigned short dat_items, dat_creatures, dat_effects, dat_distance;
-
+int currentid, insize;
+int maxsprid=0;
+int current_rsl_entry;
 
 
 #ifndef WIN32
@@ -91,13 +103,18 @@ static int filesize (FILE* f) {
 #endif
 
 
-int dbexecprintf(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, char **errmsg, ...) {
+BOOL debugqueries = FALSE;
+
+int dbexecprintf(sqlite3* db, sqlite3_callback cb, void *arg, char **errmsg, const char *sql, ...) {
 	va_list vl;
 	va_start(vl, sql);
 
+	if (debugqueries) printf("vmprint for %s\n", sql);
+
 	char *z = sqlite3_vmprintf(sql, vl);
 
-    /* printf("QUERY: %s\n", z); */
+	if (debugqueries) printf("query\n");
+	if (debugqueries) printf("QUERY: %s\n", z);
 
 	int rc = sqlite3_exec(db, z, cb, arg, errmsg);
 	if (rc != SQLITE_OK) printf("SQLite: Error: '%s', RC: %d, query '%s'\n", sqlite3_errmsg(fo), rc, z);
@@ -108,18 +125,18 @@ int dbexecprintf(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, c
 	return rc;
 }
 int dbexec(sqlite3* db, const char *sql, sqlite3_callback cb, void *arg, char **errmsg) {
-    /*printf("QUERY: %s\n", sql);*/
+    if (debugqueries) printf("QUERY: %s\n", sql);
     sqlite3_exec(db, sql, cb, arg, errmsg);
 }
 char tableexists(const char *tablename) {
-	return (dbexecprintf(fo, "select * from %s;", NULL, 0, NULL, tablename) == SQLITE_OK);
+	return (dbexecprintf(fo, NULL, 0, NULL, "select * from %s;", tablename) == SQLITE_OK);
 }
 char check_tables() {
     char tablename[30];
     sprintf(tablename, "items%d", datversion);
 	if (!tableexists(tablename)) {
 		printf("Creating table '%s'.\n", tablename);
-		if (dbexecprintf(fo, "create table %s ("
+		if (dbexecprintf(fo, NULL, 0, NULL, "create table %s ("
 
 			"itemid integer primary key," /* item id, as the server sends it to us */
 			"graphics varchar[50], " /* 3d graphics file */
@@ -148,8 +165,9 @@ char check_tables() {
 			"extraproperty integer," /* additional property, set up with packet 0x1D */
 			"ladder boolean," /* determines if the object are ladders giving them extra priority */
 			"spritelist varchar[4096], " /* spritelist */
-			"otid integer" /* under what id does OTserv store this item */
-			"); ",NULL, 0, NULL, tablename) != SQLITE_OK) {
+			"otid integer, " /* under what id does OTserv store this item */
+			"otname varchar[255]" /* under what id does OTserv store this item */
+			"); ",tablename) != SQLITE_OK) {
 				printf("Table '%s' creation failed\n", tablename);
 				return 0;
 		}
@@ -157,12 +175,12 @@ char check_tables() {
     sprintf(tablename, "creatures%d", datversion);
 	if (!tableexists(tablename)) {
 		printf("Creating table '%s'.\n", tablename);
-		if (dbexecprintf(fo, "create table %s ("
+		if (dbexecprintf(fo, NULL, 0, NULL, "create table %s ("
             "creatureid integer primary key," /* creature id, as the server sends it to us */
             "graphics varchar[50], " /* 3d graphics file */
 			"graphics2d varchar[50], " /* 3d graphics file */
             "spritelist varchar[4096] " /* spritelist */
-            "); ", NULL, 0, NULL, tablename) != SQLITE_OK) {
+            "); ", tablename) != SQLITE_OK) {
                 printf("Table '%s' creation failed\n", tablename);
 				return 0;
             }
@@ -170,12 +188,12 @@ char check_tables() {
     sprintf(tablename, "effects%d", datversion);
 	if (!tableexists(tablename)) {
 		printf("Creating table '%s'.\n", tablename);
-		if (dbexecprintf(fo, "create table %s ("
+		if (dbexecprintf(fo, NULL, 0, NULL, "create table %s ("
             "effectid integer primary key," /* creature id, as the server sends it to us */
             "graphics varchar[50], " /* 3d graphics file */
 			"graphics2d varchar[50], " /* 3d graphics file */
             "spritelist varchar[4096] " /* spritelist */
-            "); ", NULL, 0, NULL, tablename) != SQLITE_OK) {
+            "); ", tablename) != SQLITE_OK) {
                 printf("Table '%s' creation failed\n", tablename);
 				return 0;
             }
@@ -231,6 +249,7 @@ void clear_item(item_t* item) {
     item->ladder = FALSE;
     item->spritelist[0] = 0;
     item->otid = 0;
+    item->otname[0] = 0;
 
 }
 char dat_readitem(item_t *item) {
@@ -486,7 +505,8 @@ char dat_readitem(item_t *item) {
 
             case 790:
             case 792:
-	    case 800:
+			case 800:
+				if (currentid == 54  || currentid == 67 || currentid == 93 || currentid == 97 || currentid == 99) printf("%d -- option %02x\n", currentid, option);
                 switch (option) {
                     case 0x00: /* ground */
                         item->ground = TRUE;
@@ -561,8 +581,12 @@ char dat_readitem(item_t *item) {
                     case 0x18: /* nothing?! */
                         break;
                     case 0x19: /* unknown, 4 bytes argument */
-                        readu16();
-                        readu16();
+                        /*if (currentid == 54  || currentid == 67 || currentid == 93 || currentid == 97 || currentid == 99) {*/
+                        	printf("%d -- %04x %04x\n", currentid, readu16(), readu16());
+						/*} else {
+							readu16();
+							readu16();
+						}*/
                         break;
                     case 0x1A: /* height offset */
                         /* byte1 = x, byte2 = y? perhaps! they're always 8! */
@@ -614,7 +638,7 @@ char dat_readitem(item_t *item) {
         case 770:
         case 790:
         case 792:
-	case 800: {
+		case 800: {
             spritelist_t *sl = (spritelist_t*)malloc(sizeof(spritelist_t));
             if (!sl) {
                 printf("Cannot alloc enough memory for spritelist\n");
@@ -651,6 +675,7 @@ char dat_readitem(item_t *item) {
             }
             for(i = 0; i < sl->numsprites; ++i) {
                 sl->spriteids[i] = readu16(); /* sprite id */
+                if (sl->spriteids[i] > maxsprid) maxsprid = sl->spriteids[i];
                 /*printf("Sprite id %d: %d\n", (unsigned int)i, (unsigned int)sl->spriteids[i]);*/
             }
             item->sl = sl;
@@ -672,17 +697,17 @@ static int extryexistsfunc(void *returndestvoid, int argc, char **argv, char **a
 char entryexists_itemid(unsigned int itemid) {
     BOOL returner = FALSE;
 
-    if (dbexecprintf(fo, "select * from items%d where itemid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
+    if (dbexecprintf(fo, &extryexistsfunc, &returner, NULL, "select * from items%d where itemid='%d';", datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 }
 char entryexists_creatureid(unsigned int itemid) {
     BOOL returner = FALSE;
 
-    if (dbexecprintf(fo, "select * from creatures%d where creatureid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
+    if (dbexecprintf(fo, &extryexistsfunc, &returner, NULL, "select * from creatures%d where creatureid='%d';", datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 }
 char entryexists_effectid(unsigned int itemid) {
     BOOL returner = FALSE;
 
-    if (dbexecprintf(fo, "select * from effects%d where effectid='%d';", &extryexistsfunc, &returner, NULL, datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
+    if (dbexecprintf(fo, &extryexistsfunc, &returner, NULL, "select * from effects%d where effectid='%d';", datversion, itemid, datversion) == SQLITE_OK) return returner; else return FALSE;
 }
 BOOL gettrue () {
     return TRUE ;
@@ -702,7 +727,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
 
     if (!entryexists_itemid(itemid)) {
 
-        if (dbexecprintf(fo, "insert into items%d ("
+        if (dbexecprintf(fo, NULL, NULL, NULL, "insert into items%d ("
                         "itemid, "
                         "graphics, "
                         "graphics2d, "
@@ -730,8 +755,9 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "extraproperty, "
                         "ladder, "
                         "spritelist, "
-                        "otid "
-                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d, %d, '%q', %d);", NULL, NULL, NULL,
+                        "otid, "
+                        "otname "
+                        ") values (%d, '%q', '%q', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %f, %d, %d, %d, %d, %d, '%q', %d, '%q');",
 
                         datversion, /* part of table name */
 
@@ -763,10 +789,11 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->extraproperty,
                         i->ladder,
                         spritelist,
-                        i->otid
+                        i->otid,
+                        i->otname
                         ) != SQLITE_OK) return FALSE; else return TRUE;
     } else {
-        if (dbexecprintf(fo, "update items%d set "
+        if (dbexecprintf(fo, NULL, 0, NULL, "update items%d set "
                         "graphics = '%q', "
                         "graphics2d = '%q', "
                         "ground = '%d', "
@@ -793,10 +820,11 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         "extraproperty = '%d', "
                         "ladder = '%d', "
                         "spritelist = '%q', "
-                        "otid = '%d' "
+                        "otid = '%d', "
+                        "otname = '%q' "
 
 
-                        " where itemid = '%d';", NULL, 0, NULL,
+                        " where itemid = '%d';",
                         datversion,
                         i->graphics,
                         i->graphics2d,
@@ -825,6 +853,7 @@ BOOL insertitem (unsigned short itemid, item_t *i) {
                         i->ladder,
                         spritelist,
                         i->otid,
+                        i->otname,
 
                         itemid) != SQLITE_OK) return FALSE; else return TRUE;
 
@@ -850,12 +879,12 @@ BOOL insertcreature (unsigned short itemid, item_t *i) {
 
     if (!entryexists_creatureid(itemid)) {
 
-        if (dbexecprintf(fo, "insert into creatures%d ("
+        if (dbexecprintf(fo, NULL, NULL, NULL,"insert into creatures%d ("
                         "creatureid, "
                         "graphics, "
                         "graphics2d, "
                         "spritelist"
-                        ") values (%d, '%q', '%q', '%q');", NULL, NULL, NULL,
+                        ") values (%d, '%q', '%q', '%q');",
 
                         datversion, /* part of table name */
 
@@ -866,12 +895,12 @@ BOOL insertcreature (unsigned short itemid, item_t *i) {
                         spritelist
                         ) != SQLITE_OK) return FALSE; else return TRUE;
     } else {
-        if (dbexecprintf(fo, "update creatures%d set "
+        if (dbexecprintf(fo, NULL, 0, NULL,"update creatures%d set "
                         "graphics = '%q', "
                         "graphics2d = '%q', "
                         "spritelist = '%q'"
 
-                        " where creatureid = '%d';", NULL, 0, NULL,
+                        " where creatureid = '%d';",
                         datversion,
                         i->graphics,
                         i->graphics2d,
@@ -898,12 +927,12 @@ BOOL inserteffect (unsigned short itemid, item_t *i) {
 
     if (!entryexists_effectid(itemid)) {
 
-        if (dbexecprintf(fo, "insert into effects%d ("
+        if (dbexecprintf(fo, NULL, NULL, NULL,"insert into effects%d ("
                         "effectid, "
                         "graphics, "
                         "graphics2d, "
                         "spritelist"
-                        ") values (%d, '%q', '%q', '%q');", NULL, NULL, NULL,
+                        ") values (%d, '%q', '%q', '%q');",
 
                         datversion, /* part of table name */
 
@@ -914,12 +943,12 @@ BOOL inserteffect (unsigned short itemid, item_t *i) {
                         spritelist
                         ) != SQLITE_OK) return FALSE; else return TRUE;
     } else {
-        if (dbexecprintf(fo, "update effects%d set "
+        if (dbexecprintf(fo, NULL, 0, NULL,"update effects%d set "
                         "graphics = '%q', "
                         "graphics2d = '%q', "
                         "spritelist = '%q'"
 
-                        " where effectid = '%d';", NULL, 0, NULL,
+                        " where effectid = '%d';",
                         datversion,
                         i->graphics,
                         i->graphics2d,
@@ -957,59 +986,26 @@ static int patchitemfunc(void *itemvoid, int argc, char **argv, char **azColName
         if (!strcmp(azColName[i], "height")) {
             sscanf(argv[i], "%lf", &item->height);
         }
+        if (!strcmp(azColName[i], "otid")) {
+            sscanf(argv[i], "%hd", &item->otid );
+        }
+        if (!strcmp(azColName[i], "otname")) {
+            strcpy(item->otname, argv[i]);
+        }
     }
     /*printf("Patched!\n");*/
     return 0;
 }
 void patchitem (unsigned int itemid, item_t *item) {
-    dbexecprintf(fo, "select graphics, height from items%d where itemid = '%d';", patchitemfunc, item, NULL, datversion, itemid);
+    dbexecprintf(fo, patchitemfunc, item, NULL, "select graphics, height from items%d where itemid = '%d';", datversion, itemid);
 
 }
-int main (int argc, char **argv) {
-	int rc;
-	int insize;
+int read_items() {
 	item_t item;
-
-	printf("\nThe Outcast DAT Convertor\n---\n");
-
-	if (argc != 4 && argc != 5) {
-		printf("usage: %s tibia.dat outcast.db datversion [tibia.opq]\n", strrchr(argv[0], '\\'));
-		printf("\n");
-		printf("Non-empty DB will not be purged, except the items table\n");
-		printf("for specified datversion\n");
-		printf("Outcast-specific data are kept (fields: graphics, graphics2d, height)\n");
-		printf("OTID is also not touched\n");
-		printf("If specified, queries in tibia.opq are executed (opq == outcast patch queries)\n");
-		printf("\n");
-		return 0;
-	}
-	sscanf(argv[3], "%d\n", &datversion);
-	fi = fopen(argv[1], "rb");
-	if (!fi) {
-		printf("Input file does not exist (%s)\n", argv[1]);
-		return 1;
-	}
-	fseek(fi,0,SEEK_END);
-	insize = ftell(fi);
-	fseek(fi,0,SEEK_SET);
-
-	rc = sqlite3_open(argv[2], &fo);
-	if (rc != SQLITE_OK) {
-		printf("Output file can't be opened (%s)\n", argv[2]);
-		return 2;
-	}
-	if (!check_tables()) {
-		printf("Table check & correction failed.\n");
-		return 3;
-	}
-	if (!dat_load_header()) {
-	    printf("Header loading failed.\n");
-	    return 4;
-	}
 	printf("READING ITEMS...\n");
 	currentid = 100;
 	lastpercentage = -100;
-	dbexec(fo, "begin transaction;", NULL, NULL, NULL);
+
 	while (ftell(fi) < insize && currentid <= dat_items) {
 	    /*printf("Item %d\n", currentid);*/
         show_progress(currentid, dat_items);
@@ -1028,8 +1024,11 @@ int main (int argc, char **argv) {
         currentid ++;
 	}
 	printf("End reading items at %d\n", ftell(fi));
-
-    printf("READING MONSTERS...\n");
+	return 0;
+}
+int  read_monsters() {
+	item_t item;
+	printf("READING MONSTERS...\n");
 	currentid = 1;
 	lastpercentage = -100;
 	while (ftell(fi) < insize && currentid <= dat_creatures) {
@@ -1050,9 +1049,11 @@ int main (int argc, char **argv) {
         currentid ++;
 	}
 	printf("End reading creatures at %d\n", ftell(fi));
-
-
-    printf("READING EFFECTS...\n");
+	return 0;
+}
+int read_effects() {
+	item_t item;
+	printf("READING EFFECTS...\n");
 	currentid = 1;
 	lastpercentage = -100;
 	while (ftell(fi) < insize && currentid <= dat_effects) {
@@ -1073,11 +1074,214 @@ int main (int argc, char **argv) {
         currentid ++;
 	}
 	printf("End reading effects at %d\n", ftell(fi));
+	return 0;
 
-	dbexec(fo, "end transaction;", NULL, NULL, NULL);
+}
+void print_usage() {
+	printf("usage: %s tibia.dat outcast.db datversion [tibia.opq [options]]\n", strrchr(mainargv[0], '\\'));
+	printf("\n");
+	printf("Non-empty DB will not be purged, except the items table\n");
+	printf("for specified datversion\n");
+	printf("Outcast-specific data are kept (fields: graphics, graphics2d, height)\n");
+	printf("OTID is also not touched, neither is OTName\n");
+	printf("If specified, queries in tibia.opq are executed (opq == outcast patch queries)\n");
+	printf("\n");
+	printf("Options are as follows:\n");
+	printf("* reverse_spr_lookup: generates table for looking up which items, monsters and \n");
+	printf("                      effects use the particular sprite\n");
+	printf("* no_dat: skips .DAT conversion. Note that .DAT file unfortunately must exists\n");
+	printf("          anyway.\n");
+	printf("\n");
+}
+
+
+
+int reverse_spr_lookup_cb(void *arg, int argc, char **argv, char **azColName) {
+	unsigned short currentsprite;
+	spritelist_t sli;
+	int type= (int)arg;
+	int i, j,k;
+	unsigned short* sprids;
+
+	for (i = 0; i < argc; ++i) {
+		if (type==0) {
+			if (!strcmp(azColName[i], "itemid")) break;
+        } else if (type==1) {
+        	if (!strcmp(azColName[i], "creatureid")) break;
+        } else if (type==2) {
+        	if (!strcmp(azColName[i], "effectid")) break;
+        }
+
+    }
+    sscanf(argv[i], "%d", &currentid);
+
+
+	switch (type) {
+		case 0:
+			type ='I';
+			show_progress(currentid, dat_items);
+			break;
+		case 1:
+			type = 'C';
+			show_progress(currentid, dat_creatures );
+			break;
+		case 2:
+			type = 'E';
+			show_progress(currentid, dat_effects);
+			break;
+	}
+
+
+	for (i = 0; i < argc; ++i) {
+        if (!strcmp(azColName[i], "spritelist")) {
+			char *p = argv[i];
+			sscanf(p, "%hhd", &sli.width); p = strchr(p, ' ')+1;
+			sscanf(p, "%hhd", &sli.height); p = strchr(p, ' ')+1;
+			sscanf(p, "%hhd", &sli.blendframes); p = strchr(p, ' ')+1;
+			sscanf(p, "%hhd", &sli.xdiv); p = strchr(p, ' ')+1;
+			sscanf(p, "%hhd", &sli.ydiv); p = strchr(p, ' ')+1;
+			sscanf(p, "%hhd", &sli.unknown); p = strchr(p, ' ')+1;
+			sscanf(p, "%hhd", &sli.animcount); p = strchr(p, ' ')+1;
+			sscanf(p, "%hd", &sli.numsprites); p = strchr(p, ' ')+1;
+			/*printf("read into sli--%d sprites\n", sli.numsprites);*/
+
+			sprids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
+			for (j = 0; j < sli.numsprites; j++) {
+				char tmp[255];
+				BOOL canadd = TRUE;
+				sscanf(p, "%hd", &currentsprite); p = strchr(p, ' ')+1;
+				sprids[j] = currentsprite;
+				for (k = 0; k < j; k++) {
+					if (currentsprite == sprids[k]) {
+						canadd = FALSE;
+						break;
+					}
+				}
+				if (canadd)
+					dbexecprintf(fo, NULL, 0, NULL, "insert into rspritelookup%d (entryid, spriteid, type, itemid) values (%d, %d, '%c', %d);",
+								datversion, (current_rsl_entry++), currentsprite, type, currentid);
+				/*printf("inserted %s\n", tmp);*/
+
+			}
+			free(sprids);
+
+
+        }
+
+    }
+	/*printf("ok\n");*/
+	return 0;
+}
+
+void reverse_spr_lookup_build() {
+	/* check and build tables */
+
+    char tablename[30];
+    sprintf(tablename, "rspritelookup%d", datversion);
+	if (!tableexists(tablename)) {
+		printf("Creating table '%s'.\n", tablename);
+		if (dbexecprintf(fo, NULL, 0, NULL, "create table %s ("
+
+			"entryid integer primary key,"
+			"spriteid integer, "
+			"type integer, " /* is it a I, C, or E -- item, creature, or effect entry */
+			"itemid integer " /* item, creature or effect id */
+			"); ",tablename) != SQLITE_OK) {
+				printf("Table '%s' creation failed\n", tablename);
+				return;
+		}
+	} else {
+		dbexecprintf(fo, NULL, 0, NULL, "delete from %s;", tablename);
+	}
+
+
+	current_rsl_entry = 0;
+	lastpercentage = -100; printf("Items:    ");
+	dbexecprintf(fo, reverse_spr_lookup_cb, (void*)0, NULL, "select itemid, spritelist from items%d order by itemid;", datversion);
+	lastpercentage = -100; printf("Monsters: ");
+	dbexecprintf(fo, reverse_spr_lookup_cb, (void*)1, NULL, "select creatureid, spritelist from creatures%d order by creatureid;", datversion);
+	lastpercentage = -100; printf("Effects:  ");
+	dbexecprintf(fo, reverse_spr_lookup_cb, (void*)2, NULL, "select effectid, spritelist from effects%d order by effectid;", datversion);
+}
+
+int main (int argc, char **argv) {
+	int rc,i;
+
+	mainargv = argv;
+	mainargc = argc;
+
+	printf("\nThe Outcast DAT Convertor\n---\n");
+
+	if (argc < 4) {
+		print_usage();
+		exit(0);
+	}
+
+	sscanf(argv[3], "%d\n", &datversion);
+	fi = fopen(argv[1], "rb");
+	if (!fi) {
+		printf("Input file does not exist (%s)\n", argv[1]);
+		return 1;
+	}
+	fseek(fi,0,SEEK_END);
+	insize = ftell(fi);
+	fseek(fi,0,SEEK_SET);
+
+	rc = sqlite3_open(argv[2], &fo);
+	if (rc != SQLITE_OK) {
+		printf("Output file can't be opened (%s)\n", argv[2]);
+		return 2;
+	}
+
+
+
+	/* ///////////////////// now parse other cmd line options /////////////////////////// */
+
+	reverse_spr_lookup = FALSE;
+	no_dat = FALSE;
+	printf("Argc: %d\n", argc);
+	for (i=5;i<argc;i++) {
+		printf("Option: %s\n", argv[i]);
+        if (!strcmp(argv[i], "reverse_spr_lookup")) {
+        	printf("Reverse spr lookup\n");
+        	reverse_spr_lookup = TRUE;
+        } else if (!strcmp(argv[i], "no_dat")) {
+        	printf("No dat parsing\n");
+        	no_dat = TRUE;
+        } else if (!strcmp(argv[i], "import_otb")) {
+        	printf("Importing OTB\n");
+        	import_otb = TRUE;
+        } else if (!strcmp(argv[i], "import_otxml")) {
+        	printf("Importing OTXML\n");
+        	import_otxml = TRUE;
+        } else {
+        	print_usage();
+        	return 0;
+        }
+
+    }
+
+
+	if (!check_tables()) {
+		printf("Table check & correction failed.\n");
+		return 3;
+	}
+	if (!dat_load_header()) {
+	    printf("Header loading failed.\n");
+	    return 4;
+	}
+	if (!no_dat) {
+		dbexec(fo, "begin transaction;", NULL, NULL, NULL);
+		rc = read_items(); if (rc) { printf("Error reading items, exiting\n"); return rc; }
+		rc = read_monsters(); if (rc) { printf("Error reading monsters, exiting\n"); return rc; }
+		rc = read_effects(); if (rc) { printf("Error reading effects, exiting\n"); return rc; }
+		dbexec(fo, "end transaction;", NULL, NULL, NULL);
+	} else {
+		printf("Skipping DAT conversion\n");
+	}
     fclose(fi);
 
-    if (argc == 5) {
+    if (argc >= 5) {
         char query[256]={0};
         int line = 1;
         printf("\nNow patching with outcast patch queries file...\n");
@@ -1106,6 +1310,31 @@ int main (int argc, char **argv) {
     }
 
     skip_patch:
+
+
+
+    if (reverse_spr_lookup) {
+		printf("Directed to build reverse SPR lookup table\n");
+		reverse_spr_lookup_build();
+		printf("End reverse_spr_lookup_build()\n");
+    }
+
+	if (import_otb) {
+		char tmp[255];
+		printf("Directed to import OTB\n");
+/*		debugqueries = TRUE;*/
+		sprintf(tmp, "items%d.otb", datversion);
+		import_otb_do(tmp);
+		printf("End import_otb()\n");
+	}
+	if (import_otxml) {
+		char tmp[255];
+		printf("Directed to import OTXML\n");
+/*		debugqueries = TRUE;*/
+		sprintf(tmp, "items%d.xml", datversion);
+		import_otxml_do(tmp);
+		printf("End import_otxml()\n");
+	}
 
     printf("Done.\n\n");
 

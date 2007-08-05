@@ -34,10 +34,14 @@ class Tile {
 
         unsigned char GetTopUsableStackpos();
         unsigned char GetTopLookAt();
+        unsigned char GetTopCreatureStackpos() {
+        	return (ground ? 1 : 0) + itemlayers[3].size() + itemlayers[2].size() + itemlayers[1].size() + creatures.size() - 1;
+        }
 
-        void SetPos(position_t *p); // so tile can know its position
+
+        void SetPos(const position_t *p); // so tile can know its position
         void Render(int layer);
-        void RenderStrayCreatures(position_t *p);
+        void RenderStrayCreatures(const position_t *p);
 
         unsigned int GetItemCount();
 
@@ -55,6 +59,9 @@ class Tile {
         position_t pos;
         ONCriticalSection threadsafe;
         unsigned int itemcount;
+        #ifdef INCLUDE_SP
+        friend class ProtocolSP;
+        #endif
 };
 
 #endif

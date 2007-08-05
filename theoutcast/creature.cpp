@@ -1,9 +1,11 @@
 #include <GLICT/fonts.h>
+#include <sstream>
 #include "creature.h"
 #include "types.h"
 #include "texmgmt.h"
 #include "simple_effects.h"
 extern Texture* texSkull;
+extern bool dontloadspr;
 Creature::Creature() {
     attacked = false;
     hp = 0;
@@ -11,21 +13,24 @@ Creature::Creature() {
     skull = SKULL_NONE;
 }
 Creature::~Creature() {
+	delete sprgfx;
+	sprgfx = NULL;
 }
 void Creature::SetType(unsigned short outfit, void* extra) {
     ONThreadSafe(threadsafe);
-    printf("SEtting creature type\n");
+    printf("Setting creature type\n");
     creaturelook_t *crl = (creaturelook_t *)extra;
 
     this->type = outfit;
     this->creaturelook = *crl;
     printf("Creating sprite\n");
-    if (outfit != 0)
-        sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
-    else {
+    if (outfit != 0) {
+        if (!dontloadspr) sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
+    } else {
     	printf("Extended look\n");
-        sprgfx = new ObjSpr(crl->extendedlook , 0);
+        if (!dontloadspr) sprgfx = new ObjSpr(crl->extendedlook , 0);
     }
+    printf("created\n");
     ONThreadUnsafe(threadsafe);
 }
 void Creature::SetCreatureID(unsigned long creatureid) {
@@ -97,7 +102,8 @@ void Creature::CauseAnimOffset(bool individual) {   // if we're rendering an ind
 			break;
     }
 }
-void Creature::Render(position_t *pos) {
+#include "player.h" // REMOVE ME
+void Creature::Render(const position_t *pos) {
 	bool wasmoving = false;
     if (moving) {
 		wasmoving = true;
@@ -116,14 +122,16 @@ void Creature::Render(position_t *pos) {
         glEnd();
     }
     glTranslatef(-8,8,0);
+    //if (player) if (this->GetCreatureID() == player->GetCreatureID()) glColor4f(1., 0., 0., 1.);
     Thing::Render(pos);
+    //if (player) if (this->GetCreatureID() == player->GetCreatureID()) glColor4f(1., 1., 1., 1.);
     glTranslatef(8,-8,0);
     if (wasmoving) {
         glPopMatrix();
     }
 }
 void Creature::Render() {
-    position_t p = {0, 0, 0};
+    position_t p(0,0,0);
     Render(&p);
 }
 
@@ -153,6 +161,7 @@ void Creature::RenderOverlay() {
         CauseAnimOffset(true);
 
     }
+    if (sprgfx->sli.unknown>1) glTranslatef(-(sprgfx->sli.width-1)*32, (sprgfx->sli.height-1)*32, 0);
     glColor3f(.3, .3, .3);
     glBegin(GL_QUADS);
     glVertex2f(0 - 8, 32+11 + 8);
@@ -173,8 +182,17 @@ void Creature::RenderOverlay() {
     glVertex2f(0 - 8, 32+16 + 8);
     glEnd();
 
+	glRotatef(180,1,0,0);
+    glictFontRender(GetName().c_str(), "system", -8, -32 - 10- 8);
+    glRotatef(180,1,0,0);
 
-    glictFontRender(GetName().c_str(), "system", -8, 32 + 8);
+    {
+	glRotatef(180,1,0,0);
+	std::stringstream nargh;
+	nargh << this->GetCreatureID();
+    glictFontRender(nargh.str().c_str(), "system", -8, -32 - 20- 8);
+    glRotatef(180,1,0,0);
+    }
 
 
     if (this->skull) {
@@ -201,11 +219,14 @@ void Creature::RenderOverlay() {
 
         glDisable(GL_TEXTURE_2D);
     }
-
+	if (sprgfx->sli.unknown>1) glTranslatef((sprgfx->sli.width-1)*32, -(sprgfx->sli.height-1)*32, 0);
     glColor4f(1.,1.,1.,1.);
     if (wasmoving) glPopMatrix();
 
 }
 bool Creature::IsStackable()  {
 	return false;
+}
+creaturelook_t Creature::GetCreatureLook() {
+	return creaturelook;
 }

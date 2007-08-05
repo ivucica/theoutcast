@@ -1,6 +1,6 @@
-THE OUTCAST v0.4.1
+THE OUTCAST v0.4.2
 Readme
-3.7.2007
+5.8.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
@@ -26,7 +26,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.4.1 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
+Hey folks, this is The Outcast v0.4.2 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
 
 The 0.4 series is a continuation upon the 0.3 series, which was a rewrite. We're about halfway with the client functionality; after all functionality is implemented, the final stability fixing process will begin.
 
@@ -45,15 +45,17 @@ This is a complete rewrite of The Outcast, from scratch, started since (effectiv
 
 1.a) Rant about this version
 
-Primarily a bugfix release, this version doesn't sport many new features. Many exams were standing in way of adding features, so that should be taken as a (hopefully good) excuse.
+The crashes were pretty irritating, and since I've started using GNU/Linux and the Tibia client does NOT work for me, neither the Windows version using WINE nor the Linux version (!), I've had to do something about it. Besides, some real-life friends have expressed a need for a GNU/Linux client in face of same problems.
 
-To be honest, I mostly did this release because I noticed there was none for a long time, so ... :)
+So, I've decided to just stabilize the beast, and to make a release. It's taken quite a while to catch the little buggars, since they were everywhere around the code, and they were small (much smaller than the Bug monsters in Tibia :P), plus some time ago the faithful GDB has turned its back on me -- it crashes!
+
+Ah nevermind -- let's just say that this should now be playable for a while. In the meantime, I'll try to catch the effects bug and re-add them, especially since the text messages and animated text were also implemented using magic effects ... harr.
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
 1.b) Rant about the future
 
-No current plans.
+Fix magic effects, add trade dialog, add real private messages :)
 
 ---
 
@@ -213,7 +215,10 @@ n.b. Great admiration goes to mr. Hipp, author of SQLite, who is very modest and
 10. CHANGE HISTORY
 
 Changes since 0.4.1
-* Added 32-bit PNG support (beware -- no other color depth for PNG is supported!)
+* Added 32-bit PNG support (beware -- no other color depth for PNG is supported!) However there's still no much use for this since extension .BMP is hardcoded in many places...
+* Gameplay has been pretty stabilized, though leaving game by ESC causes crash now
+* Magic effects have been disabled since they were one of the causes of crashes
+* An additional "protocol" which is not available in public release (it's gonna take a while for it to be released, and it's something interesting)
 
 Changes since 0.4
 * Fixed the ability to start messages starting with '/'.
@@ -537,18 +542,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 103
+* Number of files: 116
 
-* Code only: 70%
-* Code + Comment: 5%
-* Comments: 6%
+* Code only: 69%
+* Code + Comment: 4%
+* Comments: 7%
 * Empty: 19%
 
-* Code only: 11627
-* Empty lines: 3143
-* Comment lines: 1074
-* Code and comments: 755
-* Total: 16599
+* Code only: 12746
+* Empty lines: 3423
+* Comment lines: 1364
+* Code and comments: 813
+* Total: 18346
 
 Count above does not include GLICT.
 ---

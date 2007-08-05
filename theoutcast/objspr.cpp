@@ -46,9 +46,9 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
     memset(&sli, 0, sizeof(sli));
     offsetx = 0;
     offsety = 0;
-    printf("1\n");
+    //printf("1\n");
     this->t = NULL;
-    printf("2\n");
+    //printf("2\n");
     if (type == 0)
         LoadItem(itemid);
     else if (type == 1)
@@ -57,7 +57,7 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
         LoadEffect(itemid);
     else
         exit(1);
-	printf("3\n");
+	//printf("3\n");
     this->itemid = itemid;
     this->type = type;
     this->direction = NORTH;
@@ -93,13 +93,13 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
 
 
 ObjSpr::~ObjSpr() {
-    // FIXME (Khaos#1#): Crash happens because of this chunk!!
+    // FIXME (Khaos#1#): Crash happens because of this function !!
     #if DEBUGLEVEL_BUILDTIME == 0
     return;
     #endif
 
     ONThreadSafe(objsprthreadsafe);
-    printf("%d\n", itemid);
+    //printf("Objspr unloadin %d\n", itemid);
     //system("sleep 1");
     switch (this->type) {
         case 0:
@@ -113,15 +113,15 @@ ObjSpr::~ObjSpr() {
             items[itemid]->sli.usecount--;
             break;
         case 1:
-			// creatures are NOT cached
-            //if (creatures[itemid]->sli.usecount==1 && sli.spriteids) {
+			// colorful creatures are not cached
+            if (creatures[itemid]->sli.usecount==1 && sli.spriteids && sli.blendframes == 1) {
                 for (int i = 0 ; i < sli.numsprites; i++)
                     delete(t[i]);
-                //free(creatures[itemid]->textures);
-                //creatures[itemid]->textures = NULL;
+                free(creatures[itemid]->textures);
+                creatures[itemid]->textures = NULL;
                 free(sli.spriteids);
-            //}
-            //creatures[itemid]->sli.usecount--;*/
+            }
+            creatures[itemid]->sli.usecount--;
             break;
         case 2:
             if (effects[itemid]->sli.usecount==1 && sli.spriteids) {
@@ -140,11 +140,11 @@ ObjSpr::~ObjSpr() {
     ONThreadUnsafe(objsprthreadsafe);
 }
 bool ObjSpr::Render() {
-    position_t p = {0};
+    position_t p(0,0,0);
 
     return Render(&p);
 }
-bool ObjSpr::Render(position_t *pos) {
+bool ObjSpr::Render(const position_t *pos) {
 	if (!itemid) return false;
     glEnable(GL_TEXTURE_2D);
     ONThreadSafe(objsprthreadsafe);
@@ -192,7 +192,7 @@ bool ObjSpr::Render(position_t *pos) {
                                         * sli.width + j)        // j == subwidth        (x coordinate)
 
                                         ;
-                                        printf("%d %d\n", i, j);
+                                        //printf("%d %d\n", i, j);
                         break;
                     case 2: // effect
                         activeframe =   (((((( // same amount of ('s as of *'s
@@ -540,19 +540,19 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
     if (effects[effectid]->textures) {
     	printf("It's already there!\n");
         t = (Texture**)effects[effectid]->textures;
-        printf("1\n");
+        //printf("1\n");
         sli = effects[effectid]->sli;
-        printf("2\n");
+        //printf("2\n");
 
         printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", sli.width, sli.height, sli.blendframes, sli.xdiv, sli.ydiv, sli.unknown, sli.animcount, sli.numsprites, sli.usecount );
         printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", effects[effectid]->sli.width, effects[effectid]->sli.height, effects[effectid]->sli.blendframes, effects[effectid]->sli.xdiv, effects[effectid]->sli.ydiv, effects[effectid]->sli.unknown, effects[effectid]->sli.animcount, effects[effectid]->sli.numsprites, effects[effectid]->sli.usecount );
 
         effects[effectid]->sli.usecount++;
-        printf("3\n");
+        //printf("3\n");
         offsetx = 0;//effects[effectid]->height2d_x ;
-        printf("4\n");
+        //printf("4\n");
         offsety = 0;//effects[effectid]->height2d_y ;
-        printf("5\n");
+        //printf("5\n");
 
         animation_framelist_stand = effects[effectid]->animation_framelist_stand; //stand
         printf("#\n");
