@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;DEBUGLEVEL_BUILDTIME=3;DEBUGCONSOLE;USEASSERT;LTM"
+				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;DEBUGLEVEL_BUILDTIME=3;DEBUGCONSOLE;USEASSERT;USEGLUT;OUTCAST_SKINS;INCLUDE_SP;BMPFONT;USEENCRYPTION;LTM;TEXTURE_SPR;USEEFFECTS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sqlite3.lib ws2_32.lib glict.lib opengl32.lib user32.lib gdi32.lib lib3ds-120s.lib "
+				AdditionalDependencies="sqlite3.lib ws2_32.lib glict.lib opengl32.lib user32.lib gdi32.lib lib3ds-120s.lib  tommath.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="0"
@@ -179,6 +179,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\bmpfont.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\buffer.cpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\container.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\creature.cpp"
 				>
 			</File>
@@ -208,6 +216,18 @@
 			</File>
 			<File
 				RelativePath=".\debugprint.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\distances.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\effect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\effects.cpp"
 				>
 			</File>
 			<File
@@ -228,6 +248,10 @@
 			</File>
 			<File
 				RelativePath=".\glutwin.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gm_charmgr.cpp"
 				>
 			</File>
 			<File
@@ -319,6 +343,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\protocolsp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\simple_effects.cpp"
 				>
 			</File>
@@ -332,6 +360,10 @@
 			</File>
 			<File
 				RelativePath=".\sound.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\spcreature.cpp"
 				>
 			</File>
 			<File
@@ -355,6 +387,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\util.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\winfont.cpp"
 				>
 			</File>
@@ -366,6 +402,10 @@
 			>
 			<File
 				RelativePath=".\assert.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bmpfont.h"
 				>
 			</File>
 			<File
@@ -389,6 +429,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\container.h"
+				>
+			</File>
+			<File
 				RelativePath=".\creature.h"
 				>
 			</File>
@@ -409,6 +453,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\distances.h"
+				>
+			</File>
+			<File
+				RelativePath=".\effect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\effects.h"
+				>
+			</File>
+			<File
 				RelativePath=".\flythrough.h"
 				>
 			</File>
@@ -422,6 +478,10 @@
 			</File>
 			<File
 				RelativePath=".\glutwin.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gm_charmgr.h"
 				>
 			</File>
 			<File
@@ -513,6 +573,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\protocol80.h"
+				>
+			</File>
+			<File
+				RelativePath=".\protocolsp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\simple_effects.h"
 				>
 			</File>
@@ -526,6 +594,10 @@
 			</File>
 			<File
 				RelativePath=".\sound.h"
+				>
+			</File>
+			<File
+				RelativePath=".\spcreature.h"
 				>
 			</File>
 			<File
@@ -550,6 +622,14 @@
 			</File>
 			<File
 				RelativePath=".\types.h"
+				>
+			</File>
+			<File
+				RelativePath=".\util.h"
+				>
+			</File>
+			<File
+				RelativePath=".\windowing.h"
 				>
 			</File>
 			<File

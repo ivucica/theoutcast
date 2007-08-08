@@ -3,6 +3,7 @@
 #include "items.h"
 #include "creatures.h"
 #include "effects.h"
+#include "distances.h"
 #include "types.h"
 #include "simple_effects.h"
 #include "defines.h"
@@ -33,6 +34,8 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type, unsigned int protocolver
         LoadCreature(itemid, protocolversion);
     else if (type == 2)
         LoadEffect(itemid, protocolversion);
+	else if (type == 3)
+		LoadDistance(itemid, protocolversion);
     else
         exit(1);
     this->itemid = itemid;
@@ -55,6 +58,8 @@ ObjSpr::ObjSpr(unsigned int itemid, unsigned char type) {
         LoadCreature(itemid);
     else if (type == 2)
         LoadEffect(itemid);
+    else if (type == 3)
+        LoadDistance(itemid);
     else
         exit(1);
 	//printf("3\n");
@@ -133,6 +138,16 @@ ObjSpr::~ObjSpr() {
             }
             effects[itemid]->sli.usecount--;
             break;
+        case 3:
+            if (distances[itemid]->sli.usecount==1 && sli.spriteids) {
+                for (int i = 0 ; i < sli.numsprites; i++)
+                    delete(t[i]);
+                free(distances[itemid]->textures);
+                distances[itemid]->textures = NULL;
+                free(sli.spriteids);
+            }
+            distances[itemid]->sli.usecount--;
+            break;
         default:
             ASSERTFRIENDLY(false, "BOO! BOOO!");
 
@@ -195,6 +210,7 @@ bool ObjSpr::Render(const position_t *pos) {
                                         //printf("%d %d\n", i, j);
                         break;
                     case 2: // effect
+                    case 3: // distance
                         activeframe =   (((((( // same amount of ('s as of *'s
                                         currentframe)
                                         * sli.ydiv + pos->y % sli.ydiv)
@@ -699,6 +715,187 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
 	this->itemid = effectid;
 
 }
+
+
+
+void ObjSpr::LoadDistance(unsigned int distanceid) {
+	printf("loading distance...\n");
+    LoadDistance(distanceid, protocol->GetProtocolVersion());
+}
+void ObjSpr::LoadDistance(unsigned int distanceid, unsigned int protocolversion) {
+    char temp[512];
+    sprintf(temp, "invalid distanceid %d out of %d in ObjSpr::LoadDistance", distanceid, distances_n);
+    ASSERTFRIENDLY(distanceid <= distances_n, temp);
+    if (!(distanceid <= distances_n)) {// someone pressed ignore
+        // try skipping the loading of this distance
+        return;
+    }
+    printf("Loading distanceid %d out of %d in ObjSpr::LoadDistance\n", distanceid, distances_n);
+#if 1
+	printf("Checking if it's already loaded\n");
+    if (distances[distanceid]->textures) {
+    	printf("It's already there!\n");
+        t = (Texture**)distances[distanceid]->textures;
+        //printf("1\n");
+        sli = distances[distanceid]->sli;
+        //printf("2\n");
+
+        printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", sli.width, sli.height, sli.blendframes, sli.xdiv, sli.ydiv, sli.unknown, sli.animcount, sli.numsprites, sli.usecount );
+        printf("w %d h %d bf %d xd %d yd %d u %d a %d ns %d uc %d\n", distances[distanceid]->sli.width, distances[distanceid]->sli.height, distances[distanceid]->sli.blendframes, distances[distanceid]->sli.xdiv, distances[distanceid]->sli.ydiv, distances[distanceid]->sli.unknown, distances[distanceid]->sli.animcount, distances[distanceid]->sli.numsprites, distances[distanceid]->sli.usecount );
+
+        distances[distanceid]->sli.usecount++;
+        //printf("3\n");
+        offsetx = 0;//distances[distanceid]->height2d_x ;
+        //printf("4\n");
+        offsety = 0;//distances[distanceid]->height2d_y ;
+        //printf("5\n");
+
+        animation_framelist_stand = distances[distanceid]->animation_framelist_stand; //stand
+        printf("#\n");
+        animation_framelist_move = distances[distanceid]->animation_framelist_move;// walk
+
+        printf("Finished\n");
+        return;
+    }
+	printf("Nope, creating new one\n");
+#endif
+
+    /*if (!distanceid) {
+        sli.width = 1; sli.height = 1; sli.blendframes = 1; sli.xdiv = 1; sli.ydiv = 1; sli.unknown = 1; sli.animcount = 1;
+        sli.numsprites = 1;
+        sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
+        sli.spriteids[0]=0;
+        t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+        distances[distanceid]->textures = t;
+        t[0] = new Texture("Tibia76.spr", 0);
+        return;
+    }*/
+    ASSERTFRIENDLY(distanceid, "Invalid distanceid -- it shouldn't be zero");
+    ASSERTFRIENDLY(distances[distanceid]->loaded, "Distance with the ID that server transmitted is not loaded");
+
+
+    if (!strlen(distances[distanceid]->spritelist)) return;
+    char *p = distances[distanceid]->spritelist;
+    sscanf(p, "%hhd", &sli.width); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.height); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.blendframes); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.xdiv); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.ydiv); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.unknown); p = strchr(p, ' ')+1;
+    sscanf(p, "%hhd", &sli.animcount); p = strchr(p, ' ')+1;
+    sscanf(p, "%hd", &sli.numsprites); p = strchr(p, ' ')+1;
+
+    // now shall we read sprite ids
+    // beware! :D
+    if (sli.spriteids)
+        free(sli.spriteids);
+
+    sli.spriteids = (unsigned short*)malloc(sli.numsprites * sizeof(unsigned short));
+    t = (Texture**)malloc(sli.numsprites * sizeof(Texture*));
+
+    char filename [512];
+    FILE *f;
+    for (int i = 0; i < sli.numsprites; i++) {
+        sscanf(p, "%hd", &sli.spriteids[i]); p = strchr(p, ' ')+1;
+
+        switch (protocolversion) {
+            case 750:
+                sprintf(filename, "Tibia75/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia75.spr", sli.spriteids[i]);
+                }
+                break;
+            case 760:
+            case 770:
+                sprintf(filename, "Tibia76/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia76.spr", sli.spriteids[i]);
+                }
+                break;
+            case 790:
+
+                sprintf(filename, "Tibia79/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia79.spr", sli.spriteids[i]);
+                }
+                break;
+            case 792:
+                sprintf(filename, "Tibia792/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia792.spr", sli.spriteids[i]);
+                }
+                break;
+
+            case 800:
+                sprintf(filename, "Tibia80/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                }
+                break;
+
+        }
+
+    }
+    distances[distanceid]->textures = t;
+    distances[distanceid]->sli = sli;
+    distances[distanceid]->sli.usecount = 1;
+
+    for (int i = 0 ; i < sli.animcount; i++) {
+        animation_framelist_stand.insert(animation_framelist_stand.end(), i);
+        distances[distanceid]->animation_framelist_stand.insert(distances[distanceid]->animation_framelist_stand.end(), i);
+
+
+        animation_framelist_move.insert(animation_framelist_move.end(), i);
+        distances[distanceid]->animation_framelist_move.insert(distances[distanceid]->animation_framelist_move.end(), i);
+
+    }
+
+        offsetx = 0;//distances[distanceid]->height2d_x ;
+        offsety = 0;//distances[distanceid]->height2d_y ;
+	this->itemid = distanceid;
+
+}
+
 
 void ObjSpr::SetDirection(direction_t dir) {
     ONThreadSafe(objsprthreadsafe);

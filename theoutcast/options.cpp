@@ -20,6 +20,7 @@ void Options::Save() {
     dbSaveSetting("fullscreen", fullscreen ? "1" : "0");
 	dbSaveSetting("intro", intro ? "1" : "0");
 	dbSaveSetting("os_cursor", os_cursor ? "1" : "0");
+	dbSaveSetting("sounds", sounds ? "1" : "0");
 
 	// strings
 	dbSaveSetting("skin", skin.c_str());

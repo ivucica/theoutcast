@@ -3,11 +3,15 @@
 
 #ifdef WIN32
 	#include <windows.h>
+	#ifdef __GNU_C
+		#include <winsock2.h>
+	#endif
 #else
     #ifndef SOCKET
         typedef int SOCKET;
 	#endif
 #endif
+
 
 #include "buffer.h"
 #include "types.h"

@@ -1,3 +1,6 @@
+#ifndef __SDLWIN_H
+#define __SDLWIN_H
+
 #include <string>
 #include <SDL/SDL_keysym.h>
 #include "object.h"
@@ -16,6 +19,7 @@ void sdlw_Init(int *argc, char**argv);
 void sdlw_CreateDisplay();
 void sdlw_MainLoop();
 void sdlw_Timer(int ms, void(*func)(int) , int arg);
+int sdlw_GetModifiers();
 extern Object *mousepointer_object;
 extern int winw, winh;
 extern float fps;
@@ -40,6 +44,7 @@ void RenderMouseCursor();
 #define win_CreateDisplay sdlw_CreateDisplay
 #define win_MainLoop sdlw_MainLoop
 #define win_Timer sdlw_Timer
+#define win_GetModifiers sdlw_GetModifiers
 
 #define WIN_PRESS 0
 #define WIN_RELEASE 1
@@ -56,10 +61,11 @@ void RenderMouseCursor();
 
 
 
-#define WIN_ACTIVE_CTRL 1
-#define WIN_ACTIVE_ALT 2
-#define WIN_ACTIVE_SHIFT 4
+#define WIN_ACTIVE_CTRL KMOD_CTRL
+#define WIN_ACTIVE_ALT KMOD_ALT
+#define WIN_ACTIVE_SHIFT KMOD_SHIFT
 
 
 
 
+#endif

@@ -3,6 +3,7 @@
 #include "types.h"
 #include "windowing.h"
 #include "debugprint.h"
+#include "util.h"
 int creatures_n;
 creature_t **creatures=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
@@ -45,7 +46,7 @@ static int CreaturesLoadFunc(void *NotUsed, int argc, char **argv, char **azColN
     sscanf(argv[i], "%d", &creatureid);
     if (creatureid > creatures_n) {
         //glutHideWindow();
-        //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nCreature ID appears to be invalid!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        NativeGUIError("There was an error in reading creatures database.\nCreature ID appears to be invalid!", "The Outcast - Fatal Error");
         exit(1);
     }
 

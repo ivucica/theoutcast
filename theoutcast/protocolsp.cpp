@@ -113,7 +113,9 @@ bool ProtocolSP::GameworldWork() {
     if ((signed int)(nm.GetSize())>0) printf("++++++++++++++++++++DIDNT EMPTY UP THE NETWORKMESSAGE!++++++++++++++++++\n");
 
 */
+#ifndef WIN32
 	sleep(1);
+#endif
 	return true;
 
 }

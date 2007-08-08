@@ -50,12 +50,19 @@ class Texture {
 		friend class Skin;
 		friend void TextureFreeSlot();
 		friend void TextureReportRemaining();
+		friend void TextureExpungeRemaining();
 		friend bool TextureIntegrityTest_internal (std::string);
+
 };
 
 void TextureInit();
 void TextureDeinit();
 void TextureReportRemaining();
+void TextureExpungeRemaining();
 bool TextureIntegrityTest_internal (std::string);
+
+#ifdef _MSC_VER
+	#define __PRETTY_FUNCTION__ "[[msvc compiler does not provide __PRETTY_FUNCTION__]]"
+#endif
 #define TextureIntegrityTest() TextureIntegrityTest_internal(__PRETTY_FUNCTION__)
 #endif

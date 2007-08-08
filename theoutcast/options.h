@@ -16,6 +16,7 @@ class Options {
         bool fullscreen;
 		bool intro;
 		bool os_cursor;
+		bool sounds;
 		std::string skin;
 
 };

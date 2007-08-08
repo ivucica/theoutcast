@@ -12,6 +12,7 @@
 #include "threads.h"
 #include "debugprint.h"
 #include "simple_effects.h"
+#include "util.h"
 #ifdef _MSC_VER
     #include <float.h>
     #define isnan _isnan
@@ -21,14 +22,12 @@
 
 int winw=0, winh=0;
 int ptrx=0, ptry=0;
-Texture* mousepointer=NULL;
 int frames=0;
 clock_t lasttime;
 float fps=0;
 bool mayanimate=false;
-float cursoraniangle=0.;
+
 int glut_WindowHandle;
-Object *mousepointer_object;
 
 extern ONCriticalSection gmthreadsafe;
 
@@ -107,29 +106,35 @@ void glut_PassiveMouse (int mousex, int mousey) {
 	ptry = mousey;
 }
 void glut_SetMousePointer(std::string texturefile) {
-	ONThreadSafe(gmthreadsafe);
+	printf("1\n");
+	//ONThreadSafe(gmthreadsafe); // If turned on, crashes during startup on windows. prolly didnt initialize gmthreadsafe at that time yet
+	printf("2\n");
     if (mousepointer_object) {
         delete mousepointer_object;
         mousepointer_object = NULL;
     }
+    printf("3\n");
 	if (mousepointer) delete mousepointer;
-
+	printf("4\n");
 	if (texturefile=="DEFAULT") {
 		if (options.os_cursor) texturefile = "WINDOWS"; else texturefile = "mousepointer.bmp";
 	}
-
+	printf("5\n");
 	if (texturefile == "WINDOWS") {
 		glutSetCursor(GLUT_CURSOR_INHERIT );
 		mousepointer = NULL;
 	}
+
 	else {
 		glutSetCursor(GLUT_CURSOR_NONE);
 		mousepointer = new Texture(texturefile);
 	}
-	ONThreadUnsafe(gmthreadsafe);
+	printf("s\n");
+	//ONThreadUnsafe(gmthreadsafe);
+	printf("7\n");
 }
 void glut_SetMousePointer(Object *obj) {
-	ONThreadSafe(gmthreadsafe);
+	//ONThreadSafe(gmthreadsafe);
 	if (mousepointer_object) {
 	    delete mousepointer_object;
 	}
@@ -137,7 +142,7 @@ void glut_SetMousePointer(Object *obj) {
 	#ifdef WIN32
 	glutSetCursor(GLUT_CURSOR_NONE);
 	#endif
-	ONThreadUnsafe(gmthreadsafe);
+	//ONThreadUnsafe(gmthreadsafe);
 }
 
 void glut_FPS (int param) {
@@ -217,43 +222,6 @@ void glut_SpecKey(int key, int x, int y) {
     ONThreadUnsafe(gmthreadsafe);
 }
 
-
-// FIXME (Khaos#1#) Move into more appropriate file (that'll apply for both sdl and glut)
-void RenderMouseCursor() {
-	////////////////////////////CURSOR RENDERING/////////////////////
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0.,winw,0.,winh);
-	//glRotatef(180.0, 1.0, 0.0, 0.0);
-	//glTranslatef(0,-winh,0.0);
-
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    if (!mousepointer_object && mousepointer) {
-        mousepointer->Bind();
-        glEnable(GL_TEXTURE_2D);
-
-        //FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
-        StillEffect(ptrx-32., winh-ptry-32., ptrx+32., winh-ptry+32., 10, 10, false, false, true);
-
-    } else if (mousepointer_object) {
-
-        glPushMatrix();
-			glTranslatef(ptrx - 16., winh-ptry - 16., 0);
-			mousepointer_object->Render();
-			mousepointer_object->AnimationAdvance(100./fps);
-        glPopMatrix();
-
-    }
-	glDisable(GL_TEXTURE_2D);
-	if (fps && mayanimate) cursoraniangle += 180. / fps;
-	if (cursoraniangle > 360.) cursoraniangle -= 360.;
-
-	//////////////////////END CURSOR RENDERING//////////////////////
-
-
-}
 
 
 

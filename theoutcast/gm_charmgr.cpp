@@ -3,7 +3,11 @@
 #endif
 #include <stdio.h>
 #include <math.h>
-#include <unistd.h> // unlink
+#ifndef _MSC_VER
+	#include <unistd.h> // unlink
+#else
+	#define unlink _unlink
+#endif
 #include <GL/gl.h>
 #include <GLICT/globals.h>
 #include <GLICT/messagebox.h>

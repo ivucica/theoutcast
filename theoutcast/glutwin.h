@@ -39,7 +39,7 @@ void RenderMouseCursor();
 #define win_MainLoop glut_MainLoop
 
 #define win_Timer glutTimerFunc
-
+#define win_GetModifiers glutGetModifiers
 
 #define WIN_PRESS GLUT_DOWN
 #define WIN_RELEASE GLUT_UP
@@ -60,3 +60,4 @@ void RenderMouseCursor();
 #define WIN_ACTIVE_CTRL GLUT_ACTIVE_CTRL
 #define WIN_ACTIVE_ALT GLUT_ACTIVE_ALT
 #define WIN_ACTIVE_SHIFT GLUT_ACTIVE_SHIFT
+

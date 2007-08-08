@@ -89,6 +89,17 @@ struct effect_t {
     spritelist_t sli;
     bool loaded;
 } ;
+struct distance_t {
+    char graphics[50];
+    char graphics2d[50];
+    char spritelist[4096];
+
+    void *textures;
+    std::vector<int> animation_framelist_stand;
+    std::vector<int> animation_framelist_move;
+    spritelist_t sli;
+    bool loaded;
+} ;
 
 typedef struct position_s {
 	position_s() {

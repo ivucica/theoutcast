@@ -1,3 +1,6 @@
+#ifdef WIN32
+	#include <windows.h>
+#endif
 #include "spcreature.h"
 #include "map.h"
 #include "protocol.h"

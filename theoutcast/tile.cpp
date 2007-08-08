@@ -134,7 +134,7 @@ void Tile::Remove(unsigned char pos, bool moving) {
         it -= pos+1;
 
         //if (!moving) delete *it; // NEVER delete creatures since they're also kept in gamemap
-        if (!moving && *it == player->GetCreature()) player->Die();
+
         creatures.erase(it);
 
         ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
@@ -166,15 +166,19 @@ void Tile::Remove(Thing *obj, bool moving) {
     std::vector<Item*>::iterator it;
     std::vector<Creature*>::iterator ct;
     std::vector<Effect*>::iterator et;
-
+	printf("Removing...");
     for (et=effects.begin(); et != effects.end(); et++) {
         if (*et==obj) {
+			printf("effect\n");
             delete *et; // effects are the only thing that is verified to be DELETEable
             effects.erase(et);
             ONThreadUnsafe(threadsafe);
             return;
         }
     }
+    printf("Is it an effect?");
+    printf(dynamic_cast<Effect*>(obj) ? "yes" : "no");
+	if (dynamic_cast<Effect*>(obj)) ASSERT(false);
 
     itemcount --;
     if (ground) {
@@ -204,7 +208,6 @@ void Tile::Remove(Thing *obj, bool moving) {
             return;
         }
     }
-
     printf("Tile::remove(Thing *obj): FAILED\n");
     itemcount++;
     ONThreadUnsafe(threadsafe);
@@ -603,6 +606,7 @@ void Tile::Render(int layer) {
             if (!(*it)->AnimationAdvance(2000./fps, true)) break;
         }
 
+		CommitDelayedRemove();
         ONThreadUnsafe(threadsafe);
     }
 
@@ -649,6 +653,24 @@ void Tile::Empty () {
     }
     this->itemcount = 0;
     ONThreadUnsafe(threadsafe);
+}
+
+void Tile::DelayedRemove(Thing *th) {
+	delayedremove.insert(delayedremove.end(), th);
+}
+void Tile::CommitDelayedRemove() {
+	ONThreadSafe(threadsafe);
+/*	if (delayedremove.size()) {
+		DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Committing delayed remove of %d things\n", delayedremove.size());
+	}*/
+	for (std::vector<Thing*>::iterator it = delayedremove.begin(); it != delayedremove.end(); it++) {
+		Remove(*it);
+	}
+	delayedremove.clear();
+	if (delayedremove.size()) {
+		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Tile::CommitDelayedRemove(): delayedremove not empty even after all has been processed\n");
+	}
+	ONThreadUnsafe(threadsafe);
 }
 
 Creature *Tile::GetCreature() {

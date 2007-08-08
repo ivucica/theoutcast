@@ -293,11 +293,7 @@ void GM_Gameworld::SpecKeyPress(int key, int x, int y ) {
         GameModeEnter(GM_MAINMENU);
         return;
     }
-    #ifdef USEGLUT
-    int modifiers = glutGetModifiers();
-    #else
-    int modifiers = 0;
-    #endif
+    int modifiers = win_GetModifiers();
 
     switch (key) {
         //case GLUT_KEY_F11: // function key
@@ -522,7 +518,7 @@ void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
 }
 
 void GM_Gameworld::UpdateStats() {
-    static char tmp[2048];
+    static char tmp[2048]={0};
     sprintf(tmp,"HP: %d/%d\n"
                 "MP: %d/%d\n"
                 "---------\n"
@@ -566,32 +562,32 @@ void GM_Gameworld::UpdateStats() {
 
 void GM_Gameworld::AddContainer(Container *c, unsigned int x, unsigned int y) {
     printf("Locking\n");
-    ONThreadSafe(desktopthreadsafe);
+//    ONThreadSafe(desktopthreadsafe);
     printf("okies\n");
     if (c->GetWindow()) {
         containerdesktop.AddObject(c->GetWindow());
         c->GetWindow()->SetPos(x, y);
     }
-    ONThreadUnsafe(desktopthreadsafe);
+    //ONThreadUnsafe(desktopthreadsafe);
     printf("Unlocked\n");
 }
 void GM_Gameworld::RemoveContainer(Container *c) {
-    ONThreadSafe(desktopthreadsafe);
+    //ONThreadSafe(desktopthreadsafe);
     if (c->GetWindow()) {
         containerdesktop.RemoveObject(c->GetWindow());
     }
-    ONThreadUnsafe(desktopthreadsafe);
+//    ONThreadUnsafe(desktopthreadsafe);
 }
 
 unsigned int GM_Gameworld::GetContainersX() {
     return winw-166;
 }
 unsigned int GM_Gameworld::GetContainersY() {
-    ONThreadSafe(desktopthreadsafe);
+    //ONThreadSafe(desktopthreadsafe);
     glictPos p; float h;
     panStaStats.GetPos(&p);
     h = panStaStats.GetHeight();
-    ONThreadUnsafe(desktopthreadsafe);
+    //ONThreadUnsafe(desktopthreadsafe);
     return p.y + h;
 }
 void GM_Gameworld::MsgBox (const char* mbox, const char* title) {
@@ -793,11 +789,7 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
 
     if (!protocol)  return;
 
-    #ifdef USEGLUT
-    modifiers = glutGetModifiers();
-    #else
-    modifiers = 0;
-    #endif
+	modifiers = win_GetModifiers();
 
     //printf("%d %d %d\n", pos->x, pos->y, pos->z);
     //console.insert(moving ? "moving" : "not moving");

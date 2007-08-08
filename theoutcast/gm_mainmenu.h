@@ -108,7 +108,7 @@ class GM_MainMenu : public GameMode {
 	friend void ItemsLoad();
 	friend void CreaturesLoad();
 	friend void EffectsLoad();
-
+	friend void DistancesLoad();
 
 
 };

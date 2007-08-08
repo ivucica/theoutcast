@@ -186,13 +186,13 @@ void Creature::RenderOverlay() {
     glictFontRender(GetName().c_str(), "system", -8, -32 - 10- 8);
     glRotatef(180,1,0,0);
 
-    {
+    /*{
 	glRotatef(180,1,0,0);
 	std::stringstream nargh;
 	nargh << this->GetCreatureID();
     glictFontRender(nargh.str().c_str(), "system", -8, -32 - 20- 8);
     glRotatef(180,1,0,0);
-    }
+    }*/
 
 
     if (this->skull) {

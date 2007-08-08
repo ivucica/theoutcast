@@ -1,6 +1,6 @@
 THE OUTCAST v0.4.2
 Readme
-5.8.2007
+8.8.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
@@ -47,9 +47,11 @@ This is a complete rewrite of The Outcast, from scratch, started since (effectiv
 
 The crashes were pretty irritating, and since I've started using GNU/Linux and the Tibia client does NOT work for me, neither the Windows version using WINE nor the Linux version (!), I've had to do something about it. Besides, some real-life friends have expressed a need for a GNU/Linux client in face of same problems.
 
-So, I've decided to just stabilize the beast, and to make a release. It's taken quite a while to catch the little buggars, since they were everywhere around the code, and they were small (much smaller than the Bug monsters in Tibia :P), plus some time ago the faithful GDB has turned its back on me -- it crashes!
+So, I've decided to just stabilize the beast, and to make a release. It's taken quite a while to catch the little buggars, since they were everywhere around the code, and they were small (much smaller than the Bug monsters in Tibia :P), plus some time ago the faithful GDB has turned its back on me -- under GNU/Linux, it crashes!
 
-Ah nevermind -- let's just say that this should now be playable for a while. In the meantime, I'll try to catch the effects bug and re-add them, especially since the text messages and animated text were also implemented using magic effects ... harr.
+Ah nevermind -- let's just say that this should now be playable for a while. 
+
+Oh yea, I also added spiffy distance shot effects and sounds for 7.92 and 8.0 versions ... but that doesn't matter, right? :)
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
@@ -216,8 +218,9 @@ n.b. Great admiration goes to mr. Hipp, author of SQLite, who is very modest and
 
 Changes since 0.4.1
 * Added 32-bit PNG support (beware -- no other color depth for PNG is supported!) However there's still no much use for this since extension .BMP is hardcoded in many places...
-* Gameplay has been pretty stabilized, though leaving game by ESC causes crash now
-* Magic effects have been disabled since they were one of the causes of crashes
+* Gameplay has been pretty stabilized, though leaving game by ESC now causes crash sometimes
+* Added distance shots 
+* Added sounds for magic effects and distance shots
 * An additional "protocol" which is not available in public release (it's gonna take a while for it to be released, and it's something interesting)
 
 Changes since 0.4
@@ -542,18 +545,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 116
+* Number of files: 120
 
-* Code only: 69%
+* Code only: 70%
 * Code + Comment: 4%
-* Comments: 7%
+* Comments: 8%
 * Empty: 19%
 
-* Code only: 12746
-* Empty lines: 3423
-* Comment lines: 1364
-* Code and comments: 813
-* Total: 18346
+* Code only: 13293
+* Empty lines: 3561
+* Comment lines: 1441
+* Code and comments: 826
+* Total: 19121
 
 Count above does not include GLICT.
 ---

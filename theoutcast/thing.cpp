@@ -20,7 +20,7 @@ Thing::Thing() {
     ONInitThreadSafe(threadsafe);
 }
 Thing::~Thing() {
-    if (sprgfx) delete sprgfx; // FIXME figure out why NOT!
+    //if (sprgfx) delete sprgfx; // FIXME figure out why deleting is a bad idea!
     ONDeinitThreadSafe(threadsafe);
 }
 unsigned short Thing::GetType() {

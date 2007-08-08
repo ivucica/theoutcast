@@ -32,6 +32,8 @@
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSEGLUT" />
 					<Add option="-DINCLUDE_SP" />
+					<Add option="-DINCLUDE_ME" />
+					<Add option="-DUSEEFFECTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -72,6 +74,7 @@
 					<Add option="-DBMPFONT" />
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSEGLUT" />
+					<Add option="-DUSEEFFECTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-fexceptions" />
@@ -254,6 +257,7 @@
 					<Add option="-DINCLUDE_SP" />
 					<Add option="-DINCLUDE_ME" />
 					<Add option="-DPNGSUPPORT" />
+					<Add option="-DUSEEFFECTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -266,7 +270,7 @@
 					<Add library="sqlite3" />
 					<Add library="gmp" />
 					<Add library="libpng" />
-					<Add directory="../glict/" />
+					<Add directory="..\glict\" />
 				</Linker>
 			</Target>
 			<Target title="debug_sdl_unix">
@@ -275,7 +279,7 @@
 				<Option object_output=".objsdebug_sdl_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd softwarerenderer " />
+				<Option parameters="sprplaygroundd softwarerendererr " />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-g3" />
@@ -293,6 +297,7 @@
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSESDL" />
 					<Add option="-DINCLUDE_SP" />
+					<Add option="-DUSEEFFECTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -305,7 +310,7 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
-					<Add directory="../glict/" />
+					<Add directory="..\glict\" />
 				</Linker>
 			</Target>
 			<Target title="release_unix">
@@ -316,7 +321,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="sprplaygroundd softwarerendererr" />
 				<Compiler>
-					<Add option="-g" />
+					<Add option="-O3" />
 					<Add option="-g3" />
 					<Add option="-fexceptions" />
 					<Add option="-O0" />
@@ -333,6 +338,7 @@
 					<Add option="-DUSEGLUT" />
 					<Add option="-DUSESOUNDS" />
 					<Add option="-DINCLUDE_SP" />
+					<Add option="-DUSEEFFECTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-g3" />
@@ -344,7 +350,7 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
-					<Add directory="../glict/" />
+					<Add directory="..\glict\" />
 				</Linker>
 			</Target>
 		</Build>
@@ -374,6 +380,8 @@
 		<Unit filename="debugprint.cpp" />
 		<Unit filename="debugprint.h" />
 		<Unit filename="defines.h" />
+		<Unit filename="distances.cpp" />
+		<Unit filename="distances.h" />
 		<Unit filename="effect.cpp" />
 		<Unit filename="effect.h" />
 		<Unit filename="effects.cpp" />
@@ -474,6 +482,7 @@
 		<Unit filename="protocol79.h" />
 		<Unit filename="protocol792.h" />
 		<Unit filename="protocolme0.cpp">
+			<Option target="debug" />
 			<Option target="debug_unix" />
 		</Unit>
 		<Unit filename="protocolme0.h">
@@ -510,7 +519,12 @@
 		<Unit filename="socketstrings.h" />
 		<Unit filename="sound.cpp" />
 		<Unit filename="sound.h" />
-		<Unit filename="spcreature.cpp" />
+		<Unit filename="spcreature.cpp">
+			<Option target="debug" />
+			<Option target="debug_msvc" />
+			<Option target="debug_unix" />
+			<Option target="debug_sdl_unix" />
+		</Unit>
 		<Unit filename="spcreature.h" />
 		<Unit filename="sprfmts.cpp" />
 		<Unit filename="sprfmts.h" />
@@ -524,6 +538,8 @@
 		<Unit filename="tile.h" />
 		<Unit filename="todo.txt" />
 		<Unit filename="types.h" />
+		<Unit filename="util.cpp" />
+		<Unit filename="util.h" />
 		<Unit filename="windowing.h" />
 		<Unit filename="winfont.cpp">
 			<Option target="debug" />

@@ -3,28 +3,40 @@
 #endif
 
 #include <GL/glut.h>
-
+#include <math.h>
 #include "gm_sprplayground.h"
 #include "items.h"
 #include "creatures.h"
 #include "effects.h"
+#include "distances.h"
 
 #include "objspr.h"
 #include "sprfmts.h"
 #include "debugprint.h"
 #include "windowing.h"
 #include "console.h"
+
 extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 
 static bool divtest;
 static unsigned int counter=167;//102;
 static bool creaturetest;
+static bool distancetest;
+static bool effecttest;
 static position_t offset;
 static bool splashtest;
 
+static float flypcnt=0;
+static int srcx=120, srcy=120, dstx=120, dsty=120;
+static char choosing = 0; // choosing source or dest
+static bool rundistanceanim=false;
+
+
 #define BIGARRAYSIZE 200
 #define BAMULTI 4
+#define PROTO 800
+#define PROTOFILE "Tibia80.spr"
 Texture *bigarray[BIGARRAYSIZE] = {NULL};
 ObjSpr *objbigarray[BIGARRAYSIZE] = {NULL};
 
@@ -32,75 +44,78 @@ GM_SPRPlayground::GM_SPRPlayground() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing SPR playground\n");
 
 
-    SPRLoader("Tibia792.spr");
-    ItemsLoad_NoUI(792);
-    CreaturesLoad_NoUI(792);
-    EffectsLoad_NoUI(792);
+    SPRLoader(PROTOFILE);
+    ItemsLoad_NoUI(PROTO);
+    CreaturesLoad_NoUI(PROTO);
+    EffectsLoad_NoUI(PROTO);
+	DistancesLoad_NoUI(PROTO);
 
     offset.x = 0; offset.y = 0;
     g = NULL;
     creaturetest = false;
     splashtest = false;
     divtest = false;
+    distancetest = false;
+    effecttest = false;
 
 
     // default test
     #if 1
     delete g;
-    g = new ObjSpr(counter, 0, 792);
+    g = new ObjSpr(counter, 0, PROTO);
     #endif
 
 
     // simple test
     #if 0
     delete g;
-    g = new ObjSpr(102, 0, 792);
+    g = new ObjSpr(102, 0, PROTO);
     #endif
 
     // animated example
     #if 0
     delete g;
-    g = new ObjSpr(5022, 0, 792);
+    g = new ObjSpr(5022, 0, PROTO);
     #endif
 
     // blendframes
     #if 0
     delete g;
-    g = new ObjSpr(149, 0, 792);
+    g = new ObjSpr(149, 0, PROTO);
     #endif
 
     // blendframes + xdivydiv
     #if 0
     delete g;
-    g = new ObjSpr(173, 0, 792);
+    g = new ObjSpr(173, 0, PROTO);
     divtest = true;
     #endif
 
     // xdivydiv
     #if 0
     delete g;
-    g = new ObjSpr(100, 0, 792);
+    g = new ObjSpr(100, 0, PROTO);
     divtest = true;
     #endif
 
     // creature, without suit (human, oldstyle)
     #if 0
     delete g;
-    g = new ObjSpr(127, 1, 792);
+    g = new ObjSpr(127, 1, PROTO);
     creaturetest = true;
     #endif
 
     // creature, without suit 2 (demon)
     #if 0
     delete g;
-    g = new ObjSpr(35, 1, 792);
+    g = new ObjSpr(35, 1, PROTO);
     creaturetest = true;
     #endif
 
     // creature, with suit (human paladin)
     #if 0
     delete g;
-    g = new ObjSpr(128, 792, 50, 90, 110, 120);
+    g = new ObjSpr(128, PROTO, 50, 90, 110, 120);
     creaturetest = true;
     #endif
 
@@ -108,26 +123,37 @@ GM_SPRPlayground::GM_SPRPlayground() {
     // splash test
     #if 0
     delete g;
-    g = new ObjSpr(2889, 0, 792);
+    g = new ObjSpr(2889, 0, PROTO);
     splashtest = true;
     #endif
 
     // fluid container test
     #if 0
     delete g;
-    g = new ObjSpr(2524, 0, 792);
+    g = new ObjSpr(2524, 0, PROTO);
     splashtest = true;
     #endif
 
     // effect
+    #if 1
+    delete g;
+    g = new ObjSpr(2, 2, PROTO);
+    effecttest = true;
+    #endif
+
+
+    // distance shot
     #if 0
     delete g;
-    g = new ObjSpr(2, 2, 792);
+    g = new ObjSpr(2, 3, PROTO);
+	divtest = true;
+	distancetest = true;
     #endif
+
 
     if (splashtest)
         counter = 0;
-    if (creaturetest)
+    if (creaturetest || distancetest || effecttest)
         counter = 1;
 
     if (!g) {
@@ -171,33 +197,80 @@ void GM_SPRPlayground::Render() {
 
 
     glPushMatrix();
-    glTranslatef(216, 216, 0);
 
-    position_t p(0,0,0);
+	if (!rundistanceanim) {
+		glTranslatef(216, 216, 0);
 
-    if (divtest) {
-        for (int i = 0; i < 4; i++) {
-            p.x=i;
-            for (int j = 0; j < 4; j++) {
-                p.y=j;
-                glPushMatrix();
-                glTranslatef(32 * (i), 32 * (3-j), 0);
-                g->Render(&p);
-                glPopMatrix();
-            }
-        }
-    } else
-        if (splashtest)
-            g->Render(counter);
-        else
-            g->Render(&p);
+		position_t p(0,0,0);
 
+		if (divtest) {
+			for (int i = 0; i < 4; i++) {
+				p.x=i;
+				for (int j = 0; j < 4; j++) {
+					p.y=j;
+					glPushMatrix();
+					glTranslatef(32 * (i), 32 * (3-j), 0);
+					g->Render(&p);
+					glPopMatrix();
+				}
+			}
+		} else
+			if (splashtest)
+				g->Render(counter);
+			else
+				g->Render(&p);
+	} else {
+		float percent2 = 1. - flypcnt/100.;
+//		glTranslatef(216, 216, 0);
+		glTranslatef((dstx*flypcnt/100. + srcx*percent2), 480.-(dsty*flypcnt/100. + srcy*percent2), 0);
+
+
+		position_t p;
+
+
+		if (ceil((float)(dstx / 32)) < ceil((float)(srcx/32))) p.x = 0;
+		if (ceil((float)(dstx / 32)) == ceil((float)(srcx/32))) p.x = 1;
+		if (ceil((float)(dstx / 32)) > ceil((float)(srcx/32))) p.x = 2;
+
+		if (ceil((float)(dsty/32)) < ceil((float)(srcy/32))) p.y = 0;
+		if (ceil((float)(dsty/32)) == ceil((float)(srcy/32))) p.y = 1;
+		if (ceil((float)(dsty/32)) > ceil((float)(srcy/32))) p.y = 2;
+
+		g->Render(&p);
+		printf("%d %d => %d  %d\n", srcx, srcy, dstx, dsty);
+		if (fps) {
+			flypcnt += 100./fps;
+			if (flypcnt > 100) flypcnt -= 100;
+		}
+
+	}
     g->AnimationAdvance(200./fps);
+
     glPopMatrix();
 
     RenderMouseCursor();
 }
 
+void GM_SPRPlayground::MouseClick (int button, int shift, int x, int y) {
+	x *= 640./winw;
+	y *= 480./winh;
+
+	x = x / 32; y = y / 32;
+	x = x * 32; y = y * 32;
+	if (shift == WIN_RELEASE) {
+		if (distancetest) {
+			switch (choosing) {
+				case 0:
+					srcx = dstx = x; srcy = dstx = y; choosing = 1;
+					break;
+				case 1:
+					dstx = x; dsty = y; choosing = 0;
+					rundistanceanim = true;
+					break;
+			}
+		}
+	}
+}
 
 void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
     printf("%d\n", key);
@@ -213,7 +286,7 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
                 break;
             }
             for (int i = 0 ; i < BIGARRAYSIZE; i++) {
-                bigarray[i] = new Texture("Tibia792.spr", i+1);
+                bigarray[i] = new Texture(PROTOFILE, i+1);
                 bigarray[i]->Bind();
             }
             console.insert("Loaded bigarray (press U to unload)", CONBLUE);
@@ -240,7 +313,7 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
             for (int i = 0; i < BIGARRAYSIZE / BAMULTI; i++) {
                 for (int j = 0 ; j < BAMULTI ; j++) {
 
-                    bigarray[i*BAMULTI+j] = new Texture("Tibia792.spr", i+2);
+                    bigarray[i*BAMULTI+j] = new Texture(PROTOFILE, i+2);
                     bigarray[i*BAMULTI+j]->Bind();
                 }
 
@@ -257,7 +330,7 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
 
             for (int i = 0; i < BIGARRAYSIZE; i++) {
 				printf("Loading objbigarray -- %d\n", i);
-				objbigarray[i] = new ObjSpr(i+100, 0, 792);
+				objbigarray[i] = new ObjSpr(i+100, 0, PROTO);
 				objbigarray[i]->Render();
             }
             console.insert("Loaded object bigarray\n", CONBLUE);
@@ -300,9 +373,24 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
         if (splashtest) {
             // leave item as is, on next render use the counter for subtype ...
         } else {
-            delete g;
-            g = new ObjSpr(counter, 0, 792);
-            if (items[counter]->sli.xdiv>1 || items[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
+//            delete g;
+            if (distancetest) {
+            	if (counter > distances_n) counter -= distances_n;
+            	if (counter < 1) counter = 1;
+				g = new ObjSpr(counter, 3, PROTO);
+				if (distances[counter]->sli.xdiv>1 || distances[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
+            } else if (effecttest) {
+            	if (counter > effects_n) counter -= effects_n;
+            	if (counter < 1) counter = 1;
+				g = new ObjSpr(counter, 2, PROTO);
+				if (effects[counter]->sli.xdiv>1 || effects[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
+			} else {
+            	if (counter >= items_n) counter %= items_n;
+            	if (counter < 100) counter = 100;
+            	g = new ObjSpr(counter, 0, PROTO);
+            	if (items[counter]->sli.xdiv>1 || items[counter]->sli.ydiv>1 ) divtest = true; else divtest = false;
+            }
+
         }
         #ifdef USEGLUT
         glutPostRedisplay();
@@ -339,7 +427,7 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
                 delete g;
 
 
-                g = new ObjSpr(counter, 792, 50, 90, 110, 120);
+                g = new ObjSpr(counter, PROTO, 50, 90, 110, 120);
                 g->SetDirection(SOUTH);
                 break;
             }
@@ -352,7 +440,7 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
                 console.insert(tmp, CONORANGE);
 
                 delete g;
-                g = new ObjSpr(counter, 792, 50, 90, 110, 120);
+                g = new ObjSpr(counter, PROTO, 50, 90, 110, 120);
                 g->SetDirection(SOUTH);
 
                 break;

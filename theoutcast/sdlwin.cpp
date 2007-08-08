@@ -5,26 +5,35 @@
 
 #include <GL/gl.h> // FIXME (Khaos#1#) Remove since it's only here coz of rendermousecursor
 #include <GL/glu.h> // FIXME (Khaos#1#) Remove since it's only here coz of rendermousecursor
+#include <map>
 #include "sdlwin.h"
 #include "texmgmt.h"
 #include "simple_effects.h"
 #include "options.h"
 #include "gamemode.h"
-
+#include "util.h"
+#include "defines.h"
+#include "debugprint.h"
+extern int texcount;
 int winw=0, winh=0;
 int ptrx=0, ptry=0;
-Texture* mousepointer=NULL;
+
 int frames=0;
 clock_t lasttime;
 float fps=0;
 bool mayanimate=false;
-float cursoraniangle=0.;
-Object *mousepointer_object;
 int sdl_WindowHandle;
+int sdlw_keymods=0;
 
+struct sdltimer_s {
+	SDL_TimerID timerid;
+	void(*func)(int);
+	int arg;
+};
+std::map<int,sdltimer_s*> timers;
 
 void sdlw_Init(int *argc, char**argv){
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
         fprintf(stderr,"Couldn't initialize SDL: %s\n",SDL_GetError());
         exit( 1 );
     }
@@ -41,8 +50,8 @@ void sdlw_Reshape (int w, int h){
     game->ResizeWindow();
 }
 void sdlw_Mouse (int button, int shift, int mousex, int mousey) {
-    if (shift==WIN_PRESS) printf("press\n");
-    if (shift==WIN_RELEASE) printf("release\n");
+    if (shift==WIN_PRESS) DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Mouse press\n");
+    if (shift==WIN_RELEASE) DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"Mouse release\n");
     game->MouseClick(button, shift, mousex, mousey);
 }
 void sdlw_Idle (){}
@@ -77,8 +86,33 @@ void sdlw_SetMousePointer(Object *obj) {
 	mousepointer_object = obj;
 	//glutSetCursor(GLUT_CURSOR_NONE);
 }
-void sdlw_FPS (int param){}
-void sdlw_MayAnimateToTrue(int param){}
+int fpszerocounter=0;
+void sdlw_FPS (int param){
+	DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"FPS: %d\n",frames);
+	if (frames==0) {
+		fpszerocounter++;
+		printf("FPS zero counter: %d\n", fpszerocounter);
+		if (fpszerocounter>3) {
+			NativeGUIError("It would appear that a timer error has occured. Game will exit now.", "The Outcast - Fatal Error");
+			exit(1);
+		}
+
+	} else {
+		fpszerocounter = 0;
+	}
+	fps = frames;
+	frames = 0;
+	sdlw_Timer(1000, sdlw_FPS, 0);
+
+
+	char tmp[256];
+	sprintf(tmp, "%s / FPS: %c%c%.02f, TexCount: %d", APPTITLE, fps <= 10.009 ? '<' : ' ', fps <= 10.009 ? '=' : ' ', fps, texcount);
+	SDL_WM_SetCaption(tmp, NULL);
+
+}
+void sdlw_MayAnimateToTrue(int param){
+	mayanimate = true;
+}
 void sdlw_Key(unsigned char key, int x, int y){
     game->KeyPress(key,x,y);
 }
@@ -125,8 +159,10 @@ void sdlw_CreateDisplay(){
     }
 
     if (options.fullscreen) videoflags |= SDL_FULLSCREEN;
+    //videoflags |= SDL_NOFRAME;
+    videoflags |= SDL_RESIZABLE;
 
-    // TODO (Khaos#4#) what does noframe do? videoflags |= SDL_NOFRAME
+
 
 // some options:
     int fsaa = 0;
@@ -176,25 +212,25 @@ void sdlw_CreateDisplay(){
                 exit(1);
         }
 
-        printf("Screen BPP: %d\n", SDL_GetVideoSurface()->format->BitsPerPixel);
-        printf("\n");
-        printf( "Vendor     : %s\n", glGetString( GL_VENDOR ) );
-        printf( "Renderer   : %s\n", glGetString( GL_RENDERER ) );
-        printf( "Version    : %s\n", glGetString( GL_VERSION ) );
-        printf( "Extensions : %s\n", glGetString( GL_EXTENSIONS ) );
-        printf("\n");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Screen BPP: %d\n", SDL_GetVideoSurface()->format->BitsPerPixel);
+        /*DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "\n");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Vendor     : %s\n", glGetString( GL_VENDOR ) );
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Renderer   : %s\n", glGetString( GL_RENDERER ) );
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Version    : %s\n", glGetString( GL_VERSION ) );
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Extensions : %s\n", glGetString( GL_EXTENSIONS ) );
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "\n");*/
 
 
         SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &value );
-        printf( "SDL_GL_RED_SIZE: requested %d, got %d\n", rgb_size[0],value);
+        //printf( "SDL_GL_RED_SIZE: requested %d, got %d\n", rgb_size[0],value);
         SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &value );
-        printf( "SDL_GL_GREEN_SIZE: requested %d, got %d\n", rgb_size[1],value);
+        //printf( "SDL_GL_GREEN_SIZE: requested %d, got %d\n", rgb_size[1],value);
         SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &value );
-        printf( "SDL_GL_BLUE_SIZE: requested %d, got %d\n", rgb_size[2],value);
+        //printf( "SDL_GL_BLUE_SIZE: requested %d, got %d\n", rgb_size[2],value);
         SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &value );
-        printf( "SDL_GL_DEPTH_SIZE: requested %d, got %d\n", bpp, value );
+        //printf( "SDL_GL_DEPTH_SIZE: requested %d, got %d\n", bpp, value );
         SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &value );
-        printf( "SDL_GL_DOUBLEBUFFER: requested 1, got %d\n", value );
+        //printf( "SDL_GL_DOUBLEBUFFER: requested 1, got %d\n", value );
         if ( fsaa ) {
                 SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &value );
                 printf("SDL_GL_MULTISAMPLEBUFFERS: requested 1, got %d\n", value );
@@ -211,7 +247,7 @@ void sdlw_CreateDisplay(){
         }
 
         /* Set the window manager title bar */
-        SDL_WM_SetCaption( "The Outcast", "sdlgloutcast" );
+        SDL_WM_SetCaption( "The Outcast", NULL);
 
 
         /* Set the gamma for the window */
@@ -226,18 +262,22 @@ void sdlw_MainLoop(){
     SDL_Event event;
     bool done = false;
 
-    fps = 20;//FIXME (Khaos#1#) Need real fps calc
-    mayanimate = true;
+    fps = 0;//FIXME (Khaos#1#) Need real fps calc
+    mayanimate = false;
     sdlw_Reshape(640,480);
 
+
+
+	sdlw_Timer(1000, sdlw_FPS, 0);
     while (!done) {
         sdlw_Display();
+        frames++;
         while( SDL_PollEvent( &event ) ) {
             // event handlin
             switch (event.type) {
             case SDL_ACTIVEEVENT:
                 /* See what happened */
-                printf( "app %s ", event.active.gain ? "gained" : "lost" );
+                /*printf( "app %s ", event.active.gain ? "gained" : "lost" );
                 if ( event.active.state & SDL_APPACTIVE ) {
                         printf( "active " );
                 } else if ( event.active.state & SDL_APPMOUSEFOCUS ) {
@@ -245,8 +285,13 @@ void sdlw_MainLoop(){
                 } else if ( event.active.state & SDL_APPINPUTFOCUS ) {
                         printf( "input " );
                 }
-                printf( "focus\n" );
+                printf( "focus\n" );*/
                 break;
+			case SDL_KEYUP:
+
+                if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT && sdlw_keymods & KMOD_SHIFT)
+					sdlw_keymods ^= KMOD_SHIFT;
+				break;
             case SDL_KEYDOWN:
                 if ( event.key.keysym.sym == SDLK_ESCAPE ) {
                         done = 1;
@@ -263,6 +308,11 @@ void sdlw_MainLoop(){
                      (event.key.keysym.mod & KMOD_ALT) ) {
 //                        HotKey_ToggleFullScreen();
                 }*/
+
+                if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT && !(sdlw_keymods & KMOD_SHIFT))
+					sdlw_keymods ^= KMOD_SHIFT;
+
+
                 if ( event.key.keysym.sym == SDLK_LEFT ||
                      event.key.keysym.sym == SDLK_RIGHT ||
                      event.key.keysym.sym == SDLK_UP ||
@@ -271,10 +321,24 @@ void sdlw_MainLoop(){
                 {
                     sdlw_SpecKey(event.key.keysym.sym,0,0);//FIXME (Khaos#4#) 0,0 should be "currentmousexy"
                 } else {
-                    sdlw_Key(event.key.keysym.sym,1,0);
+                	// outcast expects what glut usually serves: completely prepared keys, with shift and all that
+                	int key = event.key.keysym.sym;
+                	if (key==SDLK_LSHIFT || key==SDLK_RSHIFT) break;
+
+                	DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Keypress: %d\n", key);
+                	if (event.key.keysym.mod & KMOD_SHIFT) {
+                		printf("SHIFT (%d)\n", event.key.keysym.mod);
+                		if (key >= 'a' && key <='z')
+							key-=32;
+						else if (key >= '0' && key <='9')
+							key-=(15+1);
+                	}
+                	if (key < 32 && key != 8 && key != 27 && key != 13 && key != 10) break;
+                	DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Passed: %d\n", key);
+                    sdlw_Key(key,1,0);
                 }
 
-                printf("key '%s' pressed\n",
+                DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"key '%s' pressed\n",
                         SDL_GetKeyName(event.key.keysym.sym));
 
                 break;
@@ -283,7 +347,7 @@ void sdlw_MainLoop(){
                 break;
             case SDL_MOUSEBUTTONUP:
             case SDL_MOUSEBUTTONDOWN:
-            //TODO (Khaos#3#) passing left/right button
+				//TODO (Khaos#3#) passing left/right button
                 sdlw_Mouse( 0, event.button.state == SDL_PRESSED ? WIN_PRESS : WIN_RELEASE, ptrx, ptry);
                 break;
             case SDL_QUIT:
@@ -297,43 +361,41 @@ void sdlw_MainLoop(){
     }
 
 }
-void sdlw_Timer(int ms, void(*func)(int), int arg) {}
 
-// FIXME (Khaos#1#) Move into more appropriate file (that'll apply for both sdl and glut)
-void RenderMouseCursor() {
-	////////////////////////////CURSOR RENDERING/////////////////////
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0.,winw,0.,winh);
-	//glRotatef(180.0, 1.0, 0.0, 0.0);
-	//glTranslatef(0,-winh,0.0);
+Uint32 sdlw_InternalOneTimeTimer(Uint32 interval, void*param) {
 
+	int tmapid = (int)param;
+	std::map<int,sdltimer_s*>::iterator it;
+	sdltimer_s *sts = (it=timers.find(tmapid))->second;
+	SDL_RemoveTimer(sts->timerid);
+	sts->func(sts->arg);
+	delete sts;
+}
+void sdlw_Timer(int ms, void(*func)(int), int arg) {
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    if (!mousepointer_object && mousepointer) {
-        mousepointer->Bind();
-        glEnable(GL_TEXTURE_2D);
-
-        //FlagEffect(ptrx-32., ptry-32., ptrx+32., ptry+32., 10, 10, cursoraniangle, 360., 2.	);
-        StillEffect(ptrx-32., winh-ptry-32., ptrx+32., winh-ptry+32., 10, 10, false, false, true);
-
-    } else if (mousepointer_object) {
-
-        glPushMatrix();
-			glTranslatef(ptrx - 16., winh-ptry - 16., 0);
-			mousepointer_object->Render();
-			mousepointer_object->AnimationAdvance(100./fps);
-        glPopMatrix();
-
-    }
-	glDisable(GL_TEXTURE_2D);
-	if (fps && mayanimate) cursoraniangle += 180. / fps;
-	if (cursoraniangle > 360.) cursoraniangle -= 360.;
-
-	//////////////////////END CURSOR RENDERING//////////////////////
-
-
+	sdltimer_s *st = new sdltimer_s;
+	int tmapid=rand();
+	timers[tmapid]=st;
+	st->func = func;
+	st->arg = arg;
+	st->timerid = SDL_AddTimer(ms, sdlw_InternalOneTimeTimer, (void*)(tmapid));
 }
 
+int sdlw_GetModifiers() {
+	printf("Modifiers: ");
+	if (sdlw_keymods & KMOD_SHIFT) {
+		printf("SHIFT ");
+	}
+	if (sdlw_keymods & KMOD_CTRL) {
+		printf("CTRL ");
+	}
+	if (sdlw_keymods & KMOD_ALT) {
+		printf("ALT ");
+	}
+	if (sdlw_keymods & KMOD_META) {
+		printf("META ");
+	}
+	printf(" (%d)\n", sdlw_keymods);
+	return sdlw_keymods;
+}
 #endif

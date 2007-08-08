@@ -22,6 +22,8 @@ class ObjSpr : public Object {
         void LoadItem(unsigned int itemid, unsigned int protocolversion);
         void LoadEffect(unsigned int itemid);
         void LoadEffect(unsigned int itemid, unsigned int protocolversion);
+        void LoadDistance(unsigned int itemid);
+        void LoadDistance(unsigned int itemid, unsigned int protocolversion);
         void LoadCreature(unsigned int creaturetype);
         void LoadCreature(unsigned int creaturetype, unsigned int protocolversion);
         void LoadCreature(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet );

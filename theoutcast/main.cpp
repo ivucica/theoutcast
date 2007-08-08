@@ -33,6 +33,11 @@
 #include "debugprint.h"
 
 #include "types.h"
+
+#include "assert.h"
+
+#include "util.h"
+
 version_t glversion;
 
 

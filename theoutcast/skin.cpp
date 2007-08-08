@@ -64,13 +64,17 @@ Skin::Skin() {
     tmmbr = NULL;
 
     tmmloaded = false;
+	#ifdef OUTCAST_SKINS
     nologo = false;
+	#endif
 }
 Skin::~Skin() {
     Unload();
 
     printf("Remaining textures: \n");
     TextureReportRemaining();
+    printf("Expunging remaining textures: \n");
+    TextureExpungeRemaining();
 }
 void Skin::Load(const char* what) {
 

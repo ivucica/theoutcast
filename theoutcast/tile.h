@@ -48,6 +48,8 @@ class Tile {
         void ShowContents();
         void StoreToDatabase();
 
+		void DelayedRemove(Thing* t);
+		void CommitDelayedRemove();
     private:
 
 
@@ -55,6 +57,8 @@ class Tile {
         std::vector<Item*> itemlayers[4];
         std::vector<Creature*> creatures;
         std::vector<Effect*> effects;
+
+        std::vector<Thing*> delayedremove;
         Thing *ground;
         position_t pos;
         ONCriticalSection threadsafe;

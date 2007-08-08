@@ -1,0 +1,266 @@
+<?xml version="1.0"?>
+<materials>
+	<material name="Grounds" ground="1"/>
+	
+	<material name="Boats">
+		<item fromid="4883" toid="4947"/>
+		<item fromid="4403"/>
+		<item fromid="3601" toid="3602"/>
+		<item fromid="4948" toid="4991"/>
+		<item fromid="4998" toid="5008"/>
+		<item fromid="5082" toid="5085"/>
+		<item fromid="1277" toid="1284"/>
+		<item fromid="3587" toid="3600"/>
+	</material>
+	<material name="Borders (Items)">
+		<item fromid="434" toid="445"/>
+		<item fromid="3188" toid="3189"/>
+                <item fromid="3218"/>
+		<item fromid="3221" toid="3222"/>
+		<item fromid="3298" toid="3309"/>
+		<item fromid="4456" toid="4467"/>
+		<item fromid="4514" toid="4225"/>
+		<item fromid="4542" toid="4565"/>
+		<item fromid="4596" toid="4607"/>
+		<item fromid="4644" toid="4663"/>
+		<item fromid="4667" toid="4690"/>
+		<item fromid="4713" toid="4748"/>
+		<item fromid="4760" toid="4819"/>
+		<item fromid="4828" toid="4831"/>
+		<item fromid="3226" toid="3241"/>
+		<item fromid="4514" toid="4525"/>
+	</material>
+	
+	<material name="Borders (Grounds)">
+		<item fromid="110" toid="145"/>
+		<item fromid="170" toid="181"/>
+		<item fromid="195" toid="218"/>
+		<item fromid="232" toid="279"/>
+		<item fromid="281" toid="292"/>
+		<item fromid="393" toid="404"/>
+		<item fromid="494" toid="529"/>
+		<item fromid="554" toid="565"/>
+		<item fromid="684" toid="707"/>
+		<item fromid="712" toid="723"/>
+		<item fromid="837" toid="848"/>
+		<item fromid="4632" toid="4643"/>
+	</material>
+	
+	<material name="Buildings">
+		<item fromid="4834" toid="4837"/>
+		<item fromid="408" toid="411"/>
+		<item fromid="423"/>
+		<item fromid="427" toid="430"/>
+		<item fromid="432" toid="433"/>
+		<item fromid="1025" toid="1099"/>
+		<item fromid="5009"/>
+		<item fromid="1100" toid="1119"/>
+		<item fromid="5010" toid="5011"/>
+		<item fromid="1120" toid="1204"/>
+		<item fromid="5012" toid="5013"/>
+		<item fromid="1205" toid="1276"/>
+		<item fromid="1385" toid="1386"/>
+		<item fromid="1396"/>
+		<item fromid="1514" toid="1551"/>
+		<item fromid="1398" toid="1405"/>
+		<item fromid="1552" toid="1601"/>
+		<item fromid="3361" toid="3505"/>
+		<item fromid="3508" toid="3522"/>
+		<item fromid="3525" toid="3552"/>
+		<item fromid="3678" toid="3688"/>
+		<item fromid="3766" toid="3767"/>
+		<item fromid="3794" toid="3801"/>
+		<item fromid="5009" toid="5013"/>
+	</material>
+
+	<material name="Fields">
+        <item fromid="1397"/>
+        <item fromid="1487" toid="1499"/>
+        <item fromid="1500" toid="1507"/>
+	</material>
+
+        <material name="Sea">
+          <item fromid="2226"/>
+          <item fromid="2240"/>
+          <item fromid="5405" toid="5410"/>
+          <item fromid="5427" toid="5438"/>
+          <item fromid="5743" toid="5744"/>
+          <item fromid="5763" toid="5764"/>
+          <item fromid="5554"/>
+          <item fromid="5411" toid="5426"/>
+          <item fromid="5439" toid="5460"/>
+          <item fromid="5678" toid="5682"/>
+          <item fromid="5811"/>
+          <item fromid="3607" toid="3616"/>
+          <item fromid="5631" toid="5654"/>
+	</material>
+
+	<material name="Hangable" hangable="1">
+        <item fromid="1809" toid="1844"/>
+        <item fromid="1846" toid="1847"/>
+        <item fromid="1849" toid="1850"/>
+        <item fromid="1855" toid="1856"/>
+        <item fromid="1858" toid="1859"/>
+        <item fromid="1861" toid="1862"/>
+        <item fromid="1864" toid="1865"/>
+        <item fromid="1867" toid="1868"/>
+        <item fromid="1870" toid="1871"/>
+        <item fromid="1873" toid="1876"/>
+        <item fromid="1878" toid="1879"/>
+        <item fromid="1882" toid="1899"/>
+        <item fromid="5016" toid="5019"/>
+        <item fromid="5057" toid="5060"/>
+        </material>
+
+	<material name="Interior">
+		<item fromid="1602" toid="1808"/>
+		<item fromid="2034"/>
+		<item fromid="2064" toid="2065"/>
+		<item fromid="2070" toid="2079"/>
+		<item fromid="2108" toid="2119"/>
+		<item fromid="2080" toid="2085"/>
+		<item fromid="2093" toid="2099"/>
+		<item fromid="1947" toid="1986"/>
+		<item fromid="2100" toid="2107"/>
+		<item fromid="2180"/>
+		<item fromid="2192"/>
+		<item fromid="2556" toid="2577"/>
+		<item fromid="2581" toid="2588"/>
+		<item fromid="2589" toid="2592"/>
+		<item fromid="2594"/>
+		<item fromid="2606" toid="2609"/>
+		<item fromid="2614" toid="2615"/>
+		<item fromid="3805" toid="3843"/>
+		<item fromid="4394" toid="4402"/>
+	</material>
+	
+	<material name="Mountains">
+		<item fromid="475" toid="480"/>
+		<item fromid="487" toid="488"/>
+		<item fromid="873" toid="919"/>
+		<item fromid="1388" toid="1395"/>
+		<item fromid="3325" toid="3347"/>
+		<item fromid="4468" toid="4513"/>
+		<item fromid="4405" toid="4455"/>
+		<item fromid="4826" toid="4827"/>
+	</material>
+	
+	<material name="Nature">
+		<item fromid="386" toid="391"/>
+		<item fromid="1499"/>
+		<item fromid="1285" toid="1359"/>
+		<item fromid="2697" toid="2786"/>
+		<item fromid="3311" toid="3347"/>
+		<item fromid="2569" toid="2574"/>
+		<item fromid="2798" toid="2805"/>
+		<item fromid="3603" toid="3677"/>
+		<item fromid="3984" toid="4250"/>
+		<item fromid="3569" toid="3574"/>
+	</material>
+	
+	<material name="Roofs">
+		<item fromid="920" toid="924"/>
+		<item fromid="5081"/>
+		<item fromid="5045"/>
+		<item fromid="5047" toid="5054"/>
+		<item fromid="925" toid="964"/>
+		<item fromid="3224" toid="3225"/>
+		<item fromid="3242" toid="3245"/>
+		<item fromid="3348" toid="3360"/>
+	</material>
+
+	<material name="Splash">
+		<item fromid="1903" toid="1905"/>
+		<item fromid="2016" toid="2021"/>
+		<item fromid="2025" toid="2030"/>
+	</material>
+
+	<material name="Accessories">
+		<item fromid="1987" toid="2004"/>
+		<item fromid="4863" toid="4872"/>
+		<item fromid="2005" toid="2015"/>
+		<item fromid="2022" toid="2024"/>
+		<item fromid="2031" toid="2033"/>
+		<item fromid="2035" toid="2036"/>
+		<item fromid="2041" toid="2057"/>
+		<item fromid="2062" toid="2063"/>
+		<item fromid="2176" toid="2178"/>
+		<item fromid="2260" toid="2316"/>
+		<item fromid="2330" toid="2331"/>
+		<item fromid="2364"/>
+		<item fromid="2366" toid="2375"/>
+		<item fromid="2548" toid="2552"/>
+		<item fromid="2553" toid="2554"/>
+		<item fromid="2595" toid="2596"/>
+		<item fromid="2597" toid="2598"/>
+		<item fromid="2599"/>
+		<item fromid="2624" toid="2639"/>
+		<item fromid="2666" toid="2696"/>
+		<item fromid="2787" toid="2796"/>
+		<item fromid="2086" toid="2092"/>
+		<item fromid="2120"/>
+		<item fromid="2365"/>
+		<item fromid="2161" toid="2175"/>
+		<item fromid="2179"/>
+		<item fromid="2181" toid="2191"/>
+		<item fromid="2193" toid="2218"/>
+		<item fromid="2318" toid="2319"/>
+		<item fromid="2356" toid="2357"/>
+		<item fromid="2359"/>
+		<item fromid="2121" toid="2143"/>
+		<item fromid="5022"/>
+		<item fromid="2144" toid="2160"/>
+		<item fromid="2031" toid="2033"/>
+	</material>
+
+	<material name="Exterior">
+		<item fromid="486"/>
+		<item fromid="1280" toid="1283"/>
+		<item fromid="1360" toid="1385"/>
+		<item fromid="1406" toid="1420"/>
+		<item fromid="1421" toid="1428"/>
+		<item fromid="1429" toid="1486"/>
+		<item fromid="2219" toid="2259"/>
+		<item fromid="2334"/>
+		<item fromid="2555"/>
+                <item fromid="2593"/>
+		<item fromid="2601" toid="2605"/>
+		<item fromid="2610" toid="2613"/>
+		<item fromid="2616" toid="2623"/>
+		<item fromid="3697" toid="3710"/>
+		<item fromid="3715" toid="3726"/>
+		<item fromid="3718" toid="3742"/>
+		<item fromid="3802" toid="3804"/>
+       		<item fromid="5046"/>
+                <item fromid="5055" toid="5056"/>
+		<item fromid="5074" toid="5079"/>
+	</material>
+	
+	<material name="Equipment">
+		<item fromid="2128"/>
+		<item fromid="2195" toid="2195"/>	
+		<item fromid="2127" toid="2128"/>
+                <item fromid="2321"/>
+		<item fromid="2342" toid="2343"/>
+		<item fromid="2350" toid="2352"/>
+		<item fromid="2358"/>
+		<item fromid="2457" toid="2542"/>
+		<item fromid="2640" toid="2665"/>
+		<item fromid="3967" toid="3975"/>
+		<item fromid="3982"/>
+	</material>
+	
+	<material name="Weapons">
+		<item fromid="2376" toid="2456"/>
+		<item fromid="2543" toid="2547"/>
+		<item fromid="3961" toid="3966"/>
+	</material>
+	
+	<material name="Corpes">
+                <item fromid="2317"/>
+		<item fromid="2806" toid="3134"/>
+		<item fromid="4251" toid="4327"/>
+	</material>
+
+	<material name="Other" nogroup="1"/>
+</materials>

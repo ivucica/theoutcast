@@ -3,12 +3,14 @@
 	#include <windows.h>
 #endif
 #include <stdio.h>
+#include <sstream>
 //#include <sqlite3.h>
 #include "debugprint.h"
 #include "assert.h"
 #include "database.h"
 #include "defines.h"
 #include "threads.h"
+#include "util.h"
 sqlite3 *dbData, *dbUser;
 
 
@@ -24,6 +26,7 @@ char* dbLoadSettingReturnValue;
 static int dbLoadSettingFunc(void *NotUsed, int argc, char **argv, char **azColName);
 
 ONCriticalSection dbthreadsafe;
+
 
 void DBInit() {
     int rc;
@@ -93,12 +96,23 @@ void DBInit() {
     if (rc!=SQLITE_OK) {
 
         DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite cannot open data database. Verify directory access rights!\nError: %s", sqlite3_errmsg(dbData));
-        //MessageBox(HWND_DESKTOP, "SQLite cannot open data database.\nVerify directory access rights!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        NativeGUIError("SQLite cannot open data database.\nVerify directory access rights!", "The Outcast - Fatal Error");
         dbData=NULL;
 		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "This was a fatal error. Quitting.");
         exit(1);
     }
 
+
+	rc = sqlite3_exec(dbData, "select itemid from items792 where itemid=100;", NULL, NULL, NULL);
+	if (rc!=SQLITE_OK) {
+
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "It looks like the data database is corrupted. You have to reinstall The Outcast.\n\nError: %s", sqlite3_errmsg(dbData));
+        NativeGUIError("It looks like the data database is corrupted. You have to reinstall The Outcast.", "The Outcast - Fatal Error");
+
+        dbData=NULL;
+		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "This was a fatal error. Quitting.");
+        exit(1);
+    }
 
     return;
 }

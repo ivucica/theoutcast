@@ -17,6 +17,7 @@
 #include "gm_gameworld.h"
 #include "creatures.h"
 #include "effects.h"
+#include "distances.h"
 #include "charlist.h"
 #include "gwlogon.h"
 
@@ -397,6 +398,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
                     ItemsLoad();
                     CreaturesLoad();
                     EffectsLoad();
+                    DistancesLoad();
                 }
 
                 if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "begin transaction;");
@@ -523,7 +525,10 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             unsigned char stackpos = GetStackpos(nm);
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Stackpos %d\n", stackpos);
             Tile *tile = gamemap.GetTile(&pos);
+            //if (tile->GetStackPos(stackpos) == player->GetCreature()) player->Die();
             tile->Remove(stackpos);
+
+
 
             return true;
         }
@@ -674,7 +679,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         }
         case 0x70: {// Add Container Item
             Container *c = player->GetContainer(nm->GetU8()); // container id
-            if (c) c->Insert(ParseThingDescription(nm), false);
+            if (c) c->Insert(ParseThingDescription(nm), true);
             return true;
         }
         case 0x71: {// Replace Container Item
@@ -755,10 +760,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
 
             printf("Set it up, unlocking and finishing processing of mageff\n");
-
 			printf("Unlocked\n");
-
-
 
             return true;
         }
@@ -787,14 +789,53 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             #endif
         }
         case 0x85: {// Distance Shot
-            position_t src; // position
+
+
+            #ifndef USEEFFECTS
+            console.insert("Effects disabled (distance shot)\n", CONRED);
+			position_t src; // position
             GetPosition(nm, &src);
 
             position_t dst; // position
             GetPosition(nm, &dst);
 
             nm->GetU8(); // type of shot
+
             return true;
+
+            #else
+            Tile *t;
+            Effect *e;
+            unsigned char type;
+
+
+
+            position_t src; // position
+            GetPosition(nm, &src);
+
+            position_t dst; // position
+            GetPosition(nm, &dst);
+
+			DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, ">=>=>=>=>=> Distance shot effect %d PT1\n", type);
+
+            t = gamemap.GetTile(&src);
+            type = nm->GetU8(); // mageffect type
+
+			DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, ">=>=>=>=>=> Distance shot effect %d PT2\n", type);
+
+            e = new Effect(t);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, ">=>=>=>=>=> Distance shot effect %d PT3\n", type);
+            e->SetType(type, (void*)1); // anything but NULL for second argument causes it to be a distance shot
+            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, ">=>=>=>=>=> Distance shot effect %d PT4\n", type);
+            e->SetDistanceDeltaTarget(dst.x - src.x, dst.y - src.y);
+            DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, ">=>=>=>=>=> Distance shot effect %d PT5\n", type);
+
+            t->Insert(e, false);
+			DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, ">=>=>=>=>=> Distance shot effect %d PT .. doh\n", type);
+
+
+            return true;
+            #endif
         }
         case 0x86: // Creature Square
             nm->GetU32(); // around which creature
@@ -1344,19 +1385,19 @@ void Protocol::Move(direction_t dir) {
 
     NetworkMessage nm;
     ONThreadSafe(threadsafe);
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moving\n");
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Moving\n");
     if (!player) {
     	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "There is no player, we're not moving after all\n");
     	ONThreadUnsafe(threadsafe);
     	return;
     }
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Step 1\n");
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Step 1\n");
     if (!player->GetCreature()) {
     	DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "There is no player creature, we're not moving after all\n");
     	ONThreadUnsafe(threadsafe);
     	return;
     }
-    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Step 2\n");
+//    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Step 2\n");
     if (!player->GetCreature()->IsMoving()) {
         nm.AddU8(0x65 + dir);
         if (protocolversion >= 770)

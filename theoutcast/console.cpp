@@ -16,6 +16,10 @@ Console::Console() {
     ONInitThreadSafe(threadsafe);
 }
 Console::~Console() {
+	for (consolecontainer::iterator it=con.begin(); it!=con.end(); it++) {
+		delete *it;
+	}
+
 
     ONDeinitThreadSafe(threadsafe);
 }
@@ -69,7 +73,7 @@ void Console::clear() {
     ONThreadUnsafe(threadsafe);
 }
 void Console::draw(char count) {
-    consolecontainer::iterator it;
+
     int p=1;
 
     float oldcolor[4];
@@ -79,7 +83,7 @@ void Console::draw(char count) {
     //DEBUGPRINT("Beginning console render...\n");
     ONThreadSafe(threadsafe);
 
-    for (it=con.begin(); it!=con.end() && p<count; it++) {
+    for (consolecontainer::iterator it=con.begin(); it!=con.end() && p<count; it++) {
         //p++;
         //printf("Line %d / %d\n", p, count);
         //DEBUGPRINT("%s\n", (*it)->text);

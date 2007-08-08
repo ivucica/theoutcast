@@ -38,15 +38,15 @@ void ItemClear(item_t* item) {
     item->spritelist[0] = 0;
     item->otid = 0;
 
-    for (int i=0;i<item->sli.numsprites;i++)
-        if (item->textures) {
+	if (item->textures) 
+		for (int i=0;i<item->sli.numsprites;i++)		
             delete ((Texture**)item->textures)[i];
-        } else {
-            printf("item->textures is NULL!\n");
-        }
+    /*else
+        printf("item->textures is NULL!\n");*/
+    
     if (item->textures) free(item->textures);
     item->sli.numsprites = 0;
-    item->textures = 0;
+    item->textures = NULL;
     // sli does not really need to be cleared ... it will be rebuilt each time
     // same for animcount
 

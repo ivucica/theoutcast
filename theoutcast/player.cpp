@@ -5,7 +5,7 @@
 #include "tile.h"
 #include "map.h"
 #include "debugprint.h"
-
+#include "sound.h"
 #ifdef WIN32
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
@@ -20,7 +20,23 @@ Player::Player(unsigned long creatureid) {
     for (int i = 0; i < 10; i++) {
         inventory[i] = NULL;
     }
+
+    hp = 0;
+    maxhp = 0;
+    cap = 0;
+    mp = 0;
+    maxmp = 0;
+    level = 0;
+    levelpercent = 0;
+    mlevel = 0;
+    mlevelpercent = 0;
+    exp = 0;
+    for (int i = 0; i < 7; i++) {
+    	playerskills[i] = 0;
+    	playerskillspcnt[i] = 0;
+    }
     icons = 0;
+    pos.x = 0; pos.y = 0; pos.z = 0;
 }
 
 Player::~Player() {
@@ -233,6 +249,9 @@ void Player::SetIcons(unsigned int icons) {
 bool Player::GetIcon(statusicons_t icon) {
     return icons & icon;
 }
+#include "assert.h"
 void Player::Die(){
+	free((void*)1);
 	this->creatureid = 0;
+	SoundPlay("sounds/death.wav");
 }
