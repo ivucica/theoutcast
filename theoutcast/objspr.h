@@ -29,6 +29,10 @@ class ObjSpr : public Object {
         void LoadCreature(unsigned int creaturetype, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet );
         void LoadCreature(unsigned int creaturetype, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet );
         void SetDirection(direction_t dir);
+
+        void SetAddons(int addons) {
+        	#warning ObjSpr::SetAddons(): Stub!!
+        }
     private:
         spritelist_t sli; // spritelist
         Texture **t; // sprite textures list

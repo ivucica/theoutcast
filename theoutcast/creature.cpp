@@ -25,11 +25,16 @@ void Creature::SetType(unsigned short outfit, void* extra) {
     this->creaturelook = *crl;
     printf("Creating sprite\n");
     if (outfit != 0) {
-        if (!dontloadspr) sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
+        if (!dontloadspr) {
+			sprgfx = new ObjSpr(outfit, crl->head, crl->body, crl->legs, crl->feet);
+			sprgfx->SetAddons(crl->addons);
+        }
+
     } else {
     	printf("Extended look\n");
         if (!dontloadspr) sprgfx = new ObjSpr(crl->extendedlook , 0);
     }
+
     printf("created\n");
     ONThreadUnsafe(threadsafe);
 }
