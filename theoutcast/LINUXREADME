@@ -4,13 +4,17 @@ Readme for 0.4.1
 =============================
 
 Hi,
-here are some addon notes regarding GNU/Linux version.
+here are some addon notes regarding GNU/Linux version. Please also read file
+readme.txt.
 
 1) Installation
 
 $ tar xvvfz outcast*
 $ cd outcast<PRESS TAB>
 $ ./outcast
+
+Under Debian and Ubuntu, run this to install required packages:
+# apt-get install libglut3 libsqlite3-0 libgmp3c2 sox xdialog
 
 2) Requirements
 
@@ -22,9 +26,27 @@ You will need the following libraries:
 * SQLite3
 * GMP
 
-To make sound work, you will also need set of programs called "SoX - Swiss army knife of sound processing"; more specifically, a program called "play" which will accept one argument - the file name to be played. This program is included in SoX.
+To make sound work, you will also need set of programs called "SoX - Swiss
+army knife of sound processing"; more specifically, a program called "play"
+which will accept one argument - the file name to be played. It needs to be
+able to play WAV files. Such program is included in SoX, that's why it's
+recommended.
+
+To make message boxes work, you'll need a program called xdialog. It needs
+to accept arguments -center, -title followed by the titlebar text for the
+messagebox, and additional argument containing messagebox text. Such a
+program can be found in package xdialog. (Note: we're talking about X-based
+message boxes, not GLICT based message boxes.)
 
 3) Known limitations
 
-* It cannot run under "Debian GNU/Linux March 17th 2007 etch-testing" on Intel 915GM motherboard when Compiz is running.
-* While dragging, cursor position is not read properly so you can't see where the cursor exactly is.
+* It cannot run under "Debian GNU/Linux March 17th 2007 etch-testing" on Intel
+  915GM motherboard when Compiz is running.
+* While dragging, cursor position is not read properly so you can't see where
+  the cursor exactly is.
+
+4) Feature differences from Windows version
+
+* Under GNU/Linux there is additional command line argument "softwarerenderer"
+  is accepted. See readme.txt for more info.
+* Background music is not supported.

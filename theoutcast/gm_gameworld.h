@@ -51,7 +51,23 @@ class GM_Gameworld : public GameMode {
         stancechase_t chase;
         stanceaggression_t stance;
 
-        bool invitingparty, joiningparty, revokingparty, passingparty;
+        bool invitingparty, joiningparty, revokingparty, passingparty; // FIXME (Khaos#1#) Remove!
+        enum {
+        	PA_NONE = 0,
+        	PA_INVITE,
+        	PA_JOIN,
+        	PA_REVOKE,
+        	PA_PASS
+        } partyaction;
+
+        enum {
+        	MA_NONE = 0,
+        	MA_USEEX,
+        	MA_MOVE
+        } mouseaction;
+
+        position_t mousedownpos; unsigned char mousedownstackpos;
+
 
         ONCriticalSection desktopthreadsafe;
 

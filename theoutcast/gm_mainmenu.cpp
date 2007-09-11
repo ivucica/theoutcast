@@ -41,7 +41,7 @@ void GM_MainMenu::RebuildMainMenu() {
     tibia.DelayedRemove();
     mainmenu.DelayedRemove();
 
-    if (skin.tmmloaded) {
+    if (skin->tmmloaded) {
 
         tibia.AddObject(&btnLogIn);
         tibia.AddObject(&btnOptions);
@@ -152,7 +152,7 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-    if (skin.tmmloaded) {
+    if (skin->tmmloaded) {
         bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
         city = NULL;
 
@@ -174,7 +174,7 @@ GM_MainMenu::GM_MainMenu() {
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing GLICT UI\n");
 
-    tibia.SetSkin(&skin.tmm);
+    tibia.SetSkin(&skin->tmm);
     tibia.SetWidth(118);
     tibia.SetHeight(170);
     tibia.SetBGColor(.4,.4,.4,1.);
@@ -429,6 +429,40 @@ GM_MainMenu::GM_MainMenu() {
     txtOptionsSkin.SetWidth(100);
     txtOptionsSkin.SetBGColor(.6,.6,.6,1.);
 
+
+
+
+	options.AddObject(&pnlOptionsSound);
+    pnlOptionsSound.SetPos(0, 120);
+    pnlOptionsSound.SetHeight(16);
+    pnlOptionsSound.SetWidth(100);
+	pnlOptionsSound.SetCaption("Play sounds:");
+    pnlOptionsSound.SetBGActiveness(false);
+
+    options.AddObject(&btnOptionsSound);
+    btnOptionsSound.SetPos(100, 120);
+    btnOptionsSound.SetHeight(16);
+    btnOptionsSound.SetWidth(16);
+    btnOptionsSound.SetOnClick(GM_MainMenu_OptionsCheckbox);
+    btnOptionsSound.SetBGColor(.6,.6,.6,1.);
+
+	options.AddObject(&pnlOptionsMinimap);
+    pnlOptionsMinimap.SetPos(0, 140);
+    pnlOptionsMinimap.SetHeight(16);
+    pnlOptionsMinimap.SetWidth(100);
+	pnlOptionsMinimap.SetCaption("Minimap:");
+    pnlOptionsMinimap.SetBGActiveness(false);
+
+    options.AddObject(&btnOptionsMinimap);
+    btnOptionsMinimap.SetPos(100, 140);
+    btnOptionsMinimap.SetHeight(16);
+    btnOptionsMinimap.SetWidth(16);
+    btnOptionsMinimap.SetOnClick(GM_MainMenu_OptionsCheckbox);
+    btnOptionsMinimap.SetBGColor(.6,.6,.6,1.);
+
+
+
+
 	options.AddObject(&btnOptionsOk);
 	btnOptionsOk.SetPos(220 - 64 - 64 - 5, 200-16);
 	btnOptionsOk.SetCaption("Ok");
@@ -497,7 +531,7 @@ void GM_MainMenu::Render() {
 
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
-    if (skin.tmmloaded) {
+    if (skin->tmmloaded) {
 
 
         #ifdef WALLHACK
@@ -607,7 +641,7 @@ void GM_MainMenu::Render() {
 
 //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
     glEnable(GL_TEXTURE_2D);
-    if (!skin.nologo)  { // painting logo
+    if (!skin->nologo)  { // painting logo
 //        printf("....\n");
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -747,11 +781,9 @@ void GM_MainMenu::MouseClick (int button, int shift, int mousex, int mousey) {
 	pos.y = mousey;
 	desktop.TransformScreenCoords(&pos);
 	if (shift==WIN_PRESS) {
-	    printf("_\n");
 	    desktop.CastEvent(GLICT_MOUSEDOWN, &pos, 0);
 	}
 	if (shift==WIN_RELEASE) {
-	    printf("~\n");
 	    if (desktop.CastEvent(GLICT_MOUSEUP, &pos, 0))
 	        SoundPlay("sounds/mouse.wav");
 
@@ -1064,6 +1096,8 @@ void GM_MainMenu_Options(glictPos* pos, glictContainer *caller) {
     if (options.fullscreen) ((GM_MainMenu*)game)->btnOptionsFullscreen.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsFullscreen.SetCaption("");
 	if (options.intro) ((GM_MainMenu*)game)->btnOptionsIntro.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsIntro.SetCaption("");
 	if (options.os_cursor) ((GM_MainMenu*)game)->btnOptionsOSCursor.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsOSCursor.SetCaption("");
+	if (options.sound) ((GM_MainMenu*)game)->btnOptionsSound.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsSound.SetCaption("");
+	if (options.minimap) ((GM_MainMenu*)game)->btnOptionsMinimap.SetCaption("X"); else ((GM_MainMenu*)game)->btnOptionsMinimap.SetCaption("");
 
 	((GM_MainMenu*)game)->txtOptionsSkin.SetCaption(options.skin);
 }
@@ -1094,6 +1128,8 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
     options.fullscreen = ((GM_MainMenu*)game)->btnOptionsFullscreen.GetCaption() == "X";
 	options.intro = ((GM_MainMenu*)game)->btnOptionsIntro.GetCaption() == "X";
 	options.os_cursor = ((GM_MainMenu*)game)->btnOptionsOSCursor.GetCaption() == "X";
+	options.sound = ((GM_MainMenu*)game)->btnOptionsSound.GetCaption() == "X";
+	options.minimap = ((GM_MainMenu*)game)->btnOptionsMinimap.GetCaption() == "X";
 
 	win_SetMousePointer("DEFAULT");
 
@@ -1101,7 +1137,7 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
         options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
 
 #if 1
-        skin.Load(options.skin.c_str());
+        skin->Load(options.skin.c_str());
         ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->tibia);
         ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->mainmenu);
         ((GM_MainMenu*)game)->desktop.DelayedRemove();
@@ -1117,17 +1153,23 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
             ((GM_MainMenu*)game)->bg = NULL;
         }
 
-        if (skin.tmmloaded) {
+        if (skin->tmmloaded) {
             ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->tibia);
             ((GM_MainMenu*)game)->bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
         } else {
             ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->mainmenu);
-            ((GM_MainMenu*)game)->city = new Obj3ds("outcastcity.3ds");
+            ((GM_MainMenu*)game)->city = new Obj3ds("outcastcity.3DS");
             ((GM_MainMenu*)game)->flythrough.load("outcastcity.fly");
         }
         ((GM_MainMenu*)game)->RebuildMainMenu();
     }
 #endif
+
+	if (!options.sound) {
+		SoundSetMusic(NULL);
+	} else {
+		SoundSetMusic("music/logon.mp3");
+	}
 
 	((GM_MainMenu*)game)->ResizeWindow();
     options.Save();

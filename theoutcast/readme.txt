@@ -49,7 +49,7 @@ The crashes were pretty irritating, and since I've started using GNU/Linux and t
 
 So, I've decided to just stabilize the beast, and to make a release. It's taken quite a while to catch the little buggars, since they were everywhere around the code, and they were small (much smaller than the Bug monsters in Tibia :P), plus some time ago the faithful GDB has turned its back on me -- under GNU/Linux, it crashes!
 
-Ah nevermind -- let's just say that this should now be playable for a while. 
+Ah nevermind -- let's just say that this should now be playable for a while.
 
 Oh yea, I also added spiffy distance shot effects and sounds for 7.92 and 8.0 versions ... but that doesn't matter, right? :)
 
@@ -171,7 +171,6 @@ Please send The Outcast.rpt file to us.
 * You will have less than 3 FPS on Windows without your video card drivers. And no, you can't play Quake III either with high FPS if you don't have OpenGL drivers; id software likes OpenGL, too! Microsoft's GDI implementation, the one you have by default, is slow, don't use it! And Windows use it in case you don't have OpenGL drivers installed! (Hint: OpenGL drivers are included with your graphics card drivers.)
 * Sprite animations are not in sync
 * Logging out of the game and then attempting to log in fails
-* Blendframes sprites are drawn in wrong order
 
 * THIS THING SOMETIMES CRASHES. (Yes, I know, and you should know because this is an alpha version.) Still, send me the cause if you can figure it out.
 
@@ -216,10 +215,20 @@ n.b. Great admiration goes to mr. Hipp, author of SQLite, who is very modest and
 
 10. CHANGE HISTORY
 
+Changes since 0.4.2
+* Fixed a bug with OT sending 0xa2 before setting player creature id
+* Improved visual quality (in most places)
+* Fixed problem with creature 266
+* Corrected bug with saving settings
+* Fixed memory problems! It doesn't appear to crash anymore
+* Improved algorithm when moving, using or attacking
+* Focus now automatically switches back to console textbox
+* Added minimap! (Experimental! Beware, framerate may significantly drop! It may crash.)
+
 Changes since 0.4.1
 * Added 32-bit PNG support (beware -- no other color depth for PNG is supported!) However there's still no much use for this since extension .BMP is hardcoded in many places...
 * Gameplay has been pretty stabilized, though leaving game by ESC now causes crash sometimes
-* Added distance shots 
+* Added distance shots
 * Added sounds for magic effects and distance shots
 * An additional "protocol" which is not available in public release (it's gonna take a while for it to be released, and it's something interesting)
 

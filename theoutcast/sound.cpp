@@ -5,8 +5,9 @@
 #include <map>
 #include <string>
 #if defined(USESOUNDS) && defined(WIN32)
-	#include <fmod/fmod.h>
+	#include <FMOD/fmod.h>
 #endif
+#include "options.h"
 #include "sound.h"
 
 #define MUSICCHANNEL 0
@@ -46,6 +47,7 @@ bool SoundInit(char *errorbuf) {
 }
 
 bool SoundPlay(const char* filename) {
+	if (!options.sound) return false;
 #ifndef USESOUNDS
 	return false;
 #elif defined(WIN32)
@@ -58,7 +60,10 @@ bool SoundPlay(const char* filename) {
             FSOUND_Sample_Free(soundcache.begin()->second);
             soundcache.erase(soundcache.begin());
         }
-        s = FSOUND_Sample_Load(FSOUND_FREE, filename, 0, 0, 0);
+
+		s = FSOUND_Sample_Load(FSOUND_FREE, filename, 0, 0, 0);
+
+
         if (s)
             soundcache[filename] = s;
         else
@@ -71,6 +76,7 @@ bool SoundPlay(const char* filename) {
         FSOUND_PlaySound(FSOUND_FREE, s);
     }
 #else
+	if (!options.sound) return false;
     std::string command = std::string("/bin/sh -c \"play ") + filename + " 2> /dev/null\" & ";
     system(command.c_str());
 #endif
@@ -85,18 +91,20 @@ bool SoundSetMusic(const char* filename) {
 
 #ifndef USESOUNDS
 	return false;
-#elif defined(WIN32)
+#elif defined(WIN32) // windows music
 
     if (soundmusic) FSOUND_Stream_Close(soundmusic);
     if (!filename) return true;
-    soundmusic=FSOUND_Stream_Open(filename,FSOUND_LOOP_NORMAL, 0, 0);
-    if (!soundmusic) return false;
+    if (options.sound) {
+    	soundmusic=FSOUND_Stream_Open(filename,FSOUND_LOOP_NORMAL, 0, 0);
+		if (!soundmusic) return false;
 
-    //FSOUND_SetVolumeAbsolute(MUSICCHANNEL, 128);
-    FSOUND_Stream_SetLoopCount(soundmusic,INF);
-    FSOUND_Stream_Play (MUSICCHANNEL,soundmusic);
+		//FSOUND_SetVolumeAbsolute(MUSICCHANNEL, 128);
+		FSOUND_Stream_SetLoopCount(soundmusic,INF);
+		FSOUND_Stream_Play (MUSICCHANNEL,soundmusic);
+    }
     return true;
-#else
+#else // linux music
     return true;
 #endif
 }

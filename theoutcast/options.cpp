@@ -6,6 +6,8 @@ Options::Options() {
     fullscreen = 0;
 	intro = 1;
 	os_cursor = 0;
+	sound = 1;
+	minimap = 0;
 	skin = "default";
 }
 
@@ -20,7 +22,8 @@ void Options::Save() {
     dbSaveSetting("fullscreen", fullscreen ? "1" : "0");
 	dbSaveSetting("intro", intro ? "1" : "0");
 	dbSaveSetting("os_cursor", os_cursor ? "1" : "0");
-	dbSaveSetting("sounds", sounds ? "1" : "0");
+	dbSaveSetting("sound", sound ? "1" : "0");
+	dbSaveSetting("minimap", minimap ? "1" : "0");
 
 	// strings
 	dbSaveSetting("skin", skin.c_str());
@@ -42,6 +45,12 @@ void Options::Load() {
 
 	dbLoadSetting("os_cursor", tmp, 256, "0");
     if (tmp[0]=='1') os_cursor = true; else os_cursor = false;
+
+	dbLoadSetting("sound", tmp, 256, "1");
+    if (tmp[0]=='1') sound = true; else sound = false;
+
+	dbLoadSetting("minimap", tmp, 256, "0");
+    if (tmp[0]=='1') minimap = true; else minimap = false;
 
 	// strings
 	dbLoadSetting("skin", tmp, 256, "default");

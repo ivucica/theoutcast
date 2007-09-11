@@ -235,7 +235,7 @@
 				<Option object_output=".objsdebug_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd softwarerendererr" />
+				<Option parameters="sprplaygroundd softwarerenderer" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -245,7 +245,7 @@
 					<Add option="-DPOSIX_THREADS" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
-					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=2" />
 					<Add option="-DGMP" />
 					<Add option="-DTEXTURE_SPR" />
 					<Add option="-DDETECT_GLVERSION" />
@@ -270,7 +270,7 @@
 					<Add library="sqlite3" />
 					<Add library="gmp" />
 					<Add library="libpng" />
-					<Add directory="..\glict\" />
+					<Add directory="../glict/" />
 				</Linker>
 			</Target>
 			<Target title="debug_sdl_unix">
@@ -310,7 +310,7 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
-					<Add directory="..\glict\" />
+					<Add directory="../glict/" />
 				</Linker>
 			</Target>
 			<Target title="release_unix">
@@ -322,9 +322,8 @@
 				<Option parameters="sprplaygroundd softwarerendererr" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add option="-g3" />
+					<Add option="-g0" />
 					<Add option="-fexceptions" />
-					<Add option="-O0" />
 					<Add option="-DPOSIX_THREADS" />
 					<Add option="-DUSEENCRYPTION" />
 					<Add option="-DUSEASSERT" />
@@ -337,7 +336,6 @@
 					<Add option="-DOUTCAST_SKINS" />
 					<Add option="-DUSEGLUT" />
 					<Add option="-DUSESOUNDS" />
-					<Add option="-DINCLUDE_SP" />
 					<Add option="-DUSEEFFECTS" />
 				</Compiler>
 				<Linker>
@@ -350,13 +348,109 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
-					<Add directory="..\glict\" />
+					<Add directory="../glict/" />
+				</Linker>
+			</Target>
+			<Target title="release_mingw">
+				<Option platforms="Unix;" />
+				<Option output="The Outcast.exe" prefix_auto="0" extension_auto="0" />
+				<Option type="0" />
+				<Option compiler="mingw_gnu_gcc_compiler" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-fexceptions" />
+					<Add option="-DWIN32" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=0" />
+					<Add option="-DUSESOUNDS" />
+					<Add option="-DTFM" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
+					<Add option="-DUSEEFFECTS" />
+				</Compiler>
+				<Linker>
+					<Add option="-fexceptions" />
+					<Add option="-g3" />
+					<Add option='-Wl,-Map=&quot;The Outcast.map&quot;' />
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="GLICT" />
+					<Add library="glut32" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="fmod" />
+					<Add library="tfm" />
+				</Linker>
+			</Target>
+			<Target title="debug_mingw">
+				<Option platforms="Unix;" />
+				<Option output="The Outcast debug.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".objsdebug" />
+				<Option type="0" />
+				<Option compiler="mingw_gnu_gcc_compiler" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option="-O0" />
+					<Add option="-DWIN32" />
+					<Add option="-DUSEENCRYPTION" />
+					<Add option="-DUSEASSERT" />
+					<Add option="-DDEBUGCONSOLE" />
+					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
+					<Add option="-DUSESOUNDS" />
+					<Add option="-DTFM" />
+					<Add option="-DTEXTURE_SPR" />
+					<Add option="-DDETECT_GLVERSION" />
+					<Add option="-DTEXTURE_THREADS" />
+					<Add option="-DBMPFONT" />
+					<Add option="-DOUTCAST_SKINS" />
+					<Add option="-DUSEGLUT" />
+					<Add option="-DINCLUDE_SP" />
+					<Add option="-DINCLUDE_ME" />
+					<Add option="-DUSEEFFECTS" />
+				</Compiler>
+				<Linker>
+					<Add option="-g3" />
+					<Add option="-fexceptions" />
+					<Add option='-Wl,-Map=&quot;The Outcast debug.map&quot;' />
+					<Add library="glut32" />
+					<Add library="gdi32" />
+					<Add library="user32" />
+					<Add library="kernel32" />
+					<Add library="GLICT" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="winmm" />
+					<Add library="3ds" />
+					<Add library="sqlite3" />
+					<Add library="fmod" />
+					<Add library="tfm" />
 				</Linker>
 			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="All" targets="debug;release;release_lite;release_opt;debug_msvc;debug_unix;" />
 		</VirtualTargets>
+		<Compiler>
+			<Add option="-D_REENTRANT" />
+		</Compiler>
+		<Unit filename="LINUXREADME">
+			<Option target="debug_unix" />
+			<Option target="debug_sdl_unix" />
+			<Option target="release_unix" />
+		</Unit>
 		<Unit filename="assert.h" />
 		<Unit filename="bmpfont.cpp" />
 		<Unit filename="bmpfont.h" />
@@ -391,6 +485,8 @@
 			<Option target="release" />
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="flythrough.cpp" />
 		<Unit filename="flythrough.h" />
@@ -404,6 +500,8 @@
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
 			<Option target="release_unix" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="glutfont.h">
 			<Option target="debug" />
@@ -413,6 +511,8 @@
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
 			<Option target="release_unix" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="glutwin.cpp">
 			<Option target="debug" />
@@ -422,6 +522,8 @@
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
 			<Option target="release_unix" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="glutwin.h">
 			<Option target="debug" />
@@ -431,6 +533,8 @@
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
 			<Option target="release_unix" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="gm_charmgr.cpp" />
 		<Unit filename="gm_charmgr.h" />
@@ -484,6 +588,7 @@
 		<Unit filename="protocolme0.cpp">
 			<Option target="debug" />
 			<Option target="debug_unix" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="protocolme0.h">
 			<Option target="debug_unix" />
@@ -493,7 +598,7 @@
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
 			<Option target="debug_sdl_unix" />
-			<Option target="release_unix" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="protocolsp.h" />
 		<Unit filename="readme.txt" />
@@ -504,6 +609,8 @@
 			<Option target="release_lite" />
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="sdlwin.cpp">
 			<Option target="debug_sdl_unix" />
@@ -524,6 +631,7 @@
 			<Option target="debug_msvc" />
 			<Option target="debug_unix" />
 			<Option target="debug_sdl_unix" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="spcreature.h" />
 		<Unit filename="sprfmts.cpp" />
@@ -547,6 +655,8 @@
 			<Option target="release_lite" />
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Unit filename="winfont.h">
 			<Option target="debug" />
@@ -554,6 +664,8 @@
 			<Option target="release_lite" />
 			<Option target="release_opt" />
 			<Option target="debug_msvc" />
+			<Option target="release_mingw" />
+			<Option target="debug_mingw" />
 		</Unit>
 		<Extensions>
 			<code_completion />

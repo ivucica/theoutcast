@@ -1492,7 +1492,7 @@ int main (int argc, char **argv) {
     fclose(fi);
 
     if (argc >= 5) {
-        char query[256]={0};
+        char query[8000]={0};
         int line = 1;
         printf("\nNow patching with outcast patch queries file...\n");
         FILE *f = fopen(argv[4], "r");
@@ -1503,8 +1503,8 @@ int main (int argc, char **argv) {
         lastpercentage = -100;
         dbexec(fo, "begin transaction;", NULL, NULL, NULL);
         while (!feof(f)) {
-            fgets(query, 255, f);
-
+            fgets(query, 8000, f);
+            if (strlen(query)==0) break;
             show_progress(ftell(f), filesize(f));
             if (query[0] != '#' && query[0] != 13 && query[0] != 10) {
                 char *errmsg;
@@ -1513,6 +1513,8 @@ int main (int argc, char **argv) {
                 free(errmsg);
                 line ++;
             }
+            query[0] = 0;
+
         }
         dbexec(fo, "end transaction;", NULL, NULL, NULL);
         fclose(f);

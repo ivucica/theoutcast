@@ -106,20 +106,20 @@ void glut_PassiveMouse (int mousex, int mousey) {
 	ptry = mousey;
 }
 void glut_SetMousePointer(std::string texturefile) {
-	printf("1\n");
+
 	//ONThreadSafe(gmthreadsafe); // If turned on, crashes during startup on windows. prolly didnt initialize gmthreadsafe at that time yet
-	printf("2\n");
+
     if (mousepointer_object) {
         delete mousepointer_object;
         mousepointer_object = NULL;
     }
-    printf("3\n");
+
 	if (mousepointer) delete mousepointer;
-	printf("4\n");
+
 	if (texturefile=="DEFAULT") {
 		if (options.os_cursor) texturefile = "WINDOWS"; else texturefile = "mousepointer.bmp";
 	}
-	printf("5\n");
+
 	if (texturefile == "WINDOWS") {
 		glutSetCursor(GLUT_CURSOR_INHERIT );
 		mousepointer = NULL;
@@ -129,9 +129,9 @@ void glut_SetMousePointer(std::string texturefile) {
 		glutSetCursor(GLUT_CURSOR_NONE);
 		mousepointer = new Texture(texturefile);
 	}
-	printf("s\n");
+
 	//ONThreadUnsafe(gmthreadsafe);
-	printf("7\n");
+
 }
 void glut_SetMousePointer(Object *obj) {
 	//ONThreadSafe(gmthreadsafe);
@@ -229,10 +229,10 @@ void glut_Init(int *argc, char**argv) {
 
     glutInit(argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	//glutInitWindowSize (640, 480);
-	glutInitWindowSize (1024, 700);
+	glutInitWindowSize (640, 480);
+	//glutInitWindowSize (1024, 700);
 
-	glutInitWindowPosition (200, 100); //FIXME remove this
+	//glutInitWindowPosition (200, 100); //DONE (Khaos#5#) remove this
 
 }
 

@@ -84,8 +84,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_CharList(ONThreadFuncArgumentTy
 
 	CharList_Status(&menuclass->charlist, "Resolving server name to IP...");
 	hostent *he = gethostbyname(menuclass->txtLoginServer.GetCaption().c_str() );
-//	char convertedaddr[256]; // FIXME unused, remove me
-//	unsigned long addr; // FIXME unused, remove me
+
 	char** addrs;
 	if (he) {
 		addrs = (char**)he->h_addr_list;

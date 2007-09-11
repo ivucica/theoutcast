@@ -166,7 +166,8 @@ void Creature::RenderOverlay() {
         CauseAnimOffset(true);
 
     }
-    if (sprgfx->sli.unknown>1) glTranslatef(-(sprgfx->sli.width-1)*32, (sprgfx->sli.height-1)*32, 0);
+    if (sprgfx->sli.unknown>1) // FIXME (Khaos#3#) ==9414== Conditional jump or move depends on uninitialised value(s)
+		glTranslatef(-(sprgfx->sli.width-1)*32, (sprgfx->sli.height-1)*32, 0);
     glColor3f(.3, .3, .3);
     glBegin(GL_QUADS);
     glVertex2f(0 - 8, 32+11 + 8);

@@ -3,6 +3,7 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <iostream> // FIXME REMOVEME
 #include <sstream>
 #include "util.h"
 #include "texmgmt.h"
@@ -31,11 +32,11 @@ void NativeGUIError(const char* text, const char *title) {
 		MessageBox(HWND_DESKTOP, text, title, MB_ICONSTOP);
 	#else
 		std::string texts=text, titles=title;
-		str_replace(texts, std::string("("), std::string("\\("));
-		str_replace(texts, ")", "\\)");
+		str_replace(texts, "\\", "\\\\");
 		str_replace(texts, "\"", "\\\"");
+
 		std::stringstream cmd;
-		cmd << "xmessage -center \"" << title << "\n------------\n" << text << "\"";
+		cmd << "xmessage -title \"" << title << "\" -center \"" << texts << "\"";
 
 		system(cmd.str().c_str());
 	#endif

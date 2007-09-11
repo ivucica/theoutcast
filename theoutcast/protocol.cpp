@@ -60,8 +60,9 @@ Protocol::Protocol() {
 
     if (player) {
         delete player;
-        player = NULL;
+
     }
+    player = new Player(0);
     newgamemode = GM_GAMEWORLD;
 
 }
@@ -100,7 +101,7 @@ bool Protocol::GameworldLogin() {
 
     return false;
 }
-int lastpreviouspacket = 0; // FIXME remove me
+int lastpreviouspacket = 0; // FIXME (Khaos#5%) remove me
 bool Protocol::GameworldWork() {
     NetworkMessage nm;
 
@@ -332,8 +333,10 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 	#endif
     switch (packetid) {
         case 0x0A: // Creature ID
+			printf("Player: %p\n", player);
 
-            player = new Player(nm->GetU32());
+			player->SetCreatureID(nm->GetU32());
+            //player = new Player(nm->GetU32());
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Own creature ID: %d\n", player->GetCreatureID());
             return true;
         case 0x0B: // GM Actions
@@ -420,7 +423,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
 
-
+			gamemap.RebuildMinimap();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "End move north\n");
 
             return true;
@@ -435,6 +438,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
 
+			gamemap.RebuildMinimap();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move east\n");
 
             return true;
@@ -448,6 +452,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
 
+			gamemap.RebuildMinimap();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move south\n");
 
             return true;
@@ -462,7 +467,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
             player->FindMinZ();
 
-
+			gamemap.RebuildMinimap();
             DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL,"End move west\n");
             return true;
         case 0x69: {// Tile Update
@@ -475,13 +480,12 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             	Tile *t = gamemap.GetTile(&pos);
             	t->Empty();
             	nm->GetU16();
-            	DEBUGPRINT(DEBUGPRINT_WARNING, DEBUGPRINT_LEVEL_DEBUGGING, "CLEARTILE.\n");
             } else {
 				ParseTileDescription(nm, pos.x,pos.y,pos.z);
 				nm->GetU16();
             }
             if (options.maptrack) dbExecPrintf(dbUser, NULL, NULL, NULL, "end transaction;");
-
+			gamemap.RebuildMinimap();
             return true;
         }
         case 0x6A: {// Add Item
@@ -495,7 +499,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             t = ParseThingDescription(nm);
             tile->Insert(t, false);
 
-
+			gamemap.RebuildMinimap();
             return true;
         }
         case 0x6B: {// Replace Item
@@ -515,6 +519,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             t->Replace(stackpos, ParseThingDescription(nm));
 
+			gamemap.RebuildMinimap();
             return true;
         }
         case 0x6C: {// Remove Item
@@ -528,7 +533,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             //if (tile->GetStackPos(stackpos) == player->GetCreature()) player->Die();
             tile->Remove(stackpos);
 
-
+			gamemap.RebuildMinimap();
 
             return true;
         }
@@ -547,7 +552,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Received stackpos\n");
 
 
-            printf("Getting tile %d %d %d\n", src.x, src.y, src.z);
+//            printf("Getting tile %d %d %d\n", src.x, src.y, src.z);
             tile = gamemap.GetTile(&src);
             thing = tile->GetStackPos(stackpos);
 
@@ -588,13 +593,15 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
 
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Updated all others\n");
 
+			gamemap.RebuildMinimap();
+
             DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"Unlocked map\n");
 
 
             return true;
         }
         case 0x6E: {// Container Open
-            // FIXME (Khaos#1#) Sometimes, when this packet happens the thing hangs -- probably a thread issue
+            // DONE (Khaos#1#) Sometimes, when this packet happens the thing hangs -- probably a thread issue
             std::string title;
             unsigned char containerid;
             unsigned short icon;
@@ -859,7 +866,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
             nm->GetU8(); //lightcolor
             return true;
         case 0x8E: {// Set Creature Outfit
-        // FIXME abstract this through "getcreaturelook" or somethinglikehtat
+        // DONE abstract this through "getcreaturelook" or somethinglikehtat
             Creature *cr = GetCreatureByID(nm);//creature id
 
             creaturelook_t crl;
@@ -1129,7 +1136,7 @@ bool Protocol::ParseGameworld(NetworkMessage *nm, unsigned char packetid) {
         case 0xC8: {// Outfit List
             creaturelook_t crl;
 
-            if (this->protocolversion < 790) { // FIXME this is probably incorrect version of protocol where this first appeared. check!
+            if (this->protocolversion < 790) { // FIXME (Khaos#4#) this is probably incorrect version of protocol where this first appeared. check!
 
 	            Creature *c = GetCreatureByID(nm); // creature id
 
@@ -1244,7 +1251,8 @@ void Protocol::ParseTileDescription(NetworkMessage *nm, int x, int y, int z) {
             //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Reached end of tile\n");
             static bool locked;
             //if (locked = gamemap.locked) gamemap.Unlock();
-            //t->StoreToDatabase();
+            t->StoreToDatabase();
+	    t->StoreToMinimap();
             //if (locked) gamemap.Lock();
             return;
         } else {
@@ -1552,7 +1560,7 @@ void Protocol::Attack(unsigned long creatureid) {
 
 
     nm.AddU8(0xA1);
-    nm.AddU32(gamemap.SetAttackedCreature(creatureid)); // FIXME abstract this with AddCreatureID() or sth
+    nm.AddU32(gamemap.SetAttackedCreature(creatureid));
 
     if (protocolversion >= 770)
         nm.XTEAEncrypt(key);
@@ -1585,7 +1593,7 @@ void Protocol::Use(position_t *pos, unsigned char stackpos) {
 
         nm.AddU16(th->GetType() );
 
-        nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
+        AddStackPos(&nm,stackpos);  // DONE abstract with AddStackPos
         nm.AddU8(player->GetFreeContainer()); // specifies which container to replace
     } else {
         if (!(pos->y & 0x40)) { // inventory
@@ -1595,7 +1603,7 @@ void Protocol::Use(position_t *pos, unsigned char stackpos) {
             }
 
             nm.AddU16(player->inventory[pos->y - 1]->GetType() );
-            nm.AddU8(stackpos);  // FIXME abstract with AddStackPos
+            AddStackPos(&nm, stackpos);  // DONE abstract with AddStackPos
             nm.AddU8(player->GetFreeContainer()); // specifies which container to replace
         } else {
             Container *c = player->GetContainer(pos->y & 0x0F);
@@ -1649,7 +1657,7 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
 
         nm.AddU16(th->GetType() );
 
-        nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+        AddStackPos(&nm, stackpos1);  // DONE abstract with AddStackPos
 
     } else {
         if (!(pos1->y & 0x40)) { // inventory
@@ -1658,8 +1666,8 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
                 return;
             }
 
-            nm.AddU16(player->inventory[pos1->y - 1]->GetType() );
-            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+            nm.AddU16( player->inventory[pos1->y - 1]->GetType() );
+            AddStackPos(&nm,stackpos1);  // DONE abstract with AddStackPos
         } else {
             Container *c = player->GetContainer(pos1->y & 0x0F);
             if (!c) {
@@ -1672,7 +1680,7 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
                 return;
             }
             nm.AddU16(t->GetType());
-            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+            AddStackPos(&nm, stackpos1);  // DONE abstract with AddStackPos
         }
     }
 
@@ -1695,7 +1703,7 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
 
         nm.AddU16(th->GetType() );
 
-        nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
+        AddStackPos(&nm, stackpos2);  // DONE abstract with AddStackPos
 
 
 
@@ -1707,7 +1715,7 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
             }
 
             nm.AddU16(player->inventory[pos2->y - 1]->GetType() );
-            nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
+            AddStackPos(&nm, stackpos2);  // DONE abstract with AddStackPos
         } else {
             Container *c = player->GetContainer(pos2->y & 0x0F);
             if (!c) {
@@ -1720,7 +1728,7 @@ void Protocol::Use(position_t *pos1, unsigned char stackpos1, position_t *pos2, 
                 return;
             }
             nm.AddU16(t->GetType());
-            nm.AddU8(stackpos2);  // FIXME abstract with AddStackPos
+            AddStackPos(&nm, stackpos2);  // DONE abstract with AddStackPos
         }
     }
 
@@ -1763,7 +1771,7 @@ void Protocol::Move(position_t *pos1, unsigned char stackpos1, position_t *pos2,
 
         nm.AddU16(th->GetType() );
 
-        nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+        AddStackPos(&nm, stackpos1);  // DONE abstract with AddStackPos
 
     } else {
         if (!(pos1->y & 0x40)) { // inventory
@@ -1773,7 +1781,7 @@ void Protocol::Move(position_t *pos1, unsigned char stackpos1, position_t *pos2,
             }
 
             nm.AddU16(player->inventory[pos1->y - 1]->GetType() );
-            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+            AddStackPos(&nm, stackpos1);  // DONE abstract with AddStackPos
         } else {
             Container *c = player->GetContainer(pos1->y & 0x0F);
             if (!c) {
@@ -1786,7 +1794,7 @@ void Protocol::Move(position_t *pos1, unsigned char stackpos1, position_t *pos2,
                 return;
             }
             nm.AddU16(t->GetType());
-            nm.AddU8(stackpos1);  // FIXME abstract with AddStackPos
+            AddStackPos(&nm, stackpos1);  // DONE abstract with AddStackPos
         }
     }
 
@@ -1903,11 +1911,14 @@ void Protocol::OCMCharlist() {
     nm.Dump(s);
     ONThreadUnsafe(threadsafe);
 }
-
+////////////////////////////////////////////
 void Protocol::AddPosition(NetworkMessage *nm, const position_t *pos) {
     nm->AddU16(pos->x);
     nm->AddU16(pos->y);
     nm->AddU8(pos->z);
+}
+void Protocol::AddStackPos(NetworkMessage *nm, int stackpos) {
+	nm->AddU8(stackpos);
 }
 unsigned short Protocol::GetProtocolVersion () {
     return protocolversion;

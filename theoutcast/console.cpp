@@ -1,4 +1,3 @@
-// REWRITE THIS FILE FROM SCRATCH.
 
 
 #include <string>
@@ -16,15 +15,12 @@ Console::Console() {
     ONInitThreadSafe(threadsafe);
 }
 Console::~Console() {
-	for (consolecontainer::iterator it=con.begin(); it!=con.end(); it++) {
-		delete *it;
-	}
 
 
     ONDeinitThreadSafe(threadsafe);
 }
 const std::string Console::operator[](int id) {
-    return con[id]->text;
+    return con[id].text;
 }
 void Console::insert(std::string txt) {
     this->insert(txt, CONWHITE);
@@ -41,21 +37,21 @@ void Console::insert(std::string txt, consolecolors_t col, bool debug) {
 //    DEBUGPRINT("Inserting new console entry, color %d\n", col);
 
     if (debug && DEBUGLEVEL_BUILDTIME >= 0 || !debug) {
-        consoleentry* x = new consoleentry;
-        x->text = (char*)malloc(txt.size() + 1);
-        strcpy(x->text, txt.c_str());
-        if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
-        if (x->text[0] == 10) memmove(x->text, x->text+1, strlen(x->text)-1);
-        if (x->text[0] == 13) memmove(x->text, x->text+1, strlen(x->text)-1);
-        if ((x->text[strlen(x->text)-2]==13 && x->text[strlen(x->text)-1]==10) || (
-             x->text[strlen(x->text)-2]==10 && x->text[strlen(x->text)-1]==13))
-            x->text[strlen(x->text)-2] = 0;
+        consoleentry x;
 
-        if (x->text[strlen(x->text)-1]==13 || x->text[strlen(x->text)-1]==10)
-            x->text[strlen(x->text)-1] = 0;
-        x->color = col;
+        x.text = txt.c_str();
+        if (x.text[0] == 13) x.text = x.text.substr(1, x.text.size()-1);
+        if (x.text[0] == 10) x.text = x.text.substr(1, x.text.size()-1);
+        if (x.text[0] == 13) x.text = x.text.substr(1, x.text.size()-1);
+        if ((x.text[x.text.size()-2]==13 && x.text[x.text.size()-1]==10) || (
+             x.text[x.text.size()-2]==10 && x.text[x.text.size()-1]==13))
+            x.text = x.text.substr(0, x.text.size()-2);
 
-        //DEBUGPRINT("Adding %s to console\n", x->text);
+        if (x.text[x.text.size()-1]==13 || x.text[x.text.size()-1]==10)
+            x.text = x.text.substr(0, x.text.size()-1);
+        x.color = col;
+
+
         ONThreadSafe(threadsafe);
         con.insert(con.begin(), x);
         ONThreadUnsafe(threadsafe);
@@ -64,10 +60,10 @@ void Console::insert(std::string txt, consolecolors_t col, bool debug) {
 }
 void Console::clear() {
     ONThreadSafe(threadsafe);
-    consolecontainer::iterator it;
+    std::vector<consoleentry>::iterator it;
     for (it=con.begin(); it!=con.end();) {
 
-        free((*it)->text);
+
 		con.erase(it);
     }
     ONThreadUnsafe(threadsafe);
@@ -80,35 +76,25 @@ void Console::draw(char count) {
     glGetFloatv(GL_CURRENT_COLOR, oldcolor);
 
     glColor3f(1.0f,1.0f,1.0f);
-    //DEBUGPRINT("Beginning console render...\n");
     ONThreadSafe(threadsafe);
 
-    for (consolecontainer::iterator it=con.begin(); it!=con.end() && p<count; it++) {
-        //p++;
-        //printf("Line %d / %d\n", p, count);
-        //DEBUGPRINT("%s\n", (*it)->text);
+    for (std::vector<consoleentry>::iterator it=con.begin(); it!=con.end() && p<count; it++) {
 
 
-        glColor4fv (&consolecolors[(*it) ->color * 4]);
+        glColor4fv (&consolecolors[it->color * 4]);
 
 
-        if ((*it)->text) {
-            p += glictFontNumberOfLines((*it)->text);
+            p += glictFontNumberOfLines(it->text.c_str());
 
-            //glPushMatrix();
             glDisable(GL_SCISSOR_TEST);
             glDisable(GL_CULL_FACE );
             glRotatef(180,1,0,0);
-            glictFontRender(((*it) ->text), "system", 0, -p*12 );
-            //glTranslatef(-glictFontSize((*it)->text, "system"), 0, 0);
+            glictFontRender(it->text.c_str(), "system", 0, -p*12 );
             glRotatef(180,1,0,0);
             glEnable(GL_SCISSOR_TEST);
 			glEnable(GL_CULL_FACE );
 
-            //glPopMatrix();
 
-
-        }
 
     }
     glColor4fv(oldcolor);

@@ -9,6 +9,7 @@
 #include "creatures.h"
 #include "effects.h"
 #include "distances.h"
+#include "assert.h"
 
 #include "objspr.h"
 #include "sprfmts.h"
@@ -20,7 +21,7 @@ extern float ItemAnimationPhase;
 extern unsigned int ItemSPRAnimationFrame;
 
 static bool divtest;
-static unsigned int counter=167;//102;
+static unsigned int counter=0;//102;
 static bool creaturetest;
 static bool distancetest;
 static bool effecttest;
@@ -59,10 +60,13 @@ GM_SPRPlayground::GM_SPRPlayground() {
     effecttest = false;
 
 
+
+
+
     // default test
     #if 1
     delete g;
-    g = new ObjSpr(counter, 0, PROTO);
+    g = new ObjSpr(counter=167, 0, PROTO);
     #endif
 
 
@@ -101,21 +105,28 @@ GM_SPRPlayground::GM_SPRPlayground() {
     // creature, without suit (human, oldstyle)
     #if 0
     delete g;
-    g = new ObjSpr(127, 1, PROTO);
+    g = new ObjSpr(counter = 127, 1, PROTO);
     creaturetest = true;
     #endif
 
     // creature, without suit 2 (demon)
     #if 0
     delete g;
-    g = new ObjSpr(35, 1, PROTO);
+    g = new ObjSpr(counter = 35, 1, PROTO);
     creaturetest = true;
     #endif
 
     // creature, with suit (human paladin)
     #if 0
     delete g;
-    g = new ObjSpr(128, PROTO, 50, 90, 110, 120);
+    g = new ObjSpr(counter = 128, PROTO, 50, 90, 110, 120);
+    creaturetest = true;
+    #endif
+
+    // creature, over 255
+    #if 1
+    delete g;
+    g = new ObjSpr(counter = 257, PROTO, 50, 90, 110, 120);
     creaturetest = true;
     #endif
 
@@ -135,7 +146,7 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
     // effect
-    #if 1
+    #if 0
     delete g;
     g = new ObjSpr(2, 2, PROTO);
     effecttest = true;
@@ -151,10 +162,16 @@ GM_SPRPlayground::GM_SPRPlayground() {
     #endif
 
 
+
     if (splashtest)
         counter = 0;
-    if (creaturetest || distancetest || effecttest)
+	else
+    if ((creaturetest || distancetest || effecttest) && counter==0)
         counter = 1;
+	else if (counter==0)
+		counter = 167;
+
+
 
     if (!g) {
         printf("No test chosen. Aborting.\n");
@@ -300,6 +317,7 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
                 delete bigarray[i];
                 bigarray[i]=NULL;
                 TextureReportRemaining();
+                ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
             }
             console.insert("Unloaded bigarray", CONBLUE);
             break;
@@ -330,7 +348,7 @@ void GM_SPRPlayground::KeyPress(unsigned char key, int x, int y) {
 
             for (int i = 0; i < BIGARRAYSIZE; i++) {
 				printf("Loading objbigarray -- %d\n", i);
-				objbigarray[i] = new ObjSpr(i+100, 0, PROTO);
+				objbigarray[i] = new ObjSpr(i+300, 0, PROTO);
 				objbigarray[i]->Render();
             }
             console.insert("Loaded object bigarray\n", CONBLUE);
@@ -424,7 +442,7 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
                 sprintf(tmp, "%d", counter);
                 console.insert(tmp, CONORANGE);
 
-                delete g;
+                //delete g;
 
 
                 g = new ObjSpr(counter, PROTO, 50, 90, 110, 120);
@@ -439,7 +457,7 @@ void GM_SPRPlayground::SpecKeyPress(int key, int x, int y ) {
                 sprintf(tmp, "%d", counter);
                 console.insert(tmp, CONORANGE);
 
-                delete g;
+                //delete g;
                 g = new ObjSpr(counter, PROTO, 50, 90, 110, 120);
                 g->SetDirection(SOUTH);
 

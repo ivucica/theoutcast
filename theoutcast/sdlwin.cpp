@@ -72,10 +72,12 @@ void sdlw_SetMousePointer(std::string texturefile) {
 
 	if (texturefile == "WINDOWS") {
 //		glutSetCursor(GLUT_CURSOR_INHERIT );
+		SDL_ShowCursor(SDL_ENABLE);
 		mousepointer = NULL;
 	}
 	else {
 //		glutSetCursor(GLUT_CURSOR_NONE);
+		SDL_ShowCursor(SDL_DISABLE);
 		mousepointer = new Texture(texturefile);
 	}
 }

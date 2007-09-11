@@ -3,6 +3,7 @@
 #include "types.h"
 #include "windowing.h"
 #include "debugprint.h"
+#include "util.h"
 int distances_n;
 distance_t **distances=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
@@ -107,7 +108,7 @@ void DistancesLoad_NoUI(unsigned int protocolversion) {
 
     if (!distances_n) {
         //glutHideWindow();
-        //MessageBox(HWND_DESKTOP, "There was an error in reading distances database.\nIt appears that current protocol has no distances in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        NativeGUIError("There was an error in reading distances database.\nIt appears that current protocol has no distances in database.\nPlease reinstall!", "The Outcast - Fatal Error");
         exit(1);
     }
     distances = (distance_t**)malloc(sizeof(distance_t*)*(distances_n+1));
@@ -121,10 +122,10 @@ void DistancesLoad_NoUI(unsigned int protocolversion) {
 }
 
 void DistancesUnload() {
-    for (int i=0;i<distances_n;i++) {
+    /*for (int i=0;i<distances_n;i++) {
         DistanceClear(*(distances + i));
         delete *(distances + i);
-    }
+    }*/
     free(distances);
     distances = NULL;
 }

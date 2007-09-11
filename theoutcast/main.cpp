@@ -9,10 +9,12 @@
 #include <GLICT/globals.h>
 
 #ifdef WIN32
-    #include <GL/GRemdeyExtensions.h>
-    PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
-    HINSTANCE glinstance;
-    HMODULE glmodule;
+	#ifdef USEGREMEDY
+		#include <GL/GRemdeyExtensions.h>
+		PFNGLSTRINGMARKERGREMEDYPROC glStringMarkerGREMEDY;
+		HINSTANCE glinstance;
+		HMODULE glmodule;
+	#endif
 #endif
 
 #include "gamemode.h"
@@ -109,10 +111,12 @@ void GLInit() {
 	glictGlobals.clippingMode = GLICT_SCISSORTEST;
 
  #ifdef WIN32
-	glinstance = LoadLibrary("opengl32.dll");
-	glmodule = GetModuleHandle("opengl32.dll");
-	glStringMarkerGREMEDY = (PFNGLSTRINGMARKERGREMEDYPROC) GetProcAddress(glmodule, "glStringMarkerGREMEDY");
-	glictGlobals.debugCallback = (GLICTDEBUGCALLBACKPROC)DEBUGMARKER;
+	#ifdef USEGREMEDY
+		glinstance = LoadLibrary("opengl32.dll");
+		glmodule = GetModuleHandle("opengl32.dll");
+		glStringMarkerGREMEDY = (PFNGLSTRINGMARKERGREMEDYPROC) GetProcAddress(glmodule, "glStringMarkerGREMEDY");
+		glictGlobals.debugCallback = (GLICTDEBUGCALLBACKPROC)DEBUGMARKER;
+	#endif
 #endif
 
 
@@ -162,11 +166,20 @@ void NetInit() {
 
 void OnExit(int exitcondition, void* arg) {
     GameDeinit();
+	delete skin;
+	delete game;
+
+    printf("Remaining textures: \n");
+    TextureReportRemaining();
+    printf("Expunging remaining textures: \n");
+    TextureExpungeRemaining();
+
+    printf("GAME DEINIT SUCCESSFUL!\n");
 }
 void AtExit() {
     OnExit(0, NULL);
 }
-
+#include <math.h> // remove me
 int main(int argc, char** argv) {
 
 
@@ -182,6 +195,10 @@ if(AllocConsole())
 }
 #endif
 
+
+
+
+	//TextureIntegrityTest();
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "THE OUTCAST 0.4\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "===============\n");
@@ -222,7 +239,8 @@ if(AllocConsole())
 
 	if (!sprplayground) {
 	    DEBUGPRINT(DEBUGPRINT_LEVEL_USEFUL, DEBUGPRINT_NORMAL, "Loading skin\n");
-        skin.Load(options.skin.c_str());
+	    skin = new Skin;
+        skin->Load(options.skin.c_str());
 	}
 
 

@@ -16,6 +16,7 @@ class Player {
         ~Player();
 
         unsigned long   GetCreatureID();
+        void            SetCreatureID(unsigned long crid);
         Creature*       GetCreature();
         void            GetPos(position_t *p);
         position_t&     GetPos();

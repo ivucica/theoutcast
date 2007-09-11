@@ -28,7 +28,7 @@ void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
 
 ProtocolSP::ProtocolSP() {
-    protocolversion = 792; // singleplayer will always load latest supported SPR version
+    protocolversion = 800; // singleplayer will always load latest supported SPR version
     fingerprints[FINGERPRINT_TIBIADAT] = 0x459E7B73;
     fingerprints[FINGERPRINT_TIBIASPR] = 0x45880FE8;
     fingerprints[FINGERPRINT_TIBIAPIC] = 0x45670923;
@@ -43,6 +43,8 @@ ProtocolSP::ProtocolSP() {
     spcreatures.insert(spcreatures.end(), SPCreature("Aurora", 100, 100, position_t(37, 34, 7), creaturelook_t(58, 0, 0, 0, 0, 0, 0)));
     spcreatures.insert(spcreatures.end(), SPCreature("Gruumsh", 100, 100, position_t(22, 28, 7), creaturelook_t(55, 0, 0, 0, 0, 0, 0)));
     spcreatures.insert(spcreatures.end(), SPCreature("Johnny", 25, 100, position_t(25, 27, 7), creaturelook_t(35, 0, 0, 0, 0, 0, 0)));
+
+
 }
 
 ProtocolSP::~ProtocolSP() {
@@ -259,7 +261,7 @@ bool ProtocolSP::GameworldLogin () {
 						cl.feet = 80;
 						cl.addons = 0;
 						c->SetCreatureID(1);
-						c->SetType(128, &cl);
+						c->SetType(265, &cl);
 						printf("manyak\n");
 						c->SetName("Noob");
 						printf("sretche\n");
@@ -307,7 +309,7 @@ bool ProtocolSP::GameworldLogin () {
 		CreaturesUnload();
 		ItemsUnload();
 		dontloadspr = false;
-		delete player; player = NULL;
+//		delete player; player = NULL;
         while(tilesremaining) {
 
             nm.AddU8(tilesremaining > 255 ? 255 : tilesremaining);

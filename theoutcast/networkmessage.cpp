@@ -380,7 +380,7 @@ void NetworkMessage::RSAEncrypt() {
 void NetworkMessage::XTEADecrypt(unsigned long* m_key) {
 #ifdef USEENCRYPTION
 
-printf("DEKRIPT.\n");
+
   unsigned char *key = (unsigned char*)m_key;
   unsigned long length = GetSize();
   unsigned long delta = 0x9e3779b9;                   /* a key schedule constant */
@@ -398,7 +398,7 @@ printf("DEKRIPT.\n");
 
   while (n < length)
   {
-	printf("%d < %d\n", n, length);
+
     sum = 0xC6EF3720;
     unsigned long v0 = *((unsigned long*)(currentposition+n));
     unsigned long v1 = *((unsigned long*)(currentposition+n+4));

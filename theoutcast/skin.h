@@ -30,6 +30,6 @@ class Skin {
 
 
 };
-extern Skin skin;
+extern Skin *skin;
 
 #endif

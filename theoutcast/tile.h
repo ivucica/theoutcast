@@ -47,9 +47,10 @@ class Tile {
 
         void ShowContents();
         void StoreToDatabase();
+	void StoreToMinimap();
 
-		void DelayedRemove(Thing* t);
-		void CommitDelayedRemove();
+	void DelayedRemove(Thing* t);
+	void CommitDelayedRemove();
     private:
 
 

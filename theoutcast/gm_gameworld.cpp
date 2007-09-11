@@ -2,8 +2,6 @@
     #include <stdlib.h> // doesnt like exit() defined elsewhere.
 #endif
 
-
-
 #include <GL/glut.h>
 #include <GLICT/fonts.h>
 #include <GLICT/globals.h>
@@ -25,6 +23,9 @@
 #include "defines.h" // min and max
 #include "skin.h"
 #include "types.h"
+#include "effects.h"
+#include "distances.h"
+#include "options.h"
 
 #define VISIBLEW 15 // 14
 #define VISIBLEH 11 // 10
@@ -47,15 +48,17 @@ Texture* texSkull;
 ONThreadFuncReturnType ONThreadFuncPrefix GM_Gameworld_Thread(ONThreadFuncArgumentType menuclass_void) {
 	printf("GM_Gameworld_Thread\n");
     while (1) { // while we're in gameworld game mode // FIXME -- it doesnt check for that
-        if (!protocol->GameworldWork()) break;
+        if (!protocol || !protocol->GameworldWork()) break;
         //if (!(gamemode == GM_GAMEWORLD)) break;
     }
-    printf("Interruption\n");
-    protocol->Close();
+
+    if (protocol)
+		protocol->Close();
     if (gamemode == GM_GAMEWORLD)
         console.insert("Connection interrupted.");
-    else
-        MessageBox(0, "Connection interrupted.", 0, 0);
+    /*else
+		NativeGUIError("Connection interrupted.", "Odd");*/
+        //MessageBox(0, "Connection interrupted.", 0, 0);
     delete protocol;
     protocol = NULL;
 
@@ -211,6 +214,8 @@ GM_Gameworld::GM_Gameworld() {
 
     UpdateStats();
 
+    txtConMessage.Focus(NULL);
+
     //glDisable(GL_CULL_FACE);
     ONNewThread(GM_Gameworld_Thread, NULL);
 
@@ -223,8 +228,18 @@ GM_Gameworld::GM_Gameworld() {
 GM_Gameworld::~GM_Gameworld() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destructing gameworld\n");
     gamemap.Lock();
+    if (protocol) {
+    	protocol->Close();
+		delete protocol;
+		protocol = NULL;
+    }
+
+	gamemap.Clear();
+
     ItemsUnload();
     CreaturesUnload();
+    EffectsUnload();
+	DistancesUnload();
     SPRUnloader();
 
     delete texSkull;
@@ -240,19 +255,6 @@ void GM_Gameworld::Render() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, 640, 0, 480, -100, 100);
-
-
-
-//    glColor4f(1., 1., 1., 1.);
-    //console.draw(10);
-
-    /*glPushMatrix();
-    glTranslatef(216, 216, 0);
-    position_t p = {0,0,0};
-    g->Render(&p);
-    g->AnimationAdvance(25./fps);
-    glPopMatrix();
-*/
 
 
 
@@ -274,7 +276,7 @@ void GM_Gameworld::Render() {
 	//desktop.RememberTransformations();
 	ONThreadSafe(desktopthreadsafe);
     glEnable(GL_SCISSOR_TEST);
-	skin.AssureLoadedness();
+	skin->AssureLoadedness();
 	desktop.Paint();
 	containerdesktop.Paint();
 	glDisable(GL_SCISSOR_TEST);
@@ -422,7 +424,7 @@ void PaintMap() {
 							else
 								glColor4f(1., 1., 1., 1.);
 
-							if (t=gamemap.GetTile(&p))
+							if ((t=gamemap.GetTile(&p)))
 									t->Render(0);
 									//t->Render(layer);
 
@@ -468,6 +470,26 @@ void PaintMap() {
 
 
     glPopMatrix();
+
+
+	if (options.minimap) {
+		glBindTexture(GL_TEXTURE_2D, gamemap.GetMinimapTexture());
+
+		glColor4f(1,1,1,1);
+		glEnable(GL_TEXTURE_2D);
+		//glDisable(GL_CULL_FACE);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0,0);
+		glVertex2f(100,200);
+		glTexCoord2f(0,1);
+		glVertex2f(100,100);
+		glTexCoord2f(1,1);
+		glVertex2f(200,100);
+		glTexCoord2f(1,0);
+		glVertex2f(200,200);
+		glEnd();
+	}
+
     //printf("%d\n", player->GetMinZ());
     gamemap.Unlock();
 }
@@ -514,6 +536,9 @@ void GM_Gameworld::MouseClick (int button, int shift, int mousex, int mousey) {
         if (!containerdesktop.CastEvent(GLICT_MOUSEUP, &pos, 0))
             desktop.CastEvent(GLICT_MOUSEUP, &pos, 0);
 	}
+
+	if (shift == WIN_RELEASE)
+		txtConMessage.Focus(NULL);
 
 }
 
@@ -654,7 +679,7 @@ void GM_Gameworld_ConsoleOnPaint(glictRect *real, glictRect *clipped, glictConta
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-	skin.AssureLoadedness();
+	skin->AssureLoadedness();
 }
 void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 
@@ -693,7 +718,7 @@ void GM_Gameworld_WorldOnPaint(glictRect *real, glictRect *clipped, glictContain
     glPopMatrix();
 
     glViewport(0,0,(int)glictGlobals.w,(int)glictGlobals.h);
-    skin.AssureLoadedness();
+    skin->AssureLoadedness();
 
 }
 
@@ -702,9 +727,17 @@ void GM_Gameworld_ConSendOnClick (glictPos* pos, glictContainer* caller) {
     if (entry[0] == '/') { // it's a command
         if (entry=="/logout") {
             protocol->Logout();
+            ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
             return;
         }
-        //console.insert("Only '/logout' command supported so far. Rela", CONRED);
+		if (entry=="/minimap") {
+            options.minimap = !options.minimap;
+            options.Save();
+            console.insert("Toggled minimap.", CONLTBLUE);
+            ((GM_Gameworld*)game)->txtConMessage.SetCaption("");
+            return;
+        }
+        //console.insert("Only '/logout' command supported so far. ", CONRED);
         //((GM_Gameworld*)game)->txtConMessage.SetCaption("");
         //return;
     }
@@ -781,6 +814,198 @@ void GM_Gameworld_WorldOnMouseUp (glictPos* pos, glictContainer* caller) {
     GM_Gameworld_ClickExec(&pos2, GLICT_MOUSEUP);
 }
 
+
+#if DEBUGLEVEL_BUILDTIME>0
+static bool __internal_BeginDraggedAction (position_t*pos) {
+	Tile *t = (pos->x != 0xFFFF ? gamemap.GetTile(pos) : 0);
+	Thing *th;
+
+
+
+
+
+	char a [255];
+	sprintf(a, "Source %d %d %d\n", pos->x, pos->y, pos->z);
+	console.insert(a);
+
+
+	if (pos->x!=0xFFFF)
+		th = t->GetStackPos(t->GetTopUsableStackpos());
+	else {
+		if (!(pos->y & 0x40))
+			th = player->inventory[pos->y-1];
+		else {
+			Container *c = player->GetContainer(pos->y & 0x0F);
+			if (!c)
+				return false;
+			th = c->GetItem(pos->z);
+		}
+	}
+	if (!th)
+		return false;
+
+	if (dynamic_cast<Creature*>(th)) {
+		ObjSpr *s;
+		if (th->GetType() == 0)
+			s = new ObjSpr(th->GetLook().extendedlook, 0);
+		else
+			s = new ObjSpr(th->GetType() , th->GetLook().head,th->GetLook().body,th->GetLook().legs,th->GetLook().feet );
+		s->SetDirection(th->GetDirection());
+		win_SetMousePointer(s);
+	} else
+		win_SetMousePointer(new ObjSpr(th->GetType(),0));
+
+	return true;
+
+}
+void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
+	static int modifiers;
+	GM_Gameworld *gw = (GM_Gameworld*)game;
+
+	modifiers = win_GetModifiers();
+	if (!protocol)
+		return;
+
+	if (evttype == GLICT_MOUSEDOWN) {
+		if (modifiers == 0 && gw->mouseaction == GM_Gameworld::MA_NONE) {
+			if (__internal_BeginDraggedAction(pos)) { // only if an item is really being dragged
+				gw->mouseaction = GM_Gameworld::MA_MOVE;
+				gw->mousedownpos = *pos;
+				gw->mousedownstackpos = pos->x != 0xFFFF ? gamemap.GetTile(pos)->GetTopUsableStackpos() : 0;
+
+				console.insert("Specify where do you want to move this item", CONLTBLUE);
+			}
+		} else if (gw->mouseaction == GM_Gameworld::MA_USEEX) {
+		} else {
+			gw->mouseaction = GM_Gameworld::MA_NONE;
+			win_SetMousePointer("DEFAULT");
+		}
+
+	} else if (evttype == GLICT_MOUSECLICK) {
+		Creature* cr = pos->x != 0xFFFF ? gamemap.GetTile(pos)->GetCreature() : NULL;
+		if (cr) {
+			switch (gw->partyaction) {
+				case GM_Gameworld::PA_INVITE:
+					protocol->InviteParty(cr);
+					break;
+				case GM_Gameworld::PA_JOIN:
+					protocol->JoinParty(cr);
+					break;
+				case GM_Gameworld::PA_REVOKE:
+					protocol->RevokeInviteParty(cr);
+					break;
+				case GM_Gameworld::PA_PASS:
+					protocol->PassLeadershipParty(cr);
+					break;
+				default:
+					break;
+			}
+		}
+		if (gw->partyaction != GM_Gameworld::PA_NONE) {
+			gw->partyaction = GM_Gameworld::PA_NONE;
+			win_SetMousePointer("DEFAULT");
+			return;
+		}
+
+
+
+		if (gw->mouseaction == GM_Gameworld::MA_USEEX) {
+
+			protocol->Use(&gw->mousedownpos, gw->mousedownstackpos, pos, pos->x!=0xFFFF ? gamemap.GetTile(pos)->GetTopUsableStackpos() : 0);
+			win_SetMousePointer("DEFAULT");
+			gw->mouseaction = GM_Gameworld::MA_NONE;
+			return;
+		}
+
+		if (gw->mouseaction == GM_Gameworld::MA_MOVE) {
+			goto DoMove;
+		}
+
+
+		if (modifiers & WIN_ACTIVE_ALT) {
+			if (pos->x==0xFFFF) // we can't attack something that's in inventory
+				return;
+			gw->mouseaction = GM_Gameworld::MA_NONE;
+			win_SetMousePointer("DEFAULT");
+
+			Tile *t = gamemap.GetTile(pos);
+			if (Creature *c = t->GetCreature())
+				if (evttype == GLICT_MOUSECLICK) {
+					protocol->Attack(c->GetCreatureID());
+					return;
+				}
+		}
+
+		if (modifiers & WIN_ACTIVE_CTRL) {
+			// first check if it's use- or use-extended item
+			Tile *t = (pos->x != 0xFFFF ? gamemap.GetTile(pos) : 0);
+			Thing *th;
+
+			if (pos->x!=0xFFFF)
+				th = t->GetStackPos(t->GetTopUsableStackpos());
+			else {
+				if (!(pos->y & 0x40))
+					th = player->inventory[pos->y-1];
+				else {
+					Container *c = player->GetContainer(pos->y & 0x0F);
+					if (!c) // nothing to drag
+						return;
+					th = c->GetItem(pos->z);
+				}
+			}
+			if (!th)  // nothing to drag
+				return;
+
+			unsigned short int itemid = th->GetType();
+
+			if (items[itemid]->usable || items[itemid]->rune) { // it's a "useex" item
+				gw->mouseaction = GM_Gameworld::MA_USEEX;
+				gw->mousedownpos = *pos;
+				gw->mousedownstackpos = pos->x != 0xFFFF ? gamemap.GetTile(pos)->GetTopUsableStackpos() : 0;
+
+				console.insert("Specify where do you want to use this item", CONLTBLUE);
+				__internal_BeginDraggedAction(pos);
+			} else { // it's a "use" item
+				protocol->Use(pos, pos->x!=0xFFFF ? t->GetTopUsableStackpos() : 0);
+                win_SetMousePointer("DEFAULT");
+
+			}
+			return;
+		}
+
+		if (modifiers & WIN_ACTIVE_SHIFT) {
+			gw->mouseaction = GM_Gameworld::MA_NONE;
+			protocol->LookAt(pos);
+			win_SetMousePointer("DEFAULT");
+			return;
+		}
+
+		gw->mouseaction = GM_Gameworld::MA_NONE;
+
+	} else { // evttype == GLICT_MOUSEUP
+		if (gw->mouseaction != GM_Gameworld::MA_NONE) {
+DoMove:
+			char a [255];
+			sprintf(a, "Dest %d %d %d\n", pos->x, pos->y, pos->z);
+			console.insert(a);
+
+			if (pos->x != gw->mousedownpos.x || pos->y != gw->mousedownpos.y || pos->z != gw->mousedownpos.z) {
+
+				if (gw->mouseaction == GM_Gameworld::MA_MOVE) {
+					protocol->Move(&gw->mousedownpos, ((GM_Gameworld*)game)->mousedownstackpos, pos, pos->x!=0xFFFF ? gamemap.GetTile(pos)->GetTopUsableStackpos() : 0, 1);
+				}
+
+			}
+
+			win_SetMousePointer("DEFAULT");
+			gw->mouseaction = GM_Gameworld::MA_NONE;
+		}
+	}
+
+
+
+}
+#else
 void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
     // This function decides what happens when player clicks on a location.
     // FIXME (Khaos#1#) Rework from scratch
@@ -959,6 +1184,9 @@ void GM_Gameworld_ClickExec(position_t *pos, glictEvents evttype ) {
 
 
 }
+
+#endif
+
 void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictContainer *caller) {
 /*    char tmp[256];
     sprintf(tmp, "%d", (glictPanel*)caller - ((GM_Gameworld*)game)->panInvSlots);
@@ -1000,7 +1228,7 @@ void GM_Gameworld_InvSlotsOnPaint(glictRect *real, glictRect *clipped, glictCont
     glPopMatrix();
 
     glViewport(0,0,(int)glictGlobals.w,(int)glictGlobals.h);
-    skin.AssureLoadedness();
+    skin->AssureLoadedness();
 }
 void GM_Gameworld_InvSlotsOnClick(glictPos* pos, glictContainer* caller) {
     char tmp[256];
@@ -1085,8 +1313,10 @@ void GM_Gameworld_StaInviteParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->invitingparty = true;
+    gw->partyaction = GM_Gameworld::PA_INVITE;
     console.insert("Select which player you want to invite to party...", CONLTBLUE);
     win_SetMousePointer("mousequestion.bmp");
+
 }
 void GM_Gameworld_StaLeaveParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
@@ -1098,6 +1328,7 @@ void GM_Gameworld_StaRevokeParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->revokingparty = true;
+    gw->partyaction = GM_Gameworld::PA_REVOKE;
     console.insert("Select whose invitation you want to revoke...", CONLTBLUE);
     win_SetMousePointer("mousequestion.bmp");
 }
@@ -1105,6 +1336,7 @@ void GM_Gameworld_StaJoinParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->joiningparty = true;
+    gw->partyaction = GM_Gameworld::PA_JOIN;
     console.insert("Select whose invitation you want to accept...", CONLTBLUE);
     win_SetMousePointer("mousequestion.bmp");
 }
@@ -1112,6 +1344,7 @@ void GM_Gameworld_StaPassParty(glictPos *pos, glictContainer* caller) {
     GM_Gameworld *gw = (GM_Gameworld*)game;
 
     gw->passingparty = true;
+    gw->partyaction = GM_Gameworld::PA_PASS;
     console.insert("Select who do you want to pass leadership to...", CONLTBLUE);
     win_SetMousePointer("mousequestion.bmp");
 }

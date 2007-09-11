@@ -10,7 +10,7 @@
 
 static void Skin_OnBind(glictSkinner* caller, void* t);
 
-Skin skin;
+Skin *skin;
 
 Skin::Skin() {
     wintl = NULL;
@@ -71,10 +71,6 @@ Skin::Skin() {
 Skin::~Skin() {
     Unload();
 
-    printf("Remaining textures: \n");
-    TextureReportRemaining();
-    printf("Expunging remaining textures: \n");
-    TextureExpungeRemaining();
 }
 void Skin::Load(const char* what) {
 

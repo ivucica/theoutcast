@@ -60,10 +60,11 @@ class GM_MainMenu : public GameMode {
 		glictButton btnCharlistCharMgr, btnCharlistCancel;
 
 		glictWindow options;
-		glictPanel pnlOptionsMaptrack, pnlOptionsFullscreen, pnlOptionsIntro, pnlOptionsOSCursor; // checkboxes here only, please
-		glictButton btnOptionsMaptrack, btnOptionsFullscreen, btnOptionsIntro, btnOptionsOSCursor; // checkboxes here only, please
+		glictPanel pnlOptionsMaptrack, pnlOptionsFullscreen, pnlOptionsIntro, pnlOptionsOSCursor, pnlOptionsSound, pnlOptionsMinimap; // checkboxes here only, please
+		glictButton btnOptionsMaptrack, btnOptionsFullscreen, btnOptionsIntro, btnOptionsOSCursor, btnOptionsSound, btnOptionsMinimap; // checkboxes here only, please
 		glictPanel pnlOptionsSkin; // textboxes here only, please
 		glictTextbox txtOptionsSkin; // textboxes here only, please
+
 		glictPanel pnlOptionsRestartWarning;
 		glictButton btnOptionsOk, btnOptionsCancel;
 

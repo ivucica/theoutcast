@@ -122,9 +122,10 @@ bool dbTableExists(sqlite3 *db, const char *tablename) {
 }
 
 void dbSaveSetting(const char* settingname, const char* value) {
-    dbExecPrintf(dbUser, NULL, 0, NULL, "update settings set `value` = '%q' where `field`='%s';", value, settingname);
-    //dbExecPrintf(dbUser, NULL, 0, NULL, "delete from settings where `field`='%s';", settingname);
-    //dbExecPrintf(dbUser, NULL, 0, NULL, "insert into settings (`field`, `value`) values ('%q', '%q');", settingname, value);
+    //dbExecPrintf(dbUser, NULL, 0, NULL, "update settings set `value` = '%q' where `field`='%s';", value, settingname);
+
+    dbExecPrintf(dbUser, NULL, 0, NULL, "delete from settings where `field`='%s';", settingname);
+    dbExecPrintf(dbUser, NULL, 0, NULL, "insert into settings (`field`, `value`) values ('%q', '%q');", settingname, value);
 }
 
 bool dbLoadSetting(const char* settingname, char* valuetarget, int maxlen, const char *defaultval) {

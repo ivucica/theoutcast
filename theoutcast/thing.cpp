@@ -1,3 +1,4 @@
+#include "assert.h"
 #include "thing.h"
 #include "items.h"
 
@@ -20,7 +21,8 @@ Thing::Thing() {
     ONInitThreadSafe(threadsafe);
 }
 Thing::~Thing() {
-    //if (sprgfx) delete sprgfx; // FIXME figure out why deleting is a bad idea!
+    if (sprgfx) delete sprgfx; // FIXME figure out why deleting is a bad idea!
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Wooh, something's corrupted in the land of Denmark.");
     ONDeinitThreadSafe(threadsafe);
 }
 unsigned short Thing::GetType() {
@@ -117,13 +119,14 @@ void Thing::Render(const position_t *pos) {
                 sprgfx->Render((unsigned char)0);
         }
         else if (!(dynamic_cast<Creature*>(this)) && (items[type]->splash || items[type]->fluidcontainer)) {
-            switch (protocol->GetProtocolVersion()) {
-                case 792:
-                    sprgfx->Render( fluidcolorlist792[subtype % 10]);
-                    break;
-                default:
-                    sprgfx->Render(subtype);
-            }
+        	if (protocol)
+				switch (protocol->GetProtocolVersion()) {
+					case 792:
+						sprgfx->Render( fluidcolorlist792[subtype % 10]);
+						break;
+					default:
+						sprgfx->Render(subtype);
+				}
         }
         else
             sprgfx->Render(pos);

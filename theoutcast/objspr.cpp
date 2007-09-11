@@ -100,51 +100,67 @@ ObjSpr::ObjSpr(unsigned int creaturetype, unsigned int protocolversion, unsigned
 ObjSpr::~ObjSpr() {
     // FIXME (Khaos#1#): Crash happens because of this function !!
     #if DEBUGLEVEL_BUILDTIME == 0
-    return;
+    //return;
     #endif
 
     ONThreadSafe(objsprthreadsafe);
-    //printf("Objspr unloadin %d\n", itemid);
+
     //system("sleep 1");
     switch (this->type) {
         case 0:
             if (items[itemid]->sli.usecount==1 && sli.spriteids) {
-                for (int i = 0 ; i < sli.numsprites; i++)
+
+                for (int i = 0 ; i < sli.numsprites; i++) {
                     delete(t[i]);
+					ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
+                }
                 free(items[itemid]->textures);
                 items[itemid]->textures = NULL;
                 free(sli.spriteids);
+                ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
             }
             items[itemid]->sli.usecount--;
             break;
         case 1:
 			// colorful creatures are not cached
             if (creatures[itemid]->sli.usecount==1 && sli.spriteids && sli.blendframes == 1) {
-                for (int i = 0 ; i < sli.numsprites; i++)
+
+                for (int i = 0 ; i < sli.numsprites; i++) {
                     delete(t[i]);
+					ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
+                }
                 free(creatures[itemid]->textures);
                 creatures[itemid]->textures = NULL;
                 free(sli.spriteids);
+                ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
             }
             creatures[itemid]->sli.usecount--;
             break;
         case 2:
             if (effects[itemid]->sli.usecount==1 && sli.spriteids) {
-                for (int i = 0 ; i < sli.numsprites; i++)
+
+                for (int i = 0 ; i < sli.numsprites; i++) {
                     delete(t[i]);
+					ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
+                }
                 free(effects[itemid]->textures);
                 effects[itemid]->textures = NULL;
                 free(sli.spriteids);
+                ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
             }
             effects[itemid]->sli.usecount--;
             break;
         case 3:
             if (distances[itemid]->sli.usecount==1 && sli.spriteids) {
-                for (int i = 0 ; i < sli.numsprites; i++)
+
+				for (int i = 0 ; i < sli.numsprites; i++) {
                     delete(t[i]);
+					ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
+				}
                 free(distances[itemid]->textures);
                 distances[itemid]->textures = NULL;
                 free(sli.spriteids);
+                ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
             }
             distances[itemid]->sli.usecount--;
             break;
@@ -152,6 +168,7 @@ ObjSpr::~ObjSpr() {
             ASSERTFRIENDLY(false, "BOO! BOOO!");
 
     }
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
     ONThreadUnsafe(objsprthreadsafe);
 }
 bool ObjSpr::Render() {
@@ -208,6 +225,7 @@ bool ObjSpr::Render(const position_t *pos) {
 
                                         ;
                                         //printf("%d %d\n", i, j);
+						if (sli.numsprites==1)  activeframe=0;
                         break;
                     case 2: // effect
                     case 3: // distance
@@ -229,13 +247,25 @@ bool ObjSpr::Render(const position_t *pos) {
                 {
                     char tmp[512];
                     sprintf(tmp, "Active frame is %d while number of frames is %d. And that is a problem.", activeframe, sli.numsprites);
-                    ASSERTFRIENDLY(activeframe < sli.numsprites, tmp )
+                    ASSERTFRIENDLY(activeframe < sli.numsprites || sli.numsprites==0, tmp )
                     //printf("%s\n", tmp);
                     if (activeframe >= sli.numsprites) activeframe = 0;
                 }
                 if (activeframe < sli.numsprites) t[activeframe]->Bind();
 
-                StillEffect(-32*j, 32*i, 32 - 32*j, 32 + 32*i, 2, 2, false, false, true); // divisions were 40 10
+                //StillEffect(-32*j, 32*i, 32 - 32*j, 32 + 32*i, 2, 2, false, false, true); // divisions were 40 10
+
+                glBegin(GL_QUADS);
+					glTexCoord2f(1./64, 1. - 1./64);
+					glVertex2f(-32*j, 32*i);
+					glTexCoord2f(1. - 1./64, 1. - 1./64);
+					glVertex2f(-32*j + 32, 32*i);
+					glTexCoord2f(1. - 1./64, 1./64);
+					glVertex2f(-32*j + 32, 32*i + 32);
+					glTexCoord2f(1./64, 1./64);
+					glVertex2f(-32*j, 32*i+32);
+                glEnd();
+
             }
         }
     //printf("\n");
@@ -267,8 +297,8 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned char head, unsigned 
 }
 void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion, unsigned char head, unsigned char body, unsigned char legs, unsigned char feet ) {
     char temp[512];
-    sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n-1);
-    ASSERTFRIENDLY(creatureid <= creatures_n-1, temp);
+    sprintf(temp, "invalid creatureid %d out of %d in ObjSpr::LoadCreature", creatureid, creatures_n);
+    ASSERTFRIENDLY(creatureid <= creatures_n, temp);
 
 
 	// Since creatures can have different outfits, we must not cache them this naively
@@ -890,8 +920,8 @@ void ObjSpr::LoadDistance(unsigned int distanceid, unsigned int protocolversion)
 
     }
 
-        offsetx = 0;//distances[distanceid]->height2d_x ;
-        offsety = 0;//distances[distanceid]->height2d_y ;
+	offsetx = 0;//distances[distanceid]->height2d_x ;
+	offsety = 0;//distances[distanceid]->height2d_y ;
 	this->itemid = distanceid;
 
 }
@@ -901,4 +931,8 @@ void ObjSpr::SetDirection(direction_t dir) {
     ONThreadSafe(objsprthreadsafe);
     direction = dir;
     ONThreadUnsafe(objsprthreadsafe);
+}
+
+void ObjSpr::SetAddons(int addons) {
+	#warning ObjSpr::SetAddons(): Stub!!
 }

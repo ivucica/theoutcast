@@ -49,6 +49,9 @@ Player::~Player() {
 unsigned long Player::GetCreatureID() {
     return creatureid;
 }
+void Player::SetCreatureID(unsigned long crid) {
+	creatureid = crid;
+}
 Creature *Player::GetCreature() {
 	if (!creatureid) {
 		DEBUGPRINT(DEBUGPRINT_WARNING, DEBUGPRINT_LEVEL_DEBUGGING, "If it crashed below this, the cause is surely that player has no assigned creature\n");
@@ -189,9 +192,12 @@ unsigned char Player::GetMLevelPercent() {
 }
 
 
-
+#include "console.h"
 void Player::SetInventorySlot(unsigned int slot, Thing *item) {
-    if (inventory[slot-1]) delete inventory[slot-1];
+    if (inventory[slot-1]) {
+    	console.insert("Deleted an item from inventory.\n");
+    	delete inventory[slot-1];
+    }
     inventory[slot-1] = item;
 }
 void Player::RenderInventory(unsigned int slot) {

@@ -120,7 +120,12 @@ void Tile::Remove(unsigned char pos, bool moving) {
         if (pos < itemlayers[i].size()) {
             std::vector<Item*>::iterator it=itemlayers[i].end();
             it -= pos+1;
-            if (!moving) delete *it;
+            if (!moving) {
+            	console.insert("Removed and deleted an item.");
+				delete *it;
+            } else {
+				console.insert("Removed item.");
+            }
             itemlayers[i].erase(it);
 
             ASSERTFRIENDLY(TextureIntegrityTest(), "Tile::Remove(unsigned char pos): Integrity test failed");
@@ -272,9 +277,9 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
     for (int i = 1; i <=3 ; i++ ) {
 
         if (pos < itemlayers[i].size()) {
-            delete itemlayers[i][pos];
+            delete itemlayers[i][itemlayers[i].size() - pos - 1];
             if (newthing->GetTopIndex()==i) {
-                itemlayers[i][pos] = (Item*)newthing;
+                itemlayers[i][itemlayers[i].size() - pos - 1] = (Item*)newthing;
                 ONThreadUnsafe(threadsafe);
                 return;
             } else {
@@ -295,8 +300,9 @@ void Tile::Replace(unsigned char pos, Thing* newthing) {
     pos -= creatures.size();
 
     if (pos < itemlayers[0].size()) {
+    	delete itemlayers[0][itemlayers[0].size() - pos - 1];
         if (newthing->GetTopIndex()==0) {
-            itemlayers[0][pos] = (Item*)newthing;
+            itemlayers[0][itemlayers[0].size() - pos - 1] = (Item*)newthing;
             ONThreadUnsafe(threadsafe);
             return;
         } else {
@@ -562,7 +568,7 @@ void Tile::Render(int layer) {
 
         for (std::vector<Effect*>::iterator it = this->effects.begin(); it != this->effects.end(); it++) {
             (*it)->Render(&pos, false);
-            if (!(*it)->AnimationAdvance(2000./fps, false)) break;
+            if (!(*it)->AnimationAdvance(1000./fps, false)) break;
         }
 
 
@@ -729,6 +735,51 @@ void Tile::StoreToDatabase() {
 
     ONThreadUnsafe(threadsafe);
 
+}
+#include <sstream> // FIXME (Khaos#1#) move up, to headers
+#include <iomanip>
+void Tile::StoreToMinimap() {
+
+    std::stringstream x, y, z, minimapfn;
+    x << setw(3) << setfill('0') << this->pos.x / 256;
+    y << setw(3) << setfill('0') << this->pos.y / 256;
+    z << setw(2) << setfill('0') << (int)this->pos.z;
+    minimapfn << x.str() << y.str() << z.str() << ".map";
+
+    unsigned char col, speedindex;
+    if (ground) { // FIXME (Khaos#1#) incorrect way to get map color, does not take into account anything else...
+
+		col = items[ground->GetType()]->minimapcolor;
+		speedindex = items[ground->GetType()]->speedindex;
+
+    } else {
+		col = 0;
+		speedindex = 255;
+    }
+
+
+	for (int i = 3; i >=0 ; i-- ) {
+		for (std::vector<Item*>::iterator it = itemlayers[i].begin(); it != itemlayers[i].end(); it++) {
+			if (items[(*it)->GetType()]->minimapcolor != 0)
+				col = items[(*it)->GetType()]->minimapcolor;
+		}
+	}
+
+    FILE *f = fopen(minimapfn.str().c_str(), "rb+");
+    if (!f)
+		  f = fopen(minimapfn.str().c_str(), "wb+");
+	if (!f)
+		return;
+	//printf("Opened ok\n");
+    // FIXME (Khaos#1#) Two lines below this are an ugly hack to make file of correct size (131076). Suggestions welcome.
+    fseek(f, 131075, SEEK_SET);
+    fwrite(&col, 1, 1, f);
+    fseek(f, (this->pos.y % 256) * 256 + this->pos.x % 256, SEEK_SET);
+    //if (col) printf("Storing at %d\n", (this->pos.y % 256) * 256 + this->pos.x % 256);
+    fwrite(&col, 1, 1, f);
+    fseek(f, (this->pos.y % 256) * 256 + this->pos.x % 256 + 256*256, SEEK_SET);
+    fwrite(&speedindex, 1, 1, f);
+    fclose(f);
 }
 unsigned char Tile::GetTopLookAt() {
     static unsigned char stackpos;

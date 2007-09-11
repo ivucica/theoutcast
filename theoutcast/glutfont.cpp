@@ -24,7 +24,8 @@ void glutxStrokeString(const char* txt, const void* font, float x, float y) {
     do {
         if (fromwhere!=txt) fromwhere++;
         glPushMatrix();
-			glTranslatef(x,y,0);
+			glRotatef(180.,1.,0.,0.);
+			glTranslatef(x,-y - 1,0);
 			//if (font==GLUT_STROKE_ROMAN)
 			//    glScalef(0.1,0.075,0.075);
 			//else
@@ -32,9 +33,11 @@ void glutxStrokeString(const char* txt, const void* font, float x, float y) {
 			glScalef(.0075, .0075, .0075);
 			fromwhere = glutxStrokeStringExpert(fromwhere,font);
 			glScalef(1/.0075, 1/.0075, 1/.0075);
-			glTranslatef(-x,-y,0);
-        glPopMatrix();
-        y -= 1;
+			glTranslatef(-x,y + 1,0);
+			glRotatef(180.,1.,0.,0.);
+
+		glPopMatrix();
+        y += 1;
     } while (*fromwhere);
 }
 

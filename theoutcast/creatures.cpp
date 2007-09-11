@@ -101,7 +101,7 @@ void CreaturesLoad_NoUI(unsigned int protocolversion) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d creatures in database for protocol %d\n", creatures_n, protocolversion);
     if (!creatures_n) {
         //glutHideWindow();
-        //MessageBox(HWND_DESKTOP, "There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        NativeGUIError("There was an error in reading creatures database.\nIt appears that current protocol has no creatures in database.\nPlease reinstall!", "The Outcast - Fatal Error");
         exit(1);
     }
     creatures = (creature_t**)malloc(sizeof(creature_t*)*(creatures_n+1));
@@ -115,10 +115,10 @@ void CreaturesLoad_NoUI(unsigned int protocolversion) {
 }
 
 void CreaturesUnload() {
-    for (int i=0;i<creatures_n;i++) {
+/*    for (int i=0;i<creatures_n;i++) {
         CreatureClear(*(creatures + i));
         delete *(creatures + i);
-    }
+    }*/
     free(creatures);
     creatures = NULL;
 }

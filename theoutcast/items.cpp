@@ -4,6 +4,7 @@
 #include "windowing.h"
 #include "debugprint.h"
 #include "sprfmts.h"
+#include "util.h"
 int items_n;
 item_t **items=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
@@ -37,13 +38,14 @@ void ItemClear(item_t* item) {
     item->ladder = false;
     item->spritelist[0] = 0;
     item->otid = 0;
+/*
+	if (item->textures)
+		for (int i=0;i<item->sli.numsprites;i++)
+            delete ((Texture**)item->textures)[i];*/
 
-	if (item->textures) 
-		for (int i=0;i<item->sli.numsprites;i++)		
-            delete ((Texture**)item->textures)[i];
     /*else
         printf("item->textures is NULL!\n");*/
-    
+
     if (item->textures) free(item->textures);
     item->sli.numsprites = 0;
     item->textures = NULL;
@@ -137,6 +139,12 @@ static int ItemsLoadFunc(void *NotUsed, int argc, char **argv, char **azColName)
             items[itemid]->ladder = iTmp;
             //if (items[itemid].splash) printf("SPLASH ITEM %d\n", itemid);
         }
+
+        if (!strcmp(azColName[i], "minimapcolor")) {
+            sscanf(argv[i], "%d", &iTmp);
+            items[itemid]->minimapcolor = iTmp;
+        }
+
     }
     return 0;
 }
@@ -204,7 +212,8 @@ void ItemsLoad_NoUI(unsigned int protocolversion) {
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d items in database for protocol %d\n", items_n, protocolversion);
     if (!items_n) {
         //glutHideWindow();
-        //MessageBox(HWND_DESKTOP, "There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+
+        NativeGUIError("There was an error in reading items database.\nIt appears that current protocol has no items in database.\nPlease reinstall!", "The Outcast - Fatal Error");
         exit(1);
     }
     items = (item_t**)malloc(sizeof(item_t*)*(items_n+1));
@@ -219,7 +228,8 @@ void ItemsLoad_NoUI(unsigned int protocolversion) {
 }
 
 void ItemsUnload() {
-    for (int i=0;i<items_n;i++) {
+
+    for (int i=100;i<items_n;i++) {
         ItemClear(*(items + i));
         delete *(items + i);
     }

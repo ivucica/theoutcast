@@ -26,6 +26,7 @@ class Texture {
 		Texture* Find(); // finds another texture with its own properties (fname and imgid)
 		bool UnloadGL(); // unloads the texture from opengl context.
 
+		void ReplaceOriginalInstance();
 		void AssureLoadedness();
 
 		int GetChecksum();

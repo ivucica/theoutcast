@@ -38,6 +38,9 @@ class Map {
 		bool IsVisible(const position_t &pos);
 
 		void FreeUnused(unsigned short minx, unsigned short maxx, unsigned short miny, unsigned short maxy);
+		void Clear();
+		unsigned int GetMinimapTexture();
+		void RebuildMinimap();
 
         bool locked;
     private:
@@ -46,6 +49,7 @@ class Map {
         ONCriticalSection threadsafe;
 		Creature *attackedcreature;
 		int maxx, maxy, maxz;
+		unsigned int minimaptex;
 
 };
 

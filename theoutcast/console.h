@@ -6,18 +6,17 @@
 #include "colors.h"
 #include "types.h"
 #include "threads.h"
-typedef struct {
-    char* text;
+struct consoleentry {
+    std::string text;
     consolecolors_t color;
-} consoleentry;
+} ;
 
 
 
-typedef std::vector <consoleentry*> consolecontainer;
 
 class Console {
     private:
-        consolecontainer con;
+        std::vector <consoleentry> con;
         ONCriticalSection threadsafe;
     public:
         Console();

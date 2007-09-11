@@ -105,6 +105,7 @@ class Protocol {
 
         // transmited abstractions
         virtual void            AddPosition(NetworkMessage *nm, const position_t *pos);
+        virtual void            AddStackPos(NetworkMessage *nm, int stackpos);
 
         // internal stuff
         unsigned short          GetProtocolVersion ();

@@ -3,6 +3,7 @@
 #include "types.h"
 #include "windowing.h"
 #include "debugprint.h"
+#include "util.h"
 int effects_n;
 effect_t **effects=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);
@@ -78,7 +79,7 @@ void EffectsLoad() {
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d effects in database for protocol %d\n", effects_n, protocol->GetProtocolVersion());
     if (!effects_n) {
         //glutHideWindow();
-        //MessageBox(HWND_DESKTOP, "There was an error in reading effects database.\nIt appears that current protocol has no effects in database.\nPlease reinstall!", "The Outcast - Fatal Error", MB_ICONSTOP);
+        NativeGUIError("There was an error in reading effects database.\nIt appears that current protocol has no effects in database.\nPlease reinstall!", "The Outcast - Fatal Error");
         exit(1);
     }
     effects = (effect_t**)malloc(sizeof(effect_t*)*(effects_n+1));
@@ -114,10 +115,10 @@ void EffectsLoad_NoUI(unsigned int protocolversion) {
 }
 
 void EffectsUnload() {
-    for (int i=0;i<effects_n;i++) {
+/*    for (int i=0;i<effects_n;i++) {
         EffectClear(*(effects + i));
         delete *(effects + i);
-    }
+    }*/
     free(effects);
     effects = NULL;
 }

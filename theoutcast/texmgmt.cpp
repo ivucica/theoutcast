@@ -1,3 +1,27 @@
+
+
+/******************************************************
+ **** THE CAUSES OF THE GREAT CRASHES *****************
+
+
+ When the texture object is constructed, first thing we do is attempt to find
+ a previous instance of the equivalent texture in the texture list. If we do
+ not find it, then we insert "this" instance into the texture list. Later, when
+ we wish to dispose of the specified texture, we blindly do a delete of the object,
+ but a reference to the specified object remains in the texture list! When we try
+ to access it through the texture list for various reasons (including checksum)
+ we get an invalid reference to the texture.
+
+ What we must do is maintain a separate list of ALL texture objects, not just the
+ "original instances", and once we discover that we have delete'd an "original instance",
+ we need to replace the reference to it with an "unoriginal instance", which
+ will take over that role.
+
+ **/
+
+
+
+
 #ifdef WIN32
 	#include <windows.h>
 	#include <io.h> // filelength
@@ -10,7 +34,7 @@
 #include "texmgmt.h"
 #include "imgfmts.h"
 #include "assert.h"
-
+#include "console.h" // REMOVEME
 #ifdef TEXTURE_SPR
     #include "sprfmts.h"
     #include "colors.h"
@@ -51,7 +75,8 @@
 
 
 
-static std::vector<Texture*> textures;
+static std::vector<Texture*> textures, textures_all;
+
 int texcount=0;
 
 
@@ -108,6 +133,7 @@ Texture::Texture(std::string fname) {
 	this->imgid = 0;
 	checksum = GetChecksum();
 	textureid = NULL;
+	textures_all.insert(textures_all.end(), this);
 	Texture* t = this->Find();
 
 	if (t) {
@@ -167,6 +193,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 	this->imgid = id;
 	checksum = GetChecksum();
 	textureid = NULL;
+	textures_all.insert(textures_all.end(), this);
 	Texture* t = id ? this->Find() : NULL;
 	if (t) {
 		this->textureid = t->textureid;
@@ -181,7 +208,7 @@ Texture::Texture(std::string fname, unsigned short id) {
 		ASSERT(this->usecount);
 		(*this->usecount)++;
 		intexlist = true;
-		printf("doubleload\n");
+
 		ONThreadUnsafe(texturethreadsafe);
 		return;
 	}
@@ -232,6 +259,7 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 	this->imgid = id;
 	checksum = GetChecksum();
 	textureid = NULL;
+	textures_all.insert(textures_all.end(), this);
 
 	this->loaded = (bool*)malloc(sizeof(bool));
 	*(this->loaded) = false;
@@ -254,16 +282,43 @@ Texture::Texture(std::string fname, unsigned short id, unsigned short templateid
 
 }
 
-
+void Texture::ReplaceOriginalInstance() {
+	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+		if ((*it) == this) {
+			for (std::vector<Texture*>::iterator it2 = textures_all.begin(); it2 != textures_all.end() ; it2++ ) {
+				if ((*it2)->fname == this->fname &&  (*it2)->imgid == this->imgid) {
+					(*it) = (*it2);
+					return;
+				}
+			}
+		}
+	}
+}
 Texture::~Texture() {
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Destroying %s\n", fname.c_str());
 //    #if DEBUGLEVEL_BUILDTIME == 0
     //return;
 //    #endif
 	//return;
+
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
     ONThreadSafe(texturethreadsafe);
-	//ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
-    printf("Unload Usecount: %d\n", *(this->usecount));
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
+	ASSERTFRIENDLY(*(this->usecount) < 500, "Usecount corruption");
+    ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
+
+
+	for (std::vector<Texture*>::iterator it = textures_all.begin(); it != textures_all.end() ; it++ ) {
+		if ((*it) == this) {
+			textures_all.erase(it);
+			break;
+		}
+	}
+
+    ReplaceOriginalInstance();
+
+
+
     if ((*usecount)==1) {
 		DEBUGPRINT( DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Unloading texture %d -- %s[%d] ; total textures remaining %d\n", *textureid, this->fname.c_str(), this->imgid, textures.size());
         bool success = false;
@@ -276,6 +331,7 @@ Texture::~Texture() {
                     success = true;
                     //system("pause");
                     //TextureReportRemaining();
+
                     break;
                 } /*else {
                     printf("%c%c...", (*it)->imgid == this->imgid ? '!' : 'x', (*it)->fname == this->fname ? '!' : 'x');
@@ -296,7 +352,6 @@ Texture::~Texture() {
 		ASSERTFRIENDLY(success, tmp);
 
 
-
 		}
 
     	if (pikseli) {
@@ -305,15 +360,17 @@ Texture::~Texture() {
     	} else {
     	    DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR, "It was not allocated, not freeing.");
     	}
-    	printf("Now trying to delete from graphics card\n");
+
+
 		if (loaded && (*loaded)) {
 			if (textureid && *textureid) {
 			    if (glIsTexture(*(this->textureid))) {
 			    	texcount --;
 
-			    	printf("Deleting %d...\n", *(this->textureid));
+
                     glDeleteTextures(1, this->textureid);
-                    printf("Deleted!\n");
+
+
 			    } else {
 			        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "Cannot unload - %d is not a texture\n", *textureid);
 			        //system("sleep 2");
@@ -322,29 +379,30 @@ Texture::~Texture() {
 			    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "WEIRD! Texture id is NULL or *(texture id) is 0, altho' I am loaded!?\n");
 			    ASSERT(this->textureid && (*this->textureid));
             }
-            printf("Unloaded well _1_\n");
+
 			(*loaded) = false;
 			(*this->textureid) = 0;
-
 		} else {
 			// this is perfectly acceptable if object was created and then removed before fade was completed
 		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "Texture was never loaded, not unloading in any way");
 		    DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_WARNING, "%s %s", loaded ? "not null": "NULL!", usecount ? "not null" : "NULL");
 		    //system("sleep 2");
 		}
-		printf("Freeing state tracking variables\n");
+
+
 		free(loaded);
 		free(usecount);
         free(this->textureid);
+
     } else {
-        printf("Just reduced usecount\n");
+
         (*usecount)--;
     }
 
-    printf("Unloaded well _2_\n");
+
     ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity check failed");
     ONThreadUnsafe(texturethreadsafe);
-
+	ASSERTFRIENDLY(TextureIntegrityTest(), "Texture integrity test failed");
 }
 
 
@@ -398,7 +456,7 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
     #else
     //ASSERT(this->imgid != 0);
     //printf("Reading %d from %s (%d total sprites)\n", this->imgid, fname.c_str(), SPRCount);
-    printf("Image %d out of %d\n", imgid, SPRCount);
+//    printf("Image %d out of %d\n", imgid, SPRCount);
     ASSERT(imgid < SPRCount);
     ASSERT(SPRPointers);
 
@@ -558,14 +616,13 @@ void Texture::StorePixels() {
 
     bool simpletextures = false; // to fool him until simpletextures is truly implemented
 
-    if (fname.substr(fname.length() - 3, 3)=="spr" || fname.substr(0, 6)=="skins/") {
+    if ((/*fname.substr(fname.length() - 3, 3)=="spr" || */ (fname.substr(0, 6)=="skins/"  &&  fname.substr(fname.length() - 6, 6)!="bg.bmp" ) )) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         #ifdef DETECT_GLVERSION
         if (glversion.major == 1 && glversion.minor >= 2 || glversion.major >= 2) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
         } else {
         #endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -643,7 +700,7 @@ void Texture::AssureLoadedness() {
 	        }*/
             //printf("Stored to %d\n", *textureid);
 	        if (!(*textureid)) {
-	            printf("WTF!! TExture sjhit\n");
+	            printf("WTF!! TExture shit\n");
 	            system("pause");
 	        }
 	    }
@@ -738,7 +795,7 @@ RGBA* Texture::ColorizeCreature(RGBA *pixels, RGBA *templatepixels, unsigned cha
 }
 
 void TextureFreeSlot() {
-	// FIXME  should track when was the last time texture was used, find the oldest one, etc...
+	// FIXME  (Khaos#4#) should track when was the last time texture was used, find the oldest one, etc...
 
 	if (!textures.size()) {
 		DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "No texture to unload\n");
@@ -778,7 +835,7 @@ void TextureExpungeRemaining() {
     static Texture *t;
 
 	ONThreadSafe(texturethreadsafe);
-    for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+    for (std::vector<Texture*>::iterator it = textures_all.begin(); it != textures_all.end() ; it++ ) {
         t = (*it);
         delete t;
     }
@@ -786,17 +843,22 @@ void TextureExpungeRemaining() {
 }
 
 
-// FIXME item 459+10 causes integrity failure upon unload
+// FIXME (Khaod#1#) item 459+10 causes integrity failure upon unload
 bool TextureIntegrityTest_internal (std::string s) {
 	//printf("TextureIntegrityTest(%s)\n", s.c_str());
 	Texture*t;
 	ONThreadSafe(texturethreadsafe);
-	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
+	for (std::vector<Texture*>::iterator it = textures_all.begin(); it != textures_all.end() ; it++ ) {
 		t=(*it);
 		//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"%s is testing ", s.c_str());
 		//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL,"%s[%d]=%d x%d\n", t->fname.c_str(), t->imgid, *(t->textureid), *(t->usecount) );
 		if (t->checksum != t->GetChecksum()) {
-			//DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR ,"TEXTURE INTEGRITY CHECK FAILED!!!!!! Calculated checksum is %d and stored checksum is %d\n" , t->GetChecksum(), t->checksum);
+			DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR ,"TEXTURE INTEGRITY CHECK FAILED! Calculated checksum is %d and stored checksum is %d\n" , t->GetChecksum(), t->checksum);
+			ONThreadUnsafe(texturethreadsafe);
+			return false;
+		}
+		if (*(t->usecount) > 500) {
+			DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_ERROR ,"TEXTURE INTEGRITY CHECK FAILED! Usecount is way too large - %d\n" , *(t->usecount));
 			ONThreadUnsafe(texturethreadsafe);
 			return false;
 		}
