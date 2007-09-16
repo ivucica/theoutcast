@@ -41,7 +41,7 @@ void GM_MainMenu::RebuildMainMenu() {
     tibia.DelayedRemove();
     mainmenu.DelayedRemove();
 
-    if (skin->tmmloaded) {
+    if (skin && skin->tmmloaded) {
 
         tibia.AddObject(&btnLogIn);
         tibia.AddObject(&btnOptions);
@@ -152,7 +152,7 @@ GM_MainMenu::GM_MainMenu() {
 
 
 
-    if (skin->tmmloaded) {
+    if (skin && skin->tmmloaded) {
         bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
         city = NULL;
 
@@ -174,10 +174,12 @@ GM_MainMenu::GM_MainMenu() {
 
     DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Constructing GLICT UI\n");
 
-    tibia.SetSkin(&skin->tmm);
-    tibia.SetWidth(118);
-    tibia.SetHeight(170);
-    tibia.SetBGColor(.4,.4,.4,1.);
+    if (skin) {
+    	tibia.SetSkin(&skin->tmm);
+		tibia.SetWidth(118);
+		tibia.SetHeight(170);
+		tibia.SetBGColor(.4,.4,.4,1.);
+    }
 
     mainmenu.SetWidth(200);
     mainmenu.SetHeight(232);
@@ -531,7 +533,7 @@ void GM_MainMenu::Render() {
 
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting main menu\n");
 //system("pause");
-    if (skin->tmmloaded) {
+    if (skin && skin->tmmloaded) {
 
 
         #ifdef WALLHACK
@@ -641,7 +643,7 @@ void GM_MainMenu::Render() {
 
 //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Painting logo \n");
     glEnable(GL_TEXTURE_2D);
-    if (!skin->nologo)  { // painting logo
+    if (!skin || !skin->nologo)  { // painting logo
 //        printf("....\n");
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -917,6 +919,9 @@ void GM_MainMenu_About(glictPos* pos, glictContainer* caller) {
 		((GM_MainMenu*)game)->aboutIsOpen = true;
 
 	}
+
+	TextureReportRemaining();
+
 }
 
 void GM_MainMenu_Exit(glictPos* pos, glictContainer* caller) {
@@ -1137,7 +1142,9 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
         options.skin = ((GM_MainMenu*)game)->txtOptionsSkin.GetCaption();
 
 #if 1
-        skin->Load(options.skin.c_str());
+		if (skin) {
+			skin->Load(options.skin.c_str());
+		}
         ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->tibia);
         ((GM_MainMenu*)game)->desktop.RemoveObject(&((GM_MainMenu*)game)->mainmenu);
         ((GM_MainMenu*)game)->desktop.DelayedRemove();
@@ -1153,7 +1160,7 @@ void GM_MainMenu_OptionsOk(glictPos* pos, glictContainer *caller) {
             ((GM_MainMenu*)game)->bg = NULL;
         }
 
-        if (skin->tmmloaded) {
+        if (skin && skin->tmmloaded) {
             ((GM_MainMenu*)game)->desktop.AddObject(&((GM_MainMenu*)game)->tibia);
             ((GM_MainMenu*)game)->bg = new Texture(std::string("skins/" + ::options.skin + "/bg.bmp" ));
         } else {

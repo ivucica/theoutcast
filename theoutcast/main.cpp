@@ -166,6 +166,9 @@ void NetInit() {
 
 void OnExit(int exitcondition, void* arg) {
     GameDeinit();
+
+	game = NULL;
+	skin = NULL;
 	delete skin;
 	delete game;
 
@@ -197,8 +200,6 @@ if(AllocConsole())
 
 
 
-
-	//TextureIntegrityTest();
 
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "THE OUTCAST 0.4\n");
 	DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "===============\n");

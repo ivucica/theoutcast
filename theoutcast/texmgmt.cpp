@@ -286,7 +286,8 @@ void Texture::ReplaceOriginalInstance() {
 	for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
 		if ((*it) == this) {
 			for (std::vector<Texture*>::iterator it2 = textures_all.begin(); it2 != textures_all.end() ; it2++ ) {
-				if ((*it2)->fname == this->fname &&  (*it2)->imgid == this->imgid) {
+				if ((*it2)->fname == this->fname &&  (*it2)->imgid == this->imgid && (*it2) != this) {
+					printf("REPLACED.\n");
 					(*it) = (*it2);
 					return;
 				}
@@ -325,7 +326,7 @@ Texture::~Texture() {
 		if (intexlist) {
             for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
                 //printf("%s[%d] ", (*it)->fname.c_str(), (*it)->imgid);
-                if ((*it)->imgid == this->imgid && !strcmp((*it)->fname.c_str(), this->fname.c_str()) ) { // if that's the same texture
+                if ((*it)->imgid == this->imgid && (*it)->fname == fname  ) { // if that's the same texture
                     DEBUGPRINT( DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "Removed %s[%d] from texture list\n", (*it)->fname.c_str(), (*it)->imgid);
                     textures.erase(it);
                     success = true;
@@ -575,12 +576,12 @@ RGBA *Texture::FetchSPRPixels(unsigned int imgid) {
 
 void Texture::StorePixels() {
     // glEnable(GL_TEXTURE_2D);
-/*
-    if (texcount > 250) {
+
+    /*if (texcount > 400) {
         for (int i = 0; i < 25; i++)
     	    TextureFreeSlot();
-    }
-*/
+    }*/
+
     //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Storing texture %s\n", fname.c_str());
 
     if (!pikseli) {
@@ -593,26 +594,16 @@ void Texture::StorePixels() {
     glGenTextures(1, textureid);
 
 
-
-    //ASSERT(*textureid);
     if (!(*textureid)) {
-//        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
+        DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "ERROR GENERATING TEXTURE SPACE (perhaps wrong thread?)\n");
 
-        //system("pause");
         return;
-        //exit(1);
     }
-//    printf("Great success\n");
-
     texcount ++;
-
-    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Generated texture space for %s -- %d\n", fname.c_str(), *textureid);
 
     glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
     glBindTexture(GL_TEXTURE_2D, *textureid);
 
-
-    //DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_NORMAL, "Bound texture %s\n", fname.c_str());
 
     bool simpletextures = false; // to fool him until simpletextures is truly implemented
 
@@ -827,7 +818,7 @@ void TextureReportRemaining() {
 	ONThreadSafe(texturethreadsafe);
     for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; it++ ) {
         t = (*it);
-        DEBUGPRINT(DEBUGPRINT_LEVEL_JUNK, DEBUGPRINT_WARNING,"Remaining %s[%d]=%d x%d", t->fname.c_str(), t->imgid, *(t->textureid), *(t->usecount) );
+        DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_WARNING,"Remaining %s[%d]=%d x%d", t->fname.c_str(), t->imgid, *(t->textureid), *(t->usecount) );
     }
     ONThreadUnsafe(texturethreadsafe);
 }
@@ -835,7 +826,7 @@ void TextureExpungeRemaining() {
     static Texture *t;
 
 	ONThreadSafe(texturethreadsafe);
-    for (std::vector<Texture*>::iterator it = textures_all.begin(); it != textures_all.end() ; it++ ) {
+    for (std::vector<Texture*>::iterator it = textures.begin(); it != textures.end() ; ) {
         t = (*it);
         delete t;
     }

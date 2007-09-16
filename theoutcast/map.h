@@ -42,14 +42,19 @@ class Map {
 		unsigned int GetMinimapTexture();
 		void RebuildMinimap();
 
+
         bool locked;
     private:
+		void internalRebuildMinimap();
+
+
         maptype_t m;
         creaturelist_t c;
         ONCriticalSection threadsafe;
 		Creature *attackedcreature;
 		int maxx, maxy, maxz;
 		unsigned int minimaptex;
+		bool mustrebuildminimap;
 
 };
 

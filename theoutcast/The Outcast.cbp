@@ -235,7 +235,7 @@
 				<Option object_output=".objsdebug_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd softwarerenderer" />
+				<Option parameters="sprplaygroundd softwarerendererr" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -377,11 +377,11 @@
 					<Add option="-fexceptions" />
 					<Add option="-g3" />
 					<Add option='-Wl,-Map=&quot;The Outcast.map&quot;' />
+					<Add library="glut32" />
 					<Add library="gdi32" />
 					<Add library="user32" />
 					<Add library="kernel32" />
 					<Add library="GLICT" />
-					<Add library="glut32" />
 					<Add library="opengl32" />
 					<Add library="glu32" />
 					<Add library="ws2_32" />

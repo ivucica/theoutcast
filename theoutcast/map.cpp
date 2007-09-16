@@ -2,6 +2,7 @@
 #include "map.h"
 #include "player.h"
 #include "protocol.h"
+#include "console.h" // REMOVE ME
 
 #define MINIMAPW 32
 #define MINIMAPH 32
@@ -129,11 +130,19 @@ void Map::Clear() {
 #include <iomanip>
 // FIXME (Khaos#1#) Perhaps this should move into imgfmts?
 unsigned int Map::GetMinimapTexture() {
+	if (mustrebuildminimap) {
+		internalRebuildMinimap();
+		mustrebuildminimap = false;
+	}
 	return minimaptex;
 }
 void Map::RebuildMinimap() {
+	mustrebuildminimap = true;
+}
+void Map::internalRebuildMinimap() {
 	RGBA ar [MINIMAPW*MINIMAPH];
 	unsigned char c;
+
 	for (int i = 0; i<MINIMAPW*MINIMAPH; i++) {
 		ar[i].r = 0;
 		ar[i].g = 0;
@@ -147,6 +156,8 @@ void Map::RebuildMinimap() {
     y << setw(3) << setfill('0') << player->GetPosY() / 256;
     z << setw(2) << setfill('0') << (int)player->GetPosZ();
     minimapfn << x.str() << y.str() << z.str() << ".map";
+
+
 
 	FILE *f = fopen(minimapfn.str().c_str(), "rb");
 	if (!f) return;
@@ -199,6 +210,7 @@ void Map::RebuildMinimap() {
 
 					//ar[j*32+i].b = 255;
 				}
+
 			}
 
 
@@ -212,11 +224,15 @@ void Map::RebuildMinimap() {
 		glDeleteTextures(1, &minimaptex);
 	glGenTextures(1, &minimaptex);
 
-    glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
-    glBindTexture(GL_TEXTURE_2D, minimaptex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	if (minimaptex) {
+		glPixelStorei (GL_UNPACK_ALIGNMENT, 1);
+		glBindTexture(GL_TEXTURE_2D, minimaptex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, MINIMAPW, MINIMAPH, GL_RGBA, GL_UNSIGNED_BYTE, ar );
+		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, MINIMAPW, MINIMAPH-2, GL_RGBA, GL_UNSIGNED_BYTE, ar );
+	} else {
+		console.insert("Failed to generate minimap texture space.", CONRED);
+	}
 
 }
