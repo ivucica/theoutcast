@@ -325,7 +325,7 @@ GM_MainMenu::GM_MainMenu() {
 
 		i = j+1;
 	}
-	sprintf(abouttext, "%s 0.4.2\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
+	sprintf(abouttext, "%s 0.4.3\n\nCopyright (c) 2005-2007 OBJECT Networks.\nAll rights reserved.\n\nThis software comes with no warranty; authors cannot be held responsible\nfor any kind of data, financial or any other kind of loss,\nnor with any breach of copyright at hands of the end users.\n\nGL vendor: %s\nGL renderer: %s\nGL version: %s\nGL extensions:\n%s", APPTITLE, glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), outextension);
 	about.SetMessage(abouttext);
 //    about.SetMessage("oi");
 	about.SetHeight(390);

@@ -22,7 +22,7 @@
 char debuglevel=DEBUGLEVEL_BUILDTIME;
 
 std::string DEBUG_FILE; int DEBUG_LINE;
-void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...) {
+void DEBUGPRINTx (char msgdebuglevel, char type, const char* txt, ...) {
     va_list vl;
 	va_start(vl, txt);
 

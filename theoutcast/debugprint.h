@@ -13,7 +13,7 @@
 #define DEBUGPRINT_LEVEL_DEBUGGING 2
 #define DEBUGPRINT_LEVEL_JUNK 3
 extern char debuglevel;
-void DEBUGPRINTx (char msgdebuglevel, char type, char* txt, ...);
+void DEBUGPRINTx (char msgdebuglevel, char type, const char* txt, ...);
 extern std::string DEBUG_FILE; extern int DEBUG_LINE;
 void DEBUGMARKER (unsigned int size, const char *val);
 

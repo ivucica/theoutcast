@@ -1,6 +1,6 @@
-THE OUTCAST v0.4.2
+THE OUTCAST v0.4.3
 Readme
-8.8.2007
+20.9.2007
 
 Copyright 2005-07 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
@@ -26,7 +26,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.4.2 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
+Hey folks, this is The Outcast v0.4.3 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
 
 The 0.4 series is a continuation upon the 0.3 series, which was a rewrite. We're about halfway with the client functionality; after all functionality is implemented, the final stability fixing process will begin.
 
@@ -45,19 +45,13 @@ This is a complete rewrite of The Outcast, from scratch, started since (effectiv
 
 1.a) Rant about this version
 
-The crashes were pretty irritating, and since I've started using GNU/Linux and the Tibia client does NOT work for me, neither the Windows version using WINE nor the Linux version (!), I've had to do something about it. Besides, some real-life friends have expressed a need for a GNU/Linux client in face of same problems.
-
-So, I've decided to just stabilize the beast, and to make a release. It's taken quite a while to catch the little buggars, since they were everywhere around the code, and they were small (much smaller than the Bug monsters in Tibia :P), plus some time ago the faithful GDB has turned its back on me -- under GNU/Linux, it crashes!
-
-Ah nevermind -- let's just say that this should now be playable for a while.
-
-Oh yea, I also added spiffy distance shot effects and sounds for 7.92 and 8.0 versions ... but that doesn't matter, right? :)
+Added minimap...
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
 1.b) Rant about the future
 
-Fix magic effects, add trade dialog, add real private messages :)
+Add trade dialog, add real private messages :)
 
 ---
 
@@ -223,7 +217,7 @@ Changes since 0.4.2
 * Fixed memory problems! It doesn't appear to crash anymore
 * Improved algorithm when moving, using or attacking
 * Focus now automatically switches back to console textbox
-* Added minimap! (Experimental! Beware, framerate may significantly drop! It may crash.)
+* Added minimap! (Experimental! Beware, framerate may drop! It may crash.)
 
 Changes since 0.4.1
 * Added 32-bit PNG support (beware -- no other color depth for PNG is supported!) However there's still no much use for this since extension .BMP is hardcoded in many places...
@@ -554,18 +548,18 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 13. CURRENT CODE STATISTICS
 
 Current code statistics:
-* Number of files: 120
+* Number of files: 121
 
 * Code only: 70%
 * Code + Comment: 4%
-* Comments: 8%
+* Comments: 7%
 * Empty: 19%
 
-* Code only: 13293
-* Empty lines: 3561
-* Comment lines: 1441
-* Code and comments: 826
-* Total: 19121
+* Code only: 13753
+* Empty lines: 3728
+* Comment lines: 1451
+* Code and comments: 844
+* Total: 19776
 
 Count above does not include GLICT.
 ---

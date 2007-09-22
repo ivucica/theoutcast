@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "bmpfont.h"
 
-Texture *BMPFontCreate(char* fontname, char size) {
+Texture *BMPFontCreate(const char* fontname, char size) {
     Texture *t = new Texture(fontname);
 
     return t;

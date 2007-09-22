@@ -1,5 +1,5 @@
 THE OUTCAST 0.4 - GNU/Linux VERSION
-Readme for 0.4.1
+Readme for 0.4.3
 (c) 2005-2007 OBJECT Networks
 =============================
 
@@ -9,7 +9,7 @@ readme.txt.
 
 1) Installation
 
-$ tar xvvfz outcast*
+$ tar xvvfz outcast*.tar.gz
 $ cd outcast<PRESS TAB>
 $ ./outcast
 

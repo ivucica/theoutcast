@@ -321,8 +321,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="sprplaygroundd softwarerendererr" />
 				<Compiler>
-					<Add option="-O3" />
-					<Add option="-g0" />
+					<Add option="-g" />
 					<Add option="-fexceptions" />
 					<Add option="-DPOSIX_THREADS" />
 					<Add option="-DUSEENCRYPTION" />
