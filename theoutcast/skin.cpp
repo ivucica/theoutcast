@@ -80,6 +80,7 @@ void Skin::Load(const char* what) {
 
     Unload();
 
+	printf("Dirname %s\n", dirname.c_str());
     printf("Loading colors\n");
     {
         FILE *f = fopen((dirname + "colors.txt").c_str(), "r");
@@ -104,6 +105,7 @@ void Skin::Load(const char* what) {
             fclose(f);
         }
     }
+
 
     //return;
     printf("Loading window\n");

@@ -235,7 +235,7 @@
 				<Option object_output=".objsdebug_unix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="sprplaygroundd softwarerendererr" />
+				<Option parameters="sprplayground softwarerendererr" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -668,6 +668,8 @@
 		</Unit>
 		<Extensions>
 			<code_completion />
+			<envvars />
+			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

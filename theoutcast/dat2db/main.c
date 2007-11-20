@@ -1319,7 +1319,7 @@ void reverse_spr_lookup_build() {
 	lastpercentage = -100; printf("Effects:  ");
 	dbexecprintf(fo, reverse_spr_lookup_cb, (void*)2, NULL, "select effectid, spritelist from effects%d order by effectid;", datversion);
 	lastpercentage = -100; printf("Distance shots:  ");
-	dbexecprintf(fo, reverse_spr_lookup_cb, (void*)2, NULL, "select distanceid, spritelist from distances%d order by effectid;", datversion);
+	dbexecprintf(fo, reverse_spr_lookup_cb, (void*)3, NULL, "select distanceid, spritelist from distances%d order by distanceid;", datversion);
 }
 static int readxmlinteger (xmlNodePtr node, const char* tag)
 {

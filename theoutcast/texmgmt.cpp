@@ -836,7 +836,8 @@ void TextureExpungeRemaining() {
 
 // FIXME (Khaod#1#) item 459+10 causes integrity failure upon unload
 bool TextureIntegrityTest_internal (std::string s) {
-	//printf("TextureIntegrityTest(%s)\n", s.c_str());
+//	printf("TextureIntegrityTest(%s) -- checking %d textures\n", s.c_str(), textures_all.size());
+
 	Texture*t;
 	ONThreadSafe(texturethreadsafe);
 	for (std::vector<Texture*>::iterator it = textures_all.begin(); it != textures_all.end() ; it++ ) {

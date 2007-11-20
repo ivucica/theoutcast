@@ -498,18 +498,18 @@ void GM_Gameworld::ResizeWindow() {
 	desktop.SetHeight(winh);
 	desktop.SetWidth(winw);
 
-    winWorld.SetHeight((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0));
-    winWorld.SetWidth((int)((float)((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0)) * VISIBLEWPIXEL/VISIBLEHPIXEL));
+    winWorld.SetHeight((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize().h : 0));
+    winWorld.SetWidth((int)((float)((winh > 100 ? winh - 100 : 0) - 16 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize().h : 0)) * VISIBLEWPIXEL/VISIBLEHPIXEL));
     winWorld.SetPos(0, 0);
 
     winConsole.SetWidth(winw-100);
-    winConsole.SetPos(0, winh-100+32 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize()->h : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetBottomSize()->h : 0));
+    winConsole.SetPos(0, winh-100+32 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetTopSize().h : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetBottomSize().h : 0));
         txtConMessage.SetWidth(winw-100-50);
         btnConSend.SetPos(winw-100-50, 52);
 
-    winInventory.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize()->w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize()->w : 0), 0);
+    winInventory.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize().w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize().w : 0), 0);
 
-    winStats.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize()->w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize()->w : 0), winInventory.GetHeight());
+    winStats.SetPos(winw-120 - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetLeftSize().w : 0) - (glictGlobals.windowBodySkin ? glictGlobals.windowBodySkin->GetRightSize().w : 0), winInventory.GetHeight());
 
 
 	containerdesktop.SetHeight(winh);

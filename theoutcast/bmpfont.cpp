@@ -47,6 +47,7 @@ void BMPFontDraw(const char* txt, const void* fontvoid, float x, float y) {
 
     glEnable(GL_TEXTURE_2D);
     font->Bind();
+    glColor4f(1.,1.,1.,1.);
     volatile register float sizesofar = 0.;
 	volatile register float linessofar = 0.;
 	for (volatile register unsigned char *t = (unsigned char*)txt; *t; ++t) {
