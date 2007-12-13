@@ -36,8 +36,8 @@ static bool rundistanceanim=false;
 
 #define BIGARRAYSIZE 200
 #define BAMULTI 4
-#define PROTO 800
-#define PROTOFILE "Tibia80.spr"
+#define PROTO 810
+#define PROTOFILE "Tibia81.spr"
 Texture *bigarray[BIGARRAYSIZE] = {NULL};
 ObjSpr *objbigarray[BIGARRAYSIZE] = {NULL};
 

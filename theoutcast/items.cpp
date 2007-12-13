@@ -175,6 +175,9 @@ void ItemsLoad() {
         case 800:
             SPRLoader("Tibia80.spr");
             break;
+        case 810:
+            SPRLoader("Tibia81.spr");
+            break;
         default:
             printf("!(Y$*#)QY$()!$(!&#)($\n");
             system("pause");

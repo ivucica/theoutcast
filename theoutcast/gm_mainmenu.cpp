@@ -976,6 +976,10 @@ void GM_MainMenu_LoginLogin(glictPos* pos, glictContainer* caller) {
             strcpy(sprfilename, "Tibia80.spr");
             strcpy(protocolstr, "8.0");
             break;
+		case 810:
+            strcpy(sprfilename, "Tibia81.spr");
+            strcpy(protocolstr, "8.1");
+            break;
         #ifdef INCLUDEME
         case ME0PROTOCOLVERSION:
             strcpy(sprfilename, "NONE");

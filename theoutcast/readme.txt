@@ -30,7 +30,7 @@ Hey folks, this is The Outcast v0.4.3 alpha. Let's take a look at what "The Outc
 
 The 0.4 series is a continuation upon the 0.3 series, which was a rewrite. We're about halfway with the client functionality; after all functionality is implemented, the final stability fixing process will begin.
 
-The Outcast supports multiple protocols in the same executable: when you enter your username and password, you also pick the protocol. Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 750, 760, 770, 790, 792, 800 -- more upcoming.
+The Outcast supports multiple protocols in the same executable: when you enter your username and password, you also pick the protocol. Currently, you must enter the 3 digit code of the protocol. Multiple protocols are supported: 750, 760, 770, 790, 792, 800, 810 -- more upcoming.
 
 It is NOT allowed to connect to CipSoft servers using alternative clients! If you do connect and CipSoft notices you're not using their client, you may be banned! (Tibia Rules, Section 3d)
 

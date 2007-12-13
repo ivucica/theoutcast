@@ -388,6 +388,12 @@ void ObjSpr::LoadCreature(unsigned int creatureid, unsigned int protocolversion,
                 else
                     t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
                 break;
+            case 810:
+                if (sli.blendframes > 1)
+                    t[i] = new Texture("Tibia81.spr", sli.spriteids[i], sli.spriteids[i+sli.height*sli.width], head, body, legs, feet);
+                else
+                    t[i] = new Texture("Tibia81.spr", sli.spriteids[i]);
+                break;
 
         }
 
@@ -543,6 +549,21 @@ void ObjSpr::LoadItem(unsigned int itemid, unsigned int protocolversion) {
 
                 if (!f) {
                     t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                }
+                break;
+
+            case 810:
+                sprintf(filename, "Tibia81/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia81.spr", sli.spriteids[i]);
                 }
                 break;
         }
@@ -720,6 +741,20 @@ void ObjSpr::LoadEffect(unsigned int effectid, unsigned int protocolversion) {
 
                 if (!f) {
                     t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                }
+                break;
+            case 810:
+                sprintf(filename, "Tibia81/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia81.spr", sli.spriteids[i]);
                 }
                 break;
 
@@ -900,6 +935,20 @@ void ObjSpr::LoadDistance(unsigned int distanceid, unsigned int protocolversion)
 
                 if (!f) {
                     t[i] = new Texture("Tibia80.spr", sli.spriteids[i]);
+                }
+                break;
+			case 810:
+                sprintf(filename, "Tibia81/%d.bmp", sli.spriteids[i]);
+                f = fopen(filename, "r");
+                if (f) {
+                    fclose(f);
+                    t[i] = new Texture(filename);
+
+                    break;
+                }
+
+                if (!f) {
+                    t[i] = new Texture("Tibia81.spr", sli.spriteids[i]);
                 }
                 break;
 

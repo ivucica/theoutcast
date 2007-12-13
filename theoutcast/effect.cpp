@@ -5,6 +5,7 @@
 #include "tile.h"
 #include "sound.h"
 #include "database.h"
+#include "protocol.h"
 extern bool dontloadspr;
 extern  float fps;
 Effect::Effect(Tile *parent) {
@@ -65,13 +66,12 @@ void Effect::SetType(unsigned short type, void* extra) {
 	//printf("Creating new sprite for effect type %d\n", type);
     if (!dontloadspr) {
     	if (!extra) {
-    		dbExecPrintf(dbData, EffectPlaySound, NULL, NULL, "select `soundfile` from effects800 where effectid='%d';", type);
-    		printf("select `soundfile` from effects800 where effectid='%d';", type);
+    		dbExecPrintf(dbData, EffectPlaySound, NULL, NULL, "select `soundfile` from effects%d where effectid='%d';", protocol->GetProtocolVersion(), type);
 
 			sprgfx = new ObjSpr(type, 2);
     	}
 		else {
-			dbExecPrintf(dbData, EffectPlaySound, NULL, NULL, "select `soundfile` from distances800 where distanceid='%d';", type);
+			dbExecPrintf(dbData, EffectPlaySound, NULL, NULL, "select `soundfile` from distances%d where distanceid='%d';", protocol->GetProtocolVersion(),  type);
 			sprgfx = new ObjSpr(type, 3);
 		}
     }

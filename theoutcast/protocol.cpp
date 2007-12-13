@@ -29,6 +29,7 @@
 #include "protocol79.h"
   #include "protocol792.h"
   #include "protocol80.h"
+  #include "protocol81.h"
 #endif
 
 #ifdef INCLUDE_SP
@@ -1961,6 +1962,9 @@ bool ProtocolSetVersion (unsigned short protocolversion) {
             return true;
         case 800:
             protocol = new Protocol80;
+            return true;
+        case 810:
+            protocol = new Protocol81;
             return true;
 #endif
         default:

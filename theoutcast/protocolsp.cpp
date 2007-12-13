@@ -28,7 +28,7 @@ void GWLogon_Status(glictMessageBox* mb, const char* txt);
 
 
 ProtocolSP::ProtocolSP() {
-    protocolversion = 800; // singleplayer will always load latest supported SPR version
+    protocolversion = 810; // singleplayer will always load latest supported SPR version
     fingerprints[FINGERPRINT_TIBIADAT] = 0x459E7B73;
     fingerprints[FINGERPRINT_TIBIASPR] = 0x45880FE8;
     fingerprints[FINGERPRINT_TIBIAPIC] = 0x45670923;

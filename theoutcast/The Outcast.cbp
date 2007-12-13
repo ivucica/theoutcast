@@ -584,6 +584,7 @@
 		<Unit filename="protocol79.cpp" />
 		<Unit filename="protocol79.h" />
 		<Unit filename="protocol792.h" />
+		<Unit filename="protocol81.h" />
 		<Unit filename="protocolme0.cpp">
 			<Option target="debug" />
 			<Option target="debug_unix" />

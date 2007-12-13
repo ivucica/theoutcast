@@ -525,9 +525,10 @@ char dat_readitem(item_t *item) {
 
 
 
-            case 790:
-            case 792:
-			case 800:
+        case 790:
+	case 792:
+	case 800:
+	case 810:
 				/*if (currentid == 54  || currentid == 67 || currentid == 93 || currentid == 97 || currentid == 99) printf("%d -- option %02x\n", currentid, option);*/
                 switch (option) {
                     case 0x00: /* ground */
@@ -660,7 +661,8 @@ char dat_readitem(item_t *item) {
         case 770:
         case 790:
         case 792:
-		case 800: {
+	case 800: 
+	case 810: {
             spritelist_t *sl = (spritelist_t*)malloc(sizeof(spritelist_t));
             if (!sl) {
                 printf("Cannot alloc enough memory for spritelist\n");
