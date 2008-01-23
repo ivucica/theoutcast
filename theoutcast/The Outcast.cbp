@@ -389,6 +389,7 @@
 					<Add library="sqlite3" />
 					<Add library="fmod" />
 					<Add library="tfm" />
+					<Add library="/mnt/hda9/Development/outcast/glut32.dll" />
 				</Linker>
 			</Target>
 			<Target title="debug_mingw">

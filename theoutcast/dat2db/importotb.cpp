@@ -479,6 +479,7 @@ int loadFromOtb (std::string file) {
 
 			show_progress(newitem->cid , dat_items);
             dbexecprintf(fo, NULL, 0, NULL, "update items%d set otid=%d where itemid=%d;", datversion, newitem->sid, newitem->cid );
+            dbexecprintf(fo, NULL, 0, NULL, "insert into otbtranslation (`id`,`version`,`cid`) values (%d, %d, %d);", newitem->sid, datversion, newitem->cid);
 
         }
 
@@ -502,7 +503,7 @@ int loadFromOtb (std::string file) {
 
 //////////////////////////////////////////////////
 extern "C" {
-
+	char tableexists(const char *tablename);
 	void import_otb_do(const char* fn) {
 		FILE* f = fopen(fn, "r");
 		if (!f) {
@@ -511,6 +512,24 @@ extern "C" {
 		}
 
 		lastpercentage = -100;
+
+		if (!tableexists("otbtranslation")) {
+			printf("Creating table 'otbtranslation'.\n");
+			if (dbexecprintf(fo, NULL, 0, NULL, "create table otbtranslation ("
+
+				"id integer,"
+				"version integer, "
+				"cid integer"
+				"); ") != SQLITE_OK) {
+					printf("Table 'otbtranslation' creation failed\n");
+					return;
+			}
+		} else {
+			dbexecprintf(fo, NULL, 0, NULL, "delete from otbtranslation where version=%d;", datversion);
+		}
+
+
+
 		dbexec(fo, "begin transaction",NULL,NULL,NULL);
 		loadFromOtb(fn);
 		dbexec(fo, "end transaction",NULL,NULL,NULL);

@@ -1,8 +1,8 @@
-THE OUTCAST v0.4.3
+THE OUTCAST v0.4.31
 Readme
-20.9.2007
+23.1.2008.
 
-Copyright 2005-07 OBJECT Networks. All rights reserved.
+Copyright 2005-08 OBJECT Networks. All rights reserved.
 Reproduction of this software is free for non-commercial purposes only. For commercial purposes, please contact us.
 
 New? Read "Instructions" for quick setup info. If you're having problems check out "Known problems and bugs" and "Troubleshooting".
@@ -26,7 +26,7 @@ CONTENTS
 
 ---
 
-Hey folks, this is The Outcast v0.4.3 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
+Hey folks, this is The Outcast v0.4.31 alpha. Let's take a look at what "The Outcast" is going to be, and how to use this release.
 
 The 0.4 series is a continuation upon the 0.3 series, which was a rewrite. We're about halfway with the client functionality; after all functionality is implemented, the final stability fixing process will begin.
 
@@ -45,17 +45,20 @@ This is a complete rewrite of The Outcast, from scratch, started since (effectiv
 
 1.a) Rant about this version
 
-Added minimap...
+Added 8.1 protocol support.
+Release was made around December 13-14th, readme was updated only later on.
 
 NOTE: This release is A MEMORY HOG and WILL USE YOUR MEMORY WITHOUT MERCY. It will ALLOCATE TONS OF MEMORY WITH EVERY STEP YOU MAKE, but it will NOT DEALLOCATE ANY MEMORY UNTIL EXIT. Consider yourself warned.
 
 1.b) Rant about the future
 
-Add trade dialog, add real private messages :)
+It's dead Jim
 
 ---
 
 2. HISTORY
+
+Development ceased as of ~September 2007.
 
 Version 0.3 was a complete rewrite of The Outcast, from scratch, started since (effectively) December 26th 2006. Folder was created on December 16th, however it was only preparation for real programming.
 
@@ -208,6 +211,11 @@ n.b. Great admiration goes to mr. Hipp, author of SQLite, who is very modest and
 ---
 
 10. CHANGE HISTORY
+
+Changes since 0.4.3
+* Added 8.1 protocol support.
+* Messed up font colors.
+* GLICT visuals messed up since code wasn't patched for new GLICT.
 
 Changes since 0.4.2
 * Fixed a bug with OT sending 0xa2 before setting player creature id
@@ -491,34 +499,7 @@ Changes since 0.11
 
 11. LICENSE
 
-
-0. TERMINOLOGY. Throughout this license, "the original The Outcast archive" or "the original archive" refers to the set of files originally distributed by OBJECT Networks as The Outcast. This license only applies to the freely distributable versions of The Outcast, OBJECT Networks may make The Outcast, or portions of it, available under different licensing conditions for selected licensees.
-
-"Data files" refers to all files that are placed in one of the sub-folders of the original archive, or files with extension ".BMP" or are named "data.db" in the original archive.
-
-"To destroy the software" means to destroy the software, the original archive and any other form and medium you may have The Outcast in.
-
-"You" refers to the licensee, the person or other legal entity using The Outcast. "Using" The Outcast means executing The Outcast.
-
-This license applies to all files distributed in the original The Outcast archive, including all source code, libraries, textures, sounds, music, binaries and documentation, unless otherwise stated in the file in its original, unmodified form as distributed in the original archive. If you are unsure whether or not a particular file is covered by this license, you must contact us to verify this. If a file is not included in the original The Outcast archive, it is not covered by this license.
-
-1. REPRODUCTION. Reproduction and redistribution of this software in completely unlimited form is permitted for non-commercial purposes only. Redistribution of software outside the original archive or modified software is not permitted and results in termination of license, which means you must destroy the software.
-
-2. TERMINATION OF LICENSE. Authors reserve the right to terminate the license and request that you destroy the software, the original archive and any other form and medium you may have The Outcast immediately.
-
-3. MODIFICATION AND REVERSE ENGINEERING. You agree not to reverse engineer, decompile or modify the software in any way, except for modifying the data files to suit your needs.
-
-4. OWNERSHIP. Authors reserve the ownership of the software. You are not the owner of the software; you only receive the license to use it.
-
-5. OBLIGATIONS. You will report any problems about the software to the Authors.
-
-6. WARRANTY. THE OUTCAST IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT WILL ANY OF THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY DAMAGES CAUSED BY THE USE OR INABILITY TO USE, OF THE OUTCAST.
-
-As you have not signed this license, you are not required to accept it. However, as The Outcast is copyrighted material, only this license grants you the right to use, distribute and modify it.  Therefore, by using, distributing or modifying The Outcast, you indicate that you understand and accept all the terms of this license. Hereby:
-
-IF YOU DO NOT AGREE OR ACCEPT THE LICENSE YOU MUST IMMEDIATELY DESTROY THE SOFTWARE, THE ORIGINAL ARCHIVE AND ANY OTHER FORM AND MEDIUM YOU MAY CURRENTLY HAVE THE OUTCAST IN.
-
-#midas
+Please view the attached file COPYING. The game is licensed under GNU General Public License v2.
 
 ---
 
@@ -546,6 +527,8 @@ Update, December 27th 2006: New version being written from scratch. This will NO
 ---
 
 13. CURRENT CODE STATISTICS
+
+Not updated for open source version.
 
 Current code statistics:
 * Number of files: 121

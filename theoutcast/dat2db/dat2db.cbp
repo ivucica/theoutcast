@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="dat2db" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="windows">
+				<Option platforms="Windows;" />
+				<Option output="dat2db" prefix_auto="0" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="tibia75.dat data.db 750 tibia75.opq " />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Compiler>
+					<Add option="-ansi" />
+					<Add option="-DWIN32" />
+				</Compiler>
+				<Linker>
+					<Add library="sqlite3" />
+					<Add library="C:/Dev-Cpp/lib/libxml2.lib" />
+				</Linker>
+			</Target>
+			<Target title="nonwindows">
+				<Option platforms="Unix;Mac;" />
+				<Option output="dat2db" prefix_auto="0" extension_auto="1" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="Tibia810.dat data.db 810  tibia810.opq " />
+				<Option projectResourceIncludeDirsRelation="0" />
+				<Compiler>
+					<Add option="-ansi" />
+					<Add directory="/usr/include/libxml2" />
+				</Compiler>
+				<Linker>
+					<Add library="sqlite3" />
+					<Add library="xml2" />
+				</Linker>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="windows;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-g" />
+		</Compiler>
+		<Unit filename="const76.h" />
+		<Unit filename="exchndl2.cxx">
+			<Option target="windows" />
+		</Unit>
+		<Unit filename="fileloader.cpp" />
+		<Unit filename="fileloader.h" />
+		<Unit filename="importotb.cpp" />
+		<Unit filename="importotb.h" />
+		<Unit filename="importotxml.cpp" />
+		<Unit filename="itemloader.cpp" />
+		<Unit filename="itemloader.h" />
+		<Unit filename="items.h" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

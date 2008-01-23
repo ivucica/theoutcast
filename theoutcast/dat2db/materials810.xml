@@ -1,0 +1,965 @@
+<?xml version="1.0"?>
+<materials>
+        <material name="Grounds" icon="102">
+		<item fromid="100"/>
+		<item fromid="101"/>
+		<item fromid="102"/>
+		<item fromid="103"/>
+		<item fromid="104"/>
+		<item fromid="105"/>
+		<item fromid="106"/>
+		<item fromid="107"/>
+		<item fromid="108"/>
+		<item fromid="109"/>
+		<item fromid="231"/>
+		<item fromid="280"/>
+		<item fromid="351"/>
+		<item fromid="352"/>
+		<item fromid="353"/>
+		<item fromid="354"/>
+		<item fromid="355"/>
+		<item fromid="368"/>
+		<item fromid="405"/>
+		<item fromid="406"/>
+		<item fromid="407"/>
+		<item fromid="412"/>
+		<item fromid="413"/>
+		<item fromid="414"/>
+		<item fromid="415"/>
+		<item fromid="419"/>
+		<item fromid="420"/>
+		<item fromid="424"/>
+		<item fromid="431"/>
+		<item fromid="448"/>
+		<item fromid="449"/>
+		<item fromid="450"/>
+		<item fromid="457"/>
+		<item fromid="458"/>
+		<item fromid="460"/>
+		<item fromid="459"/>
+		<item fromid="490"/>
+		<item fromid="493"/>
+		<item fromid="598"/>
+		<item fromid="602"/>
+		<item fromid="670"/>
+		<item fromid="671"/>
+		<item fromid="708"/>
+		<item fromid="724"/>
+		<item fromid="777"/>
+		<item fromid="790"/>
+		<item fromid="791"/>
+		<item fromid="804"/>
+		<item fromid="836"/>
+		<item fromid="918"/>
+		<item fromid="920"/>
+		<item fromid="926"/>
+		<item fromid="927"/>
+		<item fromid="929"/>
+		<item fromid="936"/>
+		<item fromid="937"/>
+		<item fromid="939"/>
+		<item fromid="946"/>
+		<item fromid="947"/>
+		<item fromid="948"/>
+		<item fromid="956"/>
+		<item fromid="957"/>
+		<item fromid="958"/>
+		<item fromid="965"/>
+		<item fromid="966"/>
+		<item fromid="1284"/>
+		<item fromid="1509"/>
+		<item fromid="194"/>
+		<item fromid="806"/>
+		<item fromid="464"/>
+		<item fromid="466"/>
+
+		<item fromid="4595"/>
+		<item fromid="4608"/>
+		<item fromid="4609"/>
+		<item fromid="4610"/>
+		<item fromid="4611"/>
+		<item fromid="4612"/>
+		<item fromid="4613"/>
+		<item fromid="4614"/>
+		<item fromid="4615"/>
+		<item fromid="4616"/>
+		<item fromid="4617"/>
+		<item fromid="4618"/>
+		<item fromid="4619"/>
+		<item fromid="4620"/>
+		<item fromid="4621"/>
+		<item fromid="4622"/>
+		<item fromid="4623"/>
+		<item fromid="4624"/>
+		<item fromid="4625"/>
+
+		<item fromid="4664"/>
+		<item fromid="4665"/>
+		<item fromid="4666"/>
+
+		<item fromid="4691"/>
+		<item fromid="4692"/>
+		<item fromid="4693"/>
+		<item fromid="4694"/>
+		<item fromid="4695"/>
+		<item fromid="4696"/>
+		<item fromid="4697"/>
+		<item fromid="4698"/>
+		<item fromid="4699"/>
+		<item fromid="4700"/>
+		<item fromid="4701"/>
+		<item fromid="4702"/>
+		<item fromid="4703"/>
+		<item fromid="4704"/>
+		<item fromid="4705"/>
+		<item fromid="4706"/>
+		<item fromid="4707"/>
+		<item fromid="4708"/>
+		<item fromid="4709"/>
+		<item fromid="4710"/>
+		<item fromid="4711"/>
+		<item fromid="4712"/>
+
+		<item fromid="4749"/>
+		<item fromid="4750"/>
+		<item fromid="4751"/>
+		<item fromid="4752"/>
+		<item fromid="4753"/>
+		<item fromid="4754"/>
+		<item fromid="4755"/>
+		<item fromid="4756"/>
+		<item fromid="4757"/>
+		<item fromid="4758"/>
+		<item fromid="4759"/>
+
+		<item fromid="4820"/>
+		<item fromid="4821"/>
+		<item fromid="4822"/>
+		<item fromid="4823"/>
+		<item fromid="4824"/>
+		<item fromid="4825"/>
+
+		<item fromid="4832"/>
+		<item fromid="4833"/>
+	</material>
+
+	<material name="Accessories" icon="2036">
+		<item fromid="3941" toid="3942"/>
+		<item fromid="5928" toid="5929"/>
+		<item fromid="2005" toid="2015"/>
+		<item fromid="2022" toid="2024"/>
+		<item fromid="2031" toid="2033"/>
+		<item fromid="2035" toid="2036"/>
+		<item fromid="6091" toid="6092"/>
+		<item fromid="2176" toid="2178"/>
+		<item fromid="2364"/>
+		<item fromid="2366" toid="2375"/>
+		<item fromid="4874"/>
+		<item fromid="2597" toid="2598"/>
+		<item fromid="2599"/>
+		<item fromid="2624" toid="2639"/>
+		<item fromid="2175"/>
+		<item fromid="2193" toid="2194"/>
+		<item fromid="2217" toid="2218"/>
+		<item fromid="2356"/>
+		<item fromid="2359"/>
+		<item fromid="2137"/>
+		<item fromid="2031" toid="2033"/>
+		<item fromid="4851"/>
+		<item fromid="7281"/>
+		<item fromid="7315"/>
+		<item fromid="6566" toid="6568"/>
+		<item fromid="6570" toid="6573"/>
+	</material>
+	
+	<material name="Addon &amp; Quest Items" parent="Accessories" icon="5880">
+	        <item fromid="2344" toid="2349"/>
+	        <item fromid="4863" toid="4872"/>
+	        <item fromid="5089"/>
+                <item fromid="5875" toid="5906"/>
+                <item fromid="5919" toid="5922"/>
+                <item fromid="5925"/>
+                <item fromid="5930"/>
+		<item fromid="6097" toid="6102"/>
+		<item fromid="3960"/>
+		<item fromid="2335" toid="2341"/>
+		<item fromid="4848"/>
+		<item fromid="4856"/>
+		<item fromid="7314"/>
+		<item fromid="7140" toid="7142"/>
+		<item fromid="5468"/>
+		<item fromid="5909" toid="5914"/>
+		<item fromid="6087" toid="6090"/>
+		<item fromid="6105"/>
+		<item fromid="6126"/>
+		<item fromid="6500"/>
+	</material>
+	
+	<material name="Containers" parent="Accessories" icon="2365">
+	        <item fromid="1987" toid="1989"/>
+	        <item fromid="1990" toid="2004"/>
+	        <item fromid="5949" toid="5950"/>
+	        <item fromid="3939" toid="3940"/>
+                <item fromid="5926" toid="5927"/>
+	        <item fromid="7342" toid="7343"/>
+	        <item fromid="2365"/>
+	        <item fromid="2330" toid="2331"/>
+	        <item fromid="2595" toid="2596"/>
+	        <item fromid="5801"/>
+	        <item fromid="6085"/>
+	        <item fromid="6104"/>
+	        <item fromid="6109" toid="6112"/>
+	        <item fromid="6506" toid="6511"/>
+        </material>
+
+        <material name="Furniture package" parent="Accessories" icon="3909">
+		<item fromid="3901" toid="3938"/>
+		<item fromid="5086" toid="5088"/>
+		<item fromid="6114" toid="6115"/>
+		<item fromid="6372" toid="6373"/>
+	</material>
+	
+	<material name="Keys" parent="Accessories" icon="2091">
+		<item fromid="2086" toid="2092"/>
+	</material>
+	
+	<material name="Light Sources" parent="Accessories" icon="2042">
+		<item fromid="2041" toid="2057"/>
+		<item fromid="2062" toid="2065"/>
+		<item fromid="2361"/>
+		<item fromid="2162" toid="2163"/>
+		<item fromid="5812" toid="5813"/>
+		<item fromid="6489" toid="6490"/>
+	</material>
+	
+	<material name="Runes" parent="Accessories" icon="2260">
+		<item fromid="2260" toid="2316"/>
+	</material>
+
+        <material name="Tools" parent="Accessories" icon="5710">
+		<item fromid="2324"/>
+		<item fromid="5480"/>
+		<item fromid="2416"/>
+		<item fromid="2548" toid="2552"/>
+		<item fromid="2553" toid="2554"/>
+		<item fromid="5710"/>
+		<item fromid="2578" toid="2580"/>
+		<item fromid="2120"/>
+		<item fromid="5800"/>
+		<item fromid="5865"/>
+		<item fromid="5908"/>
+                <item fromid="5941" toid="5942"/>
+	</material>
+	
+	<material name="Borders" icon="110">
+	        <item fromid="6627" toid="6682"/>
+                <item fromid="6687" toid="6694"/>
+        </material>
+
+	<material name="Borders (Grounds)" parent="Borders" icon="111">
+		<item fromid="110" toid="145"/>
+		<item fromid="170" toid="181"/>
+		<item fromid="195" toid="218"/>
+		<item fromid="232" toid="279"/>
+		<item fromid="281" toid="292"/>
+		<item fromid="393" toid="404"/>
+		<item fromid="494" toid="529"/>
+		<item fromid="554" toid="565"/>
+		<item fromid="684" toid="707"/>
+		<item fromid="712" toid="723"/>
+		<item fromid="837" toid="848"/>
+		<item fromid="4632" toid="4643"/>
+	</material>
+	
+        <material name="Borders (Items)" parent="Borders" icon="435">
+		<item fromid="434" toid="445"/>
+		<item fromid="3188" toid="3189"/>
+                <item fromid="3218"/>
+		<item fromid="3221" toid="3222"/>
+		<item fromid="3298" toid="3309"/>
+		<item fromid="4456" toid="4467"/>
+		<item fromid="4514" toid="4225"/>
+		<item fromid="4542" toid="4565"/>
+		<item fromid="4596" toid="4607"/>
+		<item fromid="4644" toid="4663"/>
+		<item fromid="4667" toid="4690"/>
+		<item fromid="4713" toid="4748"/>
+		<item fromid="4760" toid="4819"/>
+		<item fromid="4828" toid="4831"/>
+		<item fromid="3226" toid="3241"/>
+		<item fromid="4514" toid="4525"/>
+		<item fromid="5816" toid="5851"/>
+		<item fromid="6160" toid="6171"/>
+		<item fromid="6627" toid="6706"/>
+		<item fromid="6870" toid="6881"/>
+		<item fromid="6926" toid="6937"/>
+		<item fromid="6939" toid="6950"/>
+		<item fromid="7067" toid="7090"/>
+		<item fromid="7107"/>
+		<item fromid="7110" toid="7120"/>
+	</material>
+
+	<material name="Buildings" icon="1110">
+		<item fromid="430"/>
+		<item fromid="1516" toid="1523"/>
+		<item fromid="5254" toid="5255"/>
+		<item fromid="1533" toid="1548"/>
+		<item fromid="1398" toid="1405"/>
+		<item fromid="1552" toid="1561"/>
+		<item fromid="1578" toid="1581"/>
+		<item fromid="3745" toid="3755"/>
+		<item fromid="7095" toid="7101"/>
+		<item fromid="5315" toid="5331"/>
+		<item fromid="5504"/>
+		<item fromid="5521"/>
+		<item fromid="6953" toid="6965"/>
+	</material>
+
+        <material name="Boats" parent="Buildings" icon="1281">
+                <item fromid="4883" toid="4947"/>
+                <item fromid="4403"/>
+                <item fromid="3601" toid="3602"/>
+                <item fromid="4948" toid="4991"/>
+                <item fromid="4998" toid="5008"/>
+		<item fromid="5082" toid="5085"/>
+		<item fromid="1277" toid="1284"/>
+		<item fromid="3587" toid="3600"/>
+        </material>
+        
+	<material name="Doors" parent="Buildings" icon="1212">
+        	<item fromid="1209" toid="1262"/>
+	        <item fromid="3535" toid="3552"/>
+	        <item fromid="5098" toid="5145"/>
+	        <item fromid="5278" toid="5295"/>
+	        <item fromid="5515" toid="5518"/>
+	        <item fromid="5732" toid="5737"/>
+	        <item fromid="6192" toid="6209"/>
+	        <item fromid="6249" toid="6266"/>
+	        <item fromid="5745" toid="5746"/>
+	        <item fromid="5748" toid="5749"/>
+	        <item fromid="7054" toid="7057"/>
+	        <item fromid="6795" toid="6802"/>
+	        <item fromid="6891" toid="6908"/>
+	        <item fromid="7033" toid="7050"/>
+	</material>
+	
+	<material name="Lights" parent="Buildings" icon="1480">
+		<item fromid="1479" toid="1484"/>
+		<item fromid="1486"/>
+		<item fromid="2601" toid="2604"/>
+		<item fromid="3743" toid="3744"/>
+		<item fromid="5025" toid="5044"/>
+		<item fromid="5402" toid="5404"/>
+	</material>
+	
+	<material name="Pillars" parent="Buildings" icon="1514">
+                <item fromid="1514" toid="1515"/>
+        	<item fromid="3766" toid="3767"/>
+        	<item fromid="1549"/>
+                <item fromid="1551"/>
+        </material>
+	
+	<material name="Roofs" parent="Buildings" icon="920">
+		<item fromid="920" toid="924"/>
+		<item fromid="5081"/>
+		<item fromid="5045"/>
+		<item fromid="5047" toid="5054"/>
+		<item fromid="925" toid="964"/>
+		<item fromid="3224" toid="3225"/>
+		<item fromid="3242" toid="3245"/>
+		<item fromid="3348" toid="3360"/>
+		<item fromid="6138"/>
+		<item fromid="6153" toid="6159"/>
+		<item fromid="1072" toid="1083"/>
+	</material>
+	
+        <material name="Stairs &amp; Ladders" parent="Buildings" icon="1385">
+                <!-- Stairs -->
+                <item fromid="4834" toid="4837"/>
+                <item fromid="410" toid="411"/>
+                <item fromid="423"/>
+                <item fromid="432" toid="433"/>
+                <item fromid="1396"/>
+                <item fromid="1385"/>
+                <item fromid="5258" toid="5260"/>
+                <item fromid="3679" toid="3688"/>
+                <item fromid="1388" toid="1395"/>
+                <item fromid="6909" toid="6916"/>
+                <!-- Ladders -->
+                <item fromid="408" toid="409"/>
+                <item fromid="427" toid="429"/>
+                <item fromid="7053"/>
+                <item fromid="1386"/>
+                <item fromid="3678"/>
+                <item fromid="5543"/>
+        </material>
+        
+       	<material name="Walls &amp; Windows" parent="Buildings" icon="1028">
+	        <item fromid="1205" toid="1208"/>
+	        <item fromid="1025" toid="1035"/>
+	        <item fromid="1205" toid="1202"/>
+	        <item fromid="1265" toid="1266"/>
+	        <item fromid="6440" toid="6443"/>
+	        <item fromid="6281" toid="6284"/>
+	        <item fromid="5146" toid="5155"/>
+	        <item fromid="1263" toid="1264"/>
+	        <item fromid="6436" toid="6439"/>
+	        <item fromid="1036" toid="1048"/>
+                <item fromid="1532"/>
+	        <item fromid="1049" toid="1059"/>
+	        <item fromid="1524" toid="1531"/>
+	        <item fromid="1267" toid="1268"/>
+	        <item fromid="6444" toid="6447"/>
+	        <item fromid="6454" toid="6457"/>
+	        <item fromid="1060" toid="1070"/>
+	        <item fromid="1084" toid="1088"/>
+	        <item fromid="1570" toid="1577"/>
+	        <item fromid="1100" toid="1110"/>
+	        <item fromid="1562" toid="1569"/>
+	        <item fromid="1273" toid="1276"/>
+	        <item fromid="6462" toid="6465"/>
+	        <item fromid="1089" toid="1099"/>
+                <item fromid="5009"/>
+	        <item fromid="1111" toid="1119"/>
+	        <item fromid="5010" toid="5011"/>
+	        <item fromid="1120" toid="1169"/>
+	        <item fromid="1176" toid="1195"/>
+	        <item fromid="1582" toid="1593"/>
+	        <item fromid="5305" toid="5314"/>
+	        <item fromid="1269" toid="1272"/>
+	        <item fromid="5303" toid="5304"/>
+	        <item fromid="6448" toid="6449"/>
+	        <item fromid="1170" toid="1175"/>
+	        <item fromid="1594" toid="1601"/>
+	        <item fromid="1196" toid="1204"/>
+	        <item fromid="5012" toid="5013"/>
+                <item fromid="6466" toid="6469"/>
+	        <item fromid="5256" toid="5257"/>
+	        <item fromid="5400" toid="5401"/>
+                <item fromid="5478" toid="5479"/>
+                <item fromid="5519" toid="5520"/>
+                <item fromid="3361" toid="3422"/>
+                <item fromid="3439" toid="3446"/>
+                <item fromid="3423" toid="3438"/>
+                <item fromid="3447" toid="3453"/>
+                <item fromid="3794" toid="3801"/>
+                <item fromid="6458" toid="6461"/>
+                <item fromid="3533" toid="3534"/>
+                <item fromid="3454" toid="3495"/>
+                <item fromid="3496" toid="3505"/>
+                <item fromid="3508" toid="3522"/>
+                <item fromid="3525" toid="3532"/>
+                <item fromid="5261" toid="5277"/>
+                <item fromid="6470" toid="6473"/>
+                <item fromid="6133" toid="6137"/>
+                <item fromid="6139" toid="6152"/>
+                <item fromid="6175" toid="6179"/>
+                <item fromid="6450" toid="6453"/>
+                <item fromid="6395" toid="6422"/>
+                <item fromid="6234" toid="6248"/>
+                <item fromid="6268" toid="6270"/>
+                <item fromid="6289" toid="6290"/>
+                <item fromid="5061" toid="5067"/>
+                <item fromid="6116" toid="6117"/>
+                <item fromid="5068" toid="5073"/>
+                <item fromid="6728" toid="6738"/>
+                <item fromid="7060" toid="7061"/>
+                <item fromid="6763" toid="6767"/>
+                <item fromid="7291" toid="7302"/>
+                <item fromid="6739" toid="6749"/>
+                <item fromid="7051" toid="7052"/>
+                <item fromid="7029" toid="7032"/>
+                <item fromid="6773" toid="6792"/>
+                <item fromid="6803"/>
+                <item fromid="6839" toid="6867"/>
+                <item fromid="6882" toid="6885"/>
+                <item fromid="7025" toid="7028"/>
+	</material>
+	
+	<material name="Corpses" icon="2317">
+                <item fromid="2317"/>
+                <item fromid="6560"/>
+		<item fromid="2806" toid="3134"/>
+		<item fromid="4251" toid="4327"/>
+		<item fromid="5522" toid="5538"/>
+		<item fromid="6302" toid="6351"/>
+		<item fromid="6354" toid="6355"/>
+		<item fromid="6364" toid="6367"/>
+		<item fromid="5540" toid="5542"/>
+		<item fromid="5565" toid="5568"/>
+		<item fromid="5625" toid="5630"/>
+		<item fromid="5666" toid="5668"/>
+		<item fromid="5688" toid="5690"/>
+		<item fromid="5727" toid="5729"/>
+		<item fromid="5762" toid="5767"/>
+		<item fromid="5931" toid="5936"/>
+		<item fromid="5960" toid="6084"/>
+		<item fromid="6520" toid="6522"/>
+		<item fromid="7091" toid="7094"/>
+		<item fromid="7256" toid="7258"/>
+		<item fromid="7260"/>
+		<item fromid="7282" toid="7285"/>
+		<item fromid="7316" toid="7341"/>
+		<item fromid="7344" toid="7347"/>
+	</material>
+	
+	<material name="Equipment" icon="2472">
+		<item fromid="2350" toid="2351"/>
+		<item fromid="2661"/>
+        </material>
+
+	<material name="Armors" parent="Equipment" icon="2466">
+	        <item fromid="2463" toid="2467"/>
+	        <item fromid="2472"/>
+                <item fromid="2476"/>
+                <item fromid="2483" toid="2487"/>
+                <item fromid="2489"/>
+                <item fromid="2492"/>
+                <item fromid="2494"/>
+                <item fromid="2500"/>
+                <item fromid="2503"/>
+                <item fromid="2505"/>
+                <item fromid="2508"/>
+                <item fromid="2650" toid="2660"/>
+                <item fromid="2664"/>
+                <item fromid="3968"/>
+                <item fromid="6095"/>
+	</material>
+	
+	<material name="Boots" parent="Equipment" icon="2646">
+		<item fromid="2195"/>
+		<item fromid="6530"/>
+		<item fromid="6132"/>
+		<item fromid="2358"/>
+		<item fromid="2640" toid="2646"/>
+		<item fromid="3982"/>
+		<item fromid="5462"/>
+		<item fromid="7457"/>
+	</material>
+	
+	<material name="Helmets" parent="Equipment" icon="2471">
+		<item fromid="2128"/>
+		<item fromid="2342" toid="2343"/>
+		<item fromid="5924"/>
+		<item fromid="2457" toid="2462"/>
+		<item fromid="2471"/>
+		<item fromid="2473" toid="2475"/>
+		<item fromid="2479" toid="2482"/>
+		<item fromid="2490" toid="2491"/>
+		<item fromid="2493"/>
+		<item fromid="2496" toid="2499"/>
+		<item fromid="2501" toid="2502"/>
+		<item fromid="2506"/>
+		<item fromid="2323"/>
+		<item fromid="2662" toid="2663"/>
+		<item fromid="2665"/>
+		<item fromid="3967"/>
+		<item fromid="3969" toid="3972"/>
+		<item fromid="5461"/>
+		<item fromid="6531"/>
+		<item fromid="5741"/>
+		<item fromid="6096"/>
+		<item fromid="7461" toid="7462"/>
+	</material>
+	
+	<material name="Legs" parent="Equipment" icon="2470">
+		<item fromid="2468" toid="2470"/>
+		<item fromid="2477" toid="2478"/>
+		<item fromid="2488"/>
+		<item fromid="2495"/>
+		<item fromid="2504"/>
+		<item fromid="2507"/>
+		<item fromid="2647" toid="2649"/>
+	</material>
+
+	<material name="Shields" parent="Equipment" icon="2514">
+		<item fromid="2509" toid="2542"/>
+		<item fromid="3973" toid="3975"/>
+		<item fromid="6131"/>
+		<item fromid="6391"/>
+		<item fromid="6433"/>
+	</material>
+	
+	<material name="Weapons" parent="Equipment" icon="2390">
+	        <item fromid="2433"/>
+                <item fromid="7409" toid="7436"/>
+		<item fromid="3963" toid="3964"/>
+	</material>
+	
+	<material name="Ammunitions" parent="Weapons" icon="7365">
+		<item fromid="2543" toid="2547"/>
+		<item fromid="6529"/>
+		<item fromid="7363" toid="7368"/>
+		<item fromid="2399"/>
+	</material>
+	
+	<material name="Axes" parent="Weapons" icon="2431">
+		<item fromid="2378"/>
+		<item fromid="2380" toid="2381"/>
+		<item fromid="2386" toid="2388"/>
+		<item fromid="2414" toid="2415"/>
+		<item fromid="2425" toid="2432"/>
+		<item fromid="2435"/>
+                <item fromid="2440" toid="2441"/>
+                <item fromid="2443"/>
+                <item fromid="2447"/>
+                <item fromid="2454"/>
+                <item fromid="3962"/>
+                <item fromid="6553"/>
+                <item fromid="7380"/>
+                <item fromid="7388" toid="7389"/>
+                <item fromid="7411" toid="7413"/>
+                <item fromid="7453" toid="7456"/>
+	</material>
+	
+	<material name="Clubs" parent="Weapons" icon="2421">
+	        <item fromid="2382"/>
+	        <item fromid="2391"/>
+	        <item fromid="2394"/>
+	        <item fromid="2398"/>
+	        <item fromid="2401"/>
+	        <item fromid="2416" toid="2417"/>
+	        <item fromid="2321"/>
+		<item fromid="2421" toid="2424"/>
+		<item fromid="2434"/>
+		<item fromid="2436" toid="2437"/>
+		<item fromid="2439"/>
+		<item fromid="2444" toid="2445"/>
+		<item fromid="2448" toid="2449"/>
+		<item fromid="2452" toid="2453"/>
+		<item fromid="3961"/>
+		<item fromid="3966"/>
+		<item fromid="7379"/>
+		<item fromid="7381"/>
+		<item fromid="7387"/>
+		<item fromid="7392"/>
+		<item fromid="7437"/>
+		<item fromid="7450" toid="7452"/>
+	</material>
+	
+	<material name="Distance" parent="Weapons" icon="5803">
+		<item fromid="2389"/>
+		<item fromid="7378"/>
+		<item fromid="3965"/>
+		<item fromid="5803"/>
+		<item fromid="5947"/>
+		<item fromid="2455" toid="2456"/>
+		<item fromid="7438"/>
+		<item fromid="2352"/>
+		<item fromid="2410"/>
+	</material>
+	
+	<material name="Swords" parent="Weapons" icon="6528">
+		<item fromid="2376" toid="2377"/>
+		<item fromid="2379"/>
+		<item fromid="2383" toid="2385"/>
+		<item fromid="2390"/>
+		<item fromid="2392" toid="2393"/>
+		<item fromid="2395" toid="2397"/>
+		<item fromid="2400"/>
+		<item fromid="2402" toid="2409"/>
+                <item fromid="2411" toid="2413"/>
+		<item fromid="2418" toid="2420"/>
+		<item fromid="2442"/>
+		<item fromid="2438"/>
+		<item fromid="2446"/>
+		<item fromid="2450" toid="2451"/>
+		<item fromid="6528"/>
+		<item fromid="7382" toid="7386"/>
+		<item fromid="7390" toid="7391"/>
+		<item fromid="7402" toid="7408"/>
+		<item fromid="7416" toid="7420"/>
+		<item fromid="7449"/>
+	</material>
+	
+	<material name="Rods" parent="Weapons" icon="2183">
+		<item fromid="2181" toid="2186"/>
+	</material>
+	
+	<material name="Wands" parent="Weapons" icon="2187">
+		<item fromid="2187" toid="2191"/>
+	</material>
+
+	<material name="Exterior" icon="1437">
+		<item fromid="486"/>
+		<item fromid="1360" toid="1384"/>
+		<item fromid="3689" toid="3696"/>
+		<item fromid="1406" toid="1420"/>
+		<item fromid="1421" toid="1428"/>
+		<item fromid="1435" toid="1437"/>
+		<item fromid="1445"/>
+                <item fromid="1456" toid="1459"/>
+                <item fromid="1466"/>
+                <item fromid="1469"/>
+                <item fromid="1479" toid="1486"/>
+		<item fromid="2219" toid="2249"/>
+		<item fromid="2334"/>
+		<item fromid="2555"/>
+                <item fromid="2593"/>
+		<item fromid="2601" toid="2605"/>
+		<item fromid="2610" toid="2613"/>
+		<item fromid="2616" toid="2623"/>
+		<item fromid="3729" toid="3736"/>
+       		<item fromid="5046"/>
+                <item fromid="5055" toid="5056"/>
+		<item fromid="5074" toid="5079"/>
+	</material>
+
+        <material name="Statues" parent="Exterior" icon="1442">
+        	<item fromid="1442" toid="1444"/>
+        	<item fromid="1446" toid="1455"/>
+        	<item fromid="1460" toid="1465"/>
+        	<item fromid="1467" toid="1468"/>
+                <item fromid="1470" toid="1478"/>
+                <item fromid="3697" toid="3710"/>
+                <item fromid="3711" toid="3728"/>
+                <item fromid="3737" toid="3742"/>
+                <item fromid="4861"/>
+                <item fromid="3802" toid="3804"/>
+                <item fromid="1550"/>
+                <item fromid="5671" toid="5674"/>
+                <item fromid="7446" toid="7448"/>
+        </material>
+        
+	<material name="Fields" icon="1487">
+                <item fromid="1397"/>
+                <item fromid="1487" toid="1499"/>
+                <item fromid="1500" toid="1507"/>
+                <item fromid="7359" toid="7360"/>
+                <item fromid="7465" toid="7473"/>
+	</material>
+	
+	<material name="Food" icon="2666">
+		<item fromid="2666" toid="2696"/>
+		<item fromid="2787" toid="2796"/>
+		<item fromid="5097"/>
+		<item fromid="6125"/>
+		<item fromid="6278" toid="6280"/>
+		<item fromid="6393" toid="6394"/>
+		<item fromid="6501"/>
+		<item fromid="6541" toid="6545"/>
+		<item fromid="6569"/>
+		<item fromid="6574"/>
+	</material>
+	
+	<material name="Hangable" hangable="1" icon="1864">
+	        <item fromid="6435"/>
+	        <item fromid="1882" toid="1899"/>
+                <item fromid="1809" toid="1844"/>
+                <item fromid="1846" toid="1847"/>
+                <item fromid="1849" toid="1850"/>
+                <item fromid="1855" toid="1856"/>
+                <item fromid="1858" toid="1859"/>
+                <item fromid="1861" toid="1862"/>
+                <item fromid="1864" toid="1865"/>
+                <item fromid="1867" toid="1868"/>
+                <item fromid="1870" toid="1871"/>
+                <item fromid="6434"/>
+                <item fromid="5614" toid="5615"/>
+                <item fromid="1873" toid="1876"/>
+                <item fromid="1878" toid="1879"/>
+                <item fromid="1921" toid="1944"/>
+                <item fromid="5016" toid="5019"/>
+                <item fromid="5057" toid="5060"/>
+                <item fromid="6220" toid="6231"/>
+                <item fromid="6489" toid="6490"/>
+                <item fromid="6513" toid="6515"/>
+                <item fromid="6517" toid="6519"/>
+                <item fromid="1900" toid="1902"/>
+                <item fromid="7137" toid="7139"/>
+        </material>
+        
+        <material name="Interior" icon="1647">
+		<item fromid="1602" toid="1808"/>
+		<item fromid="3852" toid="3860"/>
+		<item fromid="5915" toid="5916"/>
+		<item fromid="2034"/>
+		<item fromid="2070" toid="2079"/>
+		<item fromid="2108" toid="2119"/>
+		<item fromid="2080" toid="2085"/>
+		<item fromid="2093" toid="2099"/>
+		<item fromid="1947" toid="1986"/>
+		<item fromid="2100" toid="2107"/>
+		<item fromid="2180"/>
+		<item fromid="2192"/>
+		<item fromid="2556" toid="2577"/>
+		<item fromid="2581" toid="2588"/>
+		<item fromid="2589" toid="2592"/>
+		<item fromid="2594"/>
+		<item fromid="2606" toid="2609"/>
+		<item fromid="2614" toid="2615"/>
+		<item fromid="3805" toid="3843"/>
+		<item fromid="4394" toid="4402"/>
+		<item fromid="5569" toid="5595"/>
+		<item fromid="5496" toid="5503"/>
+		<item fromid="5539" toid="5539"/>
+		<item fromid="6356" toid="6363"/>
+		<item fromid="6368" toid="6371"/>
+                <item fromid="7160" toid="7170"/>
+	</material>
+	
+	<material name="Jewellery" icon="2122">
+	        <item fromid="2122"/>
+	        <item fromid="4873"/>
+	        <item fromid="2127" toid="2128"/>
+	        <item fromid="2134"/>
+	        <item fromid="4845"/>
+	        <item fromid="2318"/>
+	</material>
+	
+	<material name="Amulets &amp; Necklaces" parent="Jewellery" icon="2130">
+		<item fromid="2125" toid="2126"/>
+                <item fromid="2129" toid="2133"/>
+                <item fromid="2135" toid="2136"/>
+                <item fromid="2170" toid="2174"/>
+                <item fromid="2138" toid="2142"/>
+                <item fromid="2161"/>
+                <item fromid="2196" toid="2201"/>
+                <item fromid="2319"/>
+	</material>
+	
+	<material name="Rings" parent="Jewellery" icon="6301">
+		<item fromid="2164" toid="2169"/>
+		<item fromid="2202" toid="2216"/>
+		<item fromid="2357"/>
+		<item fromid="2179"/>
+		<item fromid="6300" toid="6301"/>
+		<item fromid="2121"/>
+                <item fromid="2123" toid="2124"/>
+                <item fromid="6093"/>
+	</material>
+	
+	<material name="Nature" icon="2743">
+		<item fromid="1499"/>
+		<item fromid="2697" toid="2786"/>
+		<item fromid="3311" toid="3347"/>
+		<item fromid="2569" toid="2574"/>
+		<item fromid="5463" toid="5467"/>
+		<item fromid="5471"/>
+		<item fromid="2798" toid="2805"/>
+		<item fromid="3984" toid="4250"/>
+		<item fromid="3569" toid="3574"/>
+		<item fromid="5092" toid="5096"/>
+		<item fromid="5156" toid="5157"/>
+		<item fromid="5390" toid="5399"/>
+		<item fromid="6094"/>
+		<item fromid="6180" toid="6191"/>
+		<item fromid="6423" toid="6432"/>
+		<item fromid="7020" toid="7024"/>
+		<item fromid="7261"/>
+	</material>
+	
+	<material name="Mountains" parent="Nature" icon="4475">
+		<item fromid="475" toid="480"/>
+		<item fromid="487" toid="488"/>
+		<item fromid="873" toid="919"/>
+		<item fromid="3325" toid="3347"/>
+		<item fromid="4468" toid="4513"/>
+		<item fromid="4405" toid="4455"/>
+		<item fromid="4826" toid="4827"/>
+		<item fromid="6719" toid="6727"/>
+		<item fromid="6761" toid="6762"/>
+		<item fromid="6768" toid="6772"/>
+	</material>
+	
+	<material name="Stones" parent="Nature" icon="1285">
+                <item fromid="4995"/>
+                <item fromid="386" toid="391"/>
+                <item fromid="1285" toid="1359"/>
+                <item fromid="3325" toid="3347"/>
+                <item fromid="3603" toid="3677"/>
+                <item fromid="6707" toid="6718"/>
+                <item fromid="6999" toid="7019"/>
+        </material>
+	
+	<material name="Blank" parent="Other">
+		<item fromid="4328" toid="4393"/>
+		<item fromid="4626" toid="4631"/>
+		<item fromid="4841"/>
+		<item fromid="4844"/>
+		<item fromid="5090"/>
+		<item fromid="5742"/>
+		<item fromid="5730"/>
+		<item fromid="5775" toid="5776"/>
+		<item fromid="5864"/>
+		<item fromid="5923"/>
+		<item fromid="5959"/>
+		<item fromid="5955"/>
+		<item fromid="6554" toid="6555"/>
+		<item fromid="7287" toid="7288"/>
+	</material>
+
+	<material name="Trash" parent="Other" icon="4860">
+                <item fromid="2250" toid="2259"/>
+	        <item fromid="4860"/>
+                <item fromid="4862"/>
+        </material>
+
+	<material name="Signs" icon="1429">
+                <item fromid="1429" toid="1434"/>
+                <item fromid="1438" toid="1441"/>
+                <item fromid="5332" toid="5389"/>
+	</material>
+
+	<material name="Splash" icon="2028">
+		<item fromid="1903" toid="1905"/>
+		<item fromid="2016" toid="2021"/>
+		<item fromid="2025" toid="2030"/>
+	</material>
+
+        <material name="Underwater" icon="5811">
+                <item fromid="2226"/>
+                <item fromid="2240"/>
+                <item fromid="5405" toid="5410"/>
+                <item fromid="5427" toid="5438"/>
+                <item fromid="5743" toid="5744"/>
+                <item fromid="5763" toid="5764"/>
+                <item fromid="5554"/>
+                <item fromid="5411" toid="5426"/>
+                <item fromid="5439" toid="5460"/>
+                <item fromid="5678" toid="5682"/>
+                <item fromid="5811"/>
+                <item fromid="3607" toid="3616"/>
+                <item fromid="5631" toid="5654"/>
+                <item fromid="5738"/>
+                <item fromid="5704" toid="5705"/>
+                <item fromid="5869" toid="5874"/>
+                <item fromid="5405" toid="5410"/>
+                <item fromid="5411" toid="5413"/>
+                <item fromid="5414" toid="5423"/>
+                <item fromid="5619" toid="5624"/>
+                <item fromid="5679" toid="5682"/>
+                <item fromid="5707" toid="5709"/>
+                <item fromid="5747"/>
+                <item fromid="5750" toid="5754"/>
+                <item fromid="5866" toid="5868"/>
+                <item fromid="5711" toid="5726"/>
+                <item fromid="5631" toid="5654"/>
+                <item fromid="5683" toid="5686"/>
+                <item fromid="5750" toid="5754"/>
+        </material>
+        
+        <material name="Valuables" icon="2157">
+                <item fromid="2157"/>
+	</material>
+	
+	<material name="Coins" parent="Valuables" icon="2160">
+		<item fromid="2159" toid="2160"/>
+		<item fromid="2152"/>
+		<item fromid="2148"/>
+	</material>
+	
+	<material name="Gems" parent="Valuables" icon="2156">
+		<item fromid="2145" toid="2147"/>
+                <item fromid="2149" toid="2150"/>
+                <item fromid="2153" toid="2156"/>
+		<item fromid="2158"/>
+	</material>
+	
+	<material name="Pearls" parent="Valuables" icon="5022">
+                <item fromid="5022"/>
+                <item fromid="2143" toid="2144"/>
+	</material>
+	
+        <material name="Other" nogroup="1" icon="1508"/>
+</materials>

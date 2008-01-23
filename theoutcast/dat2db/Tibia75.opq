@@ -1,0 +1,4 @@
+update items750 set otid = 100 where itemid = 100;
+asdasd;
+update items75 set otid = 100 where itemid = 100;
+#!""#

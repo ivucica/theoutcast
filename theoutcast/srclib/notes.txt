@@ -1,0 +1,9 @@
+This is the MinGW folder.
+
+Not every library is included here. Notably, GLICT. 
+Compile instructions and Subversion repository URL for GLICT:
+https://opentibia.svn.sf.net/svnroot/yatc/trunk/INSTALL
+
+Enjoy.
+
+Khaos

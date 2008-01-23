@@ -1,8 +1,9 @@
 This folder will not be as up to date as MinGW folder (which is not up to date, anyway).
 
-Note, some duplicate headers from MinGW version will NOT be added in VC's include/.
-GLICT is one of those.
+Note, some duplicate headers from MinGW version will NOT be added in VC's include/ - e.g. lib3ds. Copy the lib3ds/ folder from MinGW variant to over here.
 
-If any other file is missing, please Google it up or compile it yourself and add to repository.
+If any other file is missing, please Google it up or compile it yourself. GLICT is not officially supported under MSVC anymore, patches welcome.
+
+Also read instructions for MinGW folder, some apply to MSVC too.
 
 Khaos
