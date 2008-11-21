@@ -197,7 +197,6 @@ int dbExecPrintf(
 
     int rc = sqlite3_exec(db, z, cb, arg, errmsg); // Crash report #1
     if (rc != SQLITE_OK) {
-
         DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_ERROR, "SQLite: Error: '%s', RC: %s, query '%s'\n", sqlite3_errmsg(dbUser), dbProcessRC(rc), z);
         DEBUGPRINT(DEBUGPRINT_LEVEL_OBLIGATORY, DEBUGPRINT_NORMAL, "QUERY: %s\n", z);
     } else {

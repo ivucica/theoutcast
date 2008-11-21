@@ -185,9 +185,9 @@ void ItemsLoad() {
 
     GWLogon_Status(&((GM_MainMenu*)game)->charlist, "Fetching item properties...");
 
-
     items_n = 0;
     dbExecPrintf(dbData, ItemsLoadNumFunc, 0, NULL, "select max(itemid) from items%d;", protocol->GetProtocolVersion());
+
     DEBUGPRINT(DEBUGPRINT_LEVEL_DEBUGGING, DEBUGPRINT_NORMAL, "%d items in database for protocol %d\n", items_n, protocol->GetProtocolVersion());
     if (!items_n) {
         //glutHideWindow();
@@ -196,6 +196,7 @@ void ItemsLoad() {
     }
 
     items = (item_t**)malloc(sizeof(item_t*)*(items_n+1));
+
 
     for (int i = 0; i < items_n+1; i++) {
         items[i] = new item_t;

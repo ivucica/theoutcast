@@ -82,9 +82,8 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_SP(ONThreadFuncArgument
 	GM_MainMenu* menuclass = (GM_MainMenu*)menuclass_void;
 
     SoundPlay("sounds/drums.wav");
+
 	menuclass->charlist.SetCaption("Entering game");
-
-
 
     if (protocol->GameworldLogin() ) {
         GWLogon_Status(&menuclass->charlist, "Entering game...");
@@ -93,6 +92,7 @@ ONThreadFuncReturnType ONThreadFuncPrefix Thread_GWLogon_SP(ONThreadFuncArgument
             menuclass->GoToCharMgr();
         else
             menuclass->GoToGameworld();
+
     } else {
         GWLogon_ReportError(&menuclass->charlist, protocol->GetError().c_str() );
     }
@@ -241,12 +241,15 @@ bool ProtocolSP::GameworldLogin () {
         /*for (int i = 0; i < maxx; i ++)
             for (int j = 0; j < maxy; j++) {*/
 		dontloadspr = true;
+
 		ItemsLoad();
 		CreaturesLoad();
+
 		for (int k = 7; k >= 0; k--) {
 			for (int i = player->GetPosX() - maxx/2+1; i < player->GetPosX() + maxx/2+1; i++) {
 				for (int j = player->GetPosY() - maxy/2+1; j < player->GetPosY() + maxy/2+1; j++) {
 					//printf("%d\n", tilesremaining);
+
 					std::vector<Thing*> remover;
 					Tile t;
 					this->SPFillTile(t, remover,i,j,k);
@@ -306,6 +309,7 @@ bool ProtocolSP::GameworldLogin () {
 				}
 			}
 		}
+
 		CreaturesUnload();
 		ItemsUnload();
 		dontloadspr = false;

@@ -11,5 +11,7 @@ echo *** Processing Tibia792.dat for 792
 dat2db.exe tibia792.dat data.db 792 tibia792.opq
 echo *** Processing Tibia80.dat for 800
 dat2db.exe tibia80.dat data.db 800 tibia800.opq
+echo *** Processing Tibia81.dat for 810
+dat2db.exe tibia81.dat data.db 810 tibia81.opq
 
 pause
