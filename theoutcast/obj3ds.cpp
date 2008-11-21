@@ -26,7 +26,7 @@ extern float fps;
 bool uselists = true;
 /* public functions */
 
-
+#ifdef HAVE_LIB3DS
 Obj3ds::Obj3ds() {
 }
 
@@ -234,3 +234,14 @@ void Obj3ds::RenderNode(Lib3dsNode *node) {
   }
 }
 
+#else
+Obj3ds::Obj3ds() { }
+Obj3ds::Obj3ds(const char* filename) { }
+Obj3ds::~Obj3ds() { }
+
+bool Obj3ds::Render() { return true; }
+
+// obj3ds specifics
+bool Obj3ds::LoadFile(const char* filename) { return false; }
+
+#endif

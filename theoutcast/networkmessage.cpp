@@ -17,6 +17,7 @@
         #include <tommath.h> // on msvc we can't build tomsfastmath :/
     #endif
 #endif
+#include "assert.h"
 #include "protocol.h"
 #include "networkmessage.h"
 #include "debugprint.h"

@@ -4,6 +4,7 @@
 #include "windowing.h"
 #include "debugprint.h"
 #include "util.h"
+#include "assert.h"
 int distances_n;
 distance_t **distances=NULL;
 void GWLogon_Status(glictMessageBox* mb, const char* txt);

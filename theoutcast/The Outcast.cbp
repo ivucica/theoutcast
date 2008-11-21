@@ -23,8 +23,7 @@
 					<Add option="-DUSEASSERT" />
 					<Add option="-DDEBUGCONSOLE" />
 					<Add option="-DDEBUGLEVEL_BUILDTIME=3" />
-					<Add option="-DUSESOUNDS" />
-					<Add option="-DTFM" />
+					<Add option="-DGMP" />
 					<Add option="-DTEXTURE_SPR" />
 					<Add option="-DDETECT_GLVERSION" />
 					<Add option="-DTEXTURE_THREADS" />
@@ -48,10 +47,8 @@
 					<Add library="glu32" />
 					<Add library="ws2_32" />
 					<Add library="winmm" />
-					<Add library="3ds" />
 					<Add library="sqlite3" />
-					<Add library="fmod" />
-					<Add library="tfm" />
+					<Add library="gmp" />
 				</Linker>
 			</Target>
 			<Target title="release">
@@ -270,7 +267,7 @@
 					<Add library="sqlite3" />
 					<Add library="gmp" />
 					<Add library="libpng" />
-					<Add directory="../glict/" />
+					<Add directory="..\glict\" />
 				</Linker>
 			</Target>
 			<Target title="debug_sdl_unix">
@@ -310,7 +307,7 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
-					<Add directory="../glict/" />
+					<Add directory="..\glict\" />
 				</Linker>
 			</Target>
 			<Target title="release_unix">
@@ -347,7 +344,7 @@
 					<Add library="3ds" />
 					<Add library="sqlite3" />
 					<Add library="gmp" />
-					<Add directory="../glict/" />
+					<Add directory="..\glict\" />
 				</Linker>
 			</Target>
 			<Target title="release_mingw">
@@ -389,7 +386,7 @@
 					<Add library="sqlite3" />
 					<Add library="fmod" />
 					<Add library="tfm" />
-					<Add library="/mnt/hda9/Development/outcast/glut32.dll" />
+					<Add library="\mnt\hda9\Development\outcast\glut32.dll" />
 				</Linker>
 			</Target>
 			<Target title="debug_mingw">
